@@ -3,10 +3,10 @@ import 'dart:io';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:webview_flutter_android/webview_flutter_android.dart';
 import 'package:webview_flutter_wkwebview/webview_flutter_wkwebview.dart';
-
-import 'core/appExports/app_export.dart';
-import 'features/navigation tab/provider/navigation_provider.dart';
-import 'routes/app_routes.dart';
+import 'app/core/appExports/app_export.dart';
+import 'app/modules/user/home/provider/HomeScreenProvider.dart';
+import 'app/modules/user/navigation tab/provider/navigation_provider.dart';
+import 'app/routes/app_routes.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -30,11 +30,8 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-
-        ChangeNotifierProvider(
-          create: (_) => NavigationProvider(),
-        ),
-
+        ChangeNotifierProvider(create: (_) => NavigationProvider(),),
+        ChangeNotifierProvider(create: (_) => HomeScreenProvider(),),
       ],
       child: ScreenUtilInit(
         designSize: const Size(375, 812),
@@ -52,15 +49,12 @@ class MyApp extends StatelessWidget {
               ),
               useMaterial3: false,
             ),
-
-            /// =========================
-            /// ROUTE SYSTEM ACTIVATED
-            /// =========================
             initialRoute: AppRoutes.splashScreen,
             onGenerateRoute: AppRoutes.generateRoute,
           );
         },
       ),
     );
+
   }
 }
