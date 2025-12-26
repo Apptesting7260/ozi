@@ -7,8 +7,7 @@ import 'package:ozi/app/shared/widgets/custom_check_box.dart';
 
 import '../../../../../core/appExports/app_export.dart';
 import '../../../../../shared/widgets/custom_text_form_field.dart';
-import '../../../../user/navigation tab/view/navigation_tab_screen.dart';
-import '../provider/SignupProvider.dart';
+import '../provider/signup_provider.dart';
 
 class SignupScreen extends StatelessWidget {
   const SignupScreen({super.key});

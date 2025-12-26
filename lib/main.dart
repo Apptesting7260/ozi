@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:ozi/app/modules/vendor/navigation%20tab/provider/navigation_provider.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:webview_flutter_android/webview_flutter_android.dart';
 import 'package:webview_flutter_wkwebview/webview_flutter_wkwebview.dart';
@@ -30,6 +31,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
+        ChangeNotifierProvider(create: (_) => VendorNavigationProvider(),),
         ChangeNotifierProvider(create: (_) => NavigationProvider(),),
         ChangeNotifierProvider(create: (_) => HomeScreenProvider(),),
       ],

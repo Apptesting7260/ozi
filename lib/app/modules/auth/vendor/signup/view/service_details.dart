@@ -1,7 +1,5 @@
-
-
 import 'package:image_picker/image_picker.dart';
-
+import 'package:ozi/app/modules/auth/vendor/signup/view/set_availability.dart';
 import '../../../../../core/appExports/app_export.dart';
 import '../../../../../shared/widgets/custom_app_bar.dart';
 import '../../../../../shared/widgets/custom_dropdown.dart';
@@ -21,10 +19,11 @@ class ServiceDetailsScreen extends StatelessWidget {
 }
 
 class _ServiceDetailsContent extends StatelessWidget {
-  const _ServiceDetailsContent({super.key});
+  const _ServiceDetailsContent();
 
-  Future<void> pickImage(BuildContext context) async {
-    final provider = Provider.of<ServiceDetailsProvider>(context, listen: false);
+  Future<void> _pickImage(BuildContext context) async {
+    final provider =
+    Provider.of<ServiceDetailsProvider>(context, listen: false);
 
     final ImagePicker picker = ImagePicker();
     final XFile? file = await picker.pickImage(source: ImageSource.gallery);
@@ -36,18 +35,17 @@ class _ServiceDetailsContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final provider = Provider.of<ServiceDetailsProvider>(context);
+    final provider = context.watch<ServiceDetailsProvider>();
 
     return Scaffold(
       backgroundColor: AppColors.white,
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: EdgeInsets.all(18),
+          padding: const EdgeInsets.all(18),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              CustomAppBar(title: "Service Details"),
-              SizedBox(height: 8),
+               CustomAppBar(title: "Service Details",),
               Center(
                 child: Text(
                   "Step 2 of 6",
@@ -55,128 +53,188 @@ class _ServiceDetailsContent extends StatelessWidget {
                 ),
               ),
 
-              SizedBox(height: 20),
+              hBox(24),
 
-              // ===================== IMAGE UPLOAD =====================
-              Center(
-                child: GestureDetector(
-                  onTap: () => pickImage(context),
-                  child: Column(
-                    children: [
-                      provider.pickedImage == null
-                          ? Container(
-                        height: 110,
-                        width: 110,
-                        decoration: BoxDecoration(
-                          color: AppColors.fieldBgColor,
-                          borderRadius: BorderRadius.circular(10),
-                          border: Border.all(color: AppColors.primary),
+              // ================= IMAGE UPLOAD =================
+              GestureDetector(
+                onTap: () => _pickImage(context),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // IMAGE BOX
+                    Container(
+                      height: 110,
+                      width: 110,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(14),
+                        border: Border.all(
+                          color: AppColors.primary.withOpacity(0.4),
+                          style: provider.pickedImage == null
+                              ? BorderStyle.solid
+                              : BorderStyle.none,
                         ),
-                        child: Icon(Icons.upload, color: AppColors.primary),
+                      ),
+                      child: provider.pickedImage == null
+                          ? Center(
+                        child: CustomImage(path: ImageConstants.uploadImage, height: 20,width: 20, color: AppColors.lightGrey3,)
                       )
                           : ClipRRect(
-                        borderRadius: BorderRadius.circular(10),
+                        borderRadius: BorderRadius.circular(14),
                         child: Image.file(
                           provider.pickedImage!,
-                          height: 110,
-                          width: 110,
                           fit: BoxFit.cover,
                         ),
                       ),
+                    ),
 
-                      SizedBox(height: 8),
+                    wBox(14),
 
-                      Text(
-                        provider.pickedImage == null
-                            ? "Upload Service Image"
-                            : "Change Image",
-                        style: AppFontStyle.text_14_500(AppColors.primary),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "Upload Service Image",
+                            style: AppFontStyle.text_14_600(
+                              AppColors.darkText,
+                              fontFamily: AppFontFamily.semiBold,
+                            ),
+                          ),
+
+                          hBox(4),
+
+                          Text(
+                            "PNG, JPG up to 5MB",
+                            style: AppFontStyle.text_12_400(AppColors.grey),
+                          ),
+
+                          hBox(10),
+
+                          CustomButton(
+                            height: 35,
+                            width: 150,
+                            borderRadius: BorderRadius.circular(30),
+                            onPressed: () => _pickImage(context),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                CustomImage(
+                                  path: ImageConstants.uploadImage,
+                                  height: 16,
+                                  width: 16,
+                                  color: AppColors.white,
+                                ),
+
+                               wBox(5),
+
+                                Text(
+                                  provider.pickedImage == null
+                                      ? "Upload Image"
+                                      : "Change Image",
+                                  style: AppFontStyle.text_12_400(
+                                    AppColors.white,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+
+                        ],
                       ),
-
-                      Text(
-                        "PNG, JPG up to 5MB",
-                        style: AppFontStyle.text_12_400(AppColors.grey),
-                      ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
 
-              SizedBox(height: 24),
 
-              // ===================== SERVICE NAME =====================
+              hBox(28),
+
+              // ================= SERVICE NAME =================
               CustomTextFormField(
                 label: "Service Name",
                 hintText: "e.g. Deep House Cleaning",
-                onChanged: provider.setName,
                 borderRadius: 60,
+                onChanged: provider.setName,
               ),
 
-              SizedBox(height: 20),
+              hBox(20),
 
-              // ===================== CATEGORY =====================
+              // ================= CATEGORY =================
               CustomDropDown(
                 label: "Category",
-                items: ["Tailor Services", "Cleaning", "Food", "Engineering"],
+                items: const [
+                  "Tailor Services",
+                  "Cleaning",
+                  "Food",
+                  "Engineering"
+                ],
                 selectedValue: provider.category,
-                hintText: "Select a category",
+                hintText: "Select category",
                 onChanged: provider.setCategory,
                 validator: (_) => null,
                 borderRadius: 60,
               ),
 
-              SizedBox(height: 20),
+              hBox(20),
 
-              // ===================== SUB CATEGORY =====================
+              // ================= SUB CATEGORY =================
               CustomDropDown(
                 label: "Sub Category",
-                items: ["Clothing", "Home Cleaning", "Food Delivery"],
+                items: const [
+                  "Clothing",
+                  "Home Cleaning",
+                  "Food Delivery"
+                ],
                 selectedValue: provider.subCategory,
-                hintText: "Select a sub category",
+                hintText: "Select sub category",
                 onChanged: provider.setSubCategory,
                 validator: (_) => null,
                 borderRadius: 60,
               ),
 
-              SizedBox(height: 20),
+              hBox(20),
 
-              // ===================== DESCRIPTION =====================
+              // ================= DESCRIPTION =================
               CustomTextFormField(
                 label: "Description",
                 hintText: "Describe your service in detail...",
                 maxLines: 5,
+                minLines: 5,
+                borderRadius: 30,
                 onChanged: provider.setDescription,
-                borderRadius: 20,
               ),
 
-              SizedBox(height: 20),
 
-              // ===================== PRICE =====================
+              hBox(20),
+
+              // ================= PRICE =================
               CustomTextFormField(
                 label: "Service Price",
-                hintText: "\$ 0.00",
+                hintText: "0.00",
                 textInputType: TextInputType.number,
                 prefix: Padding(
-                  padding: EdgeInsets.only(left: 14, right: 8),
-                  child: Text("\$", style: AppFontStyle.text_16_600(AppColors.primary)),
+                  padding: const EdgeInsets.only(left: 14, right: 8),
+                  child: CustomImage(path: ImageConstants.dollar, height: 16, width: 16,)
                 ),
-                onChanged: provider.setPrice,
                 borderRadius: 60,
+                onChanged: provider.setPrice,
               ),
 
-              SizedBox(height: 20),
+              hBox(20),
 
-              // ===================== ESTIMATED DURATION =====================
-              Text("Estimated Duration",
-                  style: AppFontStyle.text_14_500(AppColors.darkText)),
+              // ================= DURATION =================
+              Text(
+                "Estimated Duration",
+                style: AppFontStyle.text_14_500(AppColors.darkText),
+              ),
 
-              SizedBox(height: 8),
+              hBox(8),
 
               Row(
                 children: [
                   Expanded(
                     child: CustomDropDown(
-                      items: ["1", "2", "3", "4"],
+                      items: const ["1", "2", "3", "4"],
                       selectedValue: provider.durationValue,
                       hintText: "0",
                       onChanged: provider.setDurationValue,
@@ -184,10 +242,10 @@ class _ServiceDetailsContent extends StatelessWidget {
                       borderRadius: 60,
                     ),
                   ),
-                  SizedBox(width: 12),
+                  const SizedBox(width: 12),
                   Expanded(
                     child: CustomDropDown(
-                      items: ["Minutes", "Hours"],
+                      items: const ["Minutes", "Hours"],
                       selectedValue: provider.durationUnit,
                       hintText: "Minutes",
                       onChanged: provider.setDurationUnit,
@@ -198,17 +256,17 @@ class _ServiceDetailsContent extends StatelessWidget {
                 ],
               ),
 
-              SizedBox(height: 30),
+              hBox(20),
 
-              // ===================== CONTINUE BUTTON =====================
+              // ================= CONTINUE =================
               CustomButton(
                 text: "Continue",
-                borderRadius: BorderRadius.circular(60),
                 height: 54,
-                onPressed: () {},
+                borderRadius: BorderRadius.circular(60),
+                onPressed: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (_) => SetAvailabilityScreen()));
+                },
               ),
-
-              SizedBox(height: 20),
             ],
           ),
         ),

@@ -111,7 +111,7 @@ class ChooseRoleContent extends StatelessWidget {
               : AppColors.white,
           borderRadius: BorderRadius.circular(40),
           border: Border.all(
-            color: isSelected ? AppColors.primary : AppColors.primary,
+            color: isSelected ? AppColors.primary : AppColors.primary.withValues(alpha: 0.30),
             width: 1.5,
           ),
         ),

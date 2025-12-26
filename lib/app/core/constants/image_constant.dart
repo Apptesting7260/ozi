@@ -48,7 +48,6 @@ class ImageConstants{
   //*******************************************My Cart  Screen *****************************************************************//
   static String bin = "$svgPath/bin.svg";
   static String coupon = "$svgPath/coupon.svg";
-  static String wallet = "$svgPath/wallet.svg";
   static String error = "$svgPath/error.svg";
   static String work = "$svgPath/work.svg";
   static String location = '$svgPath/location.svg';
@@ -86,6 +85,11 @@ class ImageConstants{
   static String wrench = "$svgPath/wrench.svg";
   static String dollar = "$svgPath/dollar.svg";
   static String shield = "$svgPath/shield.svg";
-
+  static String uploadImage = "$svgPath/upload_image.svg";
+  static String addIcon = "$svgPath/add_icon.svg";
+  static String governmentId = "$svgPath/government_id.svg";
+  static String certificate = "$svgPath/certificate.svg";
+  static String rightIcon = "$svgPath/right_icon.svg";
+  static String wallet = "$svgPath/wallet.svg";
 
 }
