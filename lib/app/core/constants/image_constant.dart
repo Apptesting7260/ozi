@@ -91,5 +91,9 @@ class ImageConstants{
   static String certificate = "$svgPath/certificate.svg";
   static String rightIcon = "$svgPath/right_icon.svg";
   static String wallet = "$svgPath/wallet.svg";
+  static String withdraw = "$svgPath/withdraw.svg";
+  static String upwardArrow = "$svgPath/upword_arrow.svg";
+  static String downwardArrow = "$svgPath/downward_arrow.svg";
+
 
 }

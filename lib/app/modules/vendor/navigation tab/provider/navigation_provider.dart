@@ -1,9 +1,9 @@
 import '../../../../core/appExports/app_export.dart';
-import '../../../user/booking/view/booking_screen.dart';
 import '../../../user/cart/view/MyCartScreen.dart';
-import '../../../user/help/view/help_screen.dart';
-import '../../../user/profile/view/profile_screen.dart';
 import '../../home/view/vendor_home_screen.dart';
+import '../../profile/view/vendor_profile_screen.dart';
+import '../../services/view/service_screen.dart';
+import '../../wallet/view/wallet_screen.dart';
 
 
 class VendorNavigationProvider extends ChangeNotifier {
@@ -29,8 +29,8 @@ class VendorNavigationProvider extends ChangeNotifier {
   final List<Widget> pages = [
     VendorHomeScreen(),
     CartScreen(),
-    MyBookingsScreen(),
-    HelpSupportScreen(),
-    ProfileScreen(),
+    MyWalletScreen(),
+    VendorServicesScreen(),
+    VendorProfileScreen(),
   ];
 }

@@ -25,7 +25,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
         children: [
 
           CustomAppBar(title: "Settings"),
-          hBox(18),
+          SizedBox(height: 18),
+
           _settingsTile(
             icon: ImageConstants.bell,
             title: "Push Notifications",
@@ -177,6 +178,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   // --------------------------------------------------------------------------
 
   Future<void> showDeleteDialog(BuildContext context) async {
+
     showDialog(
       context: context,
       barrierDismissible: true,
@@ -196,9 +198,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
                 Text(
                   "Delete Account?",
-                  style: AppFontStyle.text_20_600(
+                  style: AppFontStyle.text_18_600(
                     AppColors.black,
-                    fontFamily: AppFontFamily.semiBold,
+                    fontFamily: AppFontFamily.bold,
                   ),
                 ),
 
@@ -224,8 +226,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
                 CustomButton(
                   text: "No, Don’t Delete",
-                  textStyle: AppFontStyle.text_14_500(AppColors.darkText, fontFamily: AppFontFamily.medium),
-                  color: AppColors.grey,
                   isOutlined: true,
                   borderRadius: BorderRadius.circular(30),
                   onPressed: () {

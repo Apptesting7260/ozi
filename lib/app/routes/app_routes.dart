@@ -2,8 +2,11 @@
 
 
 
+import 'package:ozi/app/modules/vendor/navigation%20tab/view/vendor_navigation_tab_screen.dart';
+
 import '../core/appExports/app_export.dart';
 import '../modules/auth/user/create account/view/create_account_screen.dart';
+import '../modules/user/help/view/help_screen.dart';
 import '../modules/user/home/service details/view/ServiceDetailScreen.dart';
 import '../modules/user/home/view/homescreen.dart';
 import '../modules/user/navigation tab/view/navigation_tab_screen.dart';
@@ -42,6 +45,13 @@ class AppRoutes {
   static const String addNewCardScreen = '/addNewCardScreen';
   static const String settingsScreen = '/settingsScreen';
   static const String commonScreen = '/commonScreen';
+
+
+
+  //******************************************************* vendor  ****************************************//
+
+  static const String helpSupportScreen = '/HelpSupportScreen';
+  static const String vendorNavigation = '/vendorNavigation';
 
 
   static Route<dynamic>? generateRoute(RouteSettings setting) {
@@ -100,6 +110,14 @@ class AppRoutes {
       case commonScreen:
         final args = setting.arguments as CommonScreenArgs;
         return MaterialPageRoute(builder: (_) => CommonScreen(type: args.type, url: args.url,),);
+
+//vendor screen
+
+      case helpSupportScreen:
+        return MaterialPageRoute(builder: (_) => HelpSupportScreen());
+
+      case vendorNavigation:
+        return MaterialPageRoute(builder: (_) => VendorNavigationTabScreen());
 
 
       default:

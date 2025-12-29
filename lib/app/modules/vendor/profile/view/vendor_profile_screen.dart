@@ -1,12 +1,8 @@
-
-
-
 import '../../../../core/appExports/app_export.dart';
 import '../../../../routes/app_routes.dart';
-import '../../../../shared/widgets/custom_app_bar.dart';
 
-class ProfileScreen extends StatelessWidget {
-  const ProfileScreen({super.key});
+class VendorProfileScreen extends StatelessWidget {
+  const VendorProfileScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -14,8 +10,8 @@ class ProfileScreen extends StatelessWidget {
       backgroundColor: AppColors.white,
       body: SafeArea(
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-        
             Padding(
               padding: const EdgeInsets.only(left: 20),
               child: Text("My Profile", style: AppFontStyle.text_24_600(AppColors.darkText, fontFamily: AppFontFamily.semiBold),),
@@ -74,15 +70,21 @@ class ProfileScreen extends StatelessWidget {
                     ),
         
                     _profileTile(
-                      icon: ImageConstants.location,
-                      title: "Saved Addresses",
+                      icon: ImageConstants.calendor,
+                      title: "Availability",
+                      onTap: () => Navigator.pushNamed(context, AppRoutes.editProfileScreen),
+                    ),
+        
+                    _profileTile(
+                      icon: ImageConstants.document,
+                      title: "Documents",
                       onTap: () => Navigator.pushNamed(context, AppRoutes.savedAddressScreen),
                     ),
         
                     _profileTile(
-                      icon: ImageConstants.card,
-                      title: "Payment Methods",
-                      onTap: () => Navigator.pushNamed(context, AppRoutes.paymentMethodsScreen),
+                      icon: ImageConstants.help,
+                      title: "Help & Support",
+                      onTap: () => Navigator.pushNamed(context, AppRoutes.helpSupportScreen),
                     ),
         
                     _profileTile(
@@ -97,11 +99,9 @@ class ProfileScreen extends StatelessWidget {
                     CustomButton(
                       borderRadius: BorderRadius.circular(30),
                       color: AppColors.primary.withValues(alpha: 0.30),
-        
                       onPressed: () {
                         showDeleteDialog(context);
                       },
-        
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
@@ -212,7 +212,7 @@ class ProfileScreen extends StatelessWidget {
             CustomImage(
               path: ImageConstants.rightBack,
               color: AppColors.grey,
-              height: 16,
+              height: 12,
               width: 6,
             )
           ],
@@ -238,12 +238,11 @@ class ProfileScreen extends StatelessWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-
                 Text(
                   "Logout",
-                  style: AppFontStyle.text_18_600(
+                  style: AppFontStyle.text_20_600(
                     AppColors.black,
-                    fontFamily: AppFontFamily.bold,
+                    fontFamily: AppFontFamily.semiBold,
                   ),
                 ),
 
@@ -269,7 +268,9 @@ class ProfileScreen extends StatelessWidget {
 
                 CustomButton(
                   text: "No, Stay Logged In",
+                  textStyle: AppFontStyle.text_14_500(AppColors.darkText, fontFamily: AppFontFamily.semiBold),
                   isOutlined: true,
+                  color: AppColors.grey,
                   borderRadius: BorderRadius.circular(30),
                   onPressed: () {
                     Navigator.pop(context);
