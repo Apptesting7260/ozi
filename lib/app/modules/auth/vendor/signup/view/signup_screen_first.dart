@@ -1,5 +1,6 @@
 
 import 'package:ozi/app/modules/auth/vendor/signup/view/signup_screen_second.dart';
+import 'package:ozi/app/routes/app_routes.dart';
 
 import '../../../../../core/appExports/app_export.dart';
 
@@ -94,7 +95,8 @@ class _SignupScreenFirstStateState extends State<SignupScreenFirst> {
                 height: 54,
                 borderRadius: BorderRadius.circular(40),
                 onPressed: () {
-                  Navigator.pop(context); // Or go home screen
+                  Navigator.pushNamed(context, AppRoutes.vendorNavigation);
+                  // Navigator.pop(context); // Or go home screen
                 },
               ),
             ],

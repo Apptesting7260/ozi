@@ -6,8 +6,8 @@ import '../../../../../shared/widgets/custom_app_bar.dart';
 import '../../../../../shared/widgets/custom_dropdown.dart';
 import '../../../../../shared/widgets/custom_text_form_field.dart';
 
-class VendorEditserviceScreen extends StatelessWidget {
-  const VendorEditserviceScreen({super.key});
+class VendorAddNewServiceScreen extends StatelessWidget {
+  const VendorAddNewServiceScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -45,7 +45,7 @@ class _ServiceDetailsContent extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              CustomAppBar(title: "Edit Service",),
+              CustomAppBar(title: "Add New Service",),
 
               hBox(24),
 
@@ -254,7 +254,7 @@ class _ServiceDetailsContent extends StatelessWidget {
 
               // ================= CONTINUE =================
               CustomButton(
-                text: "Save Changes",
+                text: "Add Service",
                 height: 54,
                 borderRadius: BorderRadius.circular(60),
                 onPressed: () {

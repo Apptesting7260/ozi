@@ -1,5 +1,5 @@
 import '../../../../core/appExports/app_export.dart';
-import '../../../user/cart/view/MyCartScreen.dart';
+  import '../../bookings/view/vendor_mybookings_screen.dart';
 import '../../home/view/vendor_home_screen.dart';
 import '../../profile/view/vendor_profile_screen.dart';
 import '../../services/view/service_screen.dart';
@@ -28,7 +28,7 @@ class VendorNavigationProvider extends ChangeNotifier {
   // --------------------------------------------------------
   final List<Widget> pages = [
     VendorHomeScreen(),
-    CartScreen(),
+    VendorMybookingsScreen(),
     MyWalletScreen(),
     VendorServicesScreen(),
     VendorProfileScreen(),

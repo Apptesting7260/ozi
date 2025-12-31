@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 
 class FilterProvider extends ChangeNotifier {
   /// Sort
-  bool active = true; // true = Active, false = Inactive
+  /// null = none selected
+  /// true = Active
+  /// false = Inactive
+  bool? active;
 
   /// Categories
   final List<String> allCategories = [
@@ -20,11 +23,13 @@ class FilterProvider extends ChangeNotifier {
 
   /// -------- ACTIONS --------
 
-  void toggleSort(bool value) {
+  /// Used by UI (alias)
+  void selectStatus(bool value) {
     active = value;
     notifyListeners();
   }
 
+  /// Toggle category selection
   void toggleCategory(String category) {
     if (selectedCategories.contains(category)) {
       selectedCategories.remove(category);
@@ -34,11 +39,14 @@ class FilterProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Clear all filters
   void clearAll() {
-    active = true;
+    active = null;
     selectedCategories.clear();
     notifyListeners();
   }
 
-  bool get canApply => selectedCategories.isNotEmpty;
+  /// Enable Apply Filters button
+  bool get canApply =>
+      active != null || selectedCategories.isNotEmpty;
 }

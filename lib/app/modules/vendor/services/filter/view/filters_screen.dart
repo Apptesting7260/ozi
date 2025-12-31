@@ -56,17 +56,18 @@ class _FiltersContent extends StatelessWidget {
                 children: [
                   _sortChip(
                     title: "Active",
-                    selected: provider.active,
-                    onTap: () => provider.toggleSort(true),
+                    selected: provider.active == true,
+                    onTap: () => provider.selectStatus(true),
                   ),
                   wBox(10),
                   _sortChip(
                     title: "Inactive",
-                    selected: !provider.active,
-                    onTap: () => provider.toggleSort(false),
+                    selected: provider.active == false,
+                    onTap: () => provider.selectStatus(false),
                   ),
                 ],
               ),
+
 
               hBox(24),
 
@@ -123,17 +124,29 @@ class _FiltersContent extends StatelessWidget {
   Widget _header(BuildContext context) {
     return Row(
       children: [
-        IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, size: 18),
-          onPressed: () => Navigator.pop(context),
+        Align(
+          alignment: Alignment.centerLeft,
+          child: InkWell(
+            onTap: () => Navigator.pop(context),
+            child: Container(
+              height: 40,
+              width: 40,
+              decoration: const BoxDecoration(
+                shape: BoxShape.circle,
+                color: Color(0xFFEFEFEF),
+              ),
+              padding: REdgeInsets.all(14),
+              child: CustomImage(path: ImageConstants.back),
+            ),
+          ),
         ),
         Expanded(
           child: Center(
             child: Text(
               "Filters",
-              style: AppFontStyle.text_16_600(
+              style: AppFontStyle.text_18_600(
                 AppColors.darkText,
-                fontFamily: AppFontFamily.semiBold,
+                fontFamily: AppFontFamily.bold,
               ),
             ),
           ),
@@ -143,7 +156,7 @@ class _FiltersContent extends StatelessWidget {
               context.read<FilterProvider>().clearAll(),
           child: Text(
             "Clear All",
-            style: AppFontStyle.text_12_500(AppColors.primary),
+            style: AppFontStyle.text_14_500(AppColors.primary, fontFamily: AppFontFamily.medium),
           ),
         ),
       ],
@@ -159,20 +172,26 @@ class _FiltersContent extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding:
-        const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
         decoration: BoxDecoration(
-          color:
-          selected ? AppColors.primary : AppColors.fieldBgColor,
+          color: selected
+              ? AppColors.primary
+              : AppColors.fieldBgColor,
           borderRadius: BorderRadius.circular(30),
+          // border: Border.all(
+          //   color: selected
+          //       ? AppColors.primary
+          //       : AppColors.grey.withOpacity(0.3),
+          // ),
         ),
         child: Text(
           title,
           style: AppFontStyle.text_12_500(
-            selected ? AppColors.white : AppColors.grey,
+            selected ? AppColors.white : AppColors.black,
           ),
         ),
       ),
     );
   }
+
 }

@@ -1,3 +1,5 @@
+import 'package:ozi/app/modules/vendor/services/add%20new%20service/view/vendor_add_new_service_screen.dart';
+
 import '../../../../core/appExports/app_export.dart';
 import '../../../../shared/widgets/custom_text_form_field.dart';
 import '../filter/view/filters_screen.dart';
@@ -87,7 +89,7 @@ class _MyServicesContent extends StatelessWidget {
                 isOutlined: true,
                 borderRadius: BorderRadius.circular(60),
                 onPressed: () {
-                  // Navigate to add service flow
+                  Navigator.push(context, MaterialPageRoute(builder: (_) => VendorAddNewServiceScreen()));
                 },
               ),
 
