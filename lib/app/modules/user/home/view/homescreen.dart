@@ -273,6 +273,7 @@ class HomeScreenView extends StatelessWidget {
                           fontFamily: AppFontFamily.semiBold,
                         ),
                         width: 120,
+                        height: 40,
                         color: Colors.white,
                       )
                     ],

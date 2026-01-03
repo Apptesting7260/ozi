@@ -91,39 +91,35 @@ class ProfileScreen extends StatelessWidget {
                     ),
         
                     hBox(10),
-        
-                    /// LOGOUT BUTTON
+
                     CustomButton(
                       borderRadius: BorderRadius.circular(30),
                       color: AppColors.primary.withValues(alpha: 0.30),
-        
                       onPressed: () {
                         showDeleteDialog(context);
                       },
-        
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           CustomImage(
                             path: ImageConstants.logout,
-                            color: AppColors.primary,
+                            color: AppColors.primary, // icon white
                             height: 22,
                             width: 22,
                           ),
-        
                           wBox(8),
-        
                           Text(
                             "Logout",
                             style: AppFontStyle.text_16_600(
-                              AppColors.primary,
+                              AppColors.primary, // text white
                               fontFamily: AppFontFamily.semiBold,
                             ),
                           ),
                         ],
                       ),
                     ),
-                hBox(30),
+
+                    hBox(30),
                   ],
                 ),
               ),

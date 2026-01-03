@@ -3,7 +3,6 @@ import '../../../../../shared/widgets/custom_app_bar.dart';
 import '../../../../../shared/widgets/custom_radio_button.dart';
 import '../provider/ChangeAddressProvider.dart';
 
-
 class ChangeAddressScreen extends StatelessWidget {
   const ChangeAddressScreen({super.key});
 
@@ -15,7 +14,6 @@ class ChangeAddressScreen extends StatelessWidget {
         backgroundColor: AppColors.white,
         body: Column(
           children: [
-
             CustomAppBar(title: "Change Address"),
 
             Expanded(
@@ -24,126 +22,119 @@ class ChangeAddressScreen extends StatelessWidget {
                   return ListView(
                     padding: REdgeInsets.symmetric(horizontal: 16),
                     children: [
+                      ...List.generate(provider.addresses.length, (index) {
+                        final data = provider.addresses[index];
+                        final isSelected = provider.selectedIndex == index;
 
-                      ...List.generate(
-                        provider.addresses.length,
-                            (index) {
-                          final data = provider.addresses[index];
-                          final isSelected = provider.selectedIndex == index;
-
-                          return GestureDetector(
-                            onTap: () => provider.selectCard(index),
-                            child: Container(
-                              margin: const EdgeInsets.only(bottom: 12),
-                              padding: EdgeInsets.all(16),
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(12),
-                                border: Border.all(
-                                  color: isSelected
-                                      ? AppColors.primary
-                                      : AppColors.containerBorder,
-                                ),
+                        return GestureDetector(
+                          onTap: () => provider.selectCard(index),
+                          child: Container(
+                            margin: const EdgeInsets.only(bottom: 12),
+                            padding: EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(
                                 color: isSelected
-                                    ? AppColors.primary.withOpacity(0.08)
-                                    : AppColors.white,
+                                    ? AppColors.primary
+                                    : AppColors.containerBorder,
                               ),
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
+                              color: isSelected
+                                  ? AppColors.primary.withValues(alpha: 0.08)
+                                  : AppColors.white,
+                            ),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                _leftIcon(data.title),
 
-                                  _leftIcon(data.title),
+                                wBox(12),
 
-                                  SizedBox(width: 12),
-
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                      CrossAxisAlignment.start,
-                                      children: [
-                                        Row(
-                                          children: [
-                                            Text(
-                                              data.title,
-                                              style:
-                                              AppFontStyle.text_16_700(
-                                                  AppColors.black),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          Text(
+                                            data.title,
+                                            style: AppFontStyle.text_16_700(
+                                              AppColors.black,
                                             ),
+                                          ),
 
-                                            if (data.label != null) ...[
-                                              SizedBox(width: 6),
-                                              Container(
-                                                padding: EdgeInsets.symmetric(
-                                                    horizontal: 8, vertical: 2),
-                                                decoration: BoxDecoration(
-                                                  color: AppColors.primary
-                                                      .withOpacity(0.1),
-                                                  borderRadius:
-                                                  BorderRadius.circular(6),
-                                                ),
-                                                child: Text(
-                                                  data.label!,
-                                                  style:
-                                                  AppFontStyle.text_10_600(
-                                                      AppColors.primary),
+                                          if (data.label != null) ...[
+                                            SizedBox(width: 6),
+                                            Container(
+                                              padding: EdgeInsets.symmetric(
+                                                horizontal: 8,
+                                                vertical: 2,
+                                              ),
+                                              decoration: BoxDecoration(
+                                                color: AppColors.primary
+                                                    .withOpacity(0.1),
+                                                borderRadius:
+                                                    BorderRadius.circular(6),
+                                              ),
+                                              child: Text(
+                                                data.label!,
+                                                style: AppFontStyle.text_10_600(
+                                                  AppColors.primary,
                                                 ),
                                               ),
-                                            ],
+                                            ),
                                           ],
+                                        ],
+                                      ),
+
+                                      hBox(4),
+
+                                      Text(
+                                        data.address,
+                                        maxLines: 3,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: AppFontStyle.text_13_400(
+                                          AppColors.grey,
                                         ),
-
-                                        SizedBox(height: 4),
-
-                                        Text(
-                                          data.address,
-                                          maxLines: 3,
-                                          overflow: TextOverflow.ellipsis,
-                                          style:
-                                          AppFontStyle.text_13_400(
-                                              AppColors.grey),
-                                        ),
-                                      ],
-                                    ),
+                                      ),
+                                    ],
                                   ),
-
-                                  SizedBox(width: 12),
-
-                                  CustomRadioButton(
-                                    value: isSelected,
-                                    onChanged: (_) =>
-                                        provider.selectCard(index),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-
-                      SizedBox(height: 20),
-
-                      Center(
-                        child: GestureDetector(
-                          onTap: () {},
-                          child: Container(
-                            height: 50,
-                            width: double.infinity,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(60),
-                              border: Border.all(color: AppColors.primary),
-                            ),
-                            child: Center(
-                              child: Text(
-                                "+ Add New Address",
-                                style: AppFontStyle.text_16_600(
-                                  AppColors.primary,
                                 ),
-                              ),
+
+                                SizedBox(width: 12),
+
+                                CustomRadioButton(
+                                  value: isSelected,
+                                  onChanged: (_) => provider.selectCard(index),
+                                ),
+                              ],
                             ),
                           ),
+                        );
+                      }),
+
+                      CustomButton(
+                        onPressed: () {},
+                        isOutlined: true,
+                        color: AppColors.primary,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.add, size: 20, color:AppColors.primary),
+                            wBox(1),
+                            Text(
+                              'Add New Service',
+                              style: AppFontStyle.text_14_600(
+                                AppColors.primary,
+                                fontFamily: AppFontFamily.bold,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
 
-                     hBox(50),
+
+                      hBox(30),
                     ],
                   );
                 },
@@ -158,7 +149,7 @@ class ChangeAddressScreen extends StatelessWidget {
                 height: 50,
                 borderRadius: BorderRadius.circular(60),
               ),
-            )
+            ),
           ],
         ),
       ),
@@ -166,20 +157,17 @@ class ChangeAddressScreen extends StatelessWidget {
   }
 
   Widget _leftIcon(String text) {
-
     if (text == "Home") {
-      return _circleIcon(ImageConstants.home);
-    }
-    else if (text == "Work") {
+      return _circleIcon(ImageConstants.home2);
+    } else if (text == "Work") {
       return _circleIcon(ImageConstants.work);
-    }
-    else if (text == "Other") {
+    } else if (text == "Other") {
       return _circleIcon(ImageConstants.location);
-    }
-    else {
+    } else {
       return CustomImage(path: ImageConstants.appLogo);
     }
   }
+
   Widget _circleIcon(String imagePath) {
     return Container(
       height: 40,
@@ -189,8 +177,7 @@ class ChangeAddressScreen extends StatelessWidget {
         color: AppColors.primary.withValues(alpha: 0.3),
       ),
       padding: const EdgeInsets.all(10),
-      child: CustomImage(path: imagePath),
+      child: CustomImage(path: imagePath, color: AppColors.primary),
     );
   }
-
 }

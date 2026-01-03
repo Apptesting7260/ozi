@@ -25,6 +25,8 @@ import '../view/splash/view/splash_screen.dart';
 import '../view/welcome/view/welcome_screen.dart';
 
 class AppRoutes {
+
+
   static const String splashScreen = '/splashScreen';
   static const String welcomeScreen = '/welcomeScreen';
   static const String login = '/login';
@@ -52,6 +54,7 @@ class AppRoutes {
 
   static const String helpSupportScreen = '/HelpSupportScreen';
   static const String vendorNavigation = '/vendorNavigation';
+
 
 
   static Route<dynamic>? generateRoute(RouteSettings setting) {
@@ -85,6 +88,8 @@ class AppRoutes {
         );
 
     // NEW PROFILE ROUTES
+
+    //
 
       case profileScreen:
         return MaterialPageRoute(builder: (_) => ProfileScreen());

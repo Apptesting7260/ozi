@@ -21,6 +21,9 @@ class VendorHomeScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                SafeArea(child:
+                SizedBox(height: 10, ),
+                ),
 
                 /// ---------------- HEADER ----------------
                 _header(context),
@@ -95,7 +98,7 @@ class VendorHomeScreen extends StatelessWidget {
           ),
         ),
 
-        /// 🔔 Notification Button
+
         InkWell(
           borderRadius: BorderRadius.circular(40),
           onTap: () {
@@ -118,6 +121,7 @@ class VendorHomeScreen extends StatelessWidget {
                 path: ImageConstants.bell,
                 height: 20,
                 width: 20,
+                color: AppColors.black,
               ),
             ),
           ),
@@ -132,41 +136,51 @@ class VendorHomeScreen extends StatelessWidget {
   // =============================================================
 
   Widget _onlineStatus() {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppColors.primary.withOpacity(.08),
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  "You're Online",
-                  style: AppFontStyle.text_14_600(
-                    AppColors.darkText,
-                    fontFamily: AppFontFamily.semiBold,
-                  ),
-                ),
-                hBox(4),
-                Text(
-                  "Ready to receive bookings",
-                  style: AppFontStyle.text_12_400(AppColors.grey),
-                ),
-              ],
-            ),
+    return Consumer<VendorHomeProvider>(
+      builder: (context, provider, _) {
+        return Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: AppColors.lightPrimary2,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: AppColors.lightPrimary),
           ),
-          CustomToggleSwitch(
-            value: true,
-            onChanged: (_) {},
+          child: Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      provider.isOnline ? "You're Online" : "You're Offline",
+                      style: AppFontStyle.text_14_600(
+                        AppColors.darkText,
+                        fontFamily: AppFontFamily.semiBold,
+                      ),
+                    ),
+                    hBox(4),
+                    Text(
+                      provider.isOnline
+                          ? "Ready to receive bookings"
+                          : "You are not receiving bookings",
+                      style: AppFontStyle.text_12_400(AppColors.grey),
+                    ),
+                  ],
+                ),
+              ),
+
+              /// ✅ SWITCH (NOW WORKS)
+              CustomToggleSwitch(
+                value: provider.isOnline,
+                onChanged: provider.toggleOnline,
+              ),
+            ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
+
 
   // =============================================================
   // STATS GRID
@@ -219,7 +233,7 @@ class VendorHomeScreen extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(.05),
+            color: Colors.black.withValues(alpha: .05),
             blurRadius: 10,
           ),
         ],
@@ -230,7 +244,7 @@ class VendorHomeScreen extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: AppColors.primary.withOpacity(.12),
+              color: AppColors.primary.withValues(alpha: .12),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Icon(icon, color: AppColors.primary, size: 20),
@@ -343,12 +357,28 @@ class VendorHomeScreen extends StatelessWidget {
         children: [
           Row(
             children: [
-              CircleAvatar(
-                radius: 18,
-                backgroundImage:
-                NetworkImage("https://i.pravatar.cc/150?img=5"),
-              ),
-              wBox(10),
+      Container(
+        height: 36,
+        width: 36,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        border: Border.all(
+          color: AppColors.primary,
+          width: 2,
+        ),
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(36),
+        child: CustomImage(
+          path: "https://i.pravatar.cc/150?img=5",
+          height: 36,
+          width: 36,
+         
+        ),
+      ),
+    ),
+
+    wBox(10),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,

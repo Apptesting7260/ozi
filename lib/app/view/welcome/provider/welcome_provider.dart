@@ -4,6 +4,7 @@ import '../../../core/constants/image_constant.dart';
 
 class WelcomeProvider extends ChangeNotifier {
   int _currentPage = 0;
+
   final PageController _pageController = PageController();
 
   int get currentPage => _currentPage;

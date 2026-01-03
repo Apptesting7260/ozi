@@ -73,12 +73,17 @@ class EditProfileScreen extends StatelessWidget {
                 Container(
                   height: 110,
                   width: 110,
-                  padding: EdgeInsets.all(3),
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    border: Border.all(color: AppColors.primary, width: 3),
+                    border: Border.all(
+                      color: AppColors.primary,
+                      width: 3,
+                    ),
                   ),
-                  child: ClipOval(child: displayImage),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(55), // Added this
+                    child: displayImage,
+                  ),
                 ),
 
                 GestureDetector(
@@ -91,7 +96,7 @@ class EditProfileScreen extends StatelessWidget {
                       shape: BoxShape.circle,
                       border: Border.all(color: AppColors.white, width: 2),
                     ),
-                    child: Icon(
+                    child: const Icon(
                       Icons.camera_alt,
                       color: Colors.white,
                       size: 18,
@@ -112,7 +117,6 @@ class EditProfileScreen extends StatelessWidget {
       },
     );
   }
-
   void _showPicker(BuildContext context) {
     // Get the provider BEFORE opening the bottom sheet
     final provider = Provider.of<EditProfileProvider>(context, listen: false);

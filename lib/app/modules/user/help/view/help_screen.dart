@@ -25,9 +25,9 @@ class HelpSupportScreen extends StatelessWidget {
                   ),
                 ),
               ),
-              SizedBox(height: 12),
+              hBox(12),
               _tabButtons(),
-              SizedBox(height: 16),
+              hBox(16),
               Expanded(
                 child: Consumer<HelpProvider>(
                   builder: (context, provider, _) {
@@ -236,7 +236,7 @@ class HelpSupportScreen extends StatelessWidget {
               },
             ),
 
-            SizedBox(height: 20),
+            hBox(20),
           ],
         ),
       ),
@@ -268,17 +268,17 @@ class HelpSupportScreen extends StatelessWidget {
             borderRadius: BorderRadius.circular(60),
           ),
 
-          SizedBox(height: 24),
+          hBox(24),
 
           Text(
             "Quick Actions",
             style: AppFontStyle.text_16_600(AppColors.darkText),
           ),
 
-          SizedBox(height: 12),
+          hBox(12),
 
           _quickActionCard(
-            icon: Icons.phone_outlined,
+            imagePath: ImageConstants.call,
             title: "Call Us",
             subtitle: "27 12315 1234",
             buttonText: "Call Now",
@@ -287,10 +287,10 @@ class HelpSupportScreen extends StatelessWidget {
             },
           ),
 
-          SizedBox(height: 12),
+          hBox(12),
 
           _quickActionCard(
-            icon: Icons.email_outlined,
+            imagePath: ImageConstants.mail,
             title: "Email Us",
             subtitle: "support@team.com",
             buttonText: "Send Email",
@@ -299,14 +299,14 @@ class HelpSupportScreen extends StatelessWidget {
             },
           ),
 
-          SizedBox(height: 40),
+          hBox(40),
         ],
       ),
     );
   }
 
   Widget _quickActionCard({
-    required IconData icon,
+    required String imagePath,
     required String title,
     required String subtitle,
     required String buttonText,
@@ -328,10 +328,12 @@ class HelpSupportScreen extends StatelessWidget {
               color: AppColors.white,
               borderRadius: BorderRadius.circular(20),
             ),
-            child: Icon(
-              icon,
-              color: AppColors.primary,
-              size: 20,
+            child: Center(
+              child: CustomImage(
+                path: imagePath,
+                color: AppColors.primary,
+
+              ),
             ),
           ),
 

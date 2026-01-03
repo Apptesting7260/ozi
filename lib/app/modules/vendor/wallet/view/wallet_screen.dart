@@ -25,15 +25,13 @@ class _MyWalletContent extends StatelessWidget {
     final provider = context.watch<WalletProvider>();
 
     return Scaffold(
-      backgroundColor: AppColors.white,
       body: SafeArea(
-        child: provider.isLoading
-            ? const Center(child: CircularProgressIndicator())
-            : SingleChildScrollView(
-          padding: const EdgeInsets.all(20),
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+
              Text("My Wallet" , style: AppFontStyle.text_24_600(AppColors.darkText, fontFamily: AppFontFamily.semiBold)),
 
               hBox(20),

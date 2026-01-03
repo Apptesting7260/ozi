@@ -1,3 +1,4 @@
+import 'package:ozi/app/shared/widgets/custom_app_bar.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
 import '../../../../core/appExports/app_export.dart';
 import '../../../user_role/choose_your_role/view/choose_role.dart';
@@ -32,124 +33,117 @@ class VerificationContent extends StatelessWidget {
     final provider = Provider.of<VerificationProvider>(context);
 
     return Scaffold(
-      backgroundColor: AppColors.white,
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 50),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              GestureDetector(
-                onTap: () => Navigator.pop(context),
-                child: Container(
-                  padding:  EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: AppColors.grey.withValues(alpha: 0.3),
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(Icons.arrow_back_ios_new, size: 20),
-                ),
-              ),
-
-              hBox(20),
-
-              Text(
-                "Verification Code",
-                style: AppFontStyle.text_28_600(
-                  AppColors.darkText,
-                  fontFamily: AppFontFamily.extraBold,
-                ),
-              ),
-
-              hBox(10),
-              Text(
-                "Please enter the verification code sent to",
-                style: AppFontStyle.text_16_400(AppColors.grey),
-              ),
-
-              Text(
-                "$phone",
-                style: AppFontStyle.text_16_600(
-                  AppColors.darkText,
-                  fontFamily: AppFontFamily.semiBold,
-                ),
-              ),
-              hBox(30),
-
-
-              Text(
-                "Verification Code",
-                style: AppFontStyle.text_16_600(
-                  AppColors.darkText,
-                  fontFamily: AppFontFamily.semiBold,
-                ),
-              ),
-              hBox(10),
-
-              PinCodeTextField(
-                appContext: context,
-                controller: provider.otpController,
-                length: 6,
-                keyboardType: TextInputType.number,
-                animationType: AnimationType.fade,
-
-                enableActiveFill: true,
-
-                pinTheme: PinTheme(
-                  shape: PinCodeFieldShape.circle,
-
-                  fieldHeight: 55,
-                  fieldWidth: 55,
-
-                  inactiveColor: Colors.transparent,
-                  selectedColor: Colors.transparent,
-                  activeColor: Colors.transparent,
-
-                  // ALWAYS SAME FILL COLOR
-                  inactiveFillColor: AppColors.grey.withValues(alpha: 0.3),
-                  selectedFillColor: AppColors.grey.withValues(alpha: 0.3),
-                  activeFillColor: AppColors.grey.withValues(alpha: 0.3),
-
-                  borderWidth: 0,
-                ),
-
-                onChanged: (value) {},
-              ),
-
-              hBox(10),
-              CustomButton(
-                text: "Verify",
-                onPressed: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => ChooseRoleScreen(),
-                      ),
-                  );
-                },
-              ),
-
-              hBox(20),
-
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
+      body: Column(
+        children: [
+        
+          SafeArea(
+              child: const CustomAppBar(title: "")),
+          Expanded(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 20, ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    "Didn't receive code? ",
-                    style: AppFontStyle.text_14_400(AppColors.grey),
+                    "Verification Code",
+                    style: AppFontStyle.text_28_600(
+                      AppColors.darkText,
+                      fontFamily: AppFontFamily.extraBold,
+                    ),
                   ),
+
+                  hBox(10),
                   Text(
-                    provider.resendTime > 0
-                        ? "Resend in ${provider.resendTime} s"
-                        : "Resend now",
-                    style: AppFontStyle.text_14_600(AppColors.darkText),
+                    "Please enter the verification code sent to",
+                    style: AppFontStyle.text_16_400(AppColors.grey),
+                  ),
+
+                  Text(
+                    phone,
+                    style: AppFontStyle.text_16_600(
+                      AppColors.darkText,
+                      fontFamily: AppFontFamily.semiBold,
+                    ),
+                  ),
+
+                  hBox(30),
+
+                  Text(
+                    "Verification Code",
+                    style: AppFontStyle.text_16_600(
+                      AppColors.darkText,
+                      fontFamily: AppFontFamily.semiBold,
+                    ),
+                  ),
+
+                  hBox(10),
+
+                  PinCodeTextField(
+                    appContext: context,
+                    controller: provider.otpController,
+                    autoDisposeControllers: false,
+                    length: 6,
+                    keyboardType: TextInputType.number,
+                    animationType: AnimationType.fade,
+                    enableActiveFill: true,
+                    pinTheme: PinTheme(
+                      shape: PinCodeFieldShape.circle,
+                      fieldHeight: 55,
+                      fieldWidth: 55,
+                      inactiveColor: Colors.transparent,
+                      selectedColor: Colors.transparent,
+                      activeColor: Colors.transparent,
+                      inactiveFillColor: AppColors.lightGrey,
+                      selectedFillColor: AppColors.lightGrey,
+                      activeFillColor: AppColors.lightGrey,
+                      borderWidth: 0,
+                    ),
+                    onChanged: (value) {},
+                  ),
+
+                  hBox(16),
+
+                  CustomButton(
+                    text: "Verify",
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const ChooseRoleScreen(),
+                        ),
+                      );
+                    },
+                  ),
+
+                  hBox(24),
+
+                  Center(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          "Didn't receive code? ",
+                          style: AppFontStyle.text_14_400(AppColors.grey),
+                        ),
+                        Text(
+                          provider.resendTime > 0
+                              ? "Resend in ${provider.resendTime}s"
+                              : "Resend now",
+                          style: AppFontStyle.text_14_600(
+                            AppColors.darkText,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),
-            ],
+            ),
           ),
-        ),
+        ],
       ),
     );
+
+
   }
 }

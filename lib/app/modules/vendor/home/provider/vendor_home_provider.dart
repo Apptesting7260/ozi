@@ -4,7 +4,7 @@ class VendorHomeProvider extends ChangeNotifier {
   // ================= ONLINE STATUS =================
   bool _isOnline = true;
   bool get isOnline => _isOnline;
-
+  bool isEnabled = false;
   void toggleOnline(bool value) {
     _isOnline = value;
     notifyListeners();

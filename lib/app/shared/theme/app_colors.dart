@@ -41,5 +41,6 @@ class AppColors{
 
 
   static Color lightPrimary = Color(0xFFB2E4D1);
+  static Color lightPrimary2 = Color(0xFFE7F7F1);
 
 }

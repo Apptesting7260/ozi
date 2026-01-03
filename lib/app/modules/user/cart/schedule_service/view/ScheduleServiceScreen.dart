@@ -2,6 +2,7 @@ import '../../../../../core/appExports/app_export.dart';
 import '../../../../../shared/widgets/custom_app_bar.dart';
 import '../../../../../shared/widgets/custom_date_picker.dart';
 import '../../change address/view/ChangeAddressScreen.dart';
+import '../../checkout/view/CheckoutScreen.dart';
 import '../../chnge payment method/view/ChangePaymentMethodScreen.dart';
 import '../provider/ScheduleProvider.dart';
 
@@ -17,7 +18,6 @@ class ScheduleServiceScreen extends StatelessWidget {
   }
 }
 
-// ==================== SCREEN CONTENT ====================
 class _ScheduleServiceScreenContent extends StatelessWidget {
   const _ScheduleServiceScreenContent({super.key});
 
@@ -35,11 +35,11 @@ class _ScheduleServiceScreenContent extends StatelessWidget {
       backgroundColor: Colors.white,
       body: SingleChildScrollView(
         child: Padding(
-          padding: EdgeInsets.all(20.0),
+          padding: EdgeInsets.all(16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              CustomAppBar(title: "Booking Summary"),
+              CustomAppBar(title: "Schedule Service"),
 
               hBox(20),
               Text(
@@ -236,27 +236,22 @@ class _ScheduleServiceScreenContent extends StatelessWidget {
                   ),
                 ],
               ),
-              SizedBox(height: 12),
               Container(
                 padding: EdgeInsets.all(16),
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Color(0xFFE0E0E0)),
+                  border: Border.all(color: AppColors.containerBorder),
                 ),
                 child: Row(
                   children: [
                     Container(
                       padding: EdgeInsets.all(10),
                       decoration: BoxDecoration(
-                        color: Color(0xFFF1F1F3),
+                        color: AppColors.lightGrey,
                         borderRadius: BorderRadius.circular(30),
                       ),
-                      child: Icon(
-                        Icons.home_outlined,
-                        color: Colors.black54,
-                        size: 24,
-                      ),
+                      child: CustomImage(path: ImageConstants.home2, color: AppColors.black,)
                     ),
                     SizedBox(width: 12),
                     Expanded(
@@ -282,7 +277,7 @@ class _ScheduleServiceScreenContent extends StatelessWidget {
                 ),
               ),
 
-              SizedBox(height: 24),
+              hBox(12),
 
               // ========== PAYMENT METHOD ==========
               Row(
@@ -314,27 +309,22 @@ class _ScheduleServiceScreenContent extends StatelessWidget {
                   ),
                 ],
               ),
-              SizedBox(height: 12),
               Container(
                 padding: EdgeInsets.all(16),
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Color(0xFFE0E0E0)),
+                  border: Border.all(color: AppColors.containerBorder),
                 ),
                 child: Row(
                   children: [
                     Container(
                       padding: EdgeInsets.all(10),
                       decoration: BoxDecoration(
-                        color: Color(0xFFF1F1F3),
+                        color: AppColors.lightGrey,
                         borderRadius: BorderRadius.circular(30),
                       ),
-                      child: Icon(
-                        Icons.credit_card,
-                        color: Colors.black54,
-                        size: 24,
-                      ),
+                      child: CustomImage(path: ImageConstants.card, color: AppColors.black,)
                     ),
                     SizedBox(width: 12),
                     Expanded(
@@ -408,7 +398,9 @@ class _ScheduleServiceScreenContent extends StatelessWidget {
 
               // ========== CONTINUE BUTTON ==========
               CustomButton(
-                onPressed: () {},
+                onPressed: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (_) => CheckoutScreen()));
+                },
                 text: 'Continue to Payment',
               ),
             ],

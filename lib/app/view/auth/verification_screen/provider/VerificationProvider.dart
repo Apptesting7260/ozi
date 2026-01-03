@@ -1,13 +1,13 @@
-import 'dart:async';
-import 'package:flutter/material.dart';
+import '../../../../core/appExports/app_export.dart';
 
 class VerificationProvider extends ChangeNotifier {
-  TextEditingController otpController = TextEditingController();
+  final TextEditingController otpController = TextEditingController();
 
   int resendTime = 55;
   Timer? timer;
 
   void startTimer() {
+    timer?.cancel(); // safety
     timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (resendTime > 0) {
         resendTime--;
@@ -18,8 +18,10 @@ class VerificationProvider extends ChangeNotifier {
     });
   }
 
-  void disposeProvider() {
+  @override
+  void dispose() {
     timer?.cancel();
     otpController.dispose();
+    super.dispose();
   }
 }

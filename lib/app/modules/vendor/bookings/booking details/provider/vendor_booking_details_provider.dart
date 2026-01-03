@@ -5,10 +5,10 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../../provider/vendor_mybookings_provider.dart';
 
-class BookingDetailsProvider extends ChangeNotifier {
+class VendorBookingDetailsProvider extends ChangeNotifier {
   final BookingModel booking;
 
-  BookingDetailsProvider(this.booking);
+  VendorBookingDetailsProvider(this.booking);
 
   bool isProcessing = false;
 

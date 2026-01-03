@@ -26,10 +26,9 @@ class _MyServicesContent extends StatelessWidget {
     final provider = context.watch<VendorServicesProvider>();
 
     return Scaffold(
-      backgroundColor: AppColors.white,
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(20),
+          padding: const EdgeInsets.all(16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -43,7 +42,6 @@ class _MyServicesContent extends StatelessWidget {
 
               hBox(16),
 
-              /// SEARCH
               Row(
                 children: [
                   Expanded(
@@ -83,19 +81,41 @@ class _MyServicesContent extends StatelessWidget {
               hBox(16),
 
               /// ADD SERVICE
-              CustomButton(
-                height: 50,
-                text: "+ Add New Service",
-                isOutlined: true,
-                borderRadius: BorderRadius.circular(60),
-                onPressed: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (_) => VendorAddNewServiceScreen()));
-                },
+            CustomButton(
+              height: 50,
+              isOutlined: true,
+              borderRadius: BorderRadius.circular(60),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const VendorAddNewServiceScreen(),
+                  ),
+                );
+              },
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                   Icon(
+                    Icons.add,
+                    size: 20,
+                    color: AppColors.primary,
+                  ),
+                  wBox(8),
+                  Text(
+                    "Add New Service",
+                    style: AppFontStyle.text_14_600(
+                      AppColors.primary,
+                      fontFamily: AppFontFamily.semiBold,
+                    ),
+                  ),
+                ],
               ),
+            ),
 
-              hBox(20),
 
-              /// SERVICES LIST
+            hBox(20),
+
               Expanded(
                 child: provider.services.isEmpty
                     ? Center(
@@ -168,7 +188,6 @@ class _MyServicesContent extends StatelessWidget {
           children: [
             Row(
               children: [
-                /// IMAGE
                 ClipRRect(
                   borderRadius: BorderRadius.circular(12),
                   child: CustomImage(

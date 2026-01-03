@@ -66,13 +66,6 @@ class CartScreenContent extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
       decoration: BoxDecoration(
         color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -107,7 +100,7 @@ class CartScreenContent extends StatelessWidget {
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.15),
             blurRadius: 10,
-            offset: const Offset(0, 5),
+            offset: const Offset(0, 3),
           ),
         ],
       ),

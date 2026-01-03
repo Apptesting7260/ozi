@@ -11,7 +11,7 @@ class BookingDetailsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (_) => BookingDetailsProvider(booking),
+      create: (_) => VendorBookingDetailsProvider(booking),
       child: const _BookingDetailsContent(),
     );
   }
@@ -22,13 +22,12 @@ class _BookingDetailsContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final provider = context.watch<BookingDetailsProvider>();
+    final provider = context.watch<VendorBookingDetailsProvider>();
     final booking = provider.booking;
 
     return Scaffold(
       backgroundColor: Colors.white,
 
-      /// BOTTOM BUTTON
       bottomNavigationBar: _buildBottomButton(context, provider),
 
       body: SafeArea(
@@ -278,7 +277,7 @@ class _BookingDetailsContent extends StatelessWidget {
 
   Widget? _buildBottomButton(
       BuildContext context,
-      BookingDetailsProvider provider,
+      VendorBookingDetailsProvider provider,
       ) {
     if (provider.isOngoing) {
       return Padding(
@@ -437,22 +436,22 @@ class _StatusChip extends StatelessWidget {
 
     switch (status) {
       case "in_progress":
-        bg = Colors.orange.withOpacity(0.15);
+        bg = Colors.orange.withValues(alpha: 0.15);
         text = "In Progress";
         textColor = Colors.orange;
         break;
       case "confirmed":
-        bg = Colors.blue.withOpacity(0.15);
+        bg = Colors.blue.withValues(alpha: 0.15);
         text = "Confirmed";
         textColor = Colors.blue;
         break;
       case "completed":
-        bg = Colors.green.withOpacity(0.15);
+        bg = Colors.green.withValues(alpha: 0.15);
         text = "Completed";
         textColor = Colors.green;
         break;
       case "cancelled":
-        bg = Colors.red.withOpacity(0.15);
+        bg = Colors.red.withValues(alpha: 0.15);
         text = "Cancelled";
         textColor = Colors.red;
         break;
@@ -470,11 +469,7 @@ class _StatusChip extends StatelessWidget {
       ),
       child: Text(
         text,
-        style: TextStyle(
-          fontSize: 11,
-          fontWeight: FontWeight.w500,
-          color: textColor,
-        ),
+        style: AppFontStyle.text_11_500(AppColors.black, fontFamily: AppFontFamily.medium)
       ),
     );
   }

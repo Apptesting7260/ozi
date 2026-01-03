@@ -13,178 +13,171 @@ class CheckoutScreen extends StatelessWidget {
     return ChangeNotifierProvider(
       create: (_) => CheckoutProvider(),
       child: Scaffold(
-        backgroundColor: AppColors.white,
-        body: Column(
-          children: [
-
-            CustomAppBar(title: "Checkout"),
-
-            Expanded(
-              child: Consumer<CheckoutProvider>(
-                builder: (context, provider, _) {
-                  return ListView(
-                    padding: REdgeInsets.symmetric(horizontal: 16),
-                    children: [
-                      hBox(10),
-                      _serviceCard(
-                        img: ImageConstants.onboard1,
-                        title: "Shirt Sleeve Shortening & Fitting",
-                        date: "Today",
-                        time: "2:00 PM",
-                      ),
-
-                       hBox(10),
-                      _serviceCard(
-                        img: ImageConstants.onboard2,
-                        title: "Shirt Sleeve Shortening & Fitting",
-                        date: "Dec 10, 2025",
-                        time: "2:00 PM",
-                      ),
-
-                  hBox(10),
-
-                      // ========== SERVICE ADDRESS ==========
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            'Service Address',
-                            style:  AppFontStyle.text_16_500( AppColors.black, fontFamily: AppFontFamily.medium
-                            ),
-                          ),
-                          TextButton(
-                            onPressed: () {
-                            },
-                            child:  Text(
-                              'Change Address >',
-                              style:  AppFontStyle.text_14_500( AppColors.primary, fontFamily: AppFontFamily.medium),
-                            ),
-                          ),
-                        ],
-                      ),
-                      Container(
-                        padding:  EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color:  Color(0xFFE0E0E0)),
+        body: SafeArea(
+          child: Column(
+            children: [
+              CustomAppBar(title: "Checkout"),
+              Expanded(
+                child: Consumer<CheckoutProvider>(
+                  builder: (context, provider, _) {
+                    return ListView(
+                      padding: REdgeInsets.symmetric(horizontal: 16),
+                      children: [
+                        hBox(10),
+                        _serviceCard(
+                          img: ImageConstants.onboard1,
+                          title: "Shirt Sleeve Shortening & Fitting",
+                          date: "Today",
+                          time: "2:00 PM",
                         ),
-                        child: Row(
+          
+                         hBox(10),
+                        _serviceCard(
+                          img: ImageConstants.onboard2,
+                          title: "Shirt Sleeve Shortening & Fitting",
+                          date: "Dec 10, 2025",
+                          time: "2:00 PM",
+                        ),
+          
+                    hBox(10),
+                        
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Container(
-                              padding:  EdgeInsets.all(10),
-                              decoration: BoxDecoration(
-                                color:   Color(0xFFF1F1F3),
-                                borderRadius: BorderRadius.circular(30),
-                              ),
-                              child:  Icon(
-                                Icons.home_outlined,
-                                color: Colors.black54,
-                                size: 24,
+                            Text(
+                              'Service Address',
+                              style:  AppFontStyle.text_16_500( AppColors.black, fontFamily: AppFontFamily.medium
                               ),
                             ),
-                            SizedBox(width: 12),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'Home',
-                                    style:  AppFontStyle.text_14_600( AppColors.black, fontFamily: AppFontFamily.semiBold
-                                    ),
-                                  ),
-                                  SizedBox(height: 4),
-                                  Text(
-                                    '123 Main Street, San Francisco, CA',
-                                    style:  AppFontStyle.text_14_400( AppColors.grey,
-                                    ),
-                                  ),
-                                ],
+                            TextButton(
+                              onPressed: () {
+                              },
+                              child:  Text(
+                                'Change Address >',
+                                style:  AppFontStyle.text_14_500( AppColors.primary, fontFamily: AppFontFamily.medium),
                               ),
                             ),
                           ],
                         ),
-                      ),
-
-                      SizedBox(height: 12),
-
-                      // ========== PAYMENT METHOD ==========
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            'Payment Method',
-                            style:  AppFontStyle.text_16_500( AppColors.black, fontFamily: AppFontFamily.medium
-                            ),
+                        Container(
+                          padding:  EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color:  AppColors.containerBorder),
                           ),
-                          TextButton(
-                            onPressed: () {
-                            },
-                            child:  Text(
-                              'Change method >',
-                              style:  AppFontStyle.text_14_500( AppColors.primary, fontFamily: AppFontFamily.medium
+                          child: Row(
+                            children: [
+                              Container(
+                                padding:  EdgeInsets.all(10),
+                                decoration: BoxDecoration(
+                                  color:   Color(0xFFF1F1F3),
+                                  borderRadius: BorderRadius.circular(30),
+                                ),
+                                child:  CustomImage(path: ImageConstants.home2, color: AppColors.black,)
                               ),
-                            ),
+                              SizedBox(width: 12),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'Home',
+                                      style:  AppFontStyle.text_14_600( AppColors.black, fontFamily: AppFontFamily.semiBold
+                                      ),
+                                    ),
+                                    SizedBox(height: 4),
+                                    Text(
+                                      '123 Main Street, San Francisco, CA',
+                                      style:  AppFontStyle.text_14_400( AppColors.grey,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
-                      Container(
-                        padding:  EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color:  Color(0xFFE0E0E0)),
                         ),
-                        child: Row(
+          
+                        SizedBox(height: 12),
+          
+                        // ========== PAYMENT METHOD ==========
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Container(
-                              padding:  EdgeInsets.all(10),
-                              decoration: BoxDecoration(
-                                color:  Color(0xFFF1F1F3),
-                                borderRadius: BorderRadius.circular(30),
-                              ),
-                              child:  Icon(
-                                Icons.credit_card,
-                                color: Colors.black54,
-                                size: 24,
+                            Text(
+                              'Payment Method',
+                              style:  AppFontStyle.text_16_500( AppColors.black, fontFamily: AppFontFamily.medium
                               ),
                             ),
-                            SizedBox(width: 12),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'Credit Card',
-                                    style:  AppFontStyle.text_14_600( AppColors.black, fontFamily: AppFontFamily.semiBold
-                                    ),
-                                  ),
-                                  SizedBox(height: 4),
-                                  Text(
-                                    '•••• •••• •••• 4242',
-                                    style:  AppFontStyle.text_14_400( AppColors.grey,
-                                    ),
-                                  ),
-                                ],
+                            TextButton(
+                              onPressed: () {
+                              },
+                              child:  Text(
+                                'Change method >',
+                                style:  AppFontStyle.text_14_500( AppColors.primary, fontFamily: AppFontFamily.medium
+                                ),
                               ),
                             ),
                           ],
                         ),
-                      ),
+                        Container(
+                          padding:  EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color:  Color(0xFFE0E0E0)),
+                          ),
+                          child: Row(
+                            children: [
+                              Container(
+                                padding:  EdgeInsets.all(10),
+                                decoration: BoxDecoration(
+                                  color:  Color(0xFFF1F1F3),
+                                  borderRadius: BorderRadius.circular(30),
+                                ),
+                                child:  Icon(
+                                  Icons.credit_card,
+                                  color: Colors.black54,
+                                  size: 24,
+                                ),
+                              ),
+                              SizedBox(width: 12),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'Credit Card',
+                                      style:  AppFontStyle.text_14_600( AppColors.black, fontFamily: AppFontFamily.semiBold
+                                      ),
+                                    ),
+                                    SizedBox(height: 4),
+                                    Text(
+                                      '•••• •••• •••• 4242',
+                                      style:  AppFontStyle.text_14_400( AppColors.grey,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+          
+                        SizedBox(height: 24),
+          
+                        _summary(provider),
 
-                      SizedBox(height: 24),
-
-                      _summary(provider),
-
-                      SizedBox(height: 20),
-                    ],
-                  );
-                },
+                      ],
+                    );
+                  },
+                ),
               ),
-            ),
-
-            _bottomConfirmButton(context),
-          ],
+          
+              _bottomConfirmButton(context),
+            ],
+          ),
         ),
       ),
     );

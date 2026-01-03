@@ -8,6 +8,7 @@ import 'app/core/appExports/app_export.dart';
 import 'app/modules/user/home/provider/HomeScreenProvider.dart';
 import 'app/modules/user/navigation tab/provider/navigation_provider.dart';
 import 'app/routes/app_routes.dart';
+import 'app/view/splash/provider/splash_provider.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -31,6 +32,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
+        ChangeNotifierProvider(create: (_) => SplashProvider()),
         ChangeNotifierProvider(create: (_) => VendorNavigationProvider(),),
         ChangeNotifierProvider(create: (_) => NavigationProvider(),),
         ChangeNotifierProvider(create: (_) => HomeScreenProvider(),),

@@ -109,25 +109,24 @@ class ChangePaymentMethodScreen extends StatelessWidget {
                         },
                       ),
 
-                      SizedBox(height: 8),
 
-                      GestureDetector(
-                        onTap: () {},
-                        child: Container(
-                          height: 52,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(60),
-                            border: Border.all(color: AppColors.primary),
-                          ),
-                          child: Center(
-                            child: Text(
-                              "+ Add New Card",
-                              style: AppFontStyle.text_16_600(
+                      CustomButton(
+                        onPressed: () {},
+                        isOutlined: true,
+                        color: AppColors.primary,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.add, size: 20, color:AppColors.primary),
+                            wBox(1),
+                            Text(
+                              'Add New Service',
+                              style: AppFontStyle.text_14_600(
                                 AppColors.primary,
                                 fontFamily: AppFontFamily.bold,
                               ),
                             ),
-                          ),
+                          ],
                         ),
                       ),
 

@@ -27,8 +27,6 @@ class _MyBookingsContent extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
              hBox(16),
-
-            /// TITLE
              Padding(
               padding: EdgeInsets.symmetric(horizontal: 16),
               child: Text(
@@ -58,7 +56,7 @@ class _MyBookingsContent extends StatelessWidget {
                       decoration: BoxDecoration(
                         color: selected
                             ?  AppColors.primary
-                            :  AppColors.lightGrey2,
+                            :  AppColors.lightGrey,
                         borderRadius: BorderRadius.circular(30),
                       ),
                       child: Center(
@@ -78,7 +76,6 @@ class _MyBookingsContent extends StatelessWidget {
 
             hBox(16),
 
-            /// BOOKINGS LIST
             Expanded(
               child: RefreshIndicator(
                 onRefresh: provider.refreshBookings,

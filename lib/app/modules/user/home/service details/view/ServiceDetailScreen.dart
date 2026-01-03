@@ -1,3 +1,5 @@
+import 'package:ozi/app/modules/user/cart/view/MyCartScreen.dart';
+
 import '../../../../../core/appExports/app_export.dart';
 import '../../../../../shared/widgets/custom_app_bar.dart';
 import '../provider/ServiceDetailProvider.dart';
@@ -56,7 +58,7 @@ class ServiceDetailView extends StatelessWidget {
 
               ),
             ),
-            Divider(color: AppColors.lightGrey2,),
+            Divider(color: AppColors.dividerColor,),
             _buildBottomBar(context, provider),
           ],
         ),
@@ -247,7 +249,7 @@ class ServiceDetailView extends StatelessWidget {
 
   Widget _buildBottomBar(BuildContext context, ServiceDetailProvider provider) {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
 
@@ -271,7 +273,9 @@ class ServiceDetailView extends StatelessWidget {
             ),
           ),
           CustomButton(
-            onPressed: () {},
+            onPressed: () {
+              Navigator.push(context, MaterialPageRoute(builder: (_) => CartScreen()));
+            },
             width: 150,
             height: 50,
             color: AppColors.primary,
@@ -279,13 +283,16 @@ class ServiceDetailView extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                CustomImage(path: ImageConstants.cart, color: AppColors.white),
-                 SizedBox(width: 8),
+                CustomImage(path: ImageConstants.cart,
+                    height: 20,
+                    width: 20,
+                    color: AppColors.white),
+                wBox(8),
                 Text(
                   'View Cart',
-                  style: AppFontStyle.text_18_600(
+                  style: AppFontStyle.text_14_600(
                     Colors.white,
-                    fontFamily: AppFontFamily.bold,
+                    fontFamily: AppFontFamily.semiBold,
                   ),
                 ),
               ],

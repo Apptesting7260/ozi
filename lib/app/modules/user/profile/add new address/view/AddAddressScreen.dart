@@ -57,17 +57,18 @@ class AddAddressScreen extends StatelessWidget {
 
             SizedBox(height: 25),
 
-            Row(
-              children: [
-                _type("Home"),
-                SizedBox(width: 8),
-                _type("Work"),
-                SizedBox(width: 8),
-                _type("Other"),
-              ],
-            ),
+          Row(
+            children: [
+              _type("Home", ImageConstants.home),
+              wBox(12),
+              _type("Work", ImageConstants.work),
+              wBox(12),
+              _type("other", ImageConstants.location)
+            ],
+          ),
 
-            SizedBox(height: 32),
+
+          hBox(22),
             CustomButton(
               text: "Save Address",
               onPressed: () {},),
@@ -79,7 +80,7 @@ class AddAddressScreen extends StatelessWidget {
     );
   }
 
-  Widget _type(String title) {
+  Widget _type(String title, String imagePath) {
     return Expanded(
       child: Container(
         height: 45,
@@ -88,11 +89,24 @@ class AddAddressScreen extends StatelessWidget {
           borderRadius: BorderRadius.circular(40),
           border: Border.all(color: AppColors.primary),
         ),
-        child: Text(
-          title,
-          style: AppFontStyle.text_14_500(AppColors.primary),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            CustomImage(
+              path: imagePath,
+              color: AppColors.primary,
+              height: 18,
+              width: 18,
+            ),
+            wBox(8),
+            Text(
+              title,
+              style: AppFontStyle.text_14_500(AppColors.primary),
+            ),
+          ],
         ),
       ),
     );
   }
+
 }

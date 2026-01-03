@@ -45,14 +45,10 @@ class CreateAccountScreen extends StatelessWidget {
                 hintText: "Enter first name",
                 prefix: Padding(
                   padding: const EdgeInsets.all(12),
-                  child: SvgPicture.asset(
-                    ImageConstants.userIcon,
+                  child: CustomImage(
+                    path:  ImageConstants.userIcon,
                     height: 20,
                     width: 20,
-                    colorFilter:  ColorFilter.mode(
-                      AppColors.grey,
-                      BlendMode.srcIn,
-                    ),
                   ),
                 ),
                 borderRadius: 40,
@@ -66,14 +62,10 @@ class CreateAccountScreen extends StatelessWidget {
                 hintText: "Enter last name",
                 prefix: Padding(
                   padding: const EdgeInsets.all(12),
-                  child: SvgPicture.asset(
-                    ImageConstants.userIcon,
+                  child: CustomImage(
+                    path:  ImageConstants.userIcon,
                     height: 20,
                     width: 20,
-                    colorFilter:  ColorFilter.mode(
-                      AppColors.grey,
-                      BlendMode.srcIn,
-                    ),
                   ),
                 ),
                 borderRadius: 40,
@@ -87,14 +79,10 @@ class CreateAccountScreen extends StatelessWidget {
                 hintText: "Enter email address",
                 prefix: Padding(
                   padding: const EdgeInsets.all(12),
-                  child: SvgPicture.asset(
-                    ImageConstants.mail,
+                  child: CustomImage(
+                    path:  ImageConstants.mail,
                     height: 20,
                     width: 20,
-                    colorFilter:  ColorFilter.mode(
-                      AppColors.grey,
-                      BlendMode.srcIn,
-                    ),
                   ),
                 ),
                 borderRadius: 40,
