@@ -1,12 +1,10 @@
 import 'package:ozi/app/modules/vendor/wallet/withdraw/view/withdraw_screen.dart';
-
 import '../../../../core/appExports/app_export.dart';
-import '../../../../shared/widgets/custom_app_bar.dart';
 import '../provider/wallet_provider.dart';
 import '../transaction_history/view/transaction_history_screen.dart';
 
-class MyWalletScreen extends StatelessWidget {
-  const MyWalletScreen({super.key});
+class VendorMyWalletScreen extends StatelessWidget {
+  const VendorMyWalletScreen({super.key});
 
   @override
   Widget build(BuildContext context) {

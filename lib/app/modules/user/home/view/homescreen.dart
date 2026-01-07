@@ -38,6 +38,7 @@ class HomeScreenView extends StatelessWidget {
       backgroundColor: Colors.white,
       body: SafeArea(
         child: SingleChildScrollView(
+          physics: BouncingScrollPhysics(),
           child: Padding(
             padding: EdgeInsets.all(20.0),
             child: Column(
@@ -132,7 +133,6 @@ class HomeScreenView extends StatelessWidget {
 
   Widget _buildSearchBar(BuildContext context, HomeScreenProvider provider) {
     return CustomTextFormField(
-      readOnly: true,
       onTap: () => provider.onSearchTap(context),
       hintText: "Search...",
       prefix: Padding(

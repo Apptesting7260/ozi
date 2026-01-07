@@ -17,63 +17,68 @@ class _SettingsScreenState extends State<SettingsScreen> {
    String privacyUrl = "https://www.iubenda.com/en/help/2859-terms-and-conditions-when-are-they-needed";
 
   @override
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.white,
-      body: ListView(
-        padding: EdgeInsets.symmetric(horizontal: 16),
+      body: Column(
         children: [
+           CustomAppBar(title: "Settings"),
 
-          CustomAppBar(title: "Settings"),
-          hBox(18),
-          _settingsTile(
-            icon: ImageConstants.bell,
-            title: "Push Notifications",
-            toggle: true,
-          ),
+          Expanded(
+            child: ListView(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              children: [
+                hBox(18),
 
-          _settingsTile(
-            icon: ImageConstants.document,
-            title: "Terms & Conditions",
-            showArrow: true,
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => CommonScreen(
-                    type: "Terms & Conditions",
-                    url: termsUrl,
-                  ),
+                _settingsTile(
+                  icon: ImageConstants.bell,
+                  title: "Push Notifications",
+                  toggle: true,
                 ),
-              );
-            },
-          ),
 
-
-          _settingsTile(
-            icon: ImageConstants.document,
-            title: "Privacy Policy",
-            showArrow: true,
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => CommonScreen(
-                    type: "Privacy Policy",
-                    url: privacyUrl,
-                  ),
+                _settingsTile(
+                  icon: ImageConstants.document,
+                  title: "Terms & Conditions",
+                  showArrow: true,
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => CommonScreen(
+                          type: "Terms & Conditions",
+                          url: termsUrl,
+                        ),
+                      ),
+                    );
+                  },
                 ),
-              );
-            },
+
+                _settingsTile(
+                  icon: ImageConstants.document,
+                  title: "Privacy Policy",
+                  showArrow: true,
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => CommonScreen(
+                          type: "Privacy Policy",
+                          url: privacyUrl,
+                        ),
+                      ),
+                    );
+                  },
+                ),
+
+                _deleteTile(),
+              ],
+            ),
           ),
-
-
-          _deleteTile(),
-
         ],
       ),
     );
   }
+
 
   // --------------------------------------------------------------------------
   // NORMAL TILE

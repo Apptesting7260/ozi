@@ -4,14 +4,14 @@ import '../../../../../shared/widgets/custom_app_bar.dart';
 import '../../../../../shared/widgets/custom_check_box.dart';
 import '../../../../../shared/widgets/custom_text_form_field.dart';
 
-class AddNewCardScreen extends StatefulWidget {
-  const AddNewCardScreen({super.key});
+class VendorAddNewCardScreen extends StatefulWidget {
+  const VendorAddNewCardScreen({super.key});
 
   @override
-  State<AddNewCardScreen> createState() => _AddNewCardScreenState();
+  State<VendorAddNewCardScreen> createState() => _VendorAddNewCardScreenState();
 }
 
-class _AddNewCardScreenState extends State<AddNewCardScreen> {
+class _VendorAddNewCardScreenState extends State<VendorAddNewCardScreen> {
 
   bool isDefault = false;
 

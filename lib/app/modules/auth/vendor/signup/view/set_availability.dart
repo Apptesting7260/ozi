@@ -1,9 +1,8 @@
 import 'package:ozi/app/modules/auth/vendor/signup/view/identity_verification_screen.dart';
-
 import '../../../../../core/appExports/app_export.dart';
-import '../../../../../shared/widgets/custom_app_bar.dart';
 import '../../../../../shared/widgets/custom_toggle_switch.dart';
 import '../provider/availability_provider.dart';
+import '../widget/vendor_custom_appbar.dart';
 
 class SetAvailabilityScreen extends StatelessWidget {
   const SetAvailabilityScreen({super.key});
@@ -26,6 +25,8 @@ class _SetAvailabilityContent extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: AppColors.white,
+
+      /// -------- BOTTOM BUTTON --------
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.all(16),
         child: CustomButton(
@@ -33,28 +34,40 @@ class _SetAvailabilityContent extends StatelessWidget {
           height: 54,
           borderRadius: BorderRadius.circular(60),
           onPressed: () {
-            Navigator.push(context, MaterialPageRoute(builder: (_) => IdentityVerificationScreen()));
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => IdentityVerificationScreen(),
+              ),
+            );
           },
         ),
       ),
+
       body: SafeArea(
-        child: Padding(
-          padding:  EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-               CustomAppBar(title: "Set Your Availability"),
-              Center(
-                child: Text(
-                  "Step 3 of 6",
-                  style: AppFontStyle.text_14_400(AppColors.grey),
-                ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+
+            /// -------- FIXED APP BAR --------
+            VendorCustomAppBar(
+              title: "Set Your Availability",
+              columnChild: Text(
+                "Step 3 of 6",
+                style: AppFontStyle.text_12_400(AppColors.grey),
               ),
-              hBox(20),
-              Expanded(
+            ),
+
+            hBox(20),
+
+            /// -------- SCROLLABLE CONTENT --------
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: ListView(
                   children: provider.availability.keys.map((day) {
                     final data = provider.availability[day]!;
+
                     return Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -64,6 +77,7 @@ class _SetAvailabilityContent extends StatelessWidget {
                           onToggle: (val) => provider.toggleDay(day, val),
                           onAddSlot: () => provider.addSlot(day),
                         ),
+
                         if (data.enabled)
                           ...List.generate(
                             data.slots.length,
@@ -73,25 +87,36 @@ class _SetAvailabilityContent extends StatelessWidget {
                               index: index,
                               slot: data.slots[index],
                               showRemove: data.slots.length > 1,
-                              onRemove: () => provider.removeSlot(day, index),
+                              onRemove: () =>
+                                  provider.removeSlot(day, index),
                               onFromTimeChange: (time) =>
-                                  provider.updateSlotTime(day, index, from: time),
+                                  provider.updateSlotTime(
+                                    day,
+                                    index,
+                                    from: time,
+                                  ),
                               onToTimeChange: (time) =>
-                                  provider.updateSlotTime(day, index, to: time),
+                                  provider.updateSlotTime(
+                                    day,
+                                    index,
+                                    to: time,
+                                  ),
                             ),
                           ),
-                        Divider(height: 24),
+
+                        const Divider(height: 24),
                       ],
                     );
                   }).toList(),
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
   }
+
 
   // ---------------- DAY HEADER ----------------
   Widget _dayHeader({
@@ -142,20 +167,24 @@ class _SetAvailabilityContent extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 10),
       child: Row(
         children: [
-          _timeBox(
-            context: context,
-            time: slot.from,
-            onTimeSelected: onFromTimeChange,
+          Expanded(
+            child: _timeBox(
+              context: context,
+              time: slot.from,
+              onTimeSelected: onFromTimeChange,
+            ),
           ),
-          wBox(10),
+          wBox(8),
           Text("To", style: AppFontStyle.text_12_400(AppColors.grey)),
-          wBox(10),
-          _timeBox(
-            context: context,
-            time: slot.to,
-            onTimeSelected: onToTimeChange,
+          wBox(8),
+          Expanded(
+            child: _timeBox(
+              context: context,
+              time: slot.to,
+              onTimeSelected: onToTimeChange,
+            ),
           ),
-          wBox(10),
+          wBox(8),
           if (showRemove)
             GestureDetector(
               onTap: onRemove,
@@ -174,7 +203,7 @@ class _SetAvailabilityContent extends StatelessWidget {
               ),
             )
           else
-            wBox(26),
+            SizedBox(width: 40),
         ],
       ),
     );
@@ -207,18 +236,20 @@ class _SetAvailabilityContent extends StatelessWidget {
         }
       },
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 35, vertical: 16),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
         decoration: BoxDecoration(
           color: AppColors.lightGrey,
           borderRadius: BorderRadius.circular(30),
         ),
         child: Row(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.access_time, size: 25, color: AppColors.darkText),
+            Icon(Icons.access_time, size: 20, color: AppColors.darkText),
             wBox(6),
             Text(
               time,
-              style: AppFontStyle.text_16_400(AppColors.darkText),
+              style: AppFontStyle.text_14_400(AppColors.darkText),
             ),
           ],
         ),

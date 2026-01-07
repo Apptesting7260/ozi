@@ -5,6 +5,8 @@ import '../../../../../shared/widgets/custom_app_bar.dart';
 import '../provider/identity_verification_provider.dart';
 import 'package:dotted_border/dotted_border.dart';
 
+import '../widget/vendor_custom_appbar.dart';
+
 
 class IdentityVerificationScreen extends StatelessWidget {
   const IdentityVerificationScreen({super.key});
@@ -39,6 +41,8 @@ class _IdentityVerificationContent extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: AppColors.white,
+
+      /// -------- BOTTOM BUTTON --------
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.all(16),
         child: CustomButton(
@@ -47,98 +51,118 @@ class _IdentityVerificationContent extends StatelessWidget {
           borderRadius: BorderRadius.circular(60),
           color: provider.canContinue
               ? AppColors.primary
-              : AppColors.primary.withValues(alpha: 0.35),
+              : AppColors.primary.withValues(alpha: 0.6),
           onPressed: () {
             if (!provider.canContinue) return;
 
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => ReadyToGoLiveScreen(),
+                builder: (_) => ReadyToGoLiveScreen(),
               ),
             );
           },
         ),
-
-
       ),
+
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const CustomAppBar(title: "Identity Verification"),
-              hBox(6),
-              Center(
-                child: Text(
-                  "Step 5 of 6",
-                  style: AppFontStyle.text_14_400(AppColors.grey),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+
+            Column(
+              children: [
+                VendorCustomAppBar(
+                  title: "Identity Verification",
+                  columnChild: Text(
+                    "Step 4 of 6",
+                    style: AppFontStyle.text_12_400(AppColors.grey),
+                  ),
                 ),
-              ),
-              hBox(20),
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: AppColors.primary.withValues(alpha: .08),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Row(
+              ],
+            ),
+
+            hBox(20),
+
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Padding(
-                      padding: const EdgeInsets.only(top: 2),
-                      child: Icon(
-                        Icons.info_outline,
-                        size: 16,
-                        color: AppColors.primary,
+
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: AppColors.primary.withValues(alpha: .08),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.only(top: 2),
+                            child: Icon(
+                              Icons.info_outline,
+                              size: 16,
+                              color: AppColors.primary,
+                            ),
+                          ),
+                          wBox(8),
+                          Expanded(
+                            child: Text(
+                              "Your documents are securely stored and used only for verification purposes.",
+                              maxLines: 3,
+                              style: AppFontStyle.text_12_400(
+                                AppColors.primary,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                    wBox(8),
-                    Expanded(
-                      child: Text(
-                        maxLines: 3,
-                        "Your documents are securely stored and used only for verification purposes.",
-                        style: AppFontStyle.text_12_400(AppColors.primary),
+
+                    hBox(24),
+
+                    /// GOVERNMENT ID
+                    _documentTile(
+                      title: "Government ID",
+                      subtitle: "Driver's license or passport",
+                      required: true,
+                      uploaded: provider.isGovernmentUploaded,
+                      iconPath: ImageConstants.governmentId,
+                      onUpload: () => _pickFile(
+                        context,
+                        provider.setGovernmentId,
                       ),
                     ),
+
+                    hBox(16),
+
+                    /// CERTIFICATIONS
+                    _documentTile(
+                      title: "Certifications",
+                      subtitle: "Professional certificates (optional)",
+                      required: false,
+                      uploaded: provider.isCertificationUploaded,
+                      iconPath: ImageConstants.certificate,
+                      onUpload: () => _pickFile(
+                        context,
+                        provider.setCertification,
+                      ),
+                    ),
+
+                    hBox(20),
                   ],
                 ),
               ),
-              hBox(24),
-
-              /// GOVERNMENT ID
-              _documentTile(
-                title: "Government ID",
-                subtitle: "Driver's license or passport",
-                required: true,
-                uploaded: provider.isGovernmentUploaded,
-                iconPath: ImageConstants.governmentId,
-                onUpload: () => _pickFile(
-                  context,
-                  provider.setGovernmentId,
-                ),
-              ),
-              hBox(16),
-
-              /// CERTIFICATIONS
-              _documentTile(
-                title: "Certifications",
-                subtitle: "Professional certificates (optional)",
-                required: false,
-                uploaded: provider.isCertificationUploaded,
-                onUpload: () => _pickFile(
-                  context,
-                  provider.setCertification,
-                ),
-                iconPath: ImageConstants.certificate,
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
   }
+
 
   // ---------------- DOCUMENT TILE ----------------
   Widget _documentTile({

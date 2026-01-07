@@ -35,7 +35,7 @@ class MyBookingsScreen extends StatelessWidget {
                             Icon(
                               Icons.calendar_today_outlined,
                               size: 80,
-                              color: AppColors.grey.withOpacity(0.3),
+                              color: AppColors.grey.withValues(alpha: 0.3),
                             ),
                             hBox(16),
                             Text(
@@ -139,7 +139,7 @@ class MyBookingsScreen extends StatelessWidget {
         statusTextColor = AppColors.primary;
         break;
       case "red":
-        statusBgColor = Colors.red.withOpacity(0.15);
+        statusBgColor = AppColors.lightRed;
         statusTextColor = AppColors.red;
         break;
       default:
@@ -156,7 +156,7 @@ class MyBookingsScreen extends StatelessWidget {
         color: AppColors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.03),
+            color: AppColors.black.withValues(alpha: 0.03),
             blurRadius: 8,
             offset: Offset(0, 2),
           ),

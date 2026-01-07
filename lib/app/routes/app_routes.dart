@@ -2,7 +2,11 @@
 
 
 
+import 'package:ozi/app/modules/vendor/bookings/provider/vendor_mybookings_provider.dart';
+import 'package:ozi/app/modules/vendor/home/view/vendor_home_screen.dart';
 import 'package:ozi/app/modules/vendor/navigation%20tab/view/vendor_navigation_tab_screen.dart';
+import 'package:ozi/app/modules/vendor/profile/view/vendor_profile_screen.dart';
+import 'package:ozi/app/modules/vendor/services/view/service_screen.dart';
 
 import '../core/appExports/app_export.dart';
 import '../modules/auth/user/create account/view/create_account_screen.dart';
@@ -19,13 +23,17 @@ import '../modules/user/profile/payment method/view/PaymentMethodsScreen.dart';
 import '../modules/user/profile/save address/view/SavedAddressScreen.dart';
 import '../modules/user/profile/setting/view/SettingsScreen.dart';
 import '../modules/user/profile/view/profile_screen.dart';
+import '../modules/vendor/bookings/booking details/view/vendor_booking_details_screen.dart';
+import '../modules/vendor/bookings/view/vendor_mybookings_screen.dart';
+import '../modules/vendor/profile/add new address/view/AddAddressScreen.dart';
+import '../modules/vendor/profile/add new card/view/AddNewCardScreen.dart';
+import '../modules/vendor/wallet/view/wallet_screen.dart';
 import '../view/auth/login/view/login_screen.dart';
 import '../view/auth/verification_screen/view/VerificationScreen.dart';
 import '../view/splash/view/splash_screen.dart';
 import '../view/welcome/view/welcome_screen.dart';
 
 class AppRoutes {
-
 
   static const String splashScreen = '/splashScreen';
   static const String welcomeScreen = '/welcomeScreen';
@@ -47,13 +55,47 @@ class AppRoutes {
   static const String addNewCardScreen = '/addNewCardScreen';
   static const String settingsScreen = '/settingsScreen';
   static const String commonScreen = '/commonScreen';
-
-
-
-  //******************************************************* vendor  ****************************************//
-
   static const String helpSupportScreen = '/HelpSupportScreen';
+
+
+
+  //*********************************** vendor All Screens  ****************************************//
+
   static const String vendorNavigation = '/vendorNavigation';
+
+  //******************************** Home screens *************************************//
+
+  static const String vendorHomeScreen = '/vendorHomeScreen';
+  static const String vendorNewRequestScreen = '/vendorNewRequestScreen';
+  static const String vendorNotificationScreen = '/vendorNotificationScreen';
+
+  //******************************** Bookings screens *************************************//
+
+  static const String vendorBookingScreen = '/vendorBookingScreen';
+  static const String vendorBookingDetailsScreen = '/vendorBookingDetailsScreen';
+
+  //******************************** Profiles screens *************************************//
+  static const String vendorProfileScreen = '/vendorProfileScreen';
+  static const String vendorSettingScreen = '/vendorSettingScreen';
+  static const String vendorSaveAddressScreen = '/vendorSaveAddressScreen';
+  static const String vendorPaymentMethodScreen = '/vendorPaymentMethodScreen';
+  static const String vendorHelpScreen = '/vendorHelpScreen';
+  static const String vendorEditProfileScreen = '/vendorEditProfileScreen';
+  static const String vendorCommonScreen = '/vendorCommonScreen';
+  static const String vendorAddNewCardScreen = '/vendorAddNewCardScreen';
+  static const String vendorAddNewAddressScreen = '/vendorAddNewAddressScreen';
+
+  //******************************** Services screens *************************************//
+  static const String vendorServicesScreen = '/vendorServicesScreen';
+  static const String vendorAddNewService = '/vendorAddNewService';
+  static const String vendorEditService = '/vendorEditService';
+  static const String vendorFilterScreen = '/vendorFilterScreen';
+  static const String vendorServiceDetailsScreen = '/vendorServiceDetailsScreen';
+
+  //******************************** Wallet screens *************************************//
+  static const String vendorWalletScreen = '/vendorWalletScreen';
+  static const String vendorTransactionHistory = '/vendorTransactionHistory';
+  static const String vendorWithdrawScreen = '/vendorWithdrawScreen';
 
 
 
@@ -120,9 +162,24 @@ class AppRoutes {
 
       case helpSupportScreen:
         return MaterialPageRoute(builder: (_) => HelpSupportScreen());
-
       case vendorNavigation:
         return MaterialPageRoute(builder: (_) => VendorNavigationTabScreen());
+      case vendorHomeScreen:
+        return MaterialPageRoute(builder: (_) => VendorHomeScreen());
+      case vendorBookingScreen:
+        return MaterialPageRoute(builder: (_) => VendorMybookingsScreen());
+      case vendorWalletScreen:
+        return MaterialPageRoute(builder: (_) => VendorMyWalletScreen());
+      case vendorServicesScreen:
+        return MaterialPageRoute(builder: (_) => VendorServicesScreen());
+      case vendorProfileScreen:
+        return MaterialPageRoute(builder: (_) => VendorProfileScreen());
+      case vendorAddNewAddressScreen:
+        return MaterialPageRoute(builder: (_) => VendorAddAddressScreen());
+      case vendorAddNewCardScreen:
+        return MaterialPageRoute(builder: (_) => VendorAddNewCardScreen());
+      // case vendorBookingDetailsScreen:
+      //   return MaterialPageRoute(builder: (_) => VendorBookingDetailsScreen(booking: ));
 
 
       default:

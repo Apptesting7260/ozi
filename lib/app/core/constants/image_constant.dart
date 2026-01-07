@@ -31,6 +31,12 @@ class ImageConstants{
   static String booking = "$svgPath/booking.svg";
   static String help = "$svgPath/help.svg";
   static String profile = "$svgPath/profile.svg";
+  static String profileFill = "$svgPath/profile_fill.svg";
+  static String homeFill = "$svgPath/home_fill.svg";
+  static String cartFill = "$svgPath/cart_fill.svg";
+  static String bookingFill = "$svgPath/booking_fill.svg";
+  // static String helpFill2 = "$svgPath/help_fill2.svg";
+  static String helpFill2 = "$imagePath/help_fill2.png";
 
   //******************************************* Home Screen *****************************************************************//
   static String homeService = "$imagePath/home_servicecard.png";
@@ -94,6 +100,8 @@ class ImageConstants{
   static String withdraw = "$svgPath/withdraw.svg";
   static String upwardArrow = "$svgPath/upword_arrow.svg";
   static String downwardArrow = "$svgPath/downward_arrow.svg";
+  static String serviceFill = "$svgPath/service_fill.svg";
+  static String walletFill = "$svgPath/wallet_fill.svg";
 
 
 }

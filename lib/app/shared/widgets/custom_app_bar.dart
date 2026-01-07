@@ -34,7 +34,7 @@ class CustomAppBar extends StatelessWidget {
                     child: Container(
                       height: 40,
                       width: 40,
-                      decoration: const BoxDecoration(
+                      decoration:  BoxDecoration(
                         shape: BoxShape.circle,
                         color: Color(0xFFEFEFEF),
                       ),
@@ -62,7 +62,7 @@ class CustomAppBar extends StatelessWidget {
           ),
           if (columnChild != null)
             Padding(
-              padding: REdgeInsets.only(top: 10.0),
+              padding: REdgeInsets.only(top: 0.0),
               child: columnChild,
             ),
           hBox(10),

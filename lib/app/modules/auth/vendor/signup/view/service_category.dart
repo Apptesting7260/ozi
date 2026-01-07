@@ -1,7 +1,7 @@
 import 'package:ozi/app/modules/auth/vendor/signup/view/service_details.dart';
-import 'package:ozi/app/shared/widgets/custom_app_bar.dart';
 import '../../../../../core/appExports/app_export.dart';
 import '../provider/ServiceCategoryProvider.dart';
+import '../widget/vendor_custom_appbar.dart';
 
 class ServiceCategory extends StatelessWidget {
   const ServiceCategory({super.key});
@@ -35,47 +35,54 @@ class _SelectServiceCategoriesContent extends StatelessWidget {
     return Scaffold(
       bottomNavigationBar: _bottomButton(context),
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              CustomAppBar(title: 'Select Service Categories'),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
 
-              Center(
-                child: Text(
-                  "Step 1 of 6",
-                  style: AppFontStyle.text_14_400(AppColors.grey),
+            VendorCustomAppBar(
+              title: "Select Service Categories",
+              columnChild: Text(
+                "Step 1 of 6",
+                style: AppFontStyle.text_12_400(AppColors.grey),
+              ),
+            ),
+
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    hBox(18),
+
+                    Text(
+                      "Choose the services you want to offer. You can select multiple categories.",
+                      style: AppFontStyle.text_14_400(AppColors.grey),
+                    ),
+
+                    hBox(18),
+
+                    Expanded(
+                      child: ListView.builder(
+                        itemCount: categories.length,
+                        itemBuilder: (_, index) {
+                          return _categoryItem(
+                            context: context,
+                            title: categories[index],
+                          );
+                        },
+                      ),
+                    ),
+                  ],
                 ),
               ),
-
-              hBox(18),
-
-              Text(
-                "Choose the services you want to offer. You can select multiple categories.",
-                style: AppFontStyle.text_14_400(AppColors.grey),
-              ),
-
-              hBox(18),
-
-              /// CATEGORY LIST
-              Expanded(
-                child: ListView.builder(
-                  itemCount: categories.length,
-                  itemBuilder: (_, index) {
-                    return _categoryItem(
-                      context: context,
-                      title: categories[index],
-                    );
-                  },
-                ),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
   }
+
 
   // ---------------- CATEGORY ITEM ----------------
   Widget _categoryItem({
@@ -129,7 +136,7 @@ class _SelectServiceCategoriesContent extends StatelessWidget {
             text: "Continue ($count selected)",
             color: count > 0
                 ? AppColors.primary
-                : AppColors.primary.withOpacity(0.3),
+                : AppColors.primary.withValues(alpha: 0.7),
 
             onPressed: () {
               if (count == 0) return;

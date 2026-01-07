@@ -319,9 +319,8 @@ class BookingConfirmScreen extends StatelessWidget {
           ),
         ),
 
-        const SizedBox(width: 12),
+        wBox(12),
 
-        /// Text section
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -330,7 +329,7 @@ class BookingConfirmScreen extends StatelessWidget {
                 label,
                 style: AppFontStyle.text_12_400(AppColors.grey),
               ),
-              const SizedBox(height: 2),
+              hBox(2),
               Text(
                 value,
                 style: AppFontStyle.text_14_500(
@@ -355,59 +354,57 @@ class BookingConfirmScreen extends StatelessWidget {
   }
   Widget _bottomActions() {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
       children: [
-
-        CustomButton(
-          isOutlined: true,
-          color: AppColors.lightGrey2,
-          width: 177,
-          borderRadius: BorderRadius.circular(60),
-          onPressed: () {},
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              CustomImage(
-                path: ImageConstants.home1,
-                height: 20,
-                width: 20,
-              ),
-             wBox(8),
-              Text(
-                "Home",
-                style: AppFontStyle.text_14_500(
-                  AppColors.black,
-                  fontFamily: AppFontFamily.medium,
+        Expanded(
+          child: CustomButton(
+            isOutlined: true,
+            color: AppColors.lightGrey2,
+            borderRadius: BorderRadius.circular(60),
+            onPressed: () {},
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                CustomImage(
+                  path: ImageConstants.home1,
+                  height: 20,
+                  width: 20,
                 ),
-              ),
-            ],
+                wBox(8),
+                Text(
+                  "Home",
+                  style: AppFontStyle.text_14_500(
+                    AppColors.black,
+                    fontFamily: AppFontFamily.medium,
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
-
         wBox(20),
-
-        CustomButton(
-          isOutlined: true,
-          color: AppColors.lightGrey2,
-          width: 177,
-          onPressed: () {},
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              CustomImage(
-                path: ImageConstants.share,
-                height: 20,
-                width: 20,
-              ),
-              wBox(8),
-              Text(
-                "Share",
-                style: AppFontStyle.text_14_500(
-                  AppColors.black,
-                  fontFamily: AppFontFamily.medium,
+        Expanded(
+          child: CustomButton(
+            isOutlined: true,
+            color: AppColors.lightGrey2,
+            onPressed: () {},
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                CustomImage(
+                  path: ImageConstants.share,
+                  height: 20,
+                  width: 20,
                 ),
-              ),
-            ],
+                wBox(8),
+                Text(
+                  "Share",
+                  style: AppFontStyle.text_14_500(
+                    AppColors.black,
+                    fontFamily: AppFontFamily.medium,
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ],

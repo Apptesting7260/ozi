@@ -3,10 +3,10 @@ import '../../../../../core/appExports/app_export.dart';
 import '../../provider/vendor_mybookings_provider.dart';
 import '../provider/vendor_booking_details_provider.dart';
 
-class BookingDetailsScreen extends StatelessWidget {
+class VendorBookingDetailsScreen extends StatelessWidget {
   final BookingModel booking;
 
-  const BookingDetailsScreen({super.key, required this.booking});
+  const VendorBookingDetailsScreen({super.key, required this.booking});
 
   @override
   Widget build(BuildContext context) {

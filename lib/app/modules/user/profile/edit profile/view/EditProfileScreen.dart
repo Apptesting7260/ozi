@@ -8,43 +8,51 @@ class EditProfileScreen extends StatelessWidget {
   const EditProfileScreen({super.key});
 
   @override
+  @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
       create: (_) => EditProfileProvider(),
       builder: (context, child) {
         return Scaffold(
-          body: SingleChildScrollView(
-            padding: REdgeInsets.symmetric(horizontal: 16),
-            child: Column(
-              children: [
-                CustomAppBar(title: "Edit Profile"),
-                hBox(10),
+          body: Column(
+            children: [
+               CustomAppBar(title: "Edit Profile"),
+              Expanded(
+                child: SingleChildScrollView(
+                  padding: REdgeInsets.symmetric(horizontal: 16),
+                  child: Column(
+                    children: [
+                      hBox(10),
 
-                /// PROFILE SECTION
-                _profileSection(context),
+                      /// PROFILE SECTION
+                      _profileSection(context),
 
-                hBox(30),
+                      hBox(30),
 
-                /// FIELDS
-                _inputFields(),
+                      /// FIELDS
+                      _inputFields(),
 
-                hBox(30),
+                      hBox(30),
 
-                CustomButton(
-                  borderRadius: BorderRadius.circular(60),
-                  text: "Update Profile",
-                  onPressed: () {},
-                  height: 54,
+                      CustomButton(
+                        borderRadius: BorderRadius.circular(60),
+                        text: "Update Profile",
+                        onPressed: () {},
+                        height: 54,
+                      ),
+
+                      hBox(30),
+                    ],
+                  ),
                 ),
-
-                hBox(30),
-              ],
-            ),
+              ),
+            ],
           ),
         );
       },
     );
   }
+
 
   // ─────────────────── PROFILE SECTION ───────────────────
 

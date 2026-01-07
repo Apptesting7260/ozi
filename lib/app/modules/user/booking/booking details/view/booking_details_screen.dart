@@ -266,83 +266,90 @@ class BookingDetailsScreen extends StatelessWidget {
 
   Widget _otpSection() {
     return Container(
-      padding: EdgeInsets.all(16),
+      width: double.infinity,
+
+
+      padding: EdgeInsets.all(6),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
-        gradient: LinearGradient(
-          colors: [
-            AppColors.primary,
-            AppColors.primary.withOpacity(0.8),
+
+      ),
+      child: Container(
+        padding:  EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: AppColors.primary,
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              "Service Start OTP",
+              style: AppFontStyle.text_14_600(AppColors.white),
+            ),
+
+            hBox(4),
+
+            Text(
+              "Share with provider to begin service",
+              style: AppFontStyle.text_12_400(
+                AppColors.lightGrey.withValues(alpha: 0.9),
+              ),
+            ),
+
+            hBox(16),
+
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    _otpBox("1"),
+                    wBox(12),
+                    _otpBox("1"),
+                    wBox(12),
+                    _otpBox("1"),
+                    wBox(12),
+                    _otpBox("1"),
+                  ],
+                ),
+
+                Container(
+                  padding:  EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: AppColors.lightGrey.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    "Hide",
+                    style: AppFontStyle.text_14_600(AppColors.white),
+                  ),
+                ),
+              ],
+            ),
           ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
         ),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            "Service Start OTP",
-            style: AppFontStyle.text_14_600(AppColors.white),
-          ),
-          hBox(4),
-          Text(
-            "Share with provider to begin service",
-            style: AppFontStyle.text_12_400(AppColors.white.withOpacity(0.9)),
-          ),
-          hBox(16),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Row(
-                children: [
-                  _otpBox("1"),
-                  wBox(12),
-                  _otpBox("1"),
-                  wBox(12),
-                  _otpBox("1"),
-                  wBox(12),
-                  _otpBox("1"),
-                ],
-              ),
-              Container(
-                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                decoration: BoxDecoration(
-                  color: AppColors.white.withOpacity(0.2),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Text(
-                  "Hide",
-                  style: AppFontStyle.text_14_600(AppColors.white),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
+
     );
   }
 
   Widget _otpBox(String digit) {
-    return SizedBox(
+    return Container(
       width: 45,
       height: 45,
-      // decoration: BoxDecoration(
-      //   color: AppColors.white.withOpacity(0.2),
-      //   borderRadius: BorderRadius.circular(8),
-      //   border: Border.all(
-      //     color: AppColors.white.withOpacity(0.3),
-      //     width: 1,
-      //   ),
-      // ),
-      child: Center(
-        child: Text(
-          digit,
-          style: AppFontStyle.text_20_600(AppColors.white),
-        ),
+      decoration: BoxDecoration(
+        color: AppColors.lightGrey.withValues(alpha: 0.15),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      alignment: Alignment.center,
+      child: Text(
+        digit,
+        style: AppFontStyle.text_20_600(AppColors.white),
       ),
     );
   }
+
 
   Widget _serviceProvider() {
     return Column(

@@ -63,10 +63,6 @@ class VendorHomeScreen extends StatelessWidget {
     );
   }
 
-  // =============================================================
-  // HEADER
-  // =============================================================
-
   Widget _header(BuildContext context) {
     return Row(
       children: [
@@ -130,11 +126,6 @@ class VendorHomeScreen extends StatelessWidget {
     );
   }
 
-
-  // =============================================================
-  // ONLINE STATUS
-  // =============================================================
-
   Widget _onlineStatus() {
     return Consumer<VendorHomeProvider>(
       builder: (context, provider, _) {
@@ -181,11 +172,6 @@ class VendorHomeScreen extends StatelessWidget {
     );
   }
 
-
-  // =============================================================
-  // STATS GRID
-  // =============================================================
-
   Widget _statsGrid() {
     return GridView(
       shrinkWrap: true,
@@ -194,7 +180,7 @@ class VendorHomeScreen extends StatelessWidget {
         crossAxisCount: 2,
         mainAxisSpacing: 14,
         crossAxisSpacing: 14,
-        childAspectRatio: 1.3,
+        childAspectRatio: 1.4,  // Changed from 1.3 to 1.4
       ),
       children: [
         _statTile(
@@ -227,7 +213,7 @@ class VendorHomeScreen extends StatelessWidget {
     required String subtitle,
   }) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: AppColors.white,
         borderRadius: BorderRadius.circular(16),
@@ -240,36 +226,37 @@ class VendorHomeScreen extends StatelessWidget {
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,  // Added this
         children: [
           Container(
-            padding: const EdgeInsets.all(10),
+            padding: const EdgeInsets.all(8),  // Reduced from 10
             decoration: BoxDecoration(
               color: AppColors.primary.withValues(alpha: .12),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: Icon(icon, color: AppColors.primary, size: 20),
+            child: Icon(icon, color: AppColors.primary, size: 18),  // Reduced from 20
           ),
-          hBox(12),
+          hBox(8),  // Reduced from 12
           Text(
             title,
             style: AppFontStyle.text_18_600(
               AppColors.darkText,
               fontFamily: AppFontFamily.bold,
             ),
+            maxLines: 1,  // Added this
+            overflow: TextOverflow.ellipsis,  // Added this
           ),
-          hBox(4),
+          hBox(2),  // Reduced from 4
           Text(
             subtitle,
             style: AppFontStyle.text_12_400(AppColors.grey),
+            maxLines: 1,  // Added this
+            overflow: TextOverflow.ellipsis,  // Added this
           ),
         ],
       ),
     );
   }
-
-  // =============================================================
-  // SECTION HEADER
-  // =============================================================
 
   Widget _sectionHeader({
     required BuildContext context,
@@ -314,11 +301,6 @@ class VendorHomeScreen extends StatelessWidget {
       ],
     );
   }
-
-
-  // =============================================================
-  // NEW REQUEST CARD
-  // =============================================================
 
   Widget _newRequestCard() {
     return _requestCard(

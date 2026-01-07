@@ -78,17 +78,16 @@ class _NavigationTabScreenState extends State<NavigationTabScreen> {
                     },
                     backgroundColor: AppColors.transparent,
                     elevation: 0,
-                    selectedItemColor: AppColors.primary,
-                    unselectedItemColor: AppColors.grey,
+                   // selectedItemColor: AppColors.primary,
+                    //unselectedItemColor: AppColors.grey,
                     showUnselectedLabels: true,
                     type: BottomNavigationBarType.fixed,
                     items: [
                       BottomNavigationBarItem(
                         icon: Padding(
-                          padding:  EdgeInsets.only(bottom: 4.0),
+                          padding: EdgeInsets.only(bottom: 4.0),
                           child: navIcon(
-                            path: ImageConstants.home,
-
+                            path: navProvider.getIconPath(0, navProvider.currentIndex == 0),
                             isActive: navProvider.currentIndex == 0,
                           ),
                         ),
@@ -98,7 +97,7 @@ class _NavigationTabScreenState extends State<NavigationTabScreen> {
                         icon: Padding(
                           padding: const EdgeInsets.only(bottom: 4.0),
                           child: navIcon(
-                            path: ImageConstants.cart,
+                            path: navProvider.getIconPath(1, navProvider.currentIndex == 1),
                             isActive: navProvider.currentIndex == 1,
                           ),
                         ),
@@ -106,9 +105,9 @@ class _NavigationTabScreenState extends State<NavigationTabScreen> {
                       ),
                       BottomNavigationBarItem(
                         icon: Padding(
-                          padding:  EdgeInsets.only(bottom: 4.0),
+                          padding: EdgeInsets.only(bottom: 4.0),
                           child: navIcon(
-                            path: ImageConstants.booking,
+                            path: navProvider.getIconPath(2, navProvider.currentIndex == 2),
                             isActive: navProvider.currentIndex == 2,
                           ),
                         ),
@@ -116,9 +115,9 @@ class _NavigationTabScreenState extends State<NavigationTabScreen> {
                       ),
                       BottomNavigationBarItem(
                         icon: Padding(
-                          padding: const EdgeInsets.only(bottom: 4.0),
+                          padding:  EdgeInsets.only(bottom: 4.0),
                           child: navIcon(
-                            path: ImageConstants.help,
+                            path: navProvider.getIconPath(3, navProvider.currentIndex == 3),
                             isActive: navProvider.currentIndex == 3,
                           ),
                         ),
@@ -126,9 +125,9 @@ class _NavigationTabScreenState extends State<NavigationTabScreen> {
                       ),
                       BottomNavigationBarItem(
                         icon: Padding(
-                          padding: const EdgeInsets.only(bottom: 4.0),
+                          padding:  EdgeInsets.only(bottom: 4.0),
                           child: navIcon(
-                            path: ImageConstants.profile,
+                            path: navProvider.getIconPath(4, navProvider.currentIndex == 4),
                             isActive: navProvider.currentIndex == 4,
                           ),
                         ),

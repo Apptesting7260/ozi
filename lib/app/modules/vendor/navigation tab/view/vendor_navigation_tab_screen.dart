@@ -50,8 +50,7 @@ class _VendorNavigationTabScreenState extends State<VendorNavigationTabScreen> {
             return navProvider.pages[navProvider.currentIndex];
           },
         ),
-        bottomNavigationBar:
-        Consumer<VendorNavigationProvider>(
+        bottomNavigationBar: Consumer<VendorNavigationProvider>(
           builder: (context, navProvider, _) {
             return Stack(
               children: [
@@ -68,7 +67,7 @@ class _VendorNavigationTabScreenState extends State<VendorNavigationTabScreen> {
                   ),
                   child: BottomNavigationBar(
                     unselectedLabelStyle: AppFontStyle.text_12_400(
-                      AppColors.primary,
+                      AppColors.grey,
                     ),
                     selectedLabelStyle: AppFontStyle.text_12_600(
                       AppColors.primary,
@@ -87,10 +86,9 @@ class _VendorNavigationTabScreenState extends State<VendorNavigationTabScreen> {
                     items: [
                       BottomNavigationBarItem(
                         icon: Padding(
-                          padding:  EdgeInsets.only(bottom: 4.0),
+                          padding: EdgeInsets.only(bottom: 4.0),
                           child: navIcon(
-                            path: ImageConstants.home,
-
+                            path: navProvider.getIconPath(0, navProvider.currentIndex == 0),
                             isActive: navProvider.currentIndex == 0,
                           ),
                         ),
@@ -100,7 +98,7 @@ class _VendorNavigationTabScreenState extends State<VendorNavigationTabScreen> {
                         icon: Padding(
                           padding: const EdgeInsets.only(bottom: 4.0),
                           child: navIcon(
-                            path: ImageConstants.booking,
+                            path: navProvider.getIconPath(1, navProvider.currentIndex == 1),
                             isActive: navProvider.currentIndex == 1,
                           ),
                         ),
@@ -108,9 +106,9 @@ class _VendorNavigationTabScreenState extends State<VendorNavigationTabScreen> {
                       ),
                       BottomNavigationBarItem(
                         icon: Padding(
-                          padding:  EdgeInsets.only(bottom: 4.0),
+                          padding: EdgeInsets.only(bottom: 4.0),
                           child: navIcon(
-                            path: ImageConstants.wallet,
+                            path: navProvider.getIconPath(2, navProvider.currentIndex == 2),
                             isActive: navProvider.currentIndex == 2,
                           ),
                         ),
@@ -120,7 +118,7 @@ class _VendorNavigationTabScreenState extends State<VendorNavigationTabScreen> {
                         icon: Padding(
                           padding: const EdgeInsets.only(bottom: 4.0),
                           child: navIcon(
-                            path: ImageConstants.wrench,
+                            path: navProvider.getIconPath(3, navProvider.currentIndex == 3),
                             isActive: navProvider.currentIndex == 3,
                           ),
                         ),
@@ -130,7 +128,7 @@ class _VendorNavigationTabScreenState extends State<VendorNavigationTabScreen> {
                         icon: Padding(
                           padding: const EdgeInsets.only(bottom: 4.0),
                           child: navIcon(
-                            path: ImageConstants.profile,
+                            path: navProvider.getIconPath(4, navProvider.currentIndex == 4),
                             isActive: navProvider.currentIndex == 4,
                           ),
                         ),

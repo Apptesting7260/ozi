@@ -3,8 +3,8 @@ import '../../../../../core/appExports/app_export.dart';
 import '../../../../../shared/widgets/custom_app_bar.dart';
 import '../../../../../shared/widgets/custom_text_form_field.dart';
 
-class AddAddressScreen extends StatelessWidget {
-  const AddAddressScreen({super.key});
+class VendorAddAddressScreen extends StatelessWidget {
+  const VendorAddAddressScreen({super.key});
 
   @override
   Widget build(BuildContext context) {

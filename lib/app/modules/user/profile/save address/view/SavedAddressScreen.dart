@@ -37,7 +37,6 @@ class _SavedAddressScreenState extends State<SavedAddressScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.white,
       body: Column(
         children: [
           CustomAppBar(title: "Saved Addresses"),

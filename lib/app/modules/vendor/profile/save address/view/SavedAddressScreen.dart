@@ -1,4 +1,6 @@
 
+import 'package:ozi/app/modules/user/profile/add%20new%20address/view/AddAddressScreen.dart';
+
 import '../../../../../core/appExports/app_export.dart';
 import '../../../../../routes/app_routes.dart';
 import '../../../../../shared/widgets/custom_app_bar.dart';
@@ -11,7 +13,7 @@ class SavedAddressScreen extends StatefulWidget {
 }
 
 class _SavedAddressScreenState extends State<SavedAddressScreen> {
-  int selectedIndex = 0; // Default selected is Home (index 0)
+  int selectedIndex = 0;
 
   final List<Map<String, dynamic>> addresses = [
     {
@@ -72,12 +74,36 @@ class _SavedAddressScreenState extends State<SavedAddressScreen> {
                hBox(8),
 
                 CustomButton(
-                  text: "+ Add New Address",
+                  height: 50,
                   isOutlined: true,
-                  onPressed: () => Navigator.pushNamed(context, AppRoutes.addAddressScreen),
-                  height: 56,
                   borderRadius: BorderRadius.circular(60),
-                )
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const AddAddressScreen(),
+                      ),
+                    );
+                  },
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.add,
+                        size: 20,
+                        color: AppColors.primary,
+                      ),
+                      wBox(8),
+                      Text(
+                        "Add New Address",
+                        style: AppFontStyle.text_14_600(
+                          AppColors.primary,
+                          fontFamily: AppFontFamily.semiBold,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ],
             ),
           ),

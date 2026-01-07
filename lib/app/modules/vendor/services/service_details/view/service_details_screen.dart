@@ -25,32 +25,61 @@ class _ServiceDetailsContent extends StatelessWidget {
     final provider = context.watch<ServiceDetailsProvider>();
 
     return Scaffold(
-      backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () => Navigator.pop(context),
-        ),
-        title: const Text(
-          'Service Details',
-          style: TextStyle(
-            color: Colors.black,
-            fontSize: 18,
-            fontWeight: FontWeight.w600,
+        leadingWidth: 56,
+        leading: Padding(
+          padding: const EdgeInsets.only(left: 15),
+          child: Align(
+            alignment: Alignment.centerLeft,
+            child: InkWell(
+              onTap: () => Navigator.pop(context),
+              borderRadius: BorderRadius.circular(20),
+              child: Container(
+                height: 40,
+                width: 40,
+                decoration: const BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Color(0xFFEFEFEF),
+                ),
+                padding: REdgeInsets.all(14),
+                child: CustomImage(path: ImageConstants.back),
+              ),
+            ),
           ),
         ),
+
+        /// 🔹 TITLE PADDING
+        titleSpacing: 0,
+        title: const Padding(
+          padding: EdgeInsets.symmetric(horizontal: 8),
+          child: Text(
+            'Service Details',
+            style: TextStyle(
+              color: Colors.black,
+              fontSize: 18,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ),
+
         centerTitle: true,
+
+        /// 🔹 RIGHT PADDING CONTROL
         actions: [
-          IconButton(
-            icon: const Icon(Icons.more_vert, color: Colors.black),
-            onPressed: () {
-              _showOptionsMenu(context, provider);
-            },
+          Padding(
+            padding: const EdgeInsets.only(right: 12),
+            child: IconButton(
+              icon: const Icon(Icons.more_vert, color: Colors.black),
+              onPressed: () {
+                _showOptionsMenu(context, provider);
+              },
+            ),
           ),
         ],
       ),
+
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -252,7 +281,7 @@ class _ServiceDetailsContent extends StatelessWidget {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                     CustomImage(path: ImageConstants.edit),
+                     CustomImage(path: ImageConstants.edit, color: AppColors.primary,),
                     wBox(8),
                     Text(
                       'Edit',
