@@ -111,7 +111,7 @@ class VerificationContent extends StatelessWidget {
                           Navigator.pushReplacement(
                             context,
                             MaterialPageRoute(
-                              builder: (_) => const ChooseRoleScreen(),
+                              builder: (_) => ChooseRoleScreen(userId: provider.userId,),
                             ),
                           );
                         }

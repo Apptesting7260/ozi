@@ -26,38 +26,49 @@ class UserPreference {
     return isLoggedIn;
   }
 
-
-  static isProfileComplete(bool step) async {
+  static saveRole(String role) async {
     SharedPreferences pref = await SharedPreferences.getInstance();
-    pref.setBool("isProfileComplete", step);
+    pref.setString("role", role);
   }
 
-  static Future<bool?> returnIsProfileComplete() async {
+  static Future<String?> returnRole() async {
     SharedPreferences pref = await SharedPreferences.getInstance();
-    bool? isProfileComplete = pref.getBool("isProfileComplete");
-    return isProfileComplete;
+    String? role = pref.getString("role");
+    return role;
   }
 
-  static isComesFromCart(bool step) async {
-    SharedPreferences pref = await SharedPreferences.getInstance();
-    pref.setBool("isComesFromCart", step);
-  }
-  static Future<bool?> returnIsComesFromCart() async {
-    SharedPreferences pref = await SharedPreferences.getInstance();
-    bool? isComesFromCart = pref.getBool("isComesFromCart");
-    return isComesFromCart;
-  }
 
-  static saveCityId(String cityId) async {
-    SharedPreferences pref = await SharedPreferences.getInstance();
-    pref.setString("selectedCityId", cityId);
-  }
-
-  static Future<String?> returnCityId() async {
-    SharedPreferences pref = await SharedPreferences.getInstance();
-    String? cityId = pref.getString("selectedCityId");
-    return cityId;
-  }
+  // static isProfileComplete(bool step) async {
+  //   SharedPreferences pref = await SharedPreferences.getInstance();
+  //   pref.setBool("isProfileComplete", step);
+  // }
+  //
+  // static Future<bool?> returnIsProfileComplete() async {
+  //   SharedPreferences pref = await SharedPreferences.getInstance();
+  //   bool? isProfileComplete = pref.getBool("isProfileComplete");
+  //   return isProfileComplete;
+  // }
+  //
+  // static isComesFromCart(bool step) async {
+  //   SharedPreferences pref = await SharedPreferences.getInstance();
+  //   pref.setBool("isComesFromCart", step);
+  // }
+  // static Future<bool?> returnIsComesFromCart() async {
+  //   SharedPreferences pref = await SharedPreferences.getInstance();
+  //   bool? isComesFromCart = pref.getBool("isComesFromCart");
+  //   return isComesFromCart;
+  // }
+  //
+  // static saveCityId(String cityId) async {
+  //   SharedPreferences pref = await SharedPreferences.getInstance();
+  //   pref.setString("selectedCityId", cityId);
+  // }
+  //
+  // static Future<String?> returnCityId() async {
+  //   SharedPreferences pref = await SharedPreferences.getInstance();
+  //   String? cityId = pref.getString("selectedCityId");
+  //   return cityId;
+  // }
   static clearSharedPreference() async {
     SharedPreferences pref = await SharedPreferences.getInstance();
     pref.remove('accessToken');

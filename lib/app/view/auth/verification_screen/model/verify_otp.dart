@@ -1,12 +1,14 @@
 class verifyOtp {
   bool? status;
   String? message;
+  String? userId;
 
-  verifyOtp({this.status, this.message});
+  verifyOtp({this.status, this.message,this.userId});
 
   verifyOtp.fromJson(Map<String, dynamic> json) {
     status = json['status'];
     message = json['message'];
+    userId = json['data']['user_id']?.toString();
   }
 
   Map<String, dynamic> toJson() {

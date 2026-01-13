@@ -35,7 +35,7 @@ class AppRoutes {
   static const String splashScreen = '/splashScreen';
   static const String welcomeScreen = '/welcomeScreen';
   static const String login = '/login';
-  static const String createAccount = '/createAccount';
+  // static const String createAccount = '/createAccount';
   static const String otpVerification = '/otpVerification';
   static const String homeScreen = '/homeScreen';
   static const String serviceDetailScreen = '/serviceDetailScreen';
@@ -111,8 +111,8 @@ class AppRoutes {
       case otpVerification:
         return MaterialPageRoute(builder: (context) => VerificationScreen(phone: '',));
 
-      case createAccount:
-        return MaterialPageRoute(builder: (context) => CreateAccountScreen());
+      // case createAccount:
+      //   return MaterialPageRoute(builder: (context) => CreateAccountScreen());
 
       case navigationTab:
         return MaterialPageRoute(builder: (context) => NavigationTabScreen());
