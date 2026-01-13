@@ -20,7 +20,7 @@ class RoleProvider extends ChangeNotifier {
   bool get hasSelectedRole => selectedRole != null;
 
   Future<ChooseRoleModel?> chooseRole({
-    required int userId,
+    required String userId,
   }) async {
     if (selectedRole == null) {
       errorMessage = "Please select a role";

@@ -44,19 +44,22 @@ class MyApp extends StatelessWidget {
         minTextAdapt: true,
         splitScreenMode: true,
         builder: (_, __) {
-          return MaterialApp(
-            title: 'Ozi Salon Services',
-            debugShowCheckedModeBanner: false,
-            theme: ThemeData(
-              primaryColor: AppColors.primary,
-              scaffoldBackgroundColor: AppColors.white,
-              colorScheme: ColorScheme.fromSeed(
-                seedColor: AppColors.primary,
+          return SafeArea(
+            child: MaterialApp(
+              title: 'Ozi Salon Services',
+              navigatorKey: navigatorKey,
+              debugShowCheckedModeBanner: false,
+              theme: ThemeData(
+                primaryColor: AppColors.primary,
+                scaffoldBackgroundColor: AppColors.white,
+                colorScheme: ColorScheme.fromSeed(
+                  seedColor: AppColors.primary,
+                ),
+                useMaterial3: false,
               ),
-              useMaterial3: false,
+              initialRoute: AppRoutes.splashScreen,
+              onGenerateRoute: AppRoutes.generateRoute,
             ),
-            initialRoute: AppRoutes.splashScreen,
-            onGenerateRoute: AppRoutes.generateRoute,
           );
         },
       ),
@@ -64,3 +67,6 @@ class MyApp extends StatelessWidget {
 
   }
 }
+
+
+
