@@ -159,7 +159,7 @@ class Get {
   //     context,
   //     listen: false,
   //   );
-  //   final code = profileProvider.profileAPIData.data?.user?.referralCode;
+  //   final code = profileProvider.profileAPIData.data?.create_account?.referralCode;
   //   final String shareText =
   //       "✨ Hey Gorgeous! ✨\n\n"
   //       "I just tried *BeautyGlad* for **Beauty Services at Home** 💅💆‍♀️ and had an amazing experience! 🌸\n\n"

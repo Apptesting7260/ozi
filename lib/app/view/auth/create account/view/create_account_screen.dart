@@ -1,8 +1,9 @@
 
 
-import '../../../../../core/appExports/app_export.dart';
-import '../../../../../shared/widgets/custom_text_form_field.dart';
-import '../../../../user/navigation tab/view/navigation_tab_screen.dart';
+
+import '../../../../core/appExports/app_export.dart';
+import '../../../../modules/user/navigation tab/view/navigation_tab_screen.dart';
+import '../../../../shared/widgets/custom_text_form_field.dart';
 
 class CreateAccountScreen extends StatelessWidget {
   const CreateAccountScreen({super.key});

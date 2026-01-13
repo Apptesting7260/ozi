@@ -3,7 +3,6 @@
 
 import '../../../../core/appExports/app_export.dart';
 import '../../../../routes/app_routes.dart';
-import '../../../../shared/widgets/custom_app_bar.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -13,11 +12,14 @@ class ProfileScreen extends StatelessWidget {
     return Scaffold(
       body: SafeArea(
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
         
             Padding(
-              padding: const EdgeInsets.only(left: 20),
-              child: Text("My Profile", style: AppFontStyle.text_24_600(AppColors.darkText, fontFamily: AppFontFamily.semiBold),),
+              padding: EdgeInsets.only(left: 20),
+              child: Text("My Profile",
+                style: AppFontStyle.text_24_600(AppColors.darkText,
+                    fontFamily: AppFontFamily.semiBold),),
             ),
         
             Expanded(
@@ -41,9 +43,8 @@ class ProfileScreen extends StatelessWidget {
                             imageUrl: "https://images.unsplash.com/photo-1527980965255-d3b416303d12",
                             size: 90,
                           ),
-        
-        
-                          SizedBox(height: 14),
+
+                          hBox(14),
         
                           Text(
                             "Alex Johnson",
@@ -53,7 +54,7 @@ class ProfileScreen extends StatelessWidget {
                             ),
                           ),
         
-                          SizedBox(height: 2),
+                          hBox(2),
         
                           Text(
                             "+1 (555) 123-4567",
@@ -63,9 +64,8 @@ class ProfileScreen extends StatelessWidget {
                       ),
                     ),
         
-                    SizedBox(height: 26),
+                    hBox(26),
         
-                    /// PROFILE OPTIONS LIST
                     _profileTile(
                       icon: ImageConstants.profile,
                       title: "Edit Profile",
@@ -173,8 +173,8 @@ class ProfileScreen extends StatelessWidget {
       onTap: onTap,
       child: Container(
         width: double.infinity,
-        padding: EdgeInsets.symmetric(vertical: 18, horizontal: 14),
-        margin: EdgeInsets.only(bottom: 14),
+        padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 14),
+        margin: const EdgeInsets.only(bottom: 14),
         decoration: BoxDecoration(
           color: AppColors.white,
           borderRadius: BorderRadius.circular(14),
@@ -182,18 +182,20 @@ class ProfileScreen extends StatelessWidget {
         ),
         child: Row(
           children: [
-
+            /// ICON CONTAINER
             SizedBox(
-              height: 22,
-              width: 22,
-              // decoration: BoxDecoration(
-              //   color: AppColors.lightGreen20,
-              //   borderRadius: BorderRadius.circular(8),
-              // ),
-              child: CustomImage(path: icon, color: AppColors.primary,),
+              height: 32,
+              width: 32,
+              child: Center(
+                child: CustomImage(
+                  path: icon,
+                  color: AppColors.primary,
+                  fit: BoxFit.contain, // 🔑 VERY IMPORTANT
+                ),
+              ),
             ),
 
-            SizedBox(width: 14),
+            wBox(14),
 
             /// TITLE
             Expanded(
@@ -215,6 +217,7 @@ class ProfileScreen extends StatelessWidget {
       ),
     );
   }
+
 
   Future<void> showDeleteDialog(BuildContext context) async {
     showDialog(

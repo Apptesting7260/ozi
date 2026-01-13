@@ -1,6 +1,6 @@
 import '../../../../core/appExports/app_export.dart';
 import '../../booking/view/booking_screen.dart';
-import '../../cart/view/MyCartScreen.dart';
+import '../../cart/view/my_cart_screen.dart';
 import '../../help/view/help_screen.dart';
 import '../../home/view/homescreen.dart';
 import '../../profile/view/profile_screen.dart';
@@ -24,7 +24,6 @@ class NavigationProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  // --------------------------------------------------------
   final List<Widget> pages = [
     HomeScreen(),
     CartScreen(),
@@ -33,19 +32,17 @@ class NavigationProvider extends ChangeNotifier {
     ProfileScreen(),
   ];
 
-  // --------------------------------------------------------
-  // Navigation icon paths
   String getIconPath(int index, bool isActive) {
     switch (index) {
-      case 0: // Home
+      case 0:
         return isActive ? ImageConstants.homeFill : ImageConstants.home;
-      case 1: // Cart
+      case 1:
         return isActive ? ImageConstants.cartFill : ImageConstants.cart;
-      case 2: // Bookings
+      case 2:
         return isActive ? ImageConstants.bookingFill : ImageConstants.booking;
-      case 3: // Help
-        return isActive ? ImageConstants.helpFill2 : ImageConstants.help;
-      case 4: // Profile
+      case 3:
+        return isActive ? ImageConstants.supportFill : ImageConstants.help;
+      case 4:
         return isActive ? ImageConstants.profileFill : ImageConstants.profile;
       default:
         return ImageConstants.home;

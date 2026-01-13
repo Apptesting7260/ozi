@@ -15,7 +15,7 @@ class MyBookingsScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Padding(
-                padding:  EdgeInsets.only(top: 10, left: 20, bottom: 10),
+                padding: EdgeInsets.only(top: 10, left: 20, bottom: 10),
                 child: Text(
                   "My Bookings",
                   style: AppFontStyle.text_24_600(AppColors.black, fontFamily: AppFontFamily.semiBold),
@@ -100,9 +100,7 @@ class MyBookingsScreen extends StatelessWidget {
         margin: EdgeInsets.only(left: 12),
         padding: EdgeInsets.symmetric(horizontal: 18, vertical: 8),
         decoration: BoxDecoration(
-          color: selected
-              ? AppColors.primary
-              : AppColors.lightGrey,
+          color: selected ? AppColors.primary : AppColors.lightGrey,
           borderRadius: BorderRadius.circular(30),
           border: Border.all(
             color: selected ? AppColors.primary : Colors.transparent,
@@ -112,9 +110,7 @@ class MyBookingsScreen extends StatelessWidget {
         child: Text(
           title,
           style: AppFontStyle.text_14_500(
-            selected
-                ? AppColors.white
-                : AppColors.darkText,
+            selected ? AppColors.white : AppColors.darkText,
           ),
         ),
       ),
@@ -249,9 +245,34 @@ class MyBookingsScreen extends StatelessWidget {
     );
   }
 
+  // Determine which tab index to use based on status when in "All" tab
+  int _getEffectiveTabIndex(int currentTabIndex, String status) {
+    // If we're in "All" tab (0), determine the effective tab based on status
+    if (currentTabIndex == 0) {
+      switch (status.toLowerCase()) {
+        case "in progress":
+          return 1; // Ongoing
+        case "confirmed":
+        case "upcoming":
+          return 2; // Upcoming
+        case "completed":
+          return 3; // Completed
+        case "cancelled":
+          return 4; // Cancelled
+        default:
+          return 0;
+      }
+    }
+    // If we're in a specific tab, use that tab index
+    return currentTabIndex;
+  }
+
   Widget _buildActionButtons(BuildContext context, Map<String, dynamic> data, int tabIndex, BookingProvider provider) {
+    // Get the effective tab index based on the booking status
+    int effectiveTabIndex = _getEffectiveTabIndex(tabIndex, data["status"]);
+
     // Ongoing bookings - Only View Details button
-    if (tabIndex == 1) {
+    if (effectiveTabIndex == 1) {
       return CustomButton(
         isOutlined: true,
         text: "View Details",
@@ -264,7 +285,7 @@ class MyBookingsScreen extends StatelessWidget {
             MaterialPageRoute(
               builder: (context) => BookingDetailsScreen(
                 bookingData: data,
-                tabIndex: provider.tabIndex,
+                tabIndex: effectiveTabIndex,
               ),
             ),
           );
@@ -273,14 +294,14 @@ class MyBookingsScreen extends StatelessWidget {
     }
 
     // Upcoming bookings - View Details + Cancel Booking (RED)
-    if (tabIndex == 2) {
+    if (effectiveTabIndex == 2) {
       return Row(
         children: [
           Expanded(
             child: CustomButton(
               text: "View Details",
               isOutlined: true,
-              color: AppColors.lightGrey2 ,
+              color: AppColors.lightGrey2,
               textStyle: AppFontStyle.text_14_500(AppColors.black, fontFamily: AppFontFamily.medium),
               onPressed: () {
                 Navigator.push(
@@ -288,7 +309,7 @@ class MyBookingsScreen extends StatelessWidget {
                   MaterialPageRoute(
                     builder: (context) => BookingDetailsScreen(
                       bookingData: data,
-                      tabIndex: provider.tabIndex,
+                      tabIndex: effectiveTabIndex,
                     ),
                   ),
                 );
@@ -300,7 +321,7 @@ class MyBookingsScreen extends StatelessWidget {
             child: CustomButton(
               text: "Cancel Booking",
               isOutlined: true,
-              color: AppColors.red ,
+              color: AppColors.red,
               textStyle: AppFontStyle.text_14_500(AppColors.red, fontFamily: AppFontFamily.medium),
               height: 46,
               onPressed: () {
@@ -313,14 +334,14 @@ class MyBookingsScreen extends StatelessWidget {
     }
 
     // Completed bookings - View Details + Book Again
-    if (tabIndex == 3) {
+    if (effectiveTabIndex == 3) {
       return Row(
         children: [
           Expanded(
             child: CustomButton(
               text: "View Details",
               isOutlined: true,
-              color: AppColors.lightGrey2 ,
+              color: AppColors.lightGrey2,
               textStyle: AppFontStyle.text_14_500(AppColors.black, fontFamily: AppFontFamily.medium),
               onPressed: () {
                 Navigator.push(
@@ -328,7 +349,7 @@ class MyBookingsScreen extends StatelessWidget {
                   MaterialPageRoute(
                     builder: (context) => BookingDetailsScreen(
                       bookingData: data,
-                      tabIndex: provider.tabIndex,
+                      tabIndex: effectiveTabIndex,
                     ),
                   ),
                 );
@@ -356,14 +377,14 @@ class MyBookingsScreen extends StatelessWidget {
     }
 
     // Canceled bookings - View Details + Book Again
-    if (tabIndex == 4) {
+    if (effectiveTabIndex == 4) {
       return Row(
         children: [
           Expanded(
             child: CustomButton(
               text: "View Details",
               isOutlined: true,
-              color: AppColors.lightGrey2 ,
+              color: AppColors.lightGrey2,
               textStyle: AppFontStyle.text_14_500(AppColors.black, fontFamily: AppFontFamily.medium),
               onPressed: () {
                 Navigator.push(
@@ -371,7 +392,7 @@ class MyBookingsScreen extends StatelessWidget {
                   MaterialPageRoute(
                     builder: (context) => BookingDetailsScreen(
                       bookingData: data,
-                      tabIndex: provider.tabIndex,
+                      tabIndex: effectiveTabIndex,
                     ),
                   ),
                 );
@@ -408,7 +429,7 @@ class MyBookingsScreen extends StatelessWidget {
           MaterialPageRoute(
             builder: (context) => BookingDetailsScreen(
               bookingData: data,
-              tabIndex: provider.tabIndex,
+              tabIndex: effectiveTabIndex,
             ),
           ),
         );

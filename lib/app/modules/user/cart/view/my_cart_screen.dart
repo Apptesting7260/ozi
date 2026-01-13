@@ -25,39 +25,44 @@ class CartScreenContent extends StatelessWidget {
           children: [
             _buildHeader(context),
             Expanded(
-              child: Padding(
-                padding:  EdgeInsets.all(16),
-                child: SingleChildScrollView(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Consumer<CartProvider>(
-                        builder: (context, cart, child) {
-                          return Column(
+              child: Consumer<CartProvider>(
+                builder: (context, cart, child) {
+                  // Show empty cart widget when no items
+                  if (cart.items.isEmpty) {
+                    return _buildEmptyCart();
+                  }
+
+                  // Show cart items when available
+                  return Padding(
+                    padding: EdgeInsets.all(16),
+                    child: SingleChildScrollView(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Column(
                             children: cart.items
                                 .map((item) => _buildCartItem(context, item))
                                 .toList(),
-                          );
-                        },
+                          ),
+
+                          hBox(24),
+
+                          // Order Summary
+                          _buildOrderSummary(context),
+
+                          hBox(20),
+                          _buildBottomButton(context),
+                          hBox(100),
+                        ],
                       ),
-                  
-                      hBox(24),
-                  
-                      // Order Summary
-                      _buildOrderSummary(context),
-                  
-                      hBox(20),
-                      _buildBottomButton(context),
-                      hBox(100),
-                    ],
-                  ),
-                ),
+                    ),
+                  );
+                },
               ),
             ),
           ],
         ),
       ),
-
     );
   }
 
@@ -70,17 +75,18 @@ class CartScreenContent extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-           Text(
+          Text(
             'My Cart',
-            style: AppFontStyle.text_26_600( AppColors.black, fontFamily: AppFontFamily.semiBold,
+            style: AppFontStyle.text_26_600(
+              AppColors.black,
+              fontFamily: AppFontFamily.semiBold,
             ),
           ),
           Consumer<CartProvider>(
             builder: (context, cart, child) {
               return Text(
                 '${cart.itemCount} items',
-                style:  AppFontStyle.text_16_400(AppColors.primary
-                ),
+                style: AppFontStyle.text_16_400(AppColors.primary),
               );
             },
           ),
@@ -120,7 +126,7 @@ class CartScreenContent extends StatelessWidget {
                   width: 80,
                   height: 80,
                   color: AppColors.grey,
-                  child:  Icon(Icons.image, color: AppColors.grey),
+                  child: Icon(Icons.image, color: AppColors.grey),
                 );
               },
             ),
@@ -140,7 +146,9 @@ class CartScreenContent extends StatelessWidget {
                       child: Text(
                         maxLines: 2,
                         item.name,
-                        style: AppFontStyle.text_14_500(AppColors.darkText, fontFamily: AppFontFamily.medium
+                        style: AppFontStyle.text_14_500(
+                          AppColors.darkText,
+                          fontFamily: AppFontFamily.medium,
                         ),
                       ),
                     ),
@@ -149,23 +157,22 @@ class CartScreenContent extends StatelessWidget {
                       builder: (context, cart, child) {
                         return InkWell(
                           onTap: () => cart.removeItem(item.id),
-                          child:  CustomImage(path: ImageConstants.bin),
+                          child: CustomImage(path: ImageConstants.bin),
                         );
                       },
                     ),
                   ],
                 ),
 
-
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
                       '\$${item.price.toStringAsFixed(2)}',
-                      style:  AppFontStyle.text_16_600(
-                         AppColors.primary,
-                         fontFamily: AppFontFamily.bold
-                         ),
+                      style: AppFontStyle.text_16_600(
+                        AppColors.primary,
+                        fontFamily: AppFontFamily.bold,
+                      ),
                     ),
 
                     Consumer<CartProvider>(
@@ -188,24 +195,34 @@ class CartScreenContent extends StatelessWidget {
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 InkWell(
-                                  onTap: () => cart.updateQuantity(item.id, -1),
+                                  onTap: () {
+                                    // Remove item if quantity is 1, otherwise decrease
+                                    if (item.quantity <= 1) {
+                                      cart.removeItem(item.id);
+                                    } else {
+                                      cart.updateQuantity(item.id, -1);
+                                    }
+                                  },
                                   child: Container(
                                     width: 28,
                                     height: 28,
                                     decoration: BoxDecoration(
                                       borderRadius: BorderRadius.circular(14),
                                     ),
-                                    child:  Icon(
+                                    child: Icon(
                                       Icons.remove,
                                       size: 16,
-                                      color: AppColors.primary,),
+                                      color: AppColors.primary,
+                                    ),
                                   ),
                                 ),
                                 Container(
                                   padding: const EdgeInsets.symmetric(horizontal: 12),
                                   child: Text(
                                     '${item.quantity}',
-                                    style: AppFontStyle.text_14_500(AppColors.primary, fontFamily: AppFontFamily.medium
+                                    style: AppFontStyle.text_14_500(
+                                      AppColors.primary,
+                                      fontFamily: AppFontFamily.medium,
                                     ),
                                   ),
                                 ),
@@ -217,10 +234,11 @@ class CartScreenContent extends StatelessWidget {
                                     decoration: BoxDecoration(
                                       borderRadius: BorderRadius.circular(14),
                                     ),
-                                    child:  Icon(
+                                    child: Icon(
                                       Icons.add,
                                       size: 16,
-                                      color: AppColors.primary,  ),
+                                      color: AppColors.primary,
+                                    ),
                                   ),
                                 ),
                               ],
@@ -231,8 +249,7 @@ class CartScreenContent extends StatelessWidget {
                     ),
                   ],
                 ),
-                 hBox(1),
-
+                hBox(1),
               ],
             ),
           ),
@@ -247,9 +264,11 @@ class CartScreenContent extends StatelessWidget {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-             Text(
+            Text(
               'Order Summary',
-              style: AppFontStyle.text_16_600(AppColors.darkText, fontFamily: AppFontFamily.semiBold
+              style: AppFontStyle.text_16_600(
+                AppColors.darkText,
+                fontFamily: AppFontFamily.semiBold,
               ),
             ),
 
@@ -258,14 +277,15 @@ class CartScreenContent extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                 Text(
+                Text(
                   'Subtotal',
-                  style: AppFontStyle.text_14_400(AppColors.grey,
-                  ),
+                  style: AppFontStyle.text_14_400(AppColors.grey),
                 ),
                 Text(
                   '\$${cart.subtotal.toStringAsFixed(2)}',
-                  style: AppFontStyle.text_14_500(AppColors.darkText, fontFamily: AppFontFamily.medium
+                  style: AppFontStyle.text_14_500(
+                    AppColors.darkText,
+                    fontFamily: AppFontFamily.medium,
                   ),
                 ),
               ],
@@ -276,14 +296,15 @@ class CartScreenContent extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                 Text(
+                Text(
                   'Service Fee',
-                  style: AppFontStyle.text_14_400(AppColors.grey,
-                  ),
+                  style: AppFontStyle.text_14_400(AppColors.grey),
                 ),
                 Text(
                   '\$${cart.serviceFee.toStringAsFixed(2)}',
-                  style: AppFontStyle.text_14_500(AppColors.darkText, fontFamily: AppFontFamily.medium
+                  style: AppFontStyle.text_14_500(
+                    AppColors.darkText,
+                    fontFamily: AppFontFamily.medium,
                   ),
                 ),
               ],
@@ -291,7 +312,7 @@ class CartScreenContent extends StatelessWidget {
 
             hBox(10),
 
-           Divider(),
+            Divider(),
 
             hBox(10),
 
@@ -308,7 +329,7 @@ class CartScreenContent extends StatelessWidget {
                 ),
                 Text(
                   '\$${cart.total.toStringAsFixed(2)}',
-                  style:  TextStyle(
+                  style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
                     color: Color(0xFF10B981),
@@ -325,16 +346,58 @@ class CartScreenContent extends StatelessWidget {
   Widget _buildBottomButton(BuildContext context) {
     return Consumer<CartProvider>(
       builder: (context, cart, child) {
-        return  CustomButton(onPressed: (){
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (_) => ScheduleServiceScreen(),
-            ),
-          );
+        return CustomButton(
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => ScheduleServiceScreen(),
+              ),
+            );
+          },
+          text: 'Continue to Book · \$${cart.total.toStringAsFixed(2)}',
+        );
+      },
+    );
+  }
 
-        },
-            text: 'Continue to Book · \$${cart.total.toStringAsFixed(2)}',
+  Widget _buildEmptyCart() {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return SingleChildScrollView(
+          physics: AlwaysScrollableScrollPhysics(),
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              minHeight: constraints.maxHeight,
+            ),
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.shopping_cart_outlined,
+                    size: 100,
+                    color: AppColors.primary,
+                  ),
+                  SizedBox(height: 24),
+                  Text(
+                    "Your Cart is Empty",
+                    style: AppFontStyle.text_20_600(
+                      AppColors.darkText,
+                      fontFamily: AppFontFamily.semiBold,
+                    ),
+                  ),
+                  SizedBox(height: 8),
+                  Text(
+                    "Add services to get started",
+                    style: AppFontStyle.text_16_400(
+                      AppColors.black,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
         );
       },
     );

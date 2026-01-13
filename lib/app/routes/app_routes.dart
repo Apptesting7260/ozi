@@ -2,14 +2,11 @@
 
 
 
-import 'package:ozi/app/modules/vendor/bookings/provider/vendor_mybookings_provider.dart';
 import 'package:ozi/app/modules/vendor/home/view/vendor_home_screen.dart';
 import 'package:ozi/app/modules/vendor/navigation%20tab/view/vendor_navigation_tab_screen.dart';
 import 'package:ozi/app/modules/vendor/profile/view/vendor_profile_screen.dart';
 import 'package:ozi/app/modules/vendor/services/view/service_screen.dart';
-
 import '../core/appExports/app_export.dart';
-import '../modules/auth/user/create account/view/create_account_screen.dart';
 import '../modules/user/help/view/help_screen.dart';
 import '../modules/user/home/service details/view/ServiceDetailScreen.dart';
 import '../modules/user/home/view/homescreen.dart';
@@ -23,13 +20,13 @@ import '../modules/user/profile/payment method/view/PaymentMethodsScreen.dart';
 import '../modules/user/profile/save address/view/SavedAddressScreen.dart';
 import '../modules/user/profile/setting/view/SettingsScreen.dart';
 import '../modules/user/profile/view/profile_screen.dart';
-import '../modules/vendor/bookings/booking details/view/vendor_booking_details_screen.dart';
 import '../modules/vendor/bookings/view/vendor_mybookings_screen.dart';
 import '../modules/vendor/profile/add new address/view/AddAddressScreen.dart';
 import '../modules/vendor/profile/add new card/view/AddNewCardScreen.dart';
 import '../modules/vendor/wallet/view/wallet_screen.dart';
+import '../view/auth/create account/view/create_account_screen.dart';
 import '../view/auth/login/view/login_screen.dart';
-import '../view/auth/verification_screen/view/VerificationScreen.dart';
+import '../view/auth/verification_screen/view/verification_screen.dart';
 import '../view/splash/view/splash_screen.dart';
 import '../view/welcome/view/welcome_screen.dart';
 

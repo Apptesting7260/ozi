@@ -1,5 +1,4 @@
-import 'package:ozi/app/modules/user/cart/view/MyCartScreen.dart';
-
+import 'package:ozi/app/modules/user/navigation%20tab/view/navigation_tab_screen.dart';
 import '../../../../../core/appExports/app_export.dart';
 import '../../../../../shared/widgets/custom_app_bar.dart';
 import '../provider/ServiceDetailProvider.dart';
@@ -274,7 +273,7 @@ class ServiceDetailView extends StatelessWidget {
           ),
           CustomButton(
             onPressed: () {
-              Navigator.push(context, MaterialPageRoute(builder: (_) => CartScreen()));
+              Navigator.push(context, MaterialPageRoute(builder: (_) => NavigationTabScreen(initialIndex: 1,)));
             },
             width: 150,
             height: 50,

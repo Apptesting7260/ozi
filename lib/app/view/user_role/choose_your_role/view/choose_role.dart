@@ -1,7 +1,8 @@
-import 'package:ozi/app/modules/auth/vendor/signup/view/signup_screen.dart';
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:ozi/app/view/user_role/choose_your_role/view/provider/RoleProvider.dart';
 import '../../../../core/appExports/app_export.dart';
-import '../../../../modules/auth/user/create account/view/create_account_screen.dart';
+import '../../../auth/create account/view/create_account_screen.dart';
 
 class ChooseRoleScreen extends StatelessWidget {
   const ChooseRoleScreen({super.key});
@@ -20,7 +21,7 @@ class ChooseRoleContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final provider = Provider.of<RoleProvider>(context);
+    final provider = context.watch<RoleProvider>();
 
     return Scaffold(
       backgroundColor: AppColors.white,
@@ -30,6 +31,7 @@ class ChooseRoleContent extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             hBox(30),
+
             Text(
               "Choose Your Role",
               style: AppFontStyle.text_28_600(
@@ -40,52 +42,46 @@ class ChooseRoleContent extends StatelessWidget {
 
             hBox(10),
 
-            /// SUBTITLE
             Text(
-              maxLines: 2,
-              "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
+              "Select how you want to use the app.",
               style: AppFontStyle.text_16_400(AppColors.grey),
             ),
 
             hBox(30),
 
-            /// USER OPTION
-            roleOptionTile(
+            _roleTile(
               imagePath: ImageConstants.userIcon,
               text: "I'm a User",
               isSelected: provider.selectedRole == "user",
               onTap: () => provider.selectRole("user"),
             ),
-
-            hBox(16),
-
-            roleOptionTile(
+ hBox(16),
+            _roleTile(
               imagePath: ImageConstants.vendorIcon,
               text: "I'm a Vendor",
               isSelected: provider.selectedRole == "vendor",
               onTap: () => provider.selectRole("vendor"),
             ),
 
-            hBox(16),
+            hBox(30),
 
             CustomButton(
-              text: "Continue",
-              onPressed: () {
-                if (provider.selectedRole == "user") {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => CreateAccountScreen(),
+              text: provider.isLoading ? "Please wait..." : "Continue",
+              isLoading: provider.isLoading,
+              onPressed: () async {
+                if (!provider.hasSelectedRole) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text("Please select a role"),
                     ),
                   );
-                } else {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => SignupScreen(), // VENDOR SCREEN
-                    ),
-                  );
+                  return;
                 }
+
+                _onContinuePressed(
+                  context,
+                  context.read<RoleProvider>(),
+                );
               },
             ),
 
@@ -94,24 +90,58 @@ class ChooseRoleContent extends StatelessWidget {
       ),
     );
   }
-  Widget roleOptionTile({
+
+  Future<void> _onContinuePressed(
+      BuildContext context,
+      RoleProvider provider,
+      ) async {
+    if (provider.isLoading) return;
+
+    final result = await provider.chooseRole(userId: 2);
+
+    if (result?.status == true) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => CreateAccountScreen(
+          ),
+        ),
+      );
+
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            result?.message ??
+                provider.errorMessage ??
+                "Something went wrong",
+          ),
+        ),
+      );
+    }
+  }
+
+  Widget _roleTile({
     required String imagePath,
     required String text,
     required bool isSelected,
     required VoidCallback onTap,
   }) {
-    bool isSvg = imagePath.toLowerCase().endsWith(".svg");
+    final isSvg = imagePath.toLowerCase().endsWith(".svg");
+
     return GestureDetector(
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 15),
         decoration: BoxDecoration(
           color: isSelected
-              ? AppColors.primary.withOpacity(0.1)
+              ? AppColors.primary.withValues(alpha: 0.1)
               : AppColors.white,
           borderRadius: BorderRadius.circular(40),
           border: Border.all(
-            color: isSelected ? AppColors.primary : AppColors.primary.withValues(alpha: 0.30),
+            color: isSelected
+                ? AppColors.primary
+                : AppColors.primary.withValues(alpha: 0.3),
             width: 1.5,
           ),
         ),
@@ -123,8 +153,8 @@ class ChooseRoleContent extends StatelessWidget {
               imagePath,
               height: 22,
               width: 22,
-              colorFilter: ColorFilter.mode(
-                isSelected ? AppColors.primary : AppColors.primary,
+              colorFilter:  ColorFilter.mode(
+                AppColors.primary,
                 BlendMode.srcIn,
               ),
             )
@@ -132,11 +162,9 @@ class ChooseRoleContent extends StatelessWidget {
               imagePath,
               height: 22,
               width: 22,
-              color: isSelected ? AppColors.primary : AppColors.primary,
+              color: AppColors.primary,
             ),
-
             wBox(10),
-
             Text(
               text,
               style: AppFontStyle.text_16_600(
@@ -149,5 +177,4 @@ class ChooseRoleContent extends StatelessWidget {
       ),
     );
   }
-
 }

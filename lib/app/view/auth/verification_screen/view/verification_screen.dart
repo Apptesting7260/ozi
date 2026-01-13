@@ -4,7 +4,6 @@ import '../../../../core/appExports/app_export.dart';
 import '../../../user_role/choose_your_role/view/choose_role.dart';
 import '../provider/VerificationProvider.dart';
 
-
 class VerificationScreen extends StatelessWidget {
   final String phone;
 
@@ -35,12 +34,10 @@ class VerificationContent extends StatelessWidget {
     return Scaffold(
       body: Column(
         children: [
-        
-          SafeArea(
-              child: const CustomAppBar(title: "")),
+          SafeArea(child: const CustomAppBar(title: "")),
           Expanded(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 20, ),
+              padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -51,13 +48,11 @@ class VerificationContent extends StatelessWidget {
                       fontFamily: AppFontFamily.extraBold,
                     ),
                   ),
-
                   hBox(10),
                   Text(
                     "Please enter the verification code sent to",
                     style: AppFontStyle.text_16_400(AppColors.grey),
                   ),
-
                   Text(
                     phone,
                     style: AppFontStyle.text_16_600(
@@ -65,9 +60,7 @@ class VerificationContent extends StatelessWidget {
                       fontFamily: AppFontFamily.semiBold,
                     ),
                   ),
-
                   hBox(30),
-
                   Text(
                     "Verification Code",
                     style: AppFontStyle.text_16_600(
@@ -75,9 +68,7 @@ class VerificationContent extends StatelessWidget {
                       fontFamily: AppFontFamily.semiBold,
                     ),
                   ),
-
                   hBox(10),
-
                   PinCodeTextField(
                     appContext: context,
                     controller: provider.otpController,
@@ -98,25 +89,36 @@ class VerificationContent extends StatelessWidget {
                       activeFillColor: AppColors.lightGrey,
                       borderWidth: 0,
                     ),
-                    onChanged: (value) {},
-                  ),
-
-                  hBox(16),
-
-                  CustomButton(
-                    text: "Verify",
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => const ChooseRoleScreen(),
-                        ),
-                      );
+                    onChanged: (value) {
+                      provider.errorMessage = null;
                     },
                   ),
+                  if (provider.errorMessage != null) ...[
+                    hBox(8),
+                    Text(
+                      provider.errorMessage!,
+                      style: AppFontStyle.text_14_400(Colors.red),
+                    ),
+                  ],
+                  hBox(16),
+                  CustomButton(
+                    text: provider.isLoading ? "Verifying..." : "Verify",
+                    onPressed: () {
+                      if (provider.isLoading) return;
 
+                      provider.verifyOtpMethod(phone).then((success) {
+                        if (success && context.mounted) {
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const ChooseRoleScreen(),
+                            ),
+                          );
+                        }
+                      });
+                    },
+                  ),
                   hBox(24),
-
                   Center(
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -125,12 +127,19 @@ class VerificationContent extends StatelessWidget {
                           "Didn't receive code? ",
                           style: AppFontStyle.text_14_400(AppColors.grey),
                         ),
-                        Text(
-                          provider.resendTime > 0
-                              ? "Resend in ${provider.resendTime}s"
-                              : "Resend now",
-                          style: AppFontStyle.text_14_600(
-                            AppColors.darkText,
+                        GestureDetector(
+                          onTap: provider.resendTime > 0 || provider.isLoading
+                              ? null
+                              : () => provider.resendOtp(phone),
+                          child: Text(
+                            provider.resendTime > 0
+                                ? "Resend in ${provider.resendTime}s"
+                                : "Resend now",
+                            style: AppFontStyle.text_14_600(
+                              provider.resendTime > 0
+                                  ? AppColors.grey
+                                  : AppColors.darkText,
+                            ),
                           ),
                         ),
                       ],
@@ -143,7 +152,5 @@ class VerificationContent extends StatelessWidget {
         ],
       ),
     );
-
-
   }
 }
