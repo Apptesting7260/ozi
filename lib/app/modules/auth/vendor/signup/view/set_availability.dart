@@ -30,16 +30,13 @@ class _SetAvailabilityContent extends StatelessWidget {
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.all(16),
         child: CustomButton(
+          isLoading: provider.submitLoading,
           text: "Continue",
           height: 54,
           borderRadius: BorderRadius.circular(60),
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) => IdentityVerificationScreen(),
-              ),
-            );
+          onPressed: provider.submitLoading?(){}: () {
+            print(provider.availability.toString());
+            provider.saveAvailability();
           },
         ),
       ),

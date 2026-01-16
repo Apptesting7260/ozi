@@ -45,6 +45,7 @@ class MyApp extends StatelessWidget {
         splitScreenMode: true,
         builder: (_, __) {
           return SafeArea(
+            top: false,
             child: MaterialApp(
               title: 'Ozi Salon Services',
               navigatorKey: navigatorKey,

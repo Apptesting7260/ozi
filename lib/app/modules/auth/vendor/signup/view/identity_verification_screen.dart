@@ -46,6 +46,7 @@ class _IdentityVerificationContent extends StatelessWidget {
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.all(16),
         child: CustomButton(
+          isLoading: provider.submitLoading,
           height: 54,
           text: "Continue",
           borderRadius: BorderRadius.circular(60),
@@ -54,13 +55,7 @@ class _IdentityVerificationContent extends StatelessWidget {
               : AppColors.primary.withValues(alpha: 0.6),
           onPressed: () {
             if (!provider.canContinue) return;
-
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) => ReadyToGoLiveScreen(),
-              ),
-            );
+            provider.saveDocuments();
           },
         ),
       ),
