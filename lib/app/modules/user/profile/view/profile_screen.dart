@@ -1,6 +1,4 @@
-
-
-
+import 'package:ozi/app/modules/user/profile/view/profile_provider/profile_provider.dart';
 import '../../../../core/appExports/app_export.dart';
 import '../../../../routes/app_routes.dart';
 
@@ -9,30 +7,46 @@ class ProfileScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    return ChangeNotifierProvider(
+      create: (_) => ProfileProvider(),
+      child: const ProfileScreenView(),
+    );
+  }
+}
+
+class ProfileScreenView extends StatelessWidget {
+  const ProfileScreenView({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final logoutProvider = context.watch<ProfileProvider>();
+
     return Scaffold(
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-        
             Padding(
-              padding: EdgeInsets.only(left: 20),
-              child: Text("My Profile",
-                style: AppFontStyle.text_24_600(AppColors.darkText,
-                    fontFamily: AppFontFamily.semiBold),),
+              padding: const EdgeInsets.only(left: 20),
+              child: Text(
+                "My Profile",
+                style: AppFontStyle.text_24_600(
+                  AppColors.darkText,
+                  fontFamily: AppFontFamily.semiBold,
+                ),
+              ),
             ),
-        
+
             Expanded(
               child: SingleChildScrollView(
                 padding: REdgeInsets.symmetric(horizontal: 16),
                 child: Column(
                   children: [
-        
-                    SizedBox(height: 10),
-        
+                    const SizedBox(height: 10),
+
                     Container(
                       width: double.infinity,
-                      padding: EdgeInsets.symmetric(vertical: 20),
+                      padding: const EdgeInsets.symmetric(vertical: 20),
                       decoration: BoxDecoration(
                         color: AppColors.primary.withValues(alpha: 0.20),
                         borderRadius: BorderRadius.circular(16),
@@ -43,9 +57,7 @@ class ProfileScreen extends StatelessWidget {
                             imageUrl: "https://images.unsplash.com/photo-1527980965255-d3b416303d12",
                             size: 90,
                           ),
-
                           hBox(14),
-        
                           Text(
                             "Alex Johnson",
                             style: AppFontStyle.text_18_600(
@@ -53,9 +65,7 @@ class ProfileScreen extends StatelessWidget {
                               fontFamily: AppFontFamily.bold,
                             ),
                           ),
-        
                           hBox(2),
-        
                           Text(
                             "+1 (555) 123-4567",
                             style: AppFontStyle.text_14_400(AppColors.grey),
@@ -63,47 +73,58 @@ class ProfileScreen extends StatelessWidget {
                         ],
                       ),
                     ),
-        
+
                     hBox(26),
-        
+
                     _profileTile(
                       icon: ImageConstants.profile,
                       title: "Edit Profile",
                       onTap: () => Navigator.pushNamed(context, AppRoutes.editProfileScreen),
                     ),
-        
+
                     _profileTile(
                       icon: ImageConstants.location,
                       title: "Saved Addresses",
                       onTap: () => Navigator.pushNamed(context, AppRoutes.savedAddressScreen),
                     ),
-        
+
                     _profileTile(
                       icon: ImageConstants.card,
                       title: "Payment Methods",
                       onTap: () => Navigator.pushNamed(context, AppRoutes.paymentMethodsScreen),
                     ),
-        
+
                     _profileTile(
                       icon: ImageConstants.setting,
                       title: "Settings",
                       onTap: () => Navigator.pushNamed(context, AppRoutes.settingsScreen),
                     ),
-        
+
                     hBox(10),
 
                     CustomButton(
                       borderRadius: BorderRadius.circular(30),
                       color: AppColors.primary.withValues(alpha: 0.30),
                       onPressed: () {
-                        showDeleteDialog(context);
+                        if (!logoutProvider.isLoading) {
+                          showDeleteDialog(context, logoutProvider);
+                        }
                       },
-                      child: Row(
+                      child: logoutProvider.isLoading
+                          ?  SizedBox(
+                        height: 22,
+                        width: 22,
+                        child: CircularProgressIndicator(
+                          color: AppColors.primary,
+                          strokeWidth: 2,
+                        ),
+                      )
+                          : Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           CustomImage(
                             path: ImageConstants.logout,
-                            color: AppColors.primary, // icon white
+                            color: AppColors.primary,
                             height: 22,
                             width: 22,
                           ),
@@ -111,7 +132,7 @@ class ProfileScreen extends StatelessWidget {
                           Text(
                             "Logout",
                             style: AppFontStyle.text_16_600(
-                              AppColors.primary, // text white
+                              AppColors.primary,
                               fontFamily: AppFontFamily.semiBold,
                             ),
                           ),
@@ -129,8 +150,6 @@ class ProfileScreen extends StatelessWidget {
       ),
     );
   }
-
-  /// ------------------ REUSABLE TILE WIDGET ------------------
 
   Widget profileAvatarStatic({
     required String imageUrl,
@@ -163,7 +182,6 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-
   Widget _profileTile({
     required String icon,
     required String title,
@@ -182,7 +200,6 @@ class ProfileScreen extends StatelessWidget {
         ),
         child: Row(
           children: [
-            /// ICON CONTAINER
             SizedBox(
               height: 32,
               width: 32,
@@ -190,22 +207,17 @@ class ProfileScreen extends StatelessWidget {
                 child: CustomImage(
                   path: icon,
                   color: AppColors.primary,
-                  fit: BoxFit.contain, // 🔑 VERY IMPORTANT
+                  fit: BoxFit.contain,
                 ),
               ),
             ),
-
             wBox(14),
-
-            /// TITLE
             Expanded(
               child: Text(
                 title,
                 style: AppFontStyle.text_15_500(AppColors.black),
               ),
             ),
-
-            /// RIGHT ARROW
             CustomImage(
               path: ImageConstants.rightBack,
               color: AppColors.grey,
@@ -218,25 +230,22 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-
-  Future<void> showDeleteDialog(BuildContext context) async {
+  Future<void> showDeleteDialog(BuildContext context, ProfileProvider provider) async {
     showDialog(
       context: context,
       barrierDismissible: true,
-      builder: (context) {
+      builder: (dialogContext) {
         return Dialog(
-          insetPadding: EdgeInsets.symmetric(horizontal: 28),
+          insetPadding: const EdgeInsets.symmetric(horizontal: 28),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(18),
           ),
           backgroundColor: AppColors.white,
-
           child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 22, vertical: 22),
+            padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 22),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-
                 Text(
                   "Logout",
                   style: AppFontStyle.text_18_600(
@@ -244,33 +253,28 @@ class ProfileScreen extends StatelessWidget {
                     fontFamily: AppFontFamily.bold,
                   ),
                 ),
-
-                SizedBox(height: 12),
-
+                const SizedBox(height: 12),
                 Text(
                   "Are you sure you want to logout\nyour account?",
                   style: AppFontStyle.text_14_400(AppColors.grey),
                   textAlign: TextAlign.center,
                 ),
-
-                SizedBox(height: 22),
-
+                const SizedBox(height: 22),
                 CustomButton(
                   text: "Yes, Logout",
                   borderRadius: BorderRadius.circular(30),
                   onPressed: () {
-                    Navigator.pop(context);
+                    provider.logout(context);
+                    showCustomToast(context, "Logged out successfully");
                   },
                 ),
-
-                SizedBox(height: 12),
-
+                const SizedBox(height: 12),
                 CustomButton(
                   text: "No, Stay Logged In",
                   isOutlined: true,
                   borderRadius: BorderRadius.circular(30),
                   onPressed: () {
-                    Navigator.pop(context);
+                    Navigator.pop(dialogContext);
                   },
                 ),
               ],
@@ -280,5 +284,4 @@ class ProfileScreen extends StatelessWidget {
       },
     );
   }
-
 }

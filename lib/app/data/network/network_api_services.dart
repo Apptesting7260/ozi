@@ -38,16 +38,30 @@ class NetworkApiServices extends BaseApiServices {
 
   @override
   Future<dynamic> postApi(var data, String url, String token) async {
-    final response = await http.post(
-      Uri.parse(url),
-      headers: {
-        "Authorization": "Bearer $token",
-        "Content-Type": "application/json"
-      },
-      body: jsonEncode(data),
-    ).timeout(const Duration(seconds: 50));
+    try {
+      print('POST Request to: $url');
+      print('Token: $token');
+      print('Data: $data');
 
-    return returnResponse(response, url);
+      final response = await http.post(
+        Uri.parse(url),
+        headers: {
+          "Authorization": "Bearer $token",
+          "Content-Type": "application/json",
+          "Accept": "application/json", // Add this
+        },
+        body: jsonEncode(data),
+      ).timeout(const Duration(seconds: 50));
+
+      print('Response Status: ${response.statusCode}');
+      print('Response Headers: ${response.headers}');
+      print('Response Body Preview: ${response.body.length > 200 ? response.body.substring(0, 200) : response.body}');
+
+      return returnResponse(response, url);
+    } catch (e) {
+      print('postApi Error: $e');
+      rethrow;
+    }
   }
 
   Future<dynamic> patchApi(var data, String url, String token) async {
@@ -323,5 +337,17 @@ class NetworkApiServices extends BaseApiServices {
             jsonDecode(responseBody)['message']?.toString() ??
                 'Error ${response.statusCode}');
     }
+  }
+
+  Future<dynamic> postApiWithoutData(String url, String token) async {
+    final response = await http.post(
+      Uri.parse(url),
+      headers: {
+        "Authorization": "Bearer $token",
+        "Content-Type": "application/json"
+      },
+    ).timeout(const Duration(seconds: 50));
+
+    return returnResponse(response, url);
   }
 }

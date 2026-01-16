@@ -7,29 +7,29 @@ import '../../../../data/network/network_api_services.dart';
 import '../../../../data/storage/user_preference.dart';
 import '../../../../modules/user/navigation tab/view/navigation_tab_screen.dart';
 
-class CreateAccountProvider with ChangeNotifier{
-
+class CreateAccountProvider with ChangeNotifier {
   final NetworkApiServices _apiService = NetworkApiServices();
+
+  // Form key for validation
+  final GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
   TextEditingController firstNameController = TextEditingController();
   TextEditingController lastNameController = TextEditingController();
   TextEditingController emailController = TextEditingController();
 
-
   bool _loading = false;
   bool get loading => _loading;
-  updateLoading(bool value){
+
+  updateLoading(bool value) {
     _loading = value;
     notifyListeners();
   }
 
-  Future<void> createAccount(String userId)async {
-    // Navigator.push(
-    //   context,
-    //   MaterialPageRoute(
-    //     builder: (_) =>   NavigationTabScreen(),
-    //   ),
-    // );
+  Future<void> createAccount(String userId) async {
+    // Validate form before API call
+    if (!formKey.currentState!.validate()) {
+      return;
+    }
 
     updateLoading(true);
 
@@ -37,46 +37,53 @@ class CreateAccountProvider with ChangeNotifier{
       final response = await _apiService.postApiWithoutToken(
         {
           "user_id": userId,
-          "first_name": firstNameController.text,
-          "last_name": lastNameController.text,
-          "email": emailController.text,
+          "first_name": firstNameController.text.trim(),
+          "last_name": lastNameController.text.trim(),
+          "email": emailController.text.trim(),
         },
         AppUrls.completeRegistration,
       );
       updateLoading(false);
-      print(response);//data['api_token'],data['role']
-      loginWithSaveTokenRedirection(response['data']['user_role']?.toString(),response['data']['api_token']?.toString());
-      // ChooseRoleModel.fromJson(response);
+      print(response);
+      loginWithSaveTokenRedirection(
+        response['data']['user_role']?.toString(),
+        response['data']['api_token']?.toString(),
+      );
     } catch (e) {
       updateLoading(false);
     }
-
   }
 
-  Future<void> loginWithSaveTokenRedirection(String? role,String? token) async {
-    if(role==null||token==null){
+  Future<void> loginWithSaveTokenRedirection(String? role, String? token) async {
+    if (role == null || token == null) {
       return;
     }
-   await UserPreference.isLoggedIn(true);
-   await UserPreference.saveAccessToken(token);
-   await UserPreference.saveRole(role);
-   if(role=='user'){
-     Navigator.push(
-       navigatorKey.currentContext!,
-       MaterialPageRoute(
-         builder: (_) =>   NavigationTabScreen(),
-       ),
-     );
-   }else if(role=='vendor'){
-     Navigator.push(
-       navigatorKey.currentContext!,
-       MaterialPageRoute(
-         builder: (_) =>   VendorNavigationTabScreen(),
-       ),
-     );
-   }
+    await UserPreference.isLoggedIn(true);
+    await UserPreference.saveAccessToken(token);
+    await UserPreference.saveRole(role);
 
+    if (role == 'user') {
+      Navigator.push(
+        navigatorKey.currentContext!,
+        MaterialPageRoute(
+          builder: (_) => NavigationTabScreen(),
+        ),
+      );
+    } else if (role == 'vendor') {
+      Navigator.push(
+        navigatorKey.currentContext!,
+        MaterialPageRoute(
+          builder: (_) => VendorNavigationTabScreen(),
+        ),
+      );
+    }
   }
 
-
+  @override
+  void dispose() {
+    firstNameController.dispose();
+    lastNameController.dispose();
+    emailController.dispose();
+    super.dispose();
+  }
 }

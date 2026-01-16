@@ -1,79 +1,152 @@
+import 'package:ozi/app/modules/user/home/model/category_model.dart';
 import 'package:ozi/app/modules/user/navigation%20tab/view/navigation_tab_screen.dart';
 import '../../../../../core/appExports/app_export.dart';
+import '../../../../../core/constants/app_urls.dart';
 import '../../../../../shared/widgets/custom_app_bar.dart';
 import '../provider/ServiceDetailProvider.dart';
-import '../../services/provider/CategoryDetailProvider.dart';
+import '../model/ServiceDetailsModel.dart';
 
 class ServiceDetailScreen extends StatelessWidget {
-  final Service service;
+  final Subcategories service;
+  final int categoryId;
 
-  const ServiceDetailScreen({super.key, required this.service});
+  const ServiceDetailScreen({
+    super.key,
+    required this.service,
+    required this.categoryId,
+  });
 
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (_) => ServiceDetailProvider(service),
+      create: (_) => ServiceDetailProvider(service, categoryId),
       child: ServiceDetailView(service: service),
     );
   }
 }
 
 class ServiceDetailView extends StatelessWidget {
-  final Service service;
+  final Subcategories service;
   const ServiceDetailView({super.key, required this.service});
 
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<ServiceDetailProvider>();
+
     return Scaffold(
-      body:SafeArea(
+      body: SafeArea(
         child: Column(
           children: [
             Padding(
               padding: const EdgeInsets.all(10),
-              child: CustomAppBar(title: service.name),
+              child: CustomAppBar(
+                  title: service.categoryName ?? 'Service Details'),
             ),
-
             Expanded(
-              child: ListView.separated(
-                padding: EdgeInsets.zero,
-                physics: BouncingScrollPhysics(),
-                itemCount: provider.serviceProviders.length,
-                itemBuilder: (context, index) {
-                  final serviceProvider = provider.serviceProviders[index];
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-                    child: _buildServiceCard(context, serviceProvider, provider),
-                  );
-                },
-
-                separatorBuilder: (context, index) => Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 3),
-                  child: Divider(
-                    thickness: 1,
-                    color: AppColors.containerBorder,
-                  ),
-                ),
-
-              ),
+              child: _buildBody(provider),
             ),
-            Divider(color: AppColors.dividerColor,),
-            _buildBottomBar(context, provider),
+            if (!provider.isLoading && provider.cartItemCount > 0) ...[
+              Divider(color: AppColors.dividerColor),
+              _buildBottomBar(context, provider),
+            ],
           ],
         ),
       ),
-
     );
   }
 
-  Widget _buildServiceCard(
-    BuildContext context,
-    ServiceProvider serviceProvider,
-    ServiceDetailProvider provider,
-  ) {
-    return Container(
-      padding:  EdgeInsets.only(left: 16, right: 16),
+  Widget _buildBody(ServiceDetailProvider provider) {
+    if (provider.isLoading) {
+      return Center(
+        child: CircularProgressIndicator(color: AppColors.primary),
+      );
+    }
 
+    if (provider.errorMessage != null) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.error_outline, size: 60, color: Colors.grey),
+              hBox(16),
+              Text(
+                provider.errorMessage!,
+                style: AppFontStyle.text_16_400(Colors.grey),
+                textAlign: TextAlign.center,
+              ),
+              hBox(16),
+              CustomButton(
+                onPressed: provider.refresh,
+                text: 'Retry',
+                width: 120,
+                height: 45,
+                color: AppColors.primary,
+                textStyle: AppFontStyle.text_14_600(
+                  Colors.white,
+                  fontFamily: AppFontFamily.semiBold,
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    if (provider.serviceProviders.isEmpty) {
+      return Center(
+        child: Text(
+          'No services available',
+          style: AppFontStyle.text_16_400(Colors.grey),
+        ),
+      );
+    }
+
+    return RefreshIndicator(
+      onRefresh: provider.refresh,
+      color: AppColors.primary,
+      child: ListView.separated(
+        padding: EdgeInsets.zero,
+        physics:
+        AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
+        itemCount: provider.serviceProviders.length,
+        itemBuilder: (context, index) {
+          final serviceData = provider.serviceProviders[index];
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+            child: _buildServiceCard(context, serviceData, provider),
+          );
+        },
+        separatorBuilder: (context, index) => Padding(
+          padding: const EdgeInsets.symmetric(vertical: 3),
+          child: Divider(
+            thickness: 1,
+            color: AppColors.containerBorder,
+          ),
+        ),
+      ),
+    );
+  }
+
+  String getFullImageUrl(String? path) {
+    if (path == null || path.isEmpty) return "";
+    if (path.startsWith("http")) return path;
+    return "${AppUrls.imageBaseUrl}$path";
+  }
+
+
+  Widget _buildServiceCard(
+      BuildContext context,
+      ServiceData serviceData,
+      ServiceDetailProvider provider,
+      ) {
+    final duration =
+        '${serviceData.durationValue ?? 0} ${serviceData.durationType ?? 'Hours'}';
+    final price = (serviceData.servicePrice ?? 0).toDouble();
+
+    return Container(
+      padding: EdgeInsets.only(left: 16, right: 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -83,7 +156,7 @@ class ServiceDetailView extends StatelessWidget {
               ClipRRect(
                 borderRadius: BorderRadius.circular(15),
                 child: CachedNetworkImage(
-                  imageUrl: serviceProvider.imagePath,
+                  imageUrl: getFullImageUrl(serviceData.serviceImage),
                   width: 110,
                   height: 110,
                   fit: BoxFit.cover,
@@ -91,82 +164,84 @@ class ServiceDetailView extends StatelessWidget {
                     width: 110,
                     height: 110,
                     color: AppColors.lightGrey2,
-                    child:  Center(child: CircularProgressIndicator()),
+                    child: Center(child: CircularProgressIndicator()),
                   ),
                   errorWidget: (_, __, ___) => Container(
                     width: 110,
                     height: 110,
                     color: Colors.grey[200],
-                    child:  Icon(Icons.image_not_supported),
+                    child: Icon(Icons.image_not_supported),
                   ),
                 ),
               ),
               wBox(16),
-              // Service Details
-              Expanded(
+              SizedBox(
+                height: 110,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                      serviceProvider.title,
-                      style: AppFontStyle.text_16_600(
-                        AppColors.black,
-                        fontFamily: AppFontFamily.semiBold,
-                      ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    hBox(4),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      crossAxisAlignment: CrossAxisAlignment.center,
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        /// Left – Duration + Price column
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                Icon(
-                                  Icons.access_time,
-                                  size: 16,
-                                  color: Colors.grey[600],
-                                ),
-                               wBox(4),
-                                Text(
-                                  serviceProvider.duration,
-                                  style: AppFontStyle.text_13_400(Colors.grey),
-                                ),
-                              ],
+                        SizedBox(
+                          width: MediaQuery.of(context).size.width*0.56,
+                          child: Text(
+                            serviceData.serviceName ?? 'Service',
+                            style: AppFontStyle.text_16_600(
+                              AppColors.black,
+                              fontFamily: AppFontFamily.semiBold,
                             ),
-                            hBox(4),
+                            maxLines: 6,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.access_time,
+                              size: 16,
+                              color: Colors.grey[600],
+                            ),
+                            wBox(4),
                             Text(
-                              '\$${serviceProvider.price.toStringAsFixed(2)}',
-                              style: AppFontStyle.text_20_600(
-                                AppColors.primary,
-                                fontFamily: AppFontFamily.bold,
-                              ),
+                              duration,
+                              style: AppFontStyle.text_13_400(Colors.grey),
                             ),
                           ],
                         ),
-
-                        // _buildAddButton(serviceProvider.id, provider),
-                        const SizedBox(height: 12),
-                        // Add Button or Counter
-                        provider.isInCart(serviceProvider.id)
-                            ? _buildCounter(serviceProvider.id, provider)
-                            : _buildAddButton(serviceProvider.id, provider),
                       ],
                     ),
+
+
+                    SizedBox(
+                      width: MediaQuery.of(context).size.width*0.56,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            '\$${price.toStringAsFixed(2)}',
+                            style: AppFontStyle.text_20_600(
+                              AppColors.primary,
+                              fontFamily: AppFontFamily.bold,
+                            ),
+                          ),
+                          provider.isInCart(serviceData.id ?? 0)
+                              ? _buildCounter(serviceData.id ?? 0, provider)
+                              : _buildAddButton(serviceData.id ?? 0, provider,context),
+                        ],
+                      ),
+                    ),
+
                   ],
                 ),
               ),
             ],
           ),
           hBox(16),
-          // Description
           Text(
-            serviceProvider.description,
+            serviceData.description ?? '',
             style: AppFontStyle.text_13_400(Colors.grey[600]!),
             maxLines: 3,
             overflow: TextOverflow.ellipsis,
@@ -176,7 +251,7 @@ class ServiceDetailView extends StatelessWidget {
     );
   }
 
-  Widget _buildAddButton(String serviceId, ServiceDetailProvider provider) {
+  Widget _buildAddButton(int serviceId, ServiceDetailProvider provider,BuildContext context) {
     return SizedBox(
       width: 100,
       height: 40,
@@ -185,7 +260,23 @@ class ServiceDetailView extends StatelessWidget {
         height: 40,
         borderRadius: BorderRadius.circular(30),
         color: AppColors.primary,
-        onPressed: () => provider.addToCart(serviceId),
+        onPressed: () async {
+          try {
+            await provider.addToCart(serviceId);
+            // Optionally show success message
+            // ScaffoldMessenger.of(context).showSnackBar(
+            //   SnackBar(content: Text('Added to cart successfully')),
+            // );
+          } catch (e) {
+            // Show error message
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Failed to add to cart'),
+                backgroundColor: Colors.red,
+              ),
+            );
+          }
+        },
         text: "Add",
         textStyle: AppFontStyle.text_14_600(
           Colors.white,
@@ -194,9 +285,7 @@ class ServiceDetailView extends StatelessWidget {
       ),
     );
   }
-
-
-  Widget _buildCounter(String serviceId, ServiceDetailProvider provider) {
+  Widget _buildCounter(int serviceId, ServiceDetailProvider provider) {
     final quantity = provider.getQuantity(serviceId);
 
     return SizedBox(
@@ -211,7 +300,6 @@ class ServiceDetailView extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            // Minus Button
             GestureDetector(
               onTap: () => provider.decrementQuantity(serviceId),
               child: SizedBox(
@@ -220,8 +308,6 @@ class ServiceDetailView extends StatelessWidget {
                 child: Icon(Icons.remove, size: 18, color: AppColors.primary),
               ),
             ),
-
-            // Quantity
             Text(
               '$quantity',
               style: AppFontStyle.text_16_600(
@@ -229,8 +315,6 @@ class ServiceDetailView extends StatelessWidget {
                 fontFamily: AppFontFamily.bold,
               ),
             ),
-
-            // Plus Button
             GestureDetector(
               onTap: () => provider.incrementQuantity(serviceId),
               child: SizedBox(
@@ -245,22 +329,13 @@ class ServiceDetailView extends StatelessWidget {
     );
   }
 
-
-  Widget _buildBottomBar(BuildContext context, ServiceDetailProvider provider) {
+  Widget _buildBottomBar(
+      BuildContext context, ServiceDetailProvider provider) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
-
-        // boxShadow: [
-        //   BoxShadow(
-        //     color: Colors.black.withOpacity(0.1),
-        //     blurRadius: 10,
-        //     offset: const Offset(0, -2),
-        //   ),
-        // ],
       ),
-
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -273,19 +348,25 @@ class ServiceDetailView extends StatelessWidget {
           ),
           CustomButton(
             onPressed: () {
-              Navigator.push(context, MaterialPageRoute(builder: (_) => NavigationTabScreen(initialIndex: 1,)));
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => NavigationTabScreen(initialIndex: 1),
+                ),
+              );
             },
             width: 150,
             height: 50,
             color: AppColors.primary,
-
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                CustomImage(path: ImageConstants.cart,
-                    height: 20,
-                    width: 20,
-                    color: AppColors.white),
+                CustomImage(
+                  path: ImageConstants.cart,
+                  height: 20,
+                  width: 20,
+                  color: AppColors.white,
+                ),
                 wBox(8),
                 Text(
                   'View Cart',

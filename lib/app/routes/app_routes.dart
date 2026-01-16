@@ -122,7 +122,7 @@ class AppRoutes {
 
       case serviceDetailScreen:
         return MaterialPageRoute(
-          builder: (context) => ServiceDetailScreen(service: setting.arguments as dynamic,
+          builder: (context) => ServiceDetailScreen(service: setting.arguments as dynamic, categoryId: setting.arguments as int,
           ),
         );
 

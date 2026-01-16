@@ -1,132 +1,277 @@
-// service_detail_provider.dart
+import 'dart:developer' as dev;
 import 'package:flutter/material.dart';
-
-import '../../services/provider/CategoryDetailProvider.dart';
-
-// Model for Service Provider
-class ServiceProvider {
-  final String id;
-  final String title;
-  final String description;
-  final double price;
-  final String duration;
-  final String imagePath;
-
-  ServiceProvider({
-    required this.id,
-    required this.title,
-    required this.description,
-    required this.price,
-    required this.duration,
-    required this.imagePath,
-  });
-}
+import '../../../../../core/constants/app_urls.dart';
+import '../../../../../data/repository/repository.dart';
+import '../../model/category_model.dart';
+import '../model/ServiceDetailsModel.dart';
+import '../model/add_to_cart.dart';
 
 class ServiceDetailProvider extends ChangeNotifier {
-  final Service service;
+  final Subcategories service;
+  final int categoryId;
+  final Repository _repository = Repository();
 
-  ServiceDetailProvider(this.service);
-
-  // Cart items: serviceId -> quantity
-  final Map<String, int> _cartItems = {};
-
-  // Sample service providers data
-  List<ServiceProvider> get serviceProviders {
-    // You can customize this based on the service category
-    return [
-      ServiceProvider(
-        id: '1',
-        title: 'Shirt Sleeve Shortening & Fitting Service',
-        description:
-        'High-pressure full body massage to target pain points, knots & muscle soreness. Treats deeper muscle layers, heals sports injuries & improves flexibility',
-        price: 84.13,
-        duration: '2 Hours',
-        imagePath: 'https://images.unsplash.com/photo-1581235720704-06d3acfcb36f',
-      ),
-      ServiceProvider(
-        id: '2',
-        title: 'Shirt Sleeve Shortening & Fitting Service',
-        description:
-        'High-pressure full body massage to target pain points, knots & muscle soreness. Treats deeper muscle layers, heals sports injuries & improves flexibility',
-        price: 84.13,
-        duration: '2 Hours',
-        imagePath: 'https://images.unsplash.com/photo-1581235720704-06d3acfcb36f',
-      ),
-      ServiceProvider(
-        id: '3',
-        title: 'Professional Alteration Service',
-        description:
-        'Expert tailoring service for perfect fit. Includes measurements, fitting adjustments and quality stitching',
-        price: 95.50,
-        duration: '3 Hours',
-        imagePath: 'https://images.unsplash.com/photo-1556905055-8f358a7a47b2',
-      ),
-      ServiceProvider(
-        id: '4',
-        title: 'Custom Suit Tailoring',
-        description:
-        'Premium suit tailoring with custom measurements and premium fabric selection',
-        price: 150.00,
-        duration: '4 Hours',
-        imagePath: 'https://images.unsplash.com/photo-1594938298603-c8148c4dae35',
-      ),
-    ];
+  ServiceDetailProvider(this.service, this.categoryId) {
+    _fetchServiceDetails();
   }
 
-  bool isInCart(String serviceId) {
+  List<ServiceData> _serviceProviders = [];
+  bool _isLoading = false;
+  String? _errorMessage;
+  bool _isAddingToCart = false;
+
+  List<ServiceData> get serviceProviders => _serviceProviders;
+  bool get isLoading => _isLoading;
+  String? get errorMessage => _errorMessage;
+  bool get isAddingToCart => _isAddingToCart;
+
+  final Map<int, int> _cartItems = {};
+
+  Future<void> _fetchServiceDetails() async {
+    if (service.id == null) {
+      _errorMessage = 'Invalid subcategory ID';
+      notifyListeners();
+      return;
+    }
+
+    try {
+      _isLoading = true;
+      _errorMessage = null;
+      notifyListeners();
+
+      dev.log('Fetching services - Category ID: $categoryId, Subcategory ID: ${service.id}');
+
+      final response =
+      await _repository.serviceDetailsApi(categoryId, service.id!);
+
+      dev.log('API Response - Status: ${response.status}');
+      dev.log('API Response - Message: ${response.message}');
+      dev.log('API Response - Data Count: ${response.data?.length ?? 0}');
+
+      if (response.status == true) {
+        _serviceProviders = response.data ?? [];
+        if (_serviceProviders.isEmpty) {
+          _errorMessage = 'No services available';
+        }
+      } else {
+        _errorMessage = response.message ?? 'Failed to load services';
+      }
+    } catch (e) {
+      _errorMessage = 'Error loading services';
+      dev.log('Error: $e');
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> refresh() async {
+    await _fetchServiceDetails();
+  }
+
+  bool isInCart(int serviceId) {
     return _cartItems.containsKey(serviceId) && _cartItems[serviceId]! > 0;
   }
 
-  int getQuantity(String serviceId) {
+  int getQuantity(int serviceId) {
     return _cartItems[serviceId] ?? 0;
   }
 
-  void addToCart(String serviceId) {
-    _cartItems[serviceId] = 1;
-    notifyListeners();
-  }
-
-  void incrementQuantity(String serviceId) {
-    if (_cartItems.containsKey(serviceId)) {
-      _cartItems[serviceId] = _cartItems[serviceId]! + 1;
+  Future<bool> addToCart(int serviceId) async {
+    try {
+      _isAddingToCart = true;
       notifyListeners();
-    }
-  }
 
-  void decrementQuantity(String serviceId) {
-    if (_cartItems.containsKey(serviceId)) {
-      if (_cartItems[serviceId]! > 1) {
-        _cartItems[serviceId] = _cartItems[serviceId]! - 1;
-      } else {
-        _cartItems.remove(serviceId);
+      // Find the service details
+      final serviceData = _serviceProviders.firstWhere(
+            (sp) => sp.id == serviceId,
+        orElse: () => ServiceData(),
+      );
+
+      if (serviceData.id == null) {
+        throw Exception('Service not found');
       }
+
+      // Prepare API data - adjust field names based on your API requirements
+      Map<String, dynamic> requestData = {
+        'service_id': serviceId,
+        'quantity': 1,
+        // Add other fields if required by your API
+        // 'service_name': serviceData.serviceName ?? '',
+      };
+
+      dev.log('Adding to cart - Request Data: $requestData');
+      dev.log('API URL: ${AppUrls.addToCartApi}');
+
+      // Call the API
+      final response = await _repository.addToCartApi(requestData);
+
+      dev.log('Add to Cart API Raw Response: $response');
+      dev.log('Response Type: ${response.runtimeType}');
+
+      // Check if response is already a Map or needs parsing
+      Map<String, dynamic> jsonResponse;
+      if (response is Map<String, dynamic>) {
+        jsonResponse = response;
+      } else if (response is String) {
+        // If it's a string, try to parse it
+        dev.log('Response is String, attempting to parse');
+        throw Exception('Server returned non-JSON response');
+      } else {
+        jsonResponse = response as Map<String, dynamic>;
+      }
+
+      // Parse the response
+      AddToCartModel addToCartResponse = AddToCartModel.fromJson(jsonResponse);
+
+      if (addToCartResponse.status == true) {
+        // Update local cart state
+        _cartItems[serviceId] = 1;
+        dev.log('Successfully added to cart: Service ID $serviceId');
+        _isAddingToCart = false;
+        notifyListeners();
+        return true;
+      } else {
+        dev.log('Failed to add to cart: ${addToCartResponse.message}');
+        throw Exception(addToCartResponse.message ?? 'Failed to add to cart');
+      }
+    } catch (e) {
+      dev.log('Error adding to cart: $e');
+      dev.log('Error type: ${e.runtimeType}');
+      _isAddingToCart = false;
       notifyListeners();
+      return false;
     }
+  }
+
+  Future<bool> incrementQuantity(int serviceId) async {
+    if (_cartItems.containsKey(serviceId)) {
+      try {
+        _isAddingToCart = true;
+        notifyListeners();
+
+        final newQuantity = _cartItems[serviceId]! + 1;
+
+        // Find the service details
+        final serviceData = _serviceProviders.firstWhere(
+              (sp) => sp.id == serviceId,
+          orElse: () => ServiceData(),
+        );
+
+        // Prepare API data
+        Map<String, dynamic> requestData = {
+          'service_id': serviceId,
+          'quantity': newQuantity,
+        };
+
+        dev.log('Incrementing quantity - Request Data: $requestData');
+
+        // Call the API
+        final response = await _repository.addToCartApi(requestData);
+
+        Map<String, dynamic> jsonResponse;
+        if (response is Map<String, dynamic>) {
+          jsonResponse = response;
+        } else {
+          throw Exception('Invalid response format');
+        }
+
+        // Parse the response
+        AddToCartModel addToCartResponse = AddToCartModel.fromJson(jsonResponse);
+
+        if (addToCartResponse.status == true) {
+          _cartItems[serviceId] = newQuantity;
+          dev.log('Incremented: Service ID $serviceId to $newQuantity');
+          _isAddingToCart = false;
+          notifyListeners();
+          return true;
+        } else {
+          throw Exception(addToCartResponse.message ?? 'Failed to update cart');
+        }
+      } catch (e) {
+        dev.log('Error incrementing quantity: $e');
+        _isAddingToCart = false;
+        notifyListeners();
+        return false;
+      }
+    }
+    return false;
+  }
+
+  Future<bool> decrementQuantity(int serviceId) async {
+    if (_cartItems.containsKey(serviceId)) {
+      try {
+        _isAddingToCart = true;
+        notifyListeners();
+
+        final currentQuantity = _cartItems[serviceId]!;
+
+        if (currentQuantity > 1) {
+          final newQuantity = currentQuantity - 1;
+
+          // Prepare API data
+          Map<String, dynamic> requestData = {
+            'service_id': serviceId,
+            'quantity': newQuantity,
+          };
+
+          dev.log('Decrementing quantity - Request Data: $requestData');
+
+          // Call the API
+          final response = await _repository.addToCartApi(requestData);
+
+          Map<String, dynamic> jsonResponse;
+          if (response is Map<String, dynamic>) {
+            jsonResponse = response;
+          } else {
+            throw Exception('Invalid response format');
+          }
+
+          // Parse the response
+          AddToCartModel addToCartResponse = AddToCartModel.fromJson(jsonResponse);
+
+          if (addToCartResponse.status == true) {
+            _cartItems[serviceId] = newQuantity;
+            dev.log('Decremented: Service ID $serviceId to $newQuantity');
+            _isAddingToCart = false;
+            notifyListeners();
+            return true;
+          } else {
+            throw Exception(addToCartResponse.message ?? 'Failed to update cart');
+          }
+        } else {
+          // Quantity is 1, so remove from cart
+          _cartItems.remove(serviceId);
+          dev.log('Removed from cart: Service ID $serviceId');
+          _isAddingToCart = false;
+          notifyListeners();
+          return true;
+        }
+      } catch (e) {
+        dev.log('Error decrementing quantity: $e');
+        _isAddingToCart = false;
+        notifyListeners();
+        return false;
+      }
+    }
+    return false;
   }
 
   double get totalAmount {
     double total = 0;
     _cartItems.forEach((serviceId, quantity) {
-      final serviceProvider = serviceProviders.firstWhere(
+      final service = _serviceProviders.firstWhere(
             (sp) => sp.id == serviceId,
-        orElse: () => serviceProviders.first,
+        orElse: () => ServiceData(),
       );
-      total += serviceProvider.price * quantity;
+      total += (service.servicePrice ?? 0) * quantity;
     });
     return total;
   }
 
   int get cartItemCount {
-    int count = 0;
-    _cartItems.forEach((_, quantity) {
-      count += quantity;
-    });
-    return count;
+    return _cartItems.values.fold(0, (sum, qty) => sum + qty);
   }
 
-  void onViewCartTap(BuildContext context) {
-    // Navigate to cart screen
-    print("View Cart tapped - Total: \$${totalAmount.toStringAsFixed(2)}");
-    // Navigator.pushNamed(context, '/cart');
-  }
+  Map<int, int> get cartItems => Map.from(_cartItems);
 }

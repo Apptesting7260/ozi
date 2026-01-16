@@ -1,6 +1,10 @@
 
+import 'dart:developer' as dev;
+import 'package:ozi/app/modules/user/home/model/category_model.dart';
+import 'package:ozi/app/modules/user/home/service%20details/model/ServiceDetailsModel.dart';
+import 'package:ozi/app/modules/user/profile/view/model/logout_model.dart';
 import 'package:ozi/app/view/user_role/choose_your_role/model/choose_role_model.dart';
-
+import '../../core/appExports/app_export.dart';
 import '../../core/constants/app_urls.dart';
 import '../../view/auth/login/model/login_model.dart';
 import '../../view/auth/verification_screen/model/verify_otp.dart';
@@ -29,20 +33,6 @@ class Repository {
     }
   }
 
-//   //**************************************************** Complete Profile  API *****************************************************************//
-//
-//   Future<CompleteProfileModel> completeProfileApi(
-//       Map<String, dynamic> data,
-//       ) async {
-//     await getToken();
-//     dynamic response = await _apiService.postApi(
-//       data,
-//       AppUrls.completeProfile,
-//       token,
-//     );
-//     return CompleteProfileModel.fromJson(response);
-//   }
-//
 //   //************************************************** Verification API **************************************************//
   Future<verifyOtp> verificationUser(Map<String, dynamic> data) async {
     try {
@@ -69,409 +59,183 @@ class Repository {
     }
   }
 
+// ********************************** Category Api ****************************//
 
+  Future<CategoryModel> homePageCategoryApi(Map<String, dynamic> data) async {
+    await getToken();
+    try {
+      dynamic response = await _apiService.getApi(
+        AppUrls.getHomeCategories,
+        token,
+      );
+      return CategoryModel.fromJson(response);
+    } catch (e) {
+      throw Exception(e);
+    }
+  }
 
+  // *********************************  logout Api *********************************//
 
+  Future<LogoutModel> logoutApi() async {
+    await getToken();
+    try {
+      dynamic response = await _apiService.postApiWithoutData(
+        AppUrls.logout,
+        token,
+      );
+      return LogoutModel.fromJson(response);
+    } catch (e) {
+      throw Exception(e);
+    }
+  }
 
-//   //************************************** Get Cities API *************************************//
-//   Future<GetCitiesModel> getCitiesApi() async {
-//     await getToken();
-//     dynamic response = await _apiService.getApi(AppUrls.getCities, token);
-//     return GetCitiesModel.fromJson(response);
-//   }
-//
-//   //************************************** Get Area API *************************************//
-//   Future<AreaModel> getAreaApi(Map<String, dynamic> data) async {
-//     await getToken();
-//     dynamic response = await _apiService.postApi(data, AppUrls.getArea, token);
-//     return AreaModel.fromJson(response);
-//   }
-//
-//   //************************************** Logout API ******************************************//
-//   Future<LogoutModel> logoutUser() async {
-//     await getToken();
-//     dynamic response = await _apiService.getApi(AppUrls.logout, token);
-//     return LogoutModel.fromJson(response);
-//   }
-//
-//   //**************************************************** Complete Profile  API *****************************************************************//
-//
-//   Future<EditProfileModel> editProfileApi(Map<String, dynamic> data) async {
-//     await getToken();
-//     dynamic response = await _apiService.putApi(
-//       data,
-//       AppUrls.editProfile,
-//       token,
-//     );
-//     return EditProfileModel.fromJson(response);
-//   }
-//
-//   //**************************************************** Complete Profile  API *****************************************************************//
-//
-//   Future<AddNewAddressModel> addNewAddressApi(Map<String, dynamic> data) async {
-//     await getToken();
-//     dynamic response = await _apiService.postApi(
-//       data,
-//       AppUrls.newAddAddress,
-//       token,
-//     );
-//     return AddNewAddressModel.fromJson(response);
-//   }
-//
-//   //************************************** Get User Profile API *************************************//
-//   Future<GetAddressModel> getAddressListApi() async {
-//     await getToken();
-//     dynamic response = await _apiService.getApi(AppUrls.getAddress, token);
-//     return GetAddressModel.fromJson(response);
-//   }
-//
-//   //************************************** Delete Address API *************************************//
-//   Future<DeleteAddressModel> deleteAddressApi(Map<String, dynamic> data) async {
-//     await getToken();
-//     dynamic response = await _apiService.deleteApi(data, AppUrls.delete, token);
-//     return DeleteAddressModel.fromJson(response);
-//   }
-//
-//   //************************************** Primary Address API *************************************//
-//   Future<AddressPrimaryModel> addressPrimary(Map<String, dynamic> data) async {
-//     await getToken();
-//     dynamic response = await _apiService.postApi(
-//       data,
-//       AppUrls.primaryAddress,
-//       token,
-//     );
-//     return AddressPrimaryModel.fromJson(response);
-//   }
-//
-//   //************************************** Upload Profile Image *************************************//
-//   Future<UploadAvtarModel> uploadProfileImage(
-//       Map<String, String> fields,
-//       Map<String, dynamic> files,
-//       ) async {
-//     await getToken();
-//     dynamic response = await _apiService.postApiMultiPartBytes(
-//       AppUrls.uploadProfileImage,
-//       token,
-//       fields,
-//       files,
-//     );
-//     return UploadAvtarModel.fromJson(response);
-//   }
-//
-//   //************************************** Get User Profile API *************************************//
-//   Future<ProfileModel> getUserProfileApi() async {
-//     await getToken();
-//     dynamic response = await _apiService.getApi(AppUrls.getProfile, token);
-//     return ProfileModel.fromJson(response);
-//   }
-//
-//   //**************************************************Edit Mobile Verification OTP API **************************************************//
-//   Future<AddNewAddressModel> verifyEditMobileNumber(
-//       Map<String, dynamic> data,
-//       ) async {
-//     await getToken();
-//     dynamic response = await _apiService.putApi(
-//       data,
-//       AppUrls.verifyEditMobile,
-//       token,
-//     );
-//     return AddNewAddressModel.fromJson(response);
-//   }
-//
-//   //************************************** Get Service Category API *************************************//
-//   Future<ServiceCategoryModel> getServiceCategoryApi(Map<String, dynamic> data) async {
-//     await getToken();
-//     dynamic response = await _apiService.getApiWithPerms(data,AppUrls.serviceCategory, token);
-//     return ServiceCategoryModel.fromJson(response);
-//   }
-//
-//   //************************************** Get service list API *************************************//
-//   Future<ServiceListModel> getServiceList(Map<String, dynamic> data) async {
-//     await getToken();
-//     dynamic response = await _apiService.postApi(
-//       data,
-//       AppUrls.serviceList,
-//       token,
-//     );
-//     return ServiceListModel.fromJson(response);
-//   }
-//
-//   //************************************** Get sub Category API *************************************//
-//   Future<SubCategoriesModel> getSubCategoryApi(
-//       Map<String, dynamic> data,
-//       ) async {
-//     await getToken();
-//     dynamic response = await _apiService.postApi(
-//       data,
-//       AppUrls.subCategory,
-//       token,
-//     );
-//     return SubCategoriesModel.fromJson(response);
-//   }
-//
-//   //************************************** Get sub Category Item API *************************************//
-//   Future<SubCategoryItemCategoryModel> getSubCategoryItemApi(
-//       Map<String, dynamic> data,
-//       ) async {
-//     await getToken();
-//     dynamic response = await _apiService.postApi(
-//       data,
-//       AppUrls.subCategoryItem,
-//       token,
-//     );
-//     return SubCategoryItemCategoryModel.fromJson(response);
-//   }
-//
-//   //************************************** Add service API *************************************//
-//   Future<AddServiceModel> addServiceApi(Map<String, dynamic> data) async {
-//     await getToken();
-//     dynamic response = await _apiService.postApi(
-//       data,
-//       AppUrls.addService,
-//       token,
-//     );
-//     return AddServiceModel.fromJson(response);
-//   }
-//
-//   //**************************************************** Complete Profile  API *****************************************************************//
-//
-//   Future<UpdateCartModel> updateCartApi(Map<String, dynamic> data) async {
-//     await getToken();
-//     dynamic response = await _apiService.putApi(
-//       data,
-//       AppUrls.updateService,
-//       token,
-//     );
-//     return UpdateCartModel.fromJson(response);
-//   }
-//
-//   //************************************** fetch home API *************************************//
-//   Future<HomeModel> homeApi(Map<String, dynamic> data) async {
-//     await getToken();
-//     dynamic response = await _apiService.getApiWithPerms(data,AppUrls.home, token);
-//     return HomeModel.fromJson(response);
-//   }
-//
-//   //************************************** fetch Cart API *************************************//
-//   Future<FetchCartModel> fetchCartApi() async {
-//     await getToken();
-//     dynamic response = await _apiService.getApi(AppUrls.fetchCart, token);
-//     return FetchCartModel.fromJson(response);
-//   }
-//
-//   //************************************** Book Appointment API *************************************//
-//   Future<BookAppointmentModel> bookAppointment(
-//       Map<String, dynamic> data,
-//       ) async {
-//     await getToken();
-//     dynamic response = await _apiService.postApi(
-//       data,
-//       AppUrls.bookAppointment,
-//       token,
-//     );
-//     return BookAppointmentModel.fromJson(response);
-//   }
-//
-//   //************************************** Place Order API *************************************//
-//   Future<PlaceOrderModel> placeOrder(Map<String, dynamic> data) async {
-//     await getToken();
-//     dynamic response = await _apiService.postApi(
-//       data,
-//       AppUrls.placeOrder,
-//       token,
-//     );
-//     return PlaceOrderModel.fromJson(response);
-//   }
-//
-//   //************************************** fetch Order API *************************************//
-//   Future<FetchOrderModel> fetchOrderApi(Map<String, dynamic> data) async {
-//     await getToken();
-//     dynamic response = await _apiService.getApiWithPerms(
-//       data,
-//       AppUrls.fetchOrders,
-//       token,
-//     );
-//     return FetchOrderModel.fromJson(response);
-//   }
-//
-//   //************************************** fetch Order API *************************************//
-//   Future<OrderDetailModel> fetchOrderDetail(String orderID) async {
-//     await getToken();
-//     dynamic response = await _apiService.getApi(
-//       AppUrls.orderDetail + orderID,
-//       token,
-//     );
-//     return OrderDetailModel.fromJson(response);
-//   }
-//
-//   //************************************** fetch Loyal points *************************************//
-//   Future<LoyaltyTransactionHistoryModel> loyaltyTransactionHistory(
-//       Map<String, dynamic> data,
-//       ) async {
-//     await getToken();
-//     dynamic response = await _apiService.getApiWithPerms(
-//       data,
-//       AppUrls.loyaltyTransactionHistory,
-//       token,
-//     );
-//     return LoyaltyTransactionHistoryModel.fromJson(response);
-//   }
-//
-//   //************************************** fetch Loyal points *************************************//
-//   Future<MoneyWalletModel> moneyWalletTransactionHistory(
-//       Map<String, dynamic> data,
-//       ) async {
-//     await getToken();
-//     dynamic response = await _apiService.getApiWithPerms(
-//       data,
-//       AppUrls.loyaltyTransactionHistory,
-//       token,
-//     );
-//     return MoneyWalletModel.fromJson(response);
-//   }
-//
-//   //************************************** Apply loyalty points API *************************************//
-//   Future<ApplyLoyaltyPointsModel> applyLoyaltyApi(
-//       Map<String, dynamic> data,
-//       ) async {
-//     await getToken();
-//     dynamic response = await _apiService.postApi(
-//       data,
-//       AppUrls.applyLoyaltyPoints,
-//       token,
-//     );
-//     return ApplyLoyaltyPointsModel.fromJson(response);
-//   }
-//
-//   //************************************** Cancel  Order API *************************************//
-//   Future<CancelOrderModel> cancelOrder(String orderID,Map<String, dynamic> data) async {
-//     await getToken();
-//     final url = "${AppUrls.cancelOrder}$orderID/cancel";
-//     dynamic response = await _apiService.deleteApi(data,url, token);
-//     return CancelOrderModel.fromJson(response);
-//   }
-//
-//   //************************************** Reschedule  Order API *************************************//
-//   Future<RescheduleOrderModel> rescheduleOrder(
-//       Map<String, dynamic> data,
-//       ) async {
-//     await getToken();
-//     dynamic response = await _apiService.postApi(
-//       data,
-//       AppUrls.rescheduleOrder,
-//       token,
-//     );
-//     return RescheduleOrderModel.fromJson(response);
-//   }
-//
-//   //************************************** GET Coupon list API *************************************//
-//
-//   Future<CouponListModel> fetchCouponList() async {
-//     await getToken();
-//     dynamic response = await _apiService.getApi(AppUrls.fetchCouponList, token);
-//     return CouponListModel.fromJson(response);
-//   }
-//
-//   //**************************************************** Complete Profile  API *****************************************************************//
-//
-//   Future<ApplyJobModel> applyJobForPartner(Map<String, dynamic> data) async {
-//     await getToken();
-//     dynamic response = await _apiService.postApi(data, AppUrls.applyJob, token);
-//     return ApplyJobModel.fromJson(response);
-//   }
-//
-//   //**************************************************** Create Order RazoryPay API *****************************************************************//
-//
-//   Future<CreateOrderModel> createRazorpayOrder(
-//       Map<String, dynamic> data,
-//       ) async {
-//     await getToken();
-//     dynamic response = await _apiService.postApi(
-//       data,
-//       AppUrls.createRazorpayOrder,
-//       token,
-//     );
-//     return CreateOrderModel.fromJson(response);
-//   }
-//
-//   //**************************************************** Fetch Time Slots API *****************************************************************//
-//
-//   Future<FetchSlotModel> fetchTimeSlots( Map<String, dynamic> data,) async {
-//     await getToken();
-//     dynamic response = await _apiService.getApiWithPerms(data,AppUrls.fetchTimeSlots, token);
-//     return FetchSlotModel.fromJson(response);
-//   }
-//
-//   //**************************************************** check Slots API *****************************************************************//
-//
-//   Future<CheckSlotModel> checkTimeSlots( Map<String, dynamic> data,) async {
-//     await getToken();
-//     dynamic response = await _apiService.getApiWithPerms(data,AppUrls.checkSlot, token);
-//     return CheckSlotModel.fromJson(response);
-//   }
-//
-//   //**************************************************** Create Voucher  API *****************************************************************//
-//
-//   Future<CreateVoucherModel> createVoucherApi(Map<String, dynamic> data) async {
-//     await getToken();
-//     dynamic response = await _apiService.postApi(data, AppUrls.createVoucher, token);
-//     return CreateVoucherModel.fromJson(response);
-//   }
-//
-//
-//   //**************************************************** fetch Voucher  API *****************************************************************//
-//
-//   Future<FetchVoucherModel> fetchVoucherApi(Map<String, dynamic> data) async {
-//     await getToken();
-//     dynamic response = await _apiService.postApi(data, AppUrls.fetchVoucher, token);
-//     return FetchVoucherModel.fromJson(response);
-//   }
-//
-//   //**************************************************** Redeem Voucher  API *****************************************************************//
-//
-//   Future<FetchVoucherModel> redeemVoucherApi(Map<String, dynamic> data) async {
-//     await getToken();
-//     dynamic response = await _apiService.postApi(data, AppUrls.redeemVoucher, token);
-//     return FetchVoucherModel.fromJson(response);
-//   }
-//
-//
-//   //**************************************************** update city  API *****************************************************************//
-//
-//   Future<UpdateCityModel> updateCityApi(Map<String, dynamic> data) async {
-//     await getToken();
-//     dynamic response = await _apiService.postApi(data, AppUrls.updateCity, token);
-//     return UpdateCityModel.fromJson(response);
-//   }
-//
-//   //**************************************************** update city  API *****************************************************************//
-//
-//   Future<SearchItemModel> searchItemApi(Map<String, dynamic> data) async {
-//     await getToken();
-//     dynamic response = await _apiService.postApi(data, AppUrls.searchItemApi, token);
-//     return SearchItemModel.fromJson(response);
-//   }
-//   //************************************** GET Notification API *************************************//
-//
-//   Future<NotificationModel> getNotification(Map<String, dynamic> data) async {
-//     await getToken();
-//     dynamic response = await _apiService.getApiWithPerms(data,AppUrls.notifications, token,);
-//     return NotificationModel.fromJson(response);
-//   }
-//
-//   //************************************* Delete Account API ******************************************//
-//
-//   Future<LogoutModel> deleteAccount(Map<String, dynamic> data) async {
-//     await getToken();
-//     dynamic response = await _apiService.deleteApi(data, AppUrls.userDelete, token);
-//     return LogoutModel.fromJson(response);
-//   }
-//   //**************************************************** Add Money Wallet Api  API *****************************************************************//
-//
-//   Future<AddMoneyWalletModel> addMoneyToWalletApi(Map<String, dynamic> data) async {
-//     await getToken();
-//     dynamic response = await _apiService.postApi(data, AppUrls.addMoney, token);
-//     return AddMoneyWalletModel.fromJson(response);
-//   }
-// }
+  // *********************************** ServiceDetails Api ***************************************//
+  Future<ServiceDetailsModel> serviceDetailsApi(int categoryId, int subcategoryId) async {
+    await getToken();
+    try {
+      final url = '${AppUrls.getServiceDetailsApi}?category_id=$categoryId&subcategory_id=$subcategoryId';
+
+      dev.log('Service Details API URL: $url');
+      dev.log('Token: ${token.isNotEmpty ? "Present" : "Missing"}');
+
+      dynamic response = await _apiService.getApi(
+        url,
+        token,
+      );
+
+      dev.log('Service Details Raw Response: $response');
+
+      return ServiceDetailsModel.fromJson(response);
+    } catch (e) {
+      dev.log('Error in serviceDetailsApi: $e');
+      throw Exception(e);
+    }
+  }
+  // **************************  AddToCart Api **************************//
+  Future<dynamic> addToCartApi(Map<String, dynamic> data) async {
+    await getToken();
+
+    try {
+      ('API Request URL: ${AppUrls.addToCartApi}');
+      print('API Request Data: $data');
+      print('API Token: $token');
+
+      if (token.isEmpty) {
+        throw Exception('Authentication token is missing');
+      }
+
+      dynamic response = await _apiService.postApi(
+        data,
+        AppUrls.addToCartApi,
+        token,
+      );
+
+      print('API Response: $response');
+      return response;
+    } catch (e) {
+      print('addToCartApi Error: $e');
+      rethrow;
+    }
+  }
+  // **************************  Get Cart Items Api **************************//
+  Future<dynamic> getCartItemsApi() async {
+    await getToken();
+    try {
+      print('API Request URL: ${AppUrls.getCartItemsApi}');
+      print('API Token: $token');
+
+      if (token.isEmpty) {
+        throw Exception('Authentication token is missing');
+      }
+
+      dynamic response = await _apiService.getApi(
+        AppUrls.getCartItemsApi,
+        token,
+      );
+      print('API Response: $response');
+      return response;
+    } catch (e) {
+      print('getCartItemsApi Error: $e');
+      rethrow;
+    }
+  }
+
+  // **************************  Remove Cart Item Api **************************//
+  Future<dynamic> removeCartItemApi(int cartId) async {
+    await getToken();
+    try {
+      final url = '${AppUrls.deleteCartItem}?cart_id=$cartId';
+
+      dev.log('Remove Cart Item API URL: $url');
+      dev.log('Token: ${token.isNotEmpty ? "Present" : "Missing"}');
+
+      if (token.isEmpty) {
+        throw Exception('Authentication token is missing');
+      }
+
+      dynamic response = await _apiService.postApiWithoutData(
+        url,
+        token,
+      );
+
+      dev.log('Remove Cart Item Raw Response: $response');
+
+      return response;
+    } catch (e) {
+      dev.log('Error in removeCartItemApi: $e');
+      throw Exception(e);
+    }
+  }
+  //********************************* increaseCartQuantity Api ********************************//
+  Future<dynamic> increaseCartItemApi(int cartId) async {
+    await getToken();
+    try {
+      final url = '${AppUrls.increaseCartQuantity}?cart_id=$cartId';
+
+      dev.log('Increase Cart Item API URL: $url');
+      dev.log('Token: ${token.isNotEmpty ? "Present" : "Missing"}');
+
+      if (token.isEmpty) {
+        throw Exception('Authentication token is missing');
+      }
+
+      dynamic response = await _apiService.postApiWithoutData(
+        url,
+        token,
+      );
+
+      dev.log('Increase Cart Item Raw Response: $response');
+
+      return response;
+    } catch (e) {
+      dev.log('Error in increaseCartItemApi: $e');
+      throw Exception(e);
+    }
+  }
+ //********************************* decreaseCartQuantity Api ********************************//
+  Future<dynamic> decreaseCartItemApi(int cartId) async {
+    await getToken();
+    try {
+      final url = '${AppUrls.decreaseCartQuantity}?cart_id=$cartId';
+
+      dev.log('Decrease Cart Item API URL: $url');
+      dev.log('Token: ${token.isNotEmpty ? "Present" : "Missing"}');
+
+      if (token.isEmpty) {
+        throw Exception('Authentication token is missing');
+      }
+
+      dynamic response = await _apiService.postApiWithoutData(
+        url,
+        token,
+      );
+
+      dev.log('Decrease Cart Item Raw Response: $response');
+
+      return response;
+    } catch (e) {
+      dev.log('Error in decreaseCartItemApi: $e');
+      throw Exception(e);
+    }
+  }
 }

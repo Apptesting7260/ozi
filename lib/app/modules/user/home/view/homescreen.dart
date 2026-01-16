@@ -1,6 +1,9 @@
 import '../../../../core/appExports/app_export.dart';
+import '../../../../core/constants/app_urls.dart';
+import '../../../../shared/widgets/custom_image_path_helper.dart';
 import '../../../../shared/widgets/custom_shimmer_box.dart';
 import '../../../../shared/widgets/custom_text_form_field.dart';
+import '../model/category_model.dart';
 import '../provider/HomeScreenProvider.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -156,7 +159,10 @@ class HomeScreenView extends StatelessWidget {
     );
   }
 
-  Widget _buildServiceGrid(BuildContext context, HomeScreenProvider provider) {
+  Widget _buildServiceGrid(
+      BuildContext context,
+      HomeScreenProvider provider,
+      ) {
     return GridView.builder(
       shrinkWrap: true,
       physics: NeverScrollableScrollPhysics(),
@@ -174,20 +180,29 @@ class HomeScreenView extends StatelessWidget {
     );
   }
 
+
+
   Widget _buildServiceCard(
       BuildContext context,
-      ServiceCategory category,
+      Data category,
       HomeScreenProvider provider,
       ) {
     return GestureDetector(
-      onTap: () => provider.onCategoryTap(category.title, context),
+      onTap: () => provider.onCategoryTap(
+        category,
+        context,
+      ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(12),
         child: Stack(
           children: [
             Positioned.fill(
               child: CachedNetworkImage(
-                imageUrl: category.imagePath,
+                imageUrl: ImagePathHelper.getFullImageUrl(
+                  category.icon,
+                  AppUrls.imageBaseUrl,
+                ),
+
                 fit: BoxFit.cover,
                 placeholder: (_, __) => ShimmerBox(
                   width: double.infinity,
@@ -209,7 +224,7 @@ class HomeScreenView extends StatelessWidget {
                     end: Alignment.bottomCenter,
                     colors: [
                       Colors.transparent,
-                      Colors.black.withOpacity(0.7),
+                      Colors.black.withValues(alpha: 0.7),
                     ],
                   ),
                 ),
@@ -219,10 +234,10 @@ class HomeScreenView extends StatelessWidget {
               left: 12,
               bottom: 12,
               child: Text(
-                category.title,
-                style: AppFontStyle.text_14_500(
+                category.categoryName??"",
+                style: AppFontStyle.text_15_500(
                   AppColors.white,
-                  fontFamily: AppFontFamily.bold,
+                  fontFamily: AppFontFamily.semiBold,
                 ),
               ),
             ),
