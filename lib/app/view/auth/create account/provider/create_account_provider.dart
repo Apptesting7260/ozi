@@ -84,21 +84,21 @@ class CreateAccountProvider with ChangeNotifier {
      );
    }
 
-    if (role == 'user') {
-      Navigator.push(
-        navigatorKey.currentContext!,
-        MaterialPageRoute(
-          builder: (_) => NavigationTabScreen(),
-        ),
-      );
-    } else if (role == 'vendor') {
-      Navigator.push(
-        navigatorKey.currentContext!,
-        MaterialPageRoute(
-          builder: (_) => VendorNavigationTabScreen(),
-        ),
-      );
-    }
+    // if (role == 'user') {
+    //   Navigator.push(
+    //     navigatorKey.currentContext!,
+    //     MaterialPageRoute(
+    //       builder: (_) => NavigationTabScreen(),
+    //     ),
+    //   );
+    // } else if (role == 'vendor') {
+    //   Navigator.push(
+    //     navigatorKey.currentContext!,
+    //     MaterialPageRoute(
+    //       builder: (_) => VendorNavigationTabScreen(),
+    //     ),
+    //   );
+    // }
   }
 
   @override

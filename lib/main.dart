@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:chucker_flutter/chucker_flutter.dart';
 import 'package:ozi/app/modules/vendor/navigation%20tab/provider/navigation_provider.dart';
 import 'package:ozi/app/view/auth/login/provider/login_provider.dart';
 import 'package:webview_flutter/webview_flutter.dart';
@@ -22,6 +23,7 @@ void main() {
       WebViewPlatform.instance = WebKitWebViewPlatform();
     }
   }
+  ChuckerFlutter.showOnRelease = true;
 
   runApp(const MyApp());
 }
@@ -59,6 +61,7 @@ class MyApp extends StatelessWidget {
                 useMaterial3: false,
               ),
               initialRoute: AppRoutes.splashScreen,
+              navigatorObservers: [ChuckerFlutter.navigatorObserver],
               onGenerateRoute: AppRoutes.generateRoute,
             ),
           );
