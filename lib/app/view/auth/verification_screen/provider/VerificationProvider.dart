@@ -1,6 +1,13 @@
 import '../../../../core/appExports/app_export.dart';
 import '../../../../core/constants/app_urls.dart';
 import '../../../../data/network/network_api_services.dart';
+import '../../../../data/storage/user_preference.dart';
+import '../../../../modules/auth/vendor/signup/view/identity_verification_screen.dart';
+import '../../../../modules/auth/vendor/signup/view/service_category.dart';
+import '../../../../modules/auth/vendor/signup/view/set_availability.dart';
+import '../../../../modules/user/navigation tab/view/navigation_tab_screen.dart';
+import '../../../../modules/vendor/navigation tab/view/vendor_navigation_tab_screen.dart';
+import '../../../user_role/choose_your_role/view/choose_role.dart';
 import '../model/verify_otp.dart';
 
 class VerificationProvider extends ChangeNotifier {
@@ -27,11 +34,11 @@ class VerificationProvider extends ChangeNotifier {
 
   String? userId;
 
-  Future<bool> verifyOtpMethod(String phone) async {
+  Future<void> verifyOtpMethod(String phone) async {
     if (otpController.text.length != 6) {
       errorMessage = "Please enter a valid 6-digit OTP";
       notifyListeners();
-      return false;
+      return;
     }
 
     isLoading = true;
@@ -62,19 +69,89 @@ class VerificationProvider extends ChangeNotifier {
       isLoading = false;
 
       if (response.status == true) {
+        if (navigatorKey.currentContext!.mounted) {
+          if(response.stepCompleted=='0'){
+            Navigator.pushReplacement(
+              navigatorKey.currentContext!,
+              MaterialPageRoute(
+                builder: (_) => ChooseRoleScreen(userId: response.userId,),
+              ),
+            );
+          }else if(response.stepCompleted=='1'&&response.role=='vendor'){
+            await saveLogin(response.role,response.token);
+            Navigator.push(
+              navigatorKey.currentContext!,
+              MaterialPageRoute(
+                builder: (_) => ServiceCategory(),
+              ),
+            );
+          }else if(response.stepCompleted=='2'&&response.role=='vendor'){
+            await saveLogin(response.role,response.token);
+            Navigator.push(
+              navigatorKey.currentContext!,
+              MaterialPageRoute(
+                builder: (_) => SetAvailabilityScreen(),
+              ),
+            );
+          }else if(response.stepCompleted=='3'&&response.role=='vendor'){
+            await saveLogin(response.role,response.token);
+            Navigator.push(
+              navigatorKey.currentContext!,
+              MaterialPageRoute(
+                builder: (_) => IdentityVerificationScreen(),
+              ),
+            );
+          }else{
+            if(response.role!=null&&response.token!=null){
+              loginWithSaveTokenRedirection(response.role,response.token);
+            }
+          }
+        }
         notifyListeners();
-        return true;
+        return ;
       } else {
         errorMessage = response.message ?? "Verification failed";
         notifyListeners();
-        return false;
+        return ;
       }
     } catch (e) {
       isLoading = false;
       errorMessage = "Wrong otp. Please try again.";
       notifyListeners();
-      return false;
+      return ;
     }
+  }
+
+  Future<void> saveLogin(String? role,String? token)async {
+    if(role==null||token==null){
+      return;
+    }
+    await UserPreference.isLoggedIn(true);
+    await UserPreference.saveAccessToken(token);
+    await UserPreference.saveRole(role);
+  }
+
+  Future<void> loginWithSaveTokenRedirection(String? role,String? token) async {
+    if(role==null||token==null){
+      return;
+    }
+    await saveLogin(role,token);
+    if(role=='user'){
+      Navigator.push(
+        navigatorKey.currentContext!,
+        MaterialPageRoute(
+          builder: (_) =>   NavigationTabScreen(),
+        ),
+      );
+    }else if(role=='vendor'){
+      Navigator.push(
+        navigatorKey.currentContext!,
+        MaterialPageRoute(
+          builder: (_) =>   VendorNavigationTabScreen(),
+        ),
+      );
+    }
+
   }
 
   Future<verifyOtp> verificationUser(Map<String, dynamic> data) async {

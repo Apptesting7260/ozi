@@ -5,6 +5,7 @@ import '../../../../core/appExports/app_export.dart';
 import '../../../../core/constants/app_urls.dart';
 import '../../../../data/network/network_api_services.dart';
 import '../../../../data/storage/user_preference.dart';
+import '../../../../modules/auth/vendor/signup/view/service_category.dart';
 import '../../../../modules/user/navigation tab/view/navigation_tab_screen.dart';
 
 class CreateAccountProvider with ChangeNotifier{
@@ -68,10 +69,16 @@ class CreateAccountProvider with ChangeNotifier{
        ),
      );
    }else if(role=='vendor'){
+     // Navigator.push(
+     //   navigatorKey.currentContext!,
+     //   MaterialPageRoute(
+     //     builder: (_) =>   VendorNavigationTabScreen(),
+     //   ),
+     // );
      Navigator.push(
        navigatorKey.currentContext!,
        MaterialPageRoute(
-         builder: (_) =>   VendorNavigationTabScreen(),
+         builder: (_) =>   ServiceCategory(),
        ),
      );
    }
