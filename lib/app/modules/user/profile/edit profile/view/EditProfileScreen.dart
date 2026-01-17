@@ -8,17 +8,24 @@ class EditProfileScreen extends StatelessWidget {
   const EditProfileScreen({super.key});
 
   @override
-  @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (_) => EditProfileProvider(),
+      create: (_) => EditProfileProvider()..fetchAndPopulateProfile(),
       builder: (context, child) {
+        final provider = context.watch<EditProfileProvider>();
+
         return Scaffold(
           body: Column(
             children: [
-               CustomAppBar(title: "Edit Profile"),
+              const CustomAppBar(title: "Edit Profile"),
               Expanded(
-                child: SingleChildScrollView(
+                child: provider.isLoading
+                    ? Center(
+                  child: CircularProgressIndicator(
+                    color: AppColors.primary,
+                  ),
+                )
+                    : SingleChildScrollView(
                   padding: REdgeInsets.symmetric(horizontal: 16),
                   child: Column(
                     children: [
@@ -30,14 +37,20 @@ class EditProfileScreen extends StatelessWidget {
                       hBox(30),
 
                       /// FIELDS
-                      _inputFields(),
+                      _inputFields(provider),
 
                       hBox(30),
 
                       CustomButton(
                         borderRadius: BorderRadius.circular(60),
                         text: "Update Profile",
-                        onPressed: () {},
+                        onPressed: () {
+                          // TODO: Implement update profile API call
+                          print('First Name: ${provider.firstNameController.text}');
+                          print('Last Name: ${provider.lastNameController.text}');
+                          print('Email: ${provider.emailController.text}');
+                          print('Selected Image: ${provider.selectedFile?.path}');
+                        },
                         height: 54,
                       ),
 
@@ -52,7 +65,6 @@ class EditProfileScreen extends StatelessWidget {
       },
     );
   }
-
 
   // ─────────────────── PROFILE SECTION ───────────────────
 
@@ -70,6 +82,11 @@ class EditProfileScreen extends StatelessWidget {
           displayImage = Image.network(
             provider.networkImage,
             fit: BoxFit.cover,
+            errorBuilder: (_, __, ___) => Icon(
+              Icons.person,
+              size: 50,
+              color: AppColors.grey,
+            ),
           );
         }
 
@@ -81,14 +98,13 @@ class EditProfileScreen extends StatelessWidget {
                 Container(
                   height: 110,
                   width: 110,
-                  padding: EdgeInsets.all(3),
+                  padding: const EdgeInsets.all(3),
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     border: Border.all(color: AppColors.primary, width: 3),
                   ),
                   child: ClipOval(child: displayImage),
                 ),
-
                 GestureDetector(
                   onTap: () => _showPicker(context),
                   child: Container(
@@ -99,7 +115,7 @@ class EditProfileScreen extends StatelessWidget {
                       shape: BoxShape.circle,
                       border: Border.all(color: AppColors.white, width: 2),
                     ),
-                    child: Icon(
+                    child: const Icon(
                       Icons.camera_alt,
                       color: Colors.white,
                       size: 18,
@@ -108,9 +124,7 @@ class EditProfileScreen extends StatelessWidget {
                 ),
               ],
             ),
-
             hBox(10),
-
             Text(
               "Change Photo",
               style: AppFontStyle.text_14_500(AppColors.primary),
@@ -128,7 +142,7 @@ class EditProfileScreen extends StatelessWidget {
     CustomBottomSheet.show(
       context: context,
       content: Padding(
-        padding: EdgeInsets.all(20),
+        padding: const EdgeInsets.all(20),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -136,7 +150,7 @@ class EditProfileScreen extends StatelessWidget {
 
             ListTile(
               leading: Icon(Icons.photo_library, color: AppColors.primary),
-              title: Text("Gallery"),
+              title: const Text("Gallery"),
               onTap: () {
                 Navigator.pop(context);
                 provider.pickGallery();
@@ -145,7 +159,7 @@ class EditProfileScreen extends StatelessWidget {
 
             ListTile(
               leading: Icon(Icons.camera_alt, color: AppColors.primary),
-              title: Text("Camera"),
+              title: const Text("Camera"),
               onTap: () {
                 Navigator.pop(context);
                 provider.pickCamera();
@@ -159,14 +173,15 @@ class EditProfileScreen extends StatelessWidget {
     );
   }
 
-  Widget _inputFields() {
+  Widget _inputFields(EditProfileProvider provider) {
     return Column(
       children: [
         CustomTextFormField(
           label: "First Name",
           hintText: "Alex",
+          controller: provider.firstNameController,
           prefix: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 10),
+            padding: const EdgeInsets.symmetric(horizontal: 10),
             child: CustomImage(
               path: ImageConstants.userIcon,
               height: 14,
@@ -180,8 +195,9 @@ class EditProfileScreen extends StatelessWidget {
         CustomTextFormField(
           label: "Last Name",
           hintText: "Johnson",
+          controller: provider.lastNameController,
           prefix: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 10),
+            padding: const EdgeInsets.symmetric(horizontal: 10),
             child: CustomImage(
               path: ImageConstants.userIcon,
               height: 14,
@@ -195,8 +211,9 @@ class EditProfileScreen extends StatelessWidget {
         CustomTextFormField(
           label: "Email Address",
           hintText: "yourname@gmail.com",
+          controller: provider.emailController,
           prefix: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 10),
+            padding: const EdgeInsets.symmetric(horizontal: 10),
             child: CustomImage(
               path: ImageConstants.mail,
               height: 14,

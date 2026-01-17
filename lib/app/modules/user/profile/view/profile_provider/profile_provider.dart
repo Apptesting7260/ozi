@@ -4,6 +4,7 @@ import '../../../../../data/repository/repository.dart';
 import '../../../../../data/storage/user_preference.dart';
 import '../model/logout_model.dart';
 import '../../../../../routes/app_routes.dart';
+import '../model/user_profile_model.dart';
 
 class ProfileProvider extends ChangeNotifier {
   final _repository = Repository();
@@ -11,8 +12,26 @@ class ProfileProvider extends ChangeNotifier {
   bool _isLoading = false;
   bool get isLoading => _isLoading;
 
+  bool _isProfileLoading = false;
+  bool get isProfileLoading => _isProfileLoading;
+
   String _errorMessage = '';
   String get errorMessage => _errorMessage;
+
+  UserProfileModel? _userProfile;
+  UserProfileModel? get userProfile => _userProfile;
+
+  Data? get userData => _userProfile?.data;
+
+  // Getters for user data
+  String get firstName => userData?.firstName ?? '';
+  String get lastName => userData?.lastName ?? '';
+  String get fullName => '${firstName} ${lastName}'.trim();
+  String get email => userData?.email ?? '';
+  String get mobile => userData?.mobile ?? '';
+  String get countryCode => userData?.countryCode ?? '';
+  String get profileImage => userData?.proImg ?? '';
+  String get phoneNumber => '${countryCode} ${mobile}';
 
   Future<void> logout(BuildContext context) async {
     _isLoading = true;
@@ -33,12 +52,6 @@ class ProfileProvider extends ChangeNotifier {
             AppRoutes.splashScreen,
                 (route) => false,
           );
-          // ScaffoldMessenger.of(context).showSnackBar(
-          //   SnackBar(
-          //     content: Text(response.message ?? 'Logged out successfully'),
-          //     backgroundColor: Colors.green,
-          //   ),
-          // );
         }
       } else {
         _errorMessage = response.message ?? 'Logout failed';
@@ -69,5 +82,27 @@ class ProfileProvider extends ChangeNotifier {
     }
   }
 
+  Future<void> fetchUserProfile() async {
+    _isProfileLoading = true;
+    _errorMessage = '';
+    notifyListeners();
 
+    try {
+      dynamic response = await _repository.getProfileApi();
+
+      _userProfile = UserProfileModel.fromJson(response);
+      _isProfileLoading = false;
+      notifyListeners();
+
+      if (_userProfile?.status != true) {
+        _errorMessage = _userProfile?.message ?? 'Failed to fetch profile';
+        notifyListeners();
+      }
+    } catch (e) {
+      _isProfileLoading = false;
+      _errorMessage = e.toString().replaceAll('Exception: ', '');
+      notifyListeners();
+      print('Error fetching profile: $_errorMessage');
+    }
+  }
 }

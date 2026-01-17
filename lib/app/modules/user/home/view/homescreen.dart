@@ -40,9 +40,9 @@ class HomeScreenView extends StatelessWidget {
     return Scaffold(
       body: SafeArea(
         child: RefreshIndicator(
-          onRefresh: provider.refreshData,
+          onRefresh: () => provider.refreshData(),
           child: SingleChildScrollView(
-            // physics: BouncingScrollPhysics(),
+             physics: BouncingScrollPhysics(),
             child: Padding(
               padding: EdgeInsets.all(20.0),
               child: Column(
@@ -195,10 +195,8 @@ class HomeScreenView extends StatelessWidget {
           children: [
             Positioned.fill(
               child: CustomImage(
-                path: ImagePathHelper.getFullImageUrl(
-                  category.icon,
-                  AppUrls.imageBaseUrl,
-                ),
+                path: ImagePathHelper.getFullImageUrl(category.icon, AppUrls.imageBaseUrl),
+
                 fit: BoxFit.cover,
                 shimmerChild: ShimmerBox(
                   width: double.infinity,
