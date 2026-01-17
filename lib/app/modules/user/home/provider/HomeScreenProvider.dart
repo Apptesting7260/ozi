@@ -39,15 +39,17 @@ class HomeScreenProvider extends ChangeNotifier {
       final CategoryModel model =
       await _repository.homePageCategoryApi({});
 
-      if (model.status == true && model.data != null) {
-        _serviceCategories
-          ..clear()
-          ..addAll(model.data!);
+      _serviceCategories.clear();
+
+      if (model.status == true && model.data != null && model.data!.isNotEmpty) {
+        _serviceCategories.addAll(model.data!);
       }
+
     } catch (e) {
       debugPrint("❌ Category API Error: $e");
     }
   }
+
 
 
   void updateLocation(String location) {
@@ -65,7 +67,9 @@ class HomeScreenProvider extends ChangeNotifier {
       ),
     );
   }
-
+  Future<void> refreshData() async {
+    await _fetchCategories();
+  }
 
   void onBecomeProviderTap(BuildContext context) {}
   void onLocationTap(BuildContext context) {}

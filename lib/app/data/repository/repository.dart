@@ -238,4 +238,26 @@ class Repository {
       throw Exception(e);
     }
   }
+
+  // ********************************************* GetProfile Api ***********************************************//
+  Future<dynamic> getProfileApi() async {
+    await getToken();
+    try {
+      print('API Request URL: ${AppUrls.getUserProfile}');
+      print('API Token: $token');
+
+      if (token.isEmpty) {
+        throw Exception('Authentication token is missing');
+      }
+      dynamic response = await _apiService.getApi(
+        AppUrls.getUserProfile,
+        token,
+      );
+      print('API Response: $response');
+      return response;
+    } catch (e) {
+      print('getProfileApi Error: $e');
+      rethrow;
+    }
+  }
 }

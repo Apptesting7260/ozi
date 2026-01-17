@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:ozi/app/core/appExports/app_export.dart';
 import '../../../../../data/repository/repository.dart';
 import '../../../../../data/storage/user_preference.dart';
 import '../model/logout_model.dart';
@@ -25,24 +26,19 @@ class ProfileProvider extends ChangeNotifier {
       notifyListeners();
 
       if (response.status == true) {
-        // Clear user data from shared preferences
         await UserPreference.clearSharedPreference();
-
-        // Navigate to splash/login screen
         if (context.mounted) {
           Navigator.pushNamedAndRemoveUntil(
             context,
             AppRoutes.splashScreen,
                 (route) => false,
           );
-
-          // Show success message
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(response.message ?? 'Logged out successfully'),
-              backgroundColor: Colors.green,
-            ),
-          );
+          // ScaffoldMessenger.of(context).showSnackBar(
+          //   SnackBar(
+          //     content: Text(response.message ?? 'Logged out successfully'),
+          //     backgroundColor: Colors.green,
+          //   ),
+          // );
         }
       } else {
         _errorMessage = response.message ?? 'Logout failed';
@@ -72,4 +68,6 @@ class ProfileProvider extends ChangeNotifier {
       }
     }
   }
+
+
 }

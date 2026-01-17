@@ -38,26 +38,28 @@ class HomeScreenView extends StatelessWidget {
     final provider = context.watch<HomeScreenProvider>();
 
     return Scaffold(
-      backgroundColor: Colors.white,
       body: SafeArea(
-        child: SingleChildScrollView(
-          physics: BouncingScrollPhysics(),
-          child: Padding(
-            padding: EdgeInsets.all(20.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildHeader(context, provider),
-                SizedBox(height: 10),
-                _buildSearchBar(context, provider),
-                SizedBox(height: 12),
-                _buildSectionTitle(),
-                SizedBox(height: 8),
-                _buildServiceGrid(context, provider),
-                SizedBox(height: 10),
-                _buildBecomeProviderCard(context, provider),
-                SizedBox(height: 10),
-              ],
+        child: RefreshIndicator(
+          onRefresh: provider.refreshData,
+          child: SingleChildScrollView(
+            // physics: BouncingScrollPhysics(),
+            child: Padding(
+              padding: EdgeInsets.all(20.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildHeader(context, provider),
+                  hBox(10),
+                  _buildSearchBar(context, provider),
+                  hBox(12),
+                  _buildSectionTitle(),
+                  hBox(8),
+                  _buildServiceGrid(context, provider),
+                  hBox(10),
+                  _buildBecomeProviderCard(context, provider),
+                  hBox(10),
+                ],
+              ),
             ),
           ),
         ),
@@ -180,42 +182,32 @@ class HomeScreenView extends StatelessWidget {
     );
   }
 
-
-
   Widget _buildServiceCard(
       BuildContext context,
       Data category,
       HomeScreenProvider provider,
       ) {
     return GestureDetector(
-      onTap: () => provider.onCategoryTap(
-        category,
-        context,
-      ),
+      onTap: () => provider.onCategoryTap(category, context),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(12),
         child: Stack(
           children: [
             Positioned.fill(
-              child: CachedNetworkImage(
-                imageUrl: ImagePathHelper.getFullImageUrl(
+              child: CustomImage(
+                path: ImagePathHelper.getFullImageUrl(
                   category.icon,
                   AppUrls.imageBaseUrl,
                 ),
-
                 fit: BoxFit.cover,
-                placeholder: (_, __) => ShimmerBox(
+                shimmerChild: ShimmerBox(
                   width: double.infinity,
                   height: double.infinity,
                   radius: 12,
                 ),
-                errorWidget: (_, __, ___) => Container(
-                  color: Colors.grey[200],
-                  alignment: Alignment.center,
-                  child: const Icon(Icons.image_not_supported),
-                ),
               ),
             ),
+
             Positioned.fill(
               child: DecoratedBox(
                 decoration: BoxDecoration(
@@ -230,11 +222,12 @@ class HomeScreenView extends StatelessWidget {
                 ),
               ),
             ),
+
             Positioned(
               left: 12,
               bottom: 12,
               child: Text(
-                category.categoryName??"",
+                category.categoryName ?? "",
                 style: AppFontStyle.text_15_500(
                   AppColors.white,
                   fontFamily: AppFontFamily.semiBold,
@@ -246,6 +239,7 @@ class HomeScreenView extends StatelessWidget {
       ),
     );
   }
+
 
   Widget _buildBecomeProviderCard(
       BuildContext context,

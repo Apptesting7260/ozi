@@ -2,12 +2,12 @@ import '../../../../../core/appExports/app_export.dart';
 import '../../../../../shared/widgets/custom_app_bar.dart';
 import '../../model/category_model.dart';
 import '../../service details/view/ServiceDetailScreen.dart';
-import '../provider/CategoryDetailProvider.dart';
+import '../provider/category_detail_provider.dart';
 
 class CategoryDetailScreen extends StatelessWidget {
   final Data category;
 
-  CategoryDetailScreen({
+  const CategoryDetailScreen({
     super.key,
     required this.category,
   });
@@ -87,7 +87,7 @@ class CategoryDetailView extends StatelessWidget {
         debugPrint("Subcategory tapped: ${sub.categoryName}");
       },
       child: Container(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(10),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(16),
           color: AppColors.lightGrey,
@@ -135,14 +135,16 @@ class CategoryDetailView extends StatelessWidget {
               ],
             ),
             hBox(12),
-            Text(
-              sub.categoryName ?? "",
-              style: AppFontStyle.text_16_600(
-                AppColors.black,
-                fontFamily: AppFontFamily.bold,
+            Expanded(
+              child: Text(
+                sub.categoryName ?? "",
+                style: AppFontStyle.text_16_600(
+                  AppColors.black,
+                  fontFamily: AppFontFamily.bold,
+                ),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
               ),
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
             ),
           ],
         ),

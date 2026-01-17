@@ -42,8 +42,7 @@ class ProfileScreenView extends StatelessWidget {
                 padding: REdgeInsets.symmetric(horizontal: 16),
                 child: Column(
                   children: [
-                    const SizedBox(height: 10),
-
+                    hBox(10),
                     Container(
                       width: double.infinity,
                       padding: const EdgeInsets.symmetric(vertical: 20),

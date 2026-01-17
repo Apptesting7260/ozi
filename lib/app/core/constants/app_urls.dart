@@ -17,6 +17,7 @@ class AppUrls {
   static const String increaseCartQuantity = "$baseUrl/increase-cart-quantity";
   static const String decreaseCartQuantity = "$baseUrl/decrease-cart-quantity";
   static const String deleteCartItem = "$baseUrl/delete-cart-item";
+  static const String getUserProfile = "$baseUrl/get-users-profile";
 
 
 
