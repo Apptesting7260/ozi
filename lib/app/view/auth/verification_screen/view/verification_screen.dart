@@ -105,17 +105,17 @@ class VerificationContent extends StatelessWidget {
                     text: provider.isLoading ? "Verifying..." : "Verify",
                     onPressed: () {
                       if (provider.isLoading) return;
-
-                      provider.verifyOtpMethod(phone).then((success) {
-                        if (success && context.mounted) {
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => ChooseRoleScreen(userId: provider.userId,),
-                            ),
-                          );
-                        }
-                      });
+                      provider.verifyOtpMethod(phone);
+                      //     .then((success) {
+                      //   if (success && context.mounted) {
+                      //     Navigator.pushReplacement(
+                      //       context,
+                      //       MaterialPageRoute(
+                      //         builder: (_) => ChooseRoleScreen(userId: provider.userId,),
+                      //       ),
+                      //     );
+                      //   }
+                      // });
                     },
                   ),
                   hBox(24),

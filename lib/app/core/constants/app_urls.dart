@@ -19,6 +19,10 @@ class AppUrls {
   static const String deleteCartItem = "$baseUrl/delete-cart-item";
   static const String getUserProfile = "$baseUrl/get-users-profile";
 
+  static const String getAllCategories = "$baseUrl/get-all-categories";
+  static const String saveCategoryForVendor = "$baseUrl/vendor-categories";
+  static const String saveAvailabilityVendor = "$baseUrl/vendor-availability";
+  static const String docsVendor = "$baseUrl/vendor-docs";
 
 
 
