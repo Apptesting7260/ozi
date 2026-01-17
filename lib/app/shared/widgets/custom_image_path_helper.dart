@@ -6,8 +6,8 @@ class ImagePathHelper {
     if (path.startsWith("http")) return path;
 
     // Combine base URL + relative path
+    print("Image Path: $path");
     print("Full Image URL: $imageBaseUrl$path");
     return "$imageBaseUrl$path";
-
   }
 }

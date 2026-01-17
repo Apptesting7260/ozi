@@ -27,14 +27,14 @@ class HomeScreenProvider extends ChangeNotifier {
     _isLoading = true;
     notifyListeners();
 
-    await _fetchCategories();
+    await fetchCategories();
 
     _isLoaded = true;
     _isLoading = false;
     notifyListeners();
   }
 
-  Future<void> _fetchCategories() async {
+  Future<void> fetchCategories() async {
     try {
       final CategoryModel model =
       await _repository.homePageCategoryApi({});
@@ -49,7 +49,6 @@ class HomeScreenProvider extends ChangeNotifier {
       debugPrint("❌ Category API Error: $e");
     }
   }
-
 
 
   void updateLocation(String location) {
@@ -68,7 +67,7 @@ class HomeScreenProvider extends ChangeNotifier {
     );
   }
   Future<void> refreshData() async {
-    await _fetchCategories();
+    await fetchCategories();
   }
 
   void onBecomeProviderTap(BuildContext context) {}

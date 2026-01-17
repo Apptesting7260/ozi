@@ -49,7 +49,6 @@ class CartScreenContent extends StatelessWidget {
                     return _buildEmptyCart(context);
                   }
 
-                  // Show cart items when available
                   return RefreshIndicator(
                     onRefresh: () => cart.fetchCartItems(),
                     color: AppColors.primary,

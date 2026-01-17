@@ -1,4 +1,5 @@
 import 'package:ozi/app/modules/user/profile/view/profile_provider/profile_provider.dart';
+import 'package:ozi/app/shared/widgets/custom_image_path_helper.dart';
 import '../../../../core/appExports/app_export.dart';
 import '../../../../routes/app_routes.dart';
 
@@ -8,7 +9,7 @@ class ProfileScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (_) => ProfileProvider(),
+      create: (_) => ProfileProvider()..fetchUserProfile(),
       child: const ProfileScreenView(),
     );
   }
@@ -19,7 +20,7 @@ class ProfileScreenView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final logoutProvider = context.watch<ProfileProvider>();
+    final profileProvider = context.watch<ProfileProvider>();
 
     return Scaffold(
       body: SafeArea(
@@ -36,29 +37,69 @@ class ProfileScreenView extends StatelessWidget {
                 ),
               ),
             ),
-
             Expanded(
-              child: SingleChildScrollView(
+              child: profileProvider.isProfileLoading
+                  ? Center(
+                child: CircularProgressIndicator(
+                  color: AppColors.primary,
+                ),
+              )
+                  : profileProvider.errorMessage.isNotEmpty &&
+                  profileProvider.userProfile == null
+                  ? Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.error_outline,
+                      size: 60,
+                      color: AppColors.grey,
+                    ),
+                    hBox(16),
+                    Text(
+                      profileProvider.errorMessage,
+                      style: AppFontStyle.text_14_400(AppColors.grey),
+                      textAlign: TextAlign.center,
+                    ),
+                    hBox(16),
+                    CustomButton(
+                      text: "Retry",
+                      onPressed: () {
+                        profileProvider.fetchUserProfile();
+                      },
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                  ],
+                ),
+              )
+                  : SingleChildScrollView(
                 padding: REdgeInsets.symmetric(horizontal: 16),
                 child: Column(
                   children: [
                     hBox(10),
                     Container(
                       width: double.infinity,
-                      padding: const EdgeInsets.symmetric(vertical: 20),
+                      padding:
+                      const EdgeInsets.symmetric(vertical: 20),
                       decoration: BoxDecoration(
-                        color: AppColors.primary.withValues(alpha: 0.20),
+                        color: AppColors.primary
+                            .withValues(alpha: 0.20),
                         borderRadius: BorderRadius.circular(16),
                       ),
                       child: Column(
                         children: [
                           profileAvatarStatic(
-                            imageUrl: "https://images.unsplash.com/photo-1527980965255-d3b416303d12",
+                            imageUrl: profileProvider.profileImage
+                                .isNotEmpty
+                                ? profileProvider.profileImage
+                                : "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png",
                             size: 90,
                           ),
                           hBox(14),
                           Text(
-                            "Alex Johnson",
+                            profileProvider.fullName.isNotEmpty
+                                ? profileProvider.fullName
+                                : "User",
                             style: AppFontStyle.text_18_600(
                               AppColors.black,
                               fontFamily: AppFontFamily.bold,
@@ -66,51 +107,52 @@ class ProfileScreenView extends StatelessWidget {
                           ),
                           hBox(2),
                           Text(
-                            "+1 (555) 123-4567",
-                            style: AppFontStyle.text_14_400(AppColors.grey),
+                            profileProvider.phoneNumber.isNotEmpty
+                                ? profileProvider.phoneNumber
+                                : "No phone number",
+                            style: AppFontStyle.text_14_400(
+                                AppColors.grey),
                           ),
                         ],
                       ),
                     ),
-
                     hBox(26),
-
                     _profileTile(
                       icon: ImageConstants.profile,
                       title: "Edit Profile",
-                      onTap: () => Navigator.pushNamed(context, AppRoutes.editProfileScreen),
+                      onTap: () => Navigator.pushNamed(
+                          context, AppRoutes.editProfileScreen),
                     ),
-
                     _profileTile(
                       icon: ImageConstants.location,
                       title: "Saved Addresses",
-                      onTap: () => Navigator.pushNamed(context, AppRoutes.savedAddressScreen),
+                      onTap: () => Navigator.pushNamed(
+                          context, AppRoutes.savedAddressScreen),
                     ),
-
                     _profileTile(
                       icon: ImageConstants.card,
                       title: "Payment Methods",
-                      onTap: () => Navigator.pushNamed(context, AppRoutes.paymentMethodsScreen),
+                      onTap: () => Navigator.pushNamed(
+                          context, AppRoutes.paymentMethodsScreen),
                     ),
-
                     _profileTile(
                       icon: ImageConstants.setting,
                       title: "Settings",
-                      onTap: () => Navigator.pushNamed(context, AppRoutes.settingsScreen),
+                      onTap: () => Navigator.pushNamed(
+                          context, AppRoutes.settingsScreen),
                     ),
-
                     hBox(10),
-
                     CustomButton(
                       borderRadius: BorderRadius.circular(30),
-                      color: AppColors.primary.withValues(alpha: 0.30),
+                      color:
+                      AppColors.primary.withValues(alpha: 0.30),
                       onPressed: () {
-                        if (!logoutProvider.isLoading) {
-                          showDeleteDialog(context, logoutProvider);
+                        if (!profileProvider.isLoading) {
+                          showDeleteDialog(context, profileProvider);
                         }
                       },
-                      child: logoutProvider.isLoading
-                          ?  SizedBox(
+                      child: profileProvider.isLoading
+                          ? SizedBox(
                         height: 22,
                         width: 22,
                         child: CircularProgressIndicator(
@@ -119,7 +161,8 @@ class ProfileScreenView extends StatelessWidget {
                         ),
                       )
                           : Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
+                        mainAxisAlignment:
+                        MainAxisAlignment.center,
                         children: [
                           CustomImage(
                             path: ImageConstants.logout,
@@ -132,13 +175,13 @@ class ProfileScreenView extends StatelessWidget {
                             "Logout",
                             style: AppFontStyle.text_16_600(
                               AppColors.primary,
-                              fontFamily: AppFontFamily.semiBold,
+                              fontFamily:
+                              AppFontFamily.semiBold,
                             ),
                           ),
                         ],
                       ),
                     ),
-
                     hBox(30),
                   ],
                 ),
@@ -167,15 +210,15 @@ class ProfileScreenView extends StatelessWidget {
           ),
         ),
         child: ClipOval(
-          child: Image.network(
-            imageUrl,
-            fit: BoxFit.cover,
-            errorBuilder: (_, __, ___) => Icon(
-              Icons.person,
-              size: size * 0.5,
-              color: AppColors.grey,
-            ),
-          ),
+          // child: CustomImage(
+          //   // path: ImagePathHelper.getFullImageUrl(, imageBaseUrl),
+          //   fit: BoxFit.cover,
+          //   // errorBuilder: (_, __, ___) => Icon(
+          //   //   Icons.person,
+          //   //   size: size * 0.5,
+          //   //   color: AppColors.grey,
+          //   // ),
+          // ),
         ),
       ),
     );
@@ -229,7 +272,8 @@ class ProfileScreenView extends StatelessWidget {
     );
   }
 
-  Future<void> showDeleteDialog(BuildContext context, ProfileProvider provider) async {
+  Future<void> showDeleteDialog(
+      BuildContext context, ProfileProvider provider) async {
     showDialog(
       context: context,
       barrierDismissible: true,
@@ -263,8 +307,8 @@ class ProfileScreenView extends StatelessWidget {
                   text: "Yes, Logout",
                   borderRadius: BorderRadius.circular(30),
                   onPressed: () {
+                    Navigator.pop(dialogContext);
                     provider.logout(context);
-                    showCustomToast(context, "Logged out successfully");
                   },
                 ),
                 const SizedBox(height: 12),

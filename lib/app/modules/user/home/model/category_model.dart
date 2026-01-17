@@ -17,9 +17,9 @@ class CategoryModel {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['status'] = this.status;
-    data['message'] = this.message;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['status'] = status;
+    data['message'] = message;
     if (this.data != null) {
       data['data'] = this.data!.map((v) => v.toJson()).toList();
     }
@@ -31,10 +31,10 @@ class Data {
   int? id;
   String? categoryName;
   String? icon;
-  Null? parentId;
+  Null parentId;
   String? slug;
   String? status;
-  Null? deletedAt;
+  Null deletedAt;
   String? createdAt;
   String? updatedAt;
   List<Subcategories>? subcategories;
@@ -70,19 +70,19 @@ class Data {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['id'] = this.id;
-    data['category_name'] = this.categoryName;
-    data['icon'] = this.icon;
-    data['parent_id'] = this.parentId;
-    data['slug'] = this.slug;
-    data['status'] = this.status;
-    data['deleted_at'] = this.deletedAt;
-    data['created_at'] = this.createdAt;
-    data['updated_at'] = this.updatedAt;
-    if (this.subcategories != null) {
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['id'] = id;
+    data['category_name'] = categoryName;
+    data['icon'] = icon;
+    data['parent_id'] = parentId;
+    data['slug'] = slug;
+    data['status'] = status;
+    data['deleted_at'] = deletedAt;
+    data['created_at'] = createdAt;
+    data['updated_at'] = updatedAt;
+    if (subcategories != null) {
       data['subcategories'] =
-          this.subcategories!.map((v) => v.toJson()).toList();
+          subcategories!.map((v) => v.toJson()).toList();
     }
     return data;
   }
@@ -95,7 +95,7 @@ class Subcategories {
   int? parentId;
   String? slug;
   String? status;
-  Null? deletedAt;
+  Null deletedAt;
   String? createdAt;
   String? updatedAt;
 
@@ -123,16 +123,16 @@ class Subcategories {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['id'] = this.id;
-    data['category_name'] = this.categoryName;
-    data['icon'] = this.icon;
-    data['parent_id'] = this.parentId;
-    data['slug'] = this.slug;
-    data['status'] = this.status;
-    data['deleted_at'] = this.deletedAt;
-    data['created_at'] = this.createdAt;
-    data['updated_at'] = this.updatedAt;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['id'] = id;
+    data['category_name'] = categoryName;
+    data['icon'] = icon;
+    data['parent_id'] = parentId;
+    data['slug'] = slug;
+    data['status'] = status;
+    data['deleted_at'] = deletedAt;
+    data['created_at'] = createdAt;
+    data['updated_at'] = updatedAt;
     return data;
   }
 }
