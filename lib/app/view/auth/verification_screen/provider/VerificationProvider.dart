@@ -33,7 +33,7 @@ class VerificationProvider extends ChangeNotifier {
     });
   }
 
-  Future<bool> verifyOtpMethod(String phone) async {
+  Future<void> verifyOtpMethod(String phone) async {
     if (otpController.text.length != 6) {
       errorMessage = "Please enter a valid 6-digit OTP";
       notifyListeners();
