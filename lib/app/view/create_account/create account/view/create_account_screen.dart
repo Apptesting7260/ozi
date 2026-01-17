@@ -22,7 +22,6 @@ class CreateAccountScreen extends StatelessWidget {
             children: [
               hBox(30),
 
-              /// Title
               Text(
                 "Create Account",
                 style: AppFontStyle.text_28_600(
@@ -33,7 +32,6 @@ class CreateAccountScreen extends StatelessWidget {
 
               hBox(10),
 
-              /// Subtitle
               Text(
                 "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
                 style: AppFontStyle.text_16_400(AppColors.grey),

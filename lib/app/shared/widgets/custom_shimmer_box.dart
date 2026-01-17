@@ -1,4 +1,3 @@
-import 'package:shimmer/shimmer.dart';
 import '../../core/appExports/app_export.dart';
 
 class ShimmerBox extends StatelessWidget {

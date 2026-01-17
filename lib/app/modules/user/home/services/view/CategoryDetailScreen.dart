@@ -1,36 +1,37 @@
 import '../../../../../core/appExports/app_export.dart';
 import '../../../../../shared/widgets/custom_app_bar.dart';
-import '../provider/CategoryDetailProvider.dart';
+import '../../model/category_model.dart';
+import '../../service details/view/ServiceDetailScreen.dart';
+import '../provider/category_detail_provider.dart';
 
 class CategoryDetailScreen extends StatelessWidget {
-  final String categoryTitle;
+  final Data category;
 
   const CategoryDetailScreen({
     super.key,
-    required this.categoryTitle,
+    required this.category,
   });
 
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (_) => CategoryDetailProvider(categoryTitle),
-      child: CategoryDetailView(categoryTitle: categoryTitle),
+      create: (_) => CategoryDetailProvider(category),
+      child: CategoryDetailView(category: category),
     );
   }
 }
 
 class CategoryDetailView extends StatelessWidget {
-  final String categoryTitle;
+  final Data category;
 
   const CategoryDetailView({
     super.key,
-    required this.categoryTitle,
+    required this.category,
   });
 
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<CategoryDetailProvider>();
-
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
@@ -38,38 +39,32 @@ class CategoryDetailView extends StatelessWidget {
           children: [
             Padding(
               padding: const EdgeInsets.all(10),
-              child:  CustomAppBar(
-                title: categoryTitle,
+              child: CustomAppBar(
+                title: category.categoryName ?? "",
               ),
             ),
-
             Expanded(
-              child: provider.services.isEmpty
+              child: provider.subcategories.isEmpty
                   ? Center(
                 child: Text(
-                  'No services available',
+                  'No subcategories available',
                   style: AppFontStyle.text_16_400(AppColors.grey),
                 ),
               )
                   : Padding(
-                padding:  EdgeInsets.symmetric(horizontal: 20),
+                padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: GridView.builder(
-
-                  gridDelegate:  SliverGridDelegateWithFixedCrossAxisCount(
+                  gridDelegate:
+                  const SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 2,
                     crossAxisSpacing: 16,
                     mainAxisSpacing: 16,
                     childAspectRatio: 1.4,
                   ),
-                  itemCount: provider.services.length,
+                  itemCount: provider.subcategories.length,
                   itemBuilder: (context, index) {
-                    final service = provider.services[index];
-                    return _buildServiceCard(
-                      context,
-                      service,
-                      index + 1,
-                      provider,
-                    );
+                    final sub = provider.subcategories[index];
+                    return _buildSubCategoryCard(context, sub, index + 1);
                   },
                 ),
               ),
@@ -80,28 +75,27 @@ class CategoryDetailView extends StatelessWidget {
     );
   }
 
-  Widget _buildServiceCard(
+  Widget _buildSubCategoryCard(
       BuildContext context,
-      Service service,
+      Subcategories sub,
       int index,
-      CategoryDetailProvider provider,
       ) {
-    String formattedIndex = index <10 ? '0$index' : '$index';
+    String formattedIndex = index < 10 ? '0$index' : '$index';
 
     return GestureDetector(
-      onTap: () => provider.onServiceTap(service, context),
+      onTap: () {
+        debugPrint("Subcategory tapped: ${sub.categoryName}");
+      },
       child: Container(
-        padding:  EdgeInsets.all(16),
+        padding: const EdgeInsets.all(10),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(16),
-          color:  AppColors.lightGrey,
+          color: AppColors.lightGrey,
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   formattedIndex,
@@ -109,31 +103,48 @@ class CategoryDetailView extends StatelessWidget {
                     fontSize: 26,
                     fontWeight: FontWeight.w700,
                     color: AppColors.primary.withValues(alpha: 0.5),
-                    height: 1.0,
                   ),
                 ),
-                Container(
-                  width: 32,
-                  height: 32,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Center(
-                    child: CustomImage(path: ImageConstants.rightBack)
+                Spacer(),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: InkWell(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => ServiceDetailScreen(
+                            service: sub,
+                            categoryId: sub.parentId ?? 0,
+                          ),
+                        ),
+                      );
+                    },
+                    child: Container(
+                      height: 40,
+                      width: 40,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: AppColors.white,
+                      ),
+                      padding: REdgeInsets.all(14),
+                      child: CustomImage(path: ImageConstants.rightBack),
+                    ),
                   ),
                 ),
               ],
             ),
-           hBox(12),
-            Text(
-              service.name,
-              style: AppFontStyle.text_16_600(
-                AppColors.black,
-                fontFamily: AppFontFamily.bold,
+            hBox(12),
+            Expanded(
+              child: Text(
+                sub.categoryName ?? "",
+                style: AppFontStyle.text_16_600(
+                  AppColors.black,
+                  fontFamily: AppFontFamily.bold,
+                ),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
               ),
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
             ),
           ],
         ),

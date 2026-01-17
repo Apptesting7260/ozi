@@ -18,6 +18,7 @@ class VerificationProvider extends ChangeNotifier {
   Timer? timer;
   bool isLoading = false;
   String? errorMessage;
+  String? userId;
 
   void startTimer() {
     timer?.cancel();
@@ -32,9 +33,7 @@ class VerificationProvider extends ChangeNotifier {
     });
   }
 
-  String? userId;
-
-  Future<void> verifyOtpMethod(String phone) async {
+  Future<bool> verifyOtpMethod(String phone) async {
     if (otpController.text.length != 6) {
       errorMessage = "Please enter a valid 6-digit OTP";
       notifyListeners();
@@ -63,8 +62,8 @@ class VerificationProvider extends ChangeNotifier {
         "otp": otpController.text,
       };
 
+      // Use the verificationUser method
       verifyOtp response = await verificationUser(requestData);
-      userId = response.userId;
 
       isLoading = false;
 
@@ -110,13 +109,15 @@ class VerificationProvider extends ChangeNotifier {
         notifyListeners();
         return ;
       } else {
-        errorMessage = response.message ?? "Verification failed";
+        // Wrong OTP - show error but DON'T navigate
+        errorMessage = response.message ?? "Invalid OTP. Please try again.";
         notifyListeners();
         return ;
       }
     } catch (e) {
       isLoading = false;
-      errorMessage = "Wrong otp. Please try again.";
+      // Error occurred - show error but DON'T navigate
+      errorMessage = "Wrong OTP. Please try again.";
       notifyListeners();
       return ;
     }
@@ -209,6 +210,19 @@ class VerificationProvider extends ChangeNotifier {
       errorMessage = "Failed to resend OTP. Please try again.";
       notifyListeners();
     }
+  }
+
+  // Clear error message
+  void clearError() {
+    errorMessage = null;
+    notifyListeners();
+  }
+
+  // Clear OTP field
+  void clearOtp() {
+    otpController.clear();
+    errorMessage = null;
+    notifyListeners();
   }
 
   @override

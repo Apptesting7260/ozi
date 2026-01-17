@@ -1,6 +1,9 @@
 import '../../../../core/appExports/app_export.dart';
+import '../../../../core/constants/app_urls.dart';
+import '../../../../shared/widgets/custom_image_path_helper.dart';
 import '../../../../shared/widgets/custom_shimmer_box.dart';
 import '../../../../shared/widgets/custom_text_form_field.dart';
+import '../model/category_model.dart';
 import '../provider/HomeScreenProvider.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -35,26 +38,28 @@ class HomeScreenView extends StatelessWidget {
     final provider = context.watch<HomeScreenProvider>();
 
     return Scaffold(
-      backgroundColor: Colors.white,
       body: SafeArea(
-        child: SingleChildScrollView(
-          physics: BouncingScrollPhysics(),
-          child: Padding(
-            padding: EdgeInsets.all(20.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildHeader(context, provider),
-                SizedBox(height: 10),
-                _buildSearchBar(context, provider),
-                SizedBox(height: 12),
-                _buildSectionTitle(),
-                SizedBox(height: 8),
-                _buildServiceGrid(context, provider),
-                SizedBox(height: 10),
-                _buildBecomeProviderCard(context, provider),
-                SizedBox(height: 10),
-              ],
+        child: RefreshIndicator(
+          onRefresh: provider.refreshData,
+          child: SingleChildScrollView(
+            // physics: BouncingScrollPhysics(),
+            child: Padding(
+              padding: EdgeInsets.all(20.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildHeader(context, provider),
+                  hBox(10),
+                  _buildSearchBar(context, provider),
+                  hBox(12),
+                  _buildSectionTitle(),
+                  hBox(8),
+                  _buildServiceGrid(context, provider),
+                  hBox(10),
+                  _buildBecomeProviderCard(context, provider),
+                  hBox(10),
+                ],
+              ),
             ),
           ),
         ),
@@ -156,7 +161,10 @@ class HomeScreenView extends StatelessWidget {
     );
   }
 
-  Widget _buildServiceGrid(BuildContext context, HomeScreenProvider provider) {
+  Widget _buildServiceGrid(
+      BuildContext context,
+      HomeScreenProvider provider,
+      ) {
     return GridView.builder(
       shrinkWrap: true,
       physics: NeverScrollableScrollPhysics(),
@@ -176,31 +184,30 @@ class HomeScreenView extends StatelessWidget {
 
   Widget _buildServiceCard(
       BuildContext context,
-      ServiceCategory category,
+      Data category,
       HomeScreenProvider provider,
       ) {
     return GestureDetector(
-      onTap: () => provider.onCategoryTap(category.title, context),
+      onTap: () => provider.onCategoryTap(category, context),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(12),
         child: Stack(
           children: [
             Positioned.fill(
-              child: CachedNetworkImage(
-                imageUrl: category.imagePath,
+              child: CustomImage(
+                path: ImagePathHelper.getFullImageUrl(
+                  category.icon,
+                  AppUrls.imageBaseUrl,
+                ),
                 fit: BoxFit.cover,
-                placeholder: (_, __) => ShimmerBox(
+                shimmerChild: ShimmerBox(
                   width: double.infinity,
                   height: double.infinity,
                   radius: 12,
                 ),
-                errorWidget: (_, __, ___) => Container(
-                  color: Colors.grey[200],
-                  alignment: Alignment.center,
-                  child: const Icon(Icons.image_not_supported),
-                ),
               ),
             ),
+
             Positioned.fill(
               child: DecoratedBox(
                 decoration: BoxDecoration(
@@ -209,20 +216,21 @@ class HomeScreenView extends StatelessWidget {
                     end: Alignment.bottomCenter,
                     colors: [
                       Colors.transparent,
-                      Colors.black.withOpacity(0.7),
+                      Colors.black.withValues(alpha: 0.7),
                     ],
                   ),
                 ),
               ),
             ),
+
             Positioned(
               left: 12,
               bottom: 12,
               child: Text(
-                category.title,
-                style: AppFontStyle.text_14_500(
+                category.categoryName ?? "",
+                style: AppFontStyle.text_15_500(
                   AppColors.white,
-                  fontFamily: AppFontFamily.bold,
+                  fontFamily: AppFontFamily.semiBold,
                 ),
               ),
             ),
@@ -231,6 +239,7 @@ class HomeScreenView extends StatelessWidget {
       ),
     );
   }
+
 
   Widget _buildBecomeProviderCard(
       BuildContext context,

@@ -25,7 +25,7 @@ class _NavigationTabScreenState extends State<NavigationTabScreen> {
       path: path,
       width: 22.0,
       height: 22.0,
-      color: isActive ? AppColors.primary : AppColors.grey,
+      // color: isActive ? AppColors.primary : AppColors.grey,
     );
   }
 
