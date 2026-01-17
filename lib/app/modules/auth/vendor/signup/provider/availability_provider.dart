@@ -89,7 +89,6 @@ class AvailabilityProvider extends ChangeNotifier {
       updateSubmitLoading(false);
       showCustomToast(navigatorKey.currentContext!, e.toString());
     }
-
   }
 
 }
