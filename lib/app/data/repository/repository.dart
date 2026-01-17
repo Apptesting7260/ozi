@@ -79,7 +79,8 @@ class Repository {
   Future<LogoutModel> logoutApi() async {
     await getToken();
     try {
-      dynamic response = await _apiService.postApiWithoutData(
+      dynamic response = await _apiService.postApi(
+        {},
         AppUrls.logout,
         token,
       );
@@ -173,7 +174,8 @@ class Repository {
         throw Exception('Authentication token is missing');
       }
 
-      dynamic response = await _apiService.postApiWithoutData(
+      dynamic response = await _apiService.postApi(
+        {},
         url,
         token,
       );
@@ -199,7 +201,8 @@ class Repository {
         throw Exception('Authentication token is missing');
       }
 
-      dynamic response = await _apiService.postApiWithoutData(
+      dynamic response = await _apiService.postApi(
+        {},
         url,
         token,
       );
@@ -225,7 +228,8 @@ class Repository {
         throw Exception('Authentication token is missing');
       }
 
-      dynamic response = await _apiService.postApiWithoutData(
+      dynamic response = await _apiService.postApi(
+        {},
         url,
         token,
       );
