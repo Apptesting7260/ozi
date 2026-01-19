@@ -49,19 +49,22 @@ class CreateAccountProvider with ChangeNotifier {
       loginWithSaveTokenRedirection(
         response['data']['user_role']?.toString(),
         response['data']['api_token']?.toString(),
+        userId
       );
     } catch (e) {
       updateLoading(false);
     }
   }
 
-  Future<void> loginWithSaveTokenRedirection(String? role, String? token) async {
+  Future<void> loginWithSaveTokenRedirection(String? role, String? token,String userId) async {
     if (role == null || token == null) {
       return;
     }
    await UserPreference.isLoggedIn(true);
    await UserPreference.saveAccessToken(token);
    await UserPreference.saveRole(role);
+   await UserPreference.saveUserId(userId);
+   await UserPreference.saveStep('1');
    if(role=='user'){
      Navigator.push(
        navigatorKey.currentContext!,

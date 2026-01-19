@@ -37,6 +37,28 @@ class UserPreference {
     return role;
   }
 
+  static saveStep(String step) async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    pref.setString("step", step);
+  }
+
+  static Future<String?> returnStep() async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    String? step = pref.getString("step");
+    return step;
+  }
+
+  static saveUserId(String userId) async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    pref.setString("userid", userId);
+  }
+
+  static Future<String?> returnUserId() async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    String? userId = pref.getString("userid");
+    return userId;
+  }
+
 
   // static isProfileComplete(bool step) async {
   //   SharedPreferences pref = await SharedPreferences.getInstance();

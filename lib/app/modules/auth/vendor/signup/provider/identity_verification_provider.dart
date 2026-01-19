@@ -47,6 +47,7 @@ class IdentityVerificationProvider extends ChangeNotifier {
       final token = await UserPreference.returnAccessToken();
       final response = await _apiService.postApiMultiPart(AppUrls.docsVendor,token!,{},files);
       print(response);
+      await UserPreference.saveStep('4');
       Navigator.push(
         navigatorKey.currentContext!,
         MaterialPageRoute(
