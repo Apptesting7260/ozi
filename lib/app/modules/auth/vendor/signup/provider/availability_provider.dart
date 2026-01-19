@@ -78,6 +78,7 @@ class AvailabilityProvider extends ChangeNotifier {
       final token = await UserPreference.returnAccessToken();
       final response = await _apiService.postApiMultiPart(AppUrls.saveAvailabilityVendor,token!,fields,{});
       print(response);
+      await UserPreference.saveStep('3');
       Navigator.push(
         navigatorKey.currentContext!,
         MaterialPageRoute(

@@ -103,6 +103,7 @@ class ServiceCategoryProvider extends ChangeNotifier {
       //     builder: (_) => ServiceDetailsScreen(),
       //   ),
       // );
+      await UserPreference.saveStep('2');
       Navigator.push(
         navigatorKey.currentContext!,
         MaterialPageRoute(

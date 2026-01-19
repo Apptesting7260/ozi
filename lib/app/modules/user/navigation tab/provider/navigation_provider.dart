@@ -48,4 +48,6 @@ class NavigationProvider extends ChangeNotifier {
         return ImageConstants.home;
     }
   }
+
+
 }
