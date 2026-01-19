@@ -18,7 +18,12 @@ class AppUrls {
   static const String decreaseCartQuantity = "$baseUrl/decrease-cart-quantity";
   static const String deleteCartItem = "$baseUrl/delete-cart-item";
   static const String getUserProfile = "$baseUrl/get-users-profile";
+  static const String updateUserProfile = "$baseUrl/update-users-profile";
 
+
+
+
+  // Vendor APIs
   static const String getAllCategories = "$baseUrl/get-all-categories";
   static const String saveCategoryForVendor = "$baseUrl/vendor-categories";
   static const String saveAvailabilityVendor = "$baseUrl/vendor-availability";

@@ -1,38 +1,37 @@
 import '../../../../../core/appExports/app_export.dart';
+import '../../../../../core/constants/app_urls.dart';
 import '../../../../../shared/widgets/custom_app_bar.dart';
 import '../../../../../shared/widgets/custom_bottom_shit.dart';
+import '../../../../../shared/widgets/custom_image_path_helper.dart';
 import '../../../../../shared/widgets/custom_text_form_field.dart';
+import '../../view/profile_provider/profile_provider.dart';
 import '../provider/EditProfileProvider.dart';
 
 class EditProfileScreen extends StatelessWidget {
   const EditProfileScreen({super.key});
 
+  void initState(BuildContext context) {
+    final profileProvider = context.read<ProfileProvider>();
+    profileProvider.fetchUserProfile();
+  }
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (_) => EditProfileProvider()..fetchAndPopulateProfile(),
-      builder: (context, child) {
-        final provider = context.watch<EditProfileProvider>();
 
-        return Scaffold(
+    final provider = context.watch<EditProfileProvider>();
+
+    return Scaffold(
           body: Column(
             children: [
               const CustomAppBar(title: "Edit Profile"),
               Expanded(
-                child: provider.isLoading
-                    ? Center(
-                  child: CircularProgressIndicator(
-                    color: AppColors.primary,
-                  ),
-                )
-                    : SingleChildScrollView(
-                  padding: REdgeInsets.symmetric(horizontal: 16),
+                child: SingleChildScrollView(
+                  padding: EdgeInsets.symmetric(horizontal: 16),
                   child: Column(
                     children: [
                       hBox(10),
 
                       /// PROFILE SECTION
-                      _profileSection(context),
+                      _profileSection(provider, context),
 
                       hBox(30),
 
@@ -43,16 +42,12 @@ class EditProfileScreen extends StatelessWidget {
 
                       CustomButton(
                         borderRadius: BorderRadius.circular(60),
-                        text: "Update Profile",
-                        onPressed: () {
-                          // TODO: Implement update profile API call
-                          print('First Name: ${provider.firstNameController.text}');
-                          print('Last Name: ${provider.lastNameController.text}');
-                          print('Email: ${provider.emailController.text}');
-                          print('Selected Image: ${provider.selectedFile?.path}');
-                        },
+                        text: provider.isUpdating ? "Updating..." : "Update Profile",
+                        onPressed: provider.isUpdating ? null :
+                             () => provider.updateProfile(context),
                         height: 54,
                       ),
+
 
                       hBox(30),
                     ],
@@ -62,81 +57,70 @@ class EditProfileScreen extends StatelessWidget {
             ],
           ),
         );
-      },
-    );
   }
 
   // ─────────────────── PROFILE SECTION ───────────────────
-
-  Widget _profileSection(BuildContext context) {
-    return Consumer<EditProfileProvider>(
-      builder: (context, provider, _) {
-        Widget displayImage;
-
-        if (provider.pickedImage != null) {
-          displayImage = Image.file(
-            File(provider.pickedImage!.path),
-            fit: BoxFit.cover,
-          );
-        } else {
-          displayImage = Image.network(
-            provider.networkImage,
-            fit: BoxFit.cover,
-            errorBuilder: (_, __, ___) => Icon(
-              Icons.person,
-              size: 50,
-              color: AppColors.grey,
-            ),
-          );
-        }
-
-        return Column(
+  Widget _profileSection(EditProfileProvider provider, context) {
+    return Column(
+      children: [
+        Stack(
+          alignment: Alignment.bottomRight,
           children: [
-            Stack(
-              alignment: Alignment.bottomRight,
-              children: [
-                Container(
-                  height: 110,
-                  width: 110,
-                  padding: const EdgeInsets.all(3),
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: Border.all(color: AppColors.primary, width: 3),
+            Container(
+              height: 110,
+              width: 110,
+              // padding: const EdgeInsets.all(3),
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(color: AppColors.primary, width: 3),
+              ),
+              child: ClipOval(
+                child: provider.pickedImage != null
+                    ? Image.file(
+                  File(provider.pickedImage!.path),
+                  fit: BoxFit.cover,
+                )
+                    : CustomImage(
+                  path: ImagePathHelper.getFullImageUrl(
+                    provider.networkImage,
+                    AppUrls.imageBaseUrl,
                   ),
-                  child: ClipOval(child: displayImage),
+                  fit: BoxFit.cover,
                 ),
-                GestureDetector(
-                  onTap: () => _showPicker(context),
-                  child: Container(
-                    height: 36,
-                    width: 36,
-                    decoration: BoxDecoration(
-                      color: AppColors.primary,
-                      shape: BoxShape.circle,
-                      border: Border.all(color: AppColors.white, width: 2),
-                    ),
-                    child: const Icon(
-                      Icons.camera_alt,
-                      color: Colors.white,
-                      size: 18,
-                    ),
-                  ),
-                ),
-              ],
+              ),
             ),
-            hBox(10),
-            Text(
-              "Change Photo",
-              style: AppFontStyle.text_14_500(AppColors.primary),
+
+            /// CAMERA BUTTON
+            GestureDetector(
+              onTap: () => _showPicker(context),
+              child: Container(
+                height: 36,
+                width: 36,
+                decoration: BoxDecoration(
+                  color: AppColors.primary,
+                  shape: BoxShape.circle,
+                  border: Border.all(color: AppColors.white, width: 2),
+                ),
+                child: const Icon(
+                  Icons.camera_alt,
+                  color: Colors.white,
+                  size: 18,
+                ),
+              ),
             ),
           ],
-        );
-      },
+        ),
+        hBox(10),
+        Text(
+          "Change Photo",
+          style: AppFontStyle.text_14_500(AppColors.primary),
+        ),
+      ],
     );
   }
 
+
   void _showPicker(BuildContext context) {
-    // Get the provider BEFORE opening the bottom sheet
     final provider = Provider.of<EditProfileProvider>(context, listen: false);
 
     CustomBottomSheet.show(
@@ -146,7 +130,7 @@ class EditProfileScreen extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            hBox(20), // Space for close button
+            hBox(20),
 
             ListTile(
               leading: Icon(Icons.photo_library, color: AppColors.primary),

@@ -3,6 +3,7 @@ import '../../../../core/constants/app_urls.dart';
 import '../../../../shared/widgets/custom_image_path_helper.dart';
 import '../../../../shared/widgets/custom_shimmer_box.dart';
 import '../../../../shared/widgets/custom_text_form_field.dart';
+import '../../profile/view/profile_provider/profile_provider.dart';
 import '../model/category_model.dart';
 import '../provider/HomeScreenProvider.dart';
 
@@ -17,6 +18,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
+    context.read<ProfileProvider>().fetchUserProfile();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
         context.read<HomeScreenProvider>().loadOnce();
@@ -36,13 +38,14 @@ class HomeScreenView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<HomeScreenProvider>();
+    // final profileProvider = context.watch<ProfileProvider>();
 
     return Scaffold(
       body: SafeArea(
         child: RefreshIndicator(
           onRefresh: () => provider.refreshData(),
           child: SingleChildScrollView(
-             physics: BouncingScrollPhysics(),
+            physics: BouncingScrollPhysics(),
             child: Padding(
               padding: EdgeInsets.all(20.0),
               child: Column(
@@ -79,12 +82,10 @@ class HomeScreenView extends StatelessWidget {
                 children: [
                   TextSpan(
                     text: "Hello ",
-                    style: AppFontStyle.text_24_500(
-                      AppColors.black,
-                    ),
+                    style: AppFontStyle.text_24_500(AppColors.black),
                   ),
                   TextSpan(
-                    text: provider.userName,
+                    text: context.watch<ProfileProvider>().firstName,
                     style: AppFontStyle.text_24_600(
                       AppColors.black,
                       fontFamily: AppFontFamily.bold,
@@ -113,9 +114,7 @@ class HomeScreenView extends StatelessWidget {
                   SizedBox(width: 4),
                   Text(
                     provider.selectedLocation,
-                    style: AppFontStyle.text_14_400(
-                      AppColors.grey,
-                    ),
+                    style: AppFontStyle.text_14_400(AppColors.grey),
                   ),
                   SizedBox(width: 4),
                   Icon(
@@ -129,7 +128,10 @@ class HomeScreenView extends StatelessWidget {
           ],
         ),
         profileAvatarStatic(
-          imageUrl: "https://images.unsplash.com/photo-1527980965255-d3b416303d12",
+          imageUrl: ImagePathHelper.getFullImageUrl(
+            context.watch<ProfileProvider>().profileImage,
+            AppUrls.imageBaseUrl,
+          ),
           size: 50,
         ),
       ],
@@ -142,11 +144,7 @@ class HomeScreenView extends StatelessWidget {
       hintText: "Search...",
       prefix: Padding(
         padding: EdgeInsets.all(12.0),
-        child: CustomImage(
-          path: ImageConstants.search,
-          height: 20,
-          width: 20,
-        ),
+        child: CustomImage(path: ImageConstants.search, height: 20, width: 20),
       ),
     );
   }
@@ -161,10 +159,7 @@ class HomeScreenView extends StatelessWidget {
     );
   }
 
-  Widget _buildServiceGrid(
-      BuildContext context,
-      HomeScreenProvider provider,
-      ) {
+  Widget _buildServiceGrid(BuildContext context, HomeScreenProvider provider) {
     return GridView.builder(
       shrinkWrap: true,
       physics: NeverScrollableScrollPhysics(),
@@ -183,10 +178,10 @@ class HomeScreenView extends StatelessWidget {
   }
 
   Widget _buildServiceCard(
-      BuildContext context,
-      Data category,
-      HomeScreenProvider provider,
-      ) {
+    BuildContext context,
+    Data category,
+    HomeScreenProvider provider,
+  ) {
     return GestureDetector(
       onTap: () => provider.onCategoryTap(category, context),
       child: ClipRRect(
@@ -195,7 +190,10 @@ class HomeScreenView extends StatelessWidget {
           children: [
             Positioned.fill(
               child: CustomImage(
-                path: ImagePathHelper.getFullImageUrl(category.icon, AppUrls.imageBaseUrl),
+                path: ImagePathHelper.getFullImageUrl(
+                  category.icon,
+                  AppUrls.imageBaseUrl,
+                ),
 
                 fit: BoxFit.cover,
                 shimmerChild: ShimmerBox(
@@ -238,11 +236,10 @@ class HomeScreenView extends StatelessWidget {
     );
   }
 
-
   Widget _buildBecomeProviderCard(
-      BuildContext context,
-      HomeScreenProvider provider,
-      ) {
+    BuildContext context,
+    HomeScreenProvider provider,
+  ) {
     return GestureDetector(
       onTap: () => provider.onBecomeProviderTap(context),
       child: Stack(
@@ -270,7 +267,9 @@ class HomeScreenView extends StatelessWidget {
                       hBox(6),
                       _buildBulletPoint('Get everyday \nexclusive orders'),
                       _buildBulletPoint('Earn more Revenue'),
-                      _buildBulletPoint('Get Rated and tips \nfrom your customers'),
+                      _buildBulletPoint(
+                        'Get Rated and tips \nfrom your customers',
+                      ),
                       hBox(6),
                       CustomButton(
                         onPressed: () => provider.onBecomeProviderTap(context),
@@ -282,7 +281,7 @@ class HomeScreenView extends StatelessWidget {
                         width: 120,
                         height: 40,
                         color: Colors.white,
-                      )
+                      ),
                     ],
                   ),
                 ),
@@ -297,10 +296,7 @@ class HomeScreenView extends StatelessWidget {
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: Image.asset(
-                ImageConstants.homeService,
-                fit: BoxFit.cover,
-              ),
+              child: Image.asset(ImageConstants.homeService, fit: BoxFit.cover),
             ),
           ),
         ],
@@ -314,27 +310,17 @@ class HomeScreenView extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Icon(
-            Icons.circle,
-            size: 6,
-            color: Colors.white,
-          ),
+          Icon(Icons.circle, size: 6, color: Colors.white),
           const SizedBox(width: 8),
           Expanded(
-            child: Text(
-              text,
-              style: AppFontStyle.text_13_400(AppColors.white),
-            ),
+            child: Text(text, style: AppFontStyle.text_13_400(AppColors.white)),
           ),
         ],
       ),
     );
   }
 
-  Widget profileAvatarStatic({
-    required String imageUrl,
-    double size = 95,
-  }) {
+  Widget profileAvatarStatic({required String imageUrl, double size = 95}) {
     return Container(
       alignment: Alignment.center,
       child: Container(
@@ -342,21 +328,17 @@ class HomeScreenView extends StatelessWidget {
         width: size,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          border: Border.all(
-            color: AppColors.primary,
-            width: 3,
-          ),
+          border: Border.all(color: AppColors.primary, width: 3),
         ),
         child: ClipOval(
-          child: Image.network(
-            imageUrl,
-            fit: BoxFit.cover,
-            errorBuilder: (_, __, ___) => Icon(
-              Icons.person,
-              size: size * 0.5,
-              color: AppColors.grey,
-            ),
-          ),
+          child: imageUrl.isNotEmpty
+              ? CustomImage(
+                  path: imageUrl,
+                  fit: BoxFit.cover,
+                  width: size,
+                  height: size,
+                )
+              : Icon(Icons.person, size: size * 0.5, color: AppColors.grey),
         ),
       ),
     );

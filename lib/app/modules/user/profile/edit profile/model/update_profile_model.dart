@@ -1,14 +1,14 @@
-class UserProfileModel {
+class UpdateProfileModel {
   bool? status;
   String? message;
-  ProfileData? data;
+  UpdateProfileData? data;
 
-  UserProfileModel({this.status, this.message, this.data});
+  UpdateProfileModel({this.status, this.message, this.data});
 
-  UserProfileModel.fromJson(Map<String, dynamic> json) {
+  UpdateProfileModel.fromJson(Map<String, dynamic> json) {
     status = json['status'];
     message = json['message'];
-    data = json['data'] != null ? ProfileData.fromJson(json['data']) : null;
+    data = json['data'] != null ? UpdateProfileData.fromJson(json['data']) : null;
   }
 
   Map<String, dynamic> toJson() {
@@ -22,7 +22,7 @@ class UserProfileModel {
   }
 }
 
-class ProfileData {
+class UpdateProfileData {
   int? id;
   String? firstName;
   String? lastName;
@@ -32,7 +32,7 @@ class ProfileData {
   String? mobile;
   String? userRole;
   bool? isMobileVerified;
-  String? otpExpireAt;
+  Null otpExpireAt;
   Null terms;
   String? status;
   int? stepCompleted;
@@ -40,7 +40,7 @@ class ProfileData {
   String? createdAt;
   String? updatedAt;
 
-  ProfileData(
+  UpdateProfileData(
       {this.id,
         this.firstName,
         this.lastName,
@@ -58,7 +58,7 @@ class ProfileData {
         this.createdAt,
         this.updatedAt});
 
-  ProfileData.fromJson(Map<String, dynamic> json) {
+  UpdateProfileData.fromJson(Map<String, dynamic> json) {
     id = json['id'];
     firstName = json['first_name'];
     lastName = json['last_name'];
