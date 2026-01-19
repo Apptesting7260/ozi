@@ -264,4 +264,27 @@ class Repository {
       rethrow;
     }
   }
+
+  // ********************************************* UpdateProfile Api ***********************************************//
+  Future<dynamic> updateProfileApi(
+      Map<String, String> fields,
+      File? image,
+      ) async {
+    await getToken();
+
+    final Map<String, dynamic> files = {};
+
+    if (image != null) {
+      files["pro_img"] = image; // 'pro_img' is the key expected by the API for the profile image
+    }
+
+    return await _apiService.postApiMultiPart(
+      AppUrls.updateUserProfile,
+      token,
+      fields,
+      files,
+    );
+  }
+
+
 }

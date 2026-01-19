@@ -26,8 +26,7 @@ export 'package:dropdown_button2/dropdown_button2.dart';
 export '../../core/utils/get_utils.dart';
 export 'package:loading_animation_widget/loading_animation_widget.dart';
 export 'package:country_picker/country_picker.dart';
-
-
+export 'package:image_cropper/image_cropper.dart';
 
 
 

@@ -1,29 +1,26 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+
+import '../../../../../core/appExports/app_export.dart';
 import '../../../../../data/repository/repository.dart';
+import '../../view/profile_provider/profile_provider.dart';
 
 class EditProfileProvider extends ChangeNotifier {
-  final _repository = Repository();
+  final bool _isUpdating = false;
+  bool get isUpdating => _isUpdating;
 
-  String networkImage =
-      "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png";
+  String networkImage = "";
 
   XFile? pickedImage;
   final ImagePicker picker = ImagePicker();
 
-  // Text controllers
   final TextEditingController firstNameController = TextEditingController();
   final TextEditingController lastNameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
 
-  bool _isLoading = false;
+  final bool _isLoading = false;
   bool get isLoading => _isLoading;
-
-  String _errorMessage = '';
-  String get errorMessage => _errorMessage;
-
-  // Pick from gallery
   Future pickGallery() async {
     final img = await picker.pickImage(source: ImageSource.gallery);
     if (img != null) {
@@ -32,7 +29,6 @@ class EditProfileProvider extends ChangeNotifier {
     }
   }
 
-  // Pick from camera
   Future pickCamera() async {
     final img = await picker.pickImage(source: ImageSource.camera);
     if (img != null) {
@@ -44,40 +40,70 @@ class EditProfileProvider extends ChangeNotifier {
   File? get selectedFile =>
       pickedImage != null ? File(pickedImage!.path) : null;
 
-  // Fetch user profile and populate fields
-  Future<void> fetchAndPopulateProfile() async {
-    _isLoading = true;
-    _errorMessage = '';
-    notifyListeners();
+  void populateProfileData(dynamic userData) {
+    if (userData != null) {
+      firstNameController.text = userData.firstName ?? '';
+      lastNameController.text = userData.lastName ?? '';
+      emailController.text = userData.email ?? '';
 
-    try {
-      dynamic response = await _repository.getProfileApi();
-
-      if (response['status'] == true && response['data'] != null) {
-        final data = response['data'];
-
-        // Populate controllers
-        firstNameController.text = data['first_name'] ?? '';
-        lastNameController.text = data['last_name'] ?? '';
-        emailController.text = data['email'] ?? '';
-
-        // Set network image
-        if (data['pro_img'] != null && data['pro_img'].toString().isNotEmpty) {
-          networkImage = data['pro_img'];
-        }
-      } else {
-        _errorMessage = response['message'] ?? 'Failed to fetch profile';
+      // Set network image
+      if (userData.proImg != null && userData.proImg.toString().isNotEmpty) {
+        networkImage = userData.proImg;
       }
 
-      _isLoading = false;
       notifyListeners();
-    } catch (e) {
-      _isLoading = false;
-      _errorMessage = e.toString().replaceAll('Exception: ', '');
-      notifyListeners();
-      print('Error fetching profile: $_errorMessage');
     }
   }
+
+
+  Future<void> updateProfile(BuildContext context) async {
+    try {
+      //_isUpdating = true;
+      notifyListeners();
+
+      Map<String, String> fields = {
+        "first_name": firstNameController.text.trim(),
+        "last_name": lastNameController.text.trim(),
+        "email": emailController.text.trim(),
+      };
+
+      final response = await Repository().updateProfileApi(
+        fields,
+        selectedFile,
+      );
+
+    //  _isUpdating = false;
+      notifyListeners();
+
+      if (response["status"] == true) {
+        /// ✅ REFRESH PROFILE DATA
+        final profileProvider =
+        Provider.of<ProfileProvider>(context, listen: false);
+        await profileProvider.fetchUserProfile();
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Profile Updated Successfully")),
+        );
+
+        Navigator.pop(context);
+
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(response["message"] ?? "Update failed")),
+        );
+      }
+    } catch (e) {
+     // _isUpdating = false;
+      notifyListeners();
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Error: $e")),
+      );
+    }
+  }
+
+
+
 
   @override
   void dispose() {

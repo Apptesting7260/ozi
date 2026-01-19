@@ -1,23 +1,27 @@
+
+
 import 'package:ozi/app/modules/user/profile/view/profile_provider/profile_provider.dart';
-import 'package:ozi/app/shared/widgets/custom_image_path_helper.dart';
 import '../../../../core/appExports/app_export.dart';
+import '../../../../core/constants/app_urls.dart';
 import '../../../../routes/app_routes.dart';
+import '../../../../shared/widgets/custom_image_path_helper.dart';
+import '../edit profile/provider/EditProfileProvider.dart';
+import '../edit profile/view/EditProfileScreen.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
 
+  // void initState(BuildContext context) {
+  //   final profileProvider = context.read<ProfileProvider>();
+  //   profileProvider.fetchUserProfile();
+  // }
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (_) => ProfileProvider()..fetchUserProfile(),
-      child: const ProfileScreenView(),
-    );
+    return const ProfileScreenView();
   }
 }
-
 class ProfileScreenView extends StatelessWidget {
   const ProfileScreenView({super.key});
-
   @override
   Widget build(BuildContext context) {
     final profileProvider = context.watch<ProfileProvider>();
@@ -80,7 +84,7 @@ class ProfileScreenView extends StatelessWidget {
                     Container(
                       width: double.infinity,
                       padding:
-                      const EdgeInsets.symmetric(vertical: 20),
+                       EdgeInsets.symmetric(vertical: 20),
                       decoration: BoxDecoration(
                         color: AppColors.primary
                             .withValues(alpha: 0.20),
@@ -89,10 +93,9 @@ class ProfileScreenView extends StatelessWidget {
                       child: Column(
                         children: [
                           profileAvatarStatic(
-                            imageUrl: profileProvider.profileImage
-                                .isNotEmpty
+                            imageUrl: profileProvider.profileImage.isNotEmpty
                                 ? profileProvider.profileImage
-                                : "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png",
+                                : "",
                             size: 90,
                           ),
                           hBox(14),
@@ -120,10 +123,21 @@ class ProfileScreenView extends StatelessWidget {
                     _profileTile(
                       icon: ImageConstants.profile,
                       title: "Edit Profile",
-                      onTap: () => Navigator.pushNamed(
-                          context, AppRoutes.editProfileScreen),
+                      onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) {
+                            final userData = context.read<ProfileProvider>().userData;
+
+                            return ChangeNotifierProvider(
+                              create: (_) => EditProfileProvider()..populateProfileData(userData),
+                              child: EditProfileScreen(),
+                            );
+                          },
+                        ),
+                      ),
                     ),
-                    _profileTile(
+                      _profileTile(
                       icon: ImageConstants.location,
                       title: "Saved Addresses",
                       onTap: () => Navigator.pushNamed(
@@ -210,15 +224,15 @@ class ProfileScreenView extends StatelessWidget {
           ),
         ),
         child: ClipOval(
-          // child: CustomImage(
-          //   // path: ImagePathHelper.getFullImageUrl(, imageBaseUrl),
-          //   fit: BoxFit.cover,
-          //   // errorBuilder: (_, __, ___) => Icon(
-          //   //   Icons.person,
-          //   //   size: size * 0.5,
-          //   //   color: AppColors.grey,
-          //   // ),
-          // ),
+          child: CustomImage(
+            path: ImagePathHelper.getFullImageUrl(imageUrl, AppUrls.imageBaseUrl),
+            fit: BoxFit.cover,
+            // errorWidget: Icon(
+            //   Icons.person,
+            //   size: size * 0.5,
+            //   color: AppColors.grey,
+            // ),
+          ),
         ),
       ),
     );
@@ -327,4 +341,5 @@ class ProfileScreenView extends StatelessWidget {
       },
     );
   }
+
 }

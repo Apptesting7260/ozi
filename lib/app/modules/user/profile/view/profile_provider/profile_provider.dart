@@ -21,17 +21,16 @@ class ProfileProvider extends ChangeNotifier {
   UserProfileModel? _userProfile;
   UserProfileModel? get userProfile => _userProfile;
 
-  Data? get userData => _userProfile?.data;
+  ProfileData? get userData => _userProfile?.data;
 
-  // Getters for user data
   String get firstName => userData?.firstName ?? '';
   String get lastName => userData?.lastName ?? '';
-  String get fullName => '${firstName} ${lastName}'.trim();
+  String get fullName => '$firstName $lastName'.trim();
   String get email => userData?.email ?? '';
   String get mobile => userData?.mobile ?? '';
   String get countryCode => userData?.countryCode ?? '';
   String get profileImage => userData?.proImg ?? '';
-  String get phoneNumber => '${countryCode} ${mobile}';
+  String get phoneNumber => '$countryCode $mobile';
 
   Future<void> logout(BuildContext context) async {
     _isLoading = true;
@@ -86,7 +85,6 @@ class ProfileProvider extends ChangeNotifier {
     _isProfileLoading = true;
     _errorMessage = '';
     notifyListeners();
-
     try {
       dynamic response = await _repository.getProfileApi();
 

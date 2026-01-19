@@ -9,6 +9,7 @@ import 'package:webview_flutter_wkwebview/webview_flutter_wkwebview.dart';
 import 'app/core/appExports/app_export.dart';
 import 'app/modules/user/home/provider/HomeScreenProvider.dart';
 import 'app/modules/user/navigation tab/provider/navigation_provider.dart';
+import 'app/modules/user/profile/view/profile_provider/profile_provider.dart';
 import 'app/routes/app_routes.dart';
 import 'app/view/splash/provider/splash_provider.dart';
 
@@ -40,6 +41,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => VendorNavigationProvider(),),
         ChangeNotifierProvider(create: (_) => NavigationProvider(),),
         ChangeNotifierProvider(create: (_) => HomeScreenProvider(),),
+        ChangeNotifierProvider(create: (_) => ProfileProvider(),),
       ],
       child: ScreenUtilInit(
         designSize: const Size(375, 812),

@@ -8,7 +8,7 @@ class CustomButton extends StatelessWidget {
   final Gradient? gradient;
   final Color? borderColor;
   final Color? forGroundColor;
-  final VoidCallback onPressed;
+  final VoidCallback? onPressed;
   final Widget? child;
   final bool? isLoading;
   final String text;
