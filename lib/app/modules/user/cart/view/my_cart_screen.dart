@@ -199,7 +199,7 @@ class CartScreenContent extends StatelessWidget {
                             vertical: 4,
                           ),
                           child: SizedBox(
-                            width: MediaQuery.of(context).size.width * 0.17,
+                            width: MediaQuery.of(context).size.width * 0.18,
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [

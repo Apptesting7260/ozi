@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:ozi/app/core/appExports/app_export.dart';
 import '../../../../../data/repository/repository.dart';
 import '../../../../../data/storage/user_preference.dart';
@@ -85,7 +84,12 @@ class ProfileProvider extends ChangeNotifier {
     _isProfileLoading = true;
     _errorMessage = '';
     notifyListeners();
+
     try {
+      String? storedToken = await UserPreference.returnAccessToken();
+      print('=== TOKEN DEBUG ===');
+      print('Stored token: $storedToken');
+
       dynamic response = await _repository.getProfileApi();
 
       _userProfile = UserProfileModel.fromJson(response);
@@ -102,5 +106,9 @@ class ProfileProvider extends ChangeNotifier {
       notifyListeners();
       print('Error fetching profile: $_errorMessage');
     }
+  }
+
+  Future<void> refreshProfile() async {
+    await fetchUserProfile();
   }
 }

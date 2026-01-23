@@ -82,59 +82,35 @@ class ServiceDetailProvider extends ChangeNotifier {
       _isAddingToCart = true;
       notifyListeners();
 
-      // Find the service details
-      final serviceData = _serviceProviders.firstWhere(
-            (sp) => sp.id == serviceId,
-        orElse: () => ServiceData(),
-      );
-
-      if (serviceData.id == null) {
-        throw Exception('Service not found');
-      }
-
-      // Prepare API data - adjust field names based on your API requirements
       Map<String, dynamic> requestData = {
         'service_id': serviceId,
         'quantity': 1,
-        // Add other fields if required by your API
-        // 'service_name': serviceData.serviceName ?? '',
       };
 
       dev.log('Adding to cart - Request Data: $requestData');
       dev.log('API URL: ${AppUrls.addToCartApi}');
 
-      // Call the API
+      // API CALL
       final response = await _repository.addToCartApi(requestData);
 
       dev.log('Add to Cart API Raw Response: $response');
       dev.log('Response Type: ${response.runtimeType}');
 
-      // Check if response is already a Map or needs parsing
-      Map<String, dynamic> jsonResponse;
-      if (response is Map<String, dynamic>) {
-        jsonResponse = response;
-      } else if (response is String) {
-        // If it's a string, try to parse it
-        dev.log('Response is String, attempting to parse');
-        throw Exception('Server returned non-JSON response');
-      } else {
-        jsonResponse = response as Map<String, dynamic>;
-      }
-
-      // Parse the response
-      AddToCartModel addToCartResponse = AddToCartModel.fromJson(jsonResponse);
+      // Parse correctly
+      AddToCartModel addToCartResponse = response;
 
       if (addToCartResponse.status == true) {
-        // Update local cart state
-        _cartItems[serviceId] = 1;
+          _cartItems[serviceId] = addToCartResponse.data?.quantity ?? 1;
+
         dev.log('Successfully added to cart: Service ID $serviceId');
+
         _isAddingToCart = false;
         notifyListeners();
         return true;
       } else {
-        dev.log('Failed to add to cart: ${addToCartResponse.message}');
         throw Exception(addToCartResponse.message ?? 'Failed to add to cart');
       }
+
     } catch (e) {
       dev.log('Error adding to cart: $e');
       dev.log('Error type: ${e.runtimeType}');
@@ -171,7 +147,7 @@ class ServiceDetailProvider extends ChangeNotifier {
 
         Map<String, dynamic> jsonResponse;
         if (response is Map<String, dynamic>) {
-          jsonResponse = response;
+          jsonResponse = requestData;
         } else {
           throw Exception('Invalid response format');
         }
@@ -222,12 +198,11 @@ class ServiceDetailProvider extends ChangeNotifier {
 
           Map<String, dynamic> jsonResponse;
           if (response is Map<String, dynamic>) {
-            jsonResponse = response;
+            jsonResponse = requestData;
           } else {
             throw Exception('Invalid response format');
           }
 
-          // Parse the response
           AddToCartModel addToCartResponse = AddToCartModel.fromJson(jsonResponse);
 
           if (addToCartResponse.status == true) {

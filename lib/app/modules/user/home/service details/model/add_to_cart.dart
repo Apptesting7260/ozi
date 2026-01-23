@@ -8,13 +8,13 @@ class AddToCartModel {
   AddToCartModel.fromJson(Map<String, dynamic> json) {
     status = json['status'];
     message = json['message'];
-    data = json['data'] != null ? new CartData.fromJson(json['data']) : null;
+    data = json['data'] != null ? CartData.fromJson(json['data']) : null;
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['status'] = this.status;
-    data['message'] = this.message;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['status'] = status;
+    data['message'] = message;
     if (this.data != null) {
       data['data'] = this.data!.toJson();
     }
@@ -52,13 +52,13 @@ class CartData {
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['id'] = this.id;
-    data['user_id'] = this.userId;
-    data['service_id'] = this.serviceId;
-    data['service_name'] = this.serviceName;
-    data['quantity'] = this.quantity;
-    data['created_at'] = this.createdAt;
-    data['updated_at'] = this.updatedAt;
+    data['id'] = id;
+    data['user_id'] = userId;
+    data['service_id'] = serviceId;
+    data['service_name'] = serviceName;
+    data['quantity'] = quantity;
+    data['created_at'] = createdAt;
+    data['updated_at'] = updatedAt;
     return data;
   }
 }

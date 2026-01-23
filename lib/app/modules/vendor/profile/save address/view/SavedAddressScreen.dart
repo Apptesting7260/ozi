@@ -1,9 +1,9 @@
 
-import 'package:ozi/app/modules/user/profile/add%20new%20address/view/AddAddressScreen.dart';
 
 import '../../../../../core/appExports/app_export.dart';
 import '../../../../../routes/app_routes.dart';
 import '../../../../../shared/widgets/custom_app_bar.dart';
+import '../../../../user/profile/add new address/view/add_address_screen.dart';
 
 class SavedAddressScreen extends StatefulWidget {
   const SavedAddressScreen({super.key});

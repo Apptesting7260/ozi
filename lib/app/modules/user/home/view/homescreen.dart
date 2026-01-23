@@ -18,20 +18,20 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    context.read<ProfileProvider>().fetchUserProfile();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
+        context.read<ProfileProvider>().fetchUserProfile();
         context.read<HomeScreenProvider>().loadOnce();
       }
     });
   }
+
 
   @override
   Widget build(BuildContext context) {
     return HomeScreenView();
   }
 }
-
 class HomeScreenView extends StatelessWidget {
   const HomeScreenView({super.key});
 
@@ -45,7 +45,7 @@ class HomeScreenView extends StatelessWidget {
         child: RefreshIndicator(
           onRefresh: () => provider.refreshData(),
           child: SingleChildScrollView(
-            physics: BouncingScrollPhysics(),
+           // physics: BouncingScrollPhysics(),
             child: Padding(
               padding: EdgeInsets.all(20.0),
               child: Column(
@@ -160,6 +160,37 @@ class HomeScreenView extends StatelessWidget {
   }
 
   Widget _buildServiceGrid(BuildContext context, HomeScreenProvider provider) {
+    if (provider.isLoading) {
+      return GridView.builder(
+        shrinkWrap: true,
+        physics: NeverScrollableScrollPhysics(),
+        itemCount: 6, // number of shimmer items
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 2,
+          crossAxisSpacing: 12,
+          mainAxisSpacing: 12,
+          childAspectRatio: 1.3,
+        ),
+        itemBuilder: (_, __) => ShimmerBox(
+          width: double.infinity,
+          height: double.infinity,
+          radius: 12,
+        ),
+      );
+    }
+
+    if (provider.serviceCategories.isEmpty) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Text(
+            "No categories found",
+            style: AppFontStyle.text_16_500(AppColors.grey),
+          ),
+        ),
+      );
+    }
+
     return GridView.builder(
       shrinkWrap: true,
       physics: NeverScrollableScrollPhysics(),

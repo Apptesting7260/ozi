@@ -6,6 +6,14 @@ import 'package:ozi/app/modules/user/profile/view/model/logout_model.dart';
 import 'package:ozi/app/view/user_role/choose_your_role/model/choose_role_model.dart';
 import '../../core/appExports/app_export.dart';
 import '../../core/constants/app_urls.dart';
+import '../../modules/user/cart/view/model/cart_items_model.dart';
+import '../../modules/user/cart/view/model/decrease_cart_quantity_model.dart';
+import '../../modules/user/cart/view/model/increase_cart_quantity_model.dart';
+import '../../modules/user/home/service details/model/add_to_cart.dart';
+import '../../modules/user/profile/edit address/model/edit_address_model.dart';
+import '../../modules/user/profile/edit profile/model/update_profile_model.dart';
+import '../../modules/user/profile/save address/model/delete_address_model.dart';
+import '../../modules/user/profile/view/model/user_profile_model.dart';
 import '../../view/auth/login/model/login_model.dart';
 import '../../view/auth/verification_screen/model/verify_otp.dart';
 import '../network/network_api_services.dart';
@@ -113,11 +121,11 @@ class Repository {
     }
   }
   // **************************  AddToCart Api **************************//
-  Future<dynamic> addToCartApi(Map<String, dynamic> data) async {
+  Future<AddToCartModel> addToCartApi(Map<String, dynamic> data) async {
     await getToken();
 
     try {
-      ('API Request URL: ${AppUrls.addToCartApi}');
+      print('API Request URL: ${AppUrls.addToCartApi}');
       print('API Request Data: $data');
       print('API Token: $token');
 
@@ -132,14 +140,17 @@ class Repository {
       );
 
       print('API Response: $response');
-      return response;
+      print('API Response Type: ${response.runtimeType}');
+
+      // Return raw response, let the provider parse it
+      return AddToCartModel.fromJson(response);
     } catch (e) {
       print('addToCartApi Error: $e');
       rethrow;
     }
   }
   // **************************  Get Cart Items Api **************************//
-  Future<dynamic> getCartItemsApi() async {
+  Future<CartItemsModel> getCartItemsApi() async {
     await getToken();
     try {
       print('API Request URL: ${AppUrls.getCartItemsApi}');
@@ -154,13 +165,12 @@ class Repository {
         token,
       );
       print('API Response: $response');
-      return response;
+      return CartItemsModel.fromJson(response);
     } catch (e) {
       print('getCartItemsApi Error: $e');
       rethrow;
     }
   }
-
   // **************************  Remove Cart Item Api **************************//
   Future<dynamic> removeCartItemApi(int cartId) async {
     await getToken();
@@ -189,7 +199,7 @@ class Repository {
     }
   }
   //********************************* increaseCartQuantity Api ********************************//
-  Future<dynamic> increaseCartItemApi(int cartId) async {
+  Future<IncreaseCartQuantityModel> increaseCartItemApi(int cartId) async {
     await getToken();
     try {
       final url = '${AppUrls.increaseCartQuantity}?cart_id=$cartId';
@@ -209,14 +219,14 @@ class Repository {
 
       dev.log('Increase Cart Item Raw Response: $response');
 
-      return response;
+      return IncreaseCartQuantityModel.fromJson(response);
     } catch (e) {
       dev.log('Error in increaseCartItemApi: $e');
       throw Exception(e);
     }
   }
  //********************************* decreaseCartQuantity Api ********************************//
-  Future<dynamic> decreaseCartItemApi(int cartId) async {
+  Future<DecreaseCartQuantityModel> decreaseCartItemApi(int cartId) async {
     await getToken();
     try {
       final url = '${AppUrls.decreaseCartQuantity}?cart_id=$cartId';
@@ -236,7 +246,7 @@ class Repository {
 
       dev.log('Decrease Cart Item Raw Response: $response');
 
-      return response;
+      return DecreaseCartQuantityModel.fromJson(response);
     } catch (e) {
       dev.log('Error in decreaseCartItemApi: $e');
       throw Exception(e);
@@ -246,45 +256,129 @@ class Repository {
   // ********************************************* GetProfile Api ***********************************************//
   Future<dynamic> getProfileApi() async {
     await getToken();
-    try {
-      print('API Request URL: ${AppUrls.getUserProfile}');
-      print('API Token: $token');
+    print('Token sdsadasdda: $token');
 
-      if (token.isEmpty) {
-        throw Exception('Authentication token is missing');
-      }
+    if (token.isEmpty) {
+      throw Exception('No authentication token. Please login again.');
+    }
+
+    try {
       dynamic response = await _apiService.getApi(
         AppUrls.getUserProfile,
         token,
       );
-      print('API Response: $response');
+      print('Profile API Response: $response');
       return response;
     } catch (e) {
-      print('getProfileApi Error: $e');
-      rethrow;
+      print('Profile API Error: $e');
+      throw Exception(e);
     }
   }
 
   // ********************************************* UpdateProfile Api ***********************************************//
-  Future<dynamic> updateProfileApi(
+  Future<UpdateProfileModel> updateProfileApi(
       Map<String, String> fields,
       File? image,
       ) async {
     await getToken();
 
-    final Map<String, dynamic> files = {};
-
-    if (image != null) {
-      files["pro_img"] = image; // 'pro_img' is the key expected by the API for the profile image
+    if (token.isEmpty) {
+      throw Exception("Token is missing");
     }
 
-    return await _apiService.postApiMultiPart(
+    Map<String, File> fileMap = {};
+
+    if (image != null) {
+      fileMap["pro_img"] = image;
+    }
+    dynamic response = await _apiService.postApiMultiPart(
       AppUrls.updateUserProfile,
       token,
       fields,
-      files,
+      fileMap,
     );
+    return UpdateProfileModel.fromJson(response);
+  }
+
+// ********************************************* getUserAddress Api ***********************************************//
+  Future<dynamic> getUserAddressApi() async {
+    await getToken();
+    try {
+      dynamic response = await _apiService.getApi(
+        AppUrls.getUserAddress,
+        token,
+      );
+      return response;
+    } catch (e) {
+      throw Exception(e);
+    }
+  }
+
+  // ********************************************* AddNewUserAddress Api ***********************************************//
+  Future<dynamic> addNewUserAddressApi(Map<String, dynamic> data) async {
+    await getToken();
+
+    try {
+      dev.log("Add New User Address API URL: ${AppUrls.addUserAddress}");
+      dev.log("Request Data: $data");
+
+      final response = await _apiService.postApi(
+        data,
+        AppUrls.addUserAddress,
+        token,
+      );
+
+      return response;
+
+    } catch (e) {
+      dev.log("Error in addNewUserAddressApi: $e");
+      throw Exception(e);
+    }
+  }
+
+  // ********************************************* deleteUserAddress Api ***********************************************//
+  Future<DeleteAddressModel> deleteUserAddressApi(int addressId) async {
+    await getToken();
+
+    try {
+      dev.log("Delete User Address API URL: ${AppUrls.deleteUserAddress}");
+      dev.log("Address ID: $addressId");
+
+      // Use DELETE method with correct parameter name
+      final response = await _apiService.deleteApi(
+        {"address_id": addressId},  // Changed from "id" to "address_id"
+        AppUrls.deleteUserAddress,
+        token,
+      );
+
+      return DeleteAddressModel.fromJson(response);
+
+    } catch (e) {
+      dev.log("Error in deleteUserAddressApi: $e");
+      throw Exception(e);
+    }
   }
 
 
-}
+  // ********************************************* editUserAddress Api ***********************************************//
+  Future<EditAddressModel> editUserAddressApi(int addressId, Map<String, dynamic> data) async {
+    await getToken();
+
+    try {
+      dev.log("Edit User Address API URL: ${AppUrls.updateUserAddress}/$addressId");
+      dev.log("Request Data: $data");
+
+      // Use PUT method and append addressId to URL
+      final response = await _apiService.putApi(
+        data,
+        "${AppUrls.updateUserAddress}/$addressId",
+        token,
+      );
+
+      return EditAddressModel.fromJson(response);
+
+    } catch (e) {
+      dev.log("Error in editUserAddressApi: $e");
+      throw Exception(e);
+    }
+  }}

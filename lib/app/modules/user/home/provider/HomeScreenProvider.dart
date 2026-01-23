@@ -23,16 +23,26 @@ class HomeScreenProvider extends ChangeNotifier {
 
   Future<void> loadOnce() async {
     if (_isLoaded) return;
-
     _isLoading = true;
     notifyListeners();
 
     await fetchCategories();
 
+    _isLoading = false;
     _isLoaded = true;
+    notifyListeners();
+  }
+
+  Future<void> refreshData() async {
+    _isLoading = true;
+    notifyListeners();
+
+    await fetchCategories();
+
     _isLoading = false;
     notifyListeners();
   }
+
 
   Future<void> fetchCategories() async {
     try {
@@ -66,9 +76,9 @@ class HomeScreenProvider extends ChangeNotifier {
       ),
     );
   }
-  Future<void> refreshData() async {
-    await fetchCategories();
-  }
+  // Future<void> refreshData() async {
+  //   await fetchCategories();
+  // }
 
   void onBecomeProviderTap(BuildContext context) {}
   void onLocationTap(BuildContext context) {}

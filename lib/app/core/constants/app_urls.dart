@@ -18,6 +18,10 @@ class AppUrls {
   static const String deleteCartItem = "$baseUrl/delete-cart-item";
   static const String getUserProfile = "$baseUrl/get-users-profile";
   static const String updateUserProfile = "$baseUrl/update-users-profile";
+  static const String getUserAddress = "$baseUrl/get-user-addresses";
+  static const String addUserAddress = "$baseUrl/store-user-address";
+  static const String updateUserAddress = "$baseUrl/update-user-address";
+  static const String deleteUserAddress = "$baseUrl/delete-user-address";
 
 
 
