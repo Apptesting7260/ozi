@@ -93,8 +93,7 @@ class ServiceCategoryProvider extends ChangeNotifier {
           "categories[]":e
         });
       });
-      final token = await UserPreference.returnAccessToken();
-      final response = await _apiService.postApiMultiPart(AppUrls.saveCategoryForVendor,token!,fields,{});
+      final response = await _apiService.postApiMultiPart(AppUrls.saveCategoryForVendor,fields,{});
       print(response);
       updateSubmitLoading(false);
       // Navigator.push(

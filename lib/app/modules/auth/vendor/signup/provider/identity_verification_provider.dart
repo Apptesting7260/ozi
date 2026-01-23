@@ -44,8 +44,7 @@ class IdentityVerificationProvider extends ChangeNotifier {
         "certificate":certification?.path??''
       };
       print(files);
-      final token = await UserPreference.returnAccessToken();
-      final response = await _apiService.postApiMultiPart(AppUrls.docsVendor,token!,{},files);
+      final response = await _apiService.postApiMultiPart(AppUrls.docsVendor,{},files);
       print(response);
       await UserPreference.saveStep('4');
       Navigator.push(

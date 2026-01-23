@@ -86,9 +86,7 @@ class ProfileProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      String? storedToken = await UserPreference.returnAccessToken();
       print('=== TOKEN DEBUG ===');
-      print('Stored token: $storedToken');
 
       dynamic response = await _repository.getProfileApi();
 

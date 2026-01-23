@@ -22,11 +22,7 @@ import '../storage/user_preference.dart';
 class Repository {
   final _apiService = NetworkApiServices();
 
-  String token = '';
 
-  Future<void> getToken() async {
-    token = await UserPreference.returnAccessToken() ?? "";
-  }
 
   //**************************************************** Login API *****************************************************************//
   Future<LoginModel> userLoginApi(Map<String, dynamic> data) async {
@@ -70,11 +66,9 @@ class Repository {
 // ********************************** Category Api ****************************//
 
   Future<CategoryModel> homePageCategoryApi(Map<String, dynamic> data) async {
-    await getToken();
     try {
       dynamic response = await _apiService.getApi(
         AppUrls.getHomeCategories,
-        token,
       );
       return CategoryModel.fromJson(response);
     } catch (e) {
@@ -85,12 +79,10 @@ class Repository {
   // *********************************  logout Api *********************************//
 
   Future<LogoutModel> logoutApi() async {
-    await getToken();
     try {
       dynamic response = await _apiService.postApi(
         {},
         AppUrls.logout,
-        token,
       );
       return LogoutModel.fromJson(response);
     } catch (e) {
@@ -100,16 +92,14 @@ class Repository {
 
   // *********************************** ServiceDetails Api ***************************************//
   Future<ServiceDetailsModel> serviceDetailsApi(int categoryId, int subcategoryId) async {
-    await getToken();
     try {
       final url = '${AppUrls.getServiceDetailsApi}?category_id=$categoryId&subcategory_id=$subcategoryId';
 
       dev.log('Service Details API URL: $url');
-      dev.log('Token: ${token.isNotEmpty ? "Present" : "Missing"}');
+
 
       dynamic response = await _apiService.getApi(
         url,
-        token,
       );
 
       dev.log('Service Details Raw Response: $response');
@@ -122,21 +112,17 @@ class Repository {
   }
   // **************************  AddToCart Api **************************//
   Future<AddToCartModel> addToCartApi(Map<String, dynamic> data) async {
-    await getToken();
+
 
     try {
       print('API Request URL: ${AppUrls.addToCartApi}');
       print('API Request Data: $data');
-      print('API Token: $token');
 
-      if (token.isEmpty) {
-        throw Exception('Authentication token is missing');
-      }
+
 
       dynamic response = await _apiService.postApi(
         data,
         AppUrls.addToCartApi,
-        token,
       );
 
       print('API Response: $response');
@@ -151,18 +137,11 @@ class Repository {
   }
   // **************************  Get Cart Items Api **************************//
   Future<CartItemsModel> getCartItemsApi() async {
-    await getToken();
     try {
       print('API Request URL: ${AppUrls.getCartItemsApi}');
-      print('API Token: $token');
-
-      if (token.isEmpty) {
-        throw Exception('Authentication token is missing');
-      }
 
       dynamic response = await _apiService.getApi(
         AppUrls.getCartItemsApi,
-        token,
       );
       print('API Response: $response');
       return CartItemsModel.fromJson(response);
@@ -173,21 +152,16 @@ class Repository {
   }
   // **************************  Remove Cart Item Api **************************//
   Future<dynamic> removeCartItemApi(int cartId) async {
-    await getToken();
     try {
       final url = '${AppUrls.deleteCartItem}?cart_id=$cartId';
 
       dev.log('Remove Cart Item API URL: $url');
-      dev.log('Token: ${token.isNotEmpty ? "Present" : "Missing"}');
 
-      if (token.isEmpty) {
-        throw Exception('Authentication token is missing');
-      }
+
 
       dynamic response = await _apiService.postApi(
         {},
         url,
-        token,
       );
 
       dev.log('Remove Cart Item Raw Response: $response');
@@ -200,21 +174,17 @@ class Repository {
   }
   //********************************* increaseCartQuantity Api ********************************//
   Future<IncreaseCartQuantityModel> increaseCartItemApi(int cartId) async {
-    await getToken();
+
     try {
       final url = '${AppUrls.increaseCartQuantity}?cart_id=$cartId';
 
       dev.log('Increase Cart Item API URL: $url');
-      dev.log('Token: ${token.isNotEmpty ? "Present" : "Missing"}');
 
-      if (token.isEmpty) {
-        throw Exception('Authentication token is missing');
-      }
+
 
       dynamic response = await _apiService.postApi(
         {},
-        url,
-        token,
+        url
       );
 
       dev.log('Increase Cart Item Raw Response: $response');
@@ -227,21 +197,17 @@ class Repository {
   }
  //********************************* decreaseCartQuantity Api ********************************//
   Future<DecreaseCartQuantityModel> decreaseCartItemApi(int cartId) async {
-    await getToken();
+
     try {
       final url = '${AppUrls.decreaseCartQuantity}?cart_id=$cartId';
 
       dev.log('Decrease Cart Item API URL: $url');
-      dev.log('Token: ${token.isNotEmpty ? "Present" : "Missing"}');
 
-      if (token.isEmpty) {
-        throw Exception('Authentication token is missing');
-      }
+
 
       dynamic response = await _apiService.postApi(
         {},
-        url,
-        token,
+        url
       );
 
       dev.log('Decrease Cart Item Raw Response: $response');
@@ -255,17 +221,12 @@ class Repository {
 
   // ********************************************* GetProfile Api ***********************************************//
   Future<dynamic> getProfileApi() async {
-    await getToken();
-    print('Token sdsadasdda: $token');
 
-    if (token.isEmpty) {
-      throw Exception('No authentication token. Please login again.');
-    }
+
 
     try {
       dynamic response = await _apiService.getApi(
         AppUrls.getUserProfile,
-        token,
       );
       print('Profile API Response: $response');
       return response;
@@ -280,11 +241,6 @@ class Repository {
       Map<String, String> fields,
       File? image,
       ) async {
-    await getToken();
-
-    if (token.isEmpty) {
-      throw Exception("Token is missing");
-    }
 
     Map<String, File> fileMap = {};
 
@@ -293,7 +249,6 @@ class Repository {
     }
     dynamic response = await _apiService.postApiMultiPart(
       AppUrls.updateUserProfile,
-      token,
       fields,
       fileMap,
     );
@@ -302,11 +257,9 @@ class Repository {
 
 // ********************************************* getUserAddress Api ***********************************************//
   Future<dynamic> getUserAddressApi() async {
-    await getToken();
     try {
       dynamic response = await _apiService.getApi(
         AppUrls.getUserAddress,
-        token,
       );
       return response;
     } catch (e) {
@@ -316,7 +269,6 @@ class Repository {
 
   // ********************************************* AddNewUserAddress Api ***********************************************//
   Future<dynamic> addNewUserAddressApi(Map<String, dynamic> data) async {
-    await getToken();
 
     try {
       dev.log("Add New User Address API URL: ${AppUrls.addUserAddress}");
@@ -325,7 +277,6 @@ class Repository {
       final response = await _apiService.postApi(
         data,
         AppUrls.addUserAddress,
-        token,
       );
 
       return response;
@@ -338,7 +289,6 @@ class Repository {
 
   // ********************************************* deleteUserAddress Api ***********************************************//
   Future<DeleteAddressModel> deleteUserAddressApi(int addressId) async {
-    await getToken();
 
     try {
       dev.log("Delete User Address API URL: ${AppUrls.deleteUserAddress}");
@@ -348,7 +298,6 @@ class Repository {
       final response = await _apiService.deleteApi(
         {"address_id": addressId},  // Changed from "id" to "address_id"
         AppUrls.deleteUserAddress,
-        token,
       );
 
       return DeleteAddressModel.fromJson(response);
@@ -362,7 +311,6 @@ class Repository {
 
   // ********************************************* editUserAddress Api ***********************************************//
   Future<EditAddressModel> editUserAddressApi(int addressId, Map<String, dynamic> data) async {
-    await getToken();
 
     try {
       dev.log("Edit User Address API URL: ${AppUrls.updateUserAddress}/$addressId");
@@ -372,7 +320,6 @@ class Repository {
       final response = await _apiService.putApi(
         data,
         "${AppUrls.updateUserAddress}/$addressId",
-        token,
       );
 
       return EditAddressModel.fromJson(response);

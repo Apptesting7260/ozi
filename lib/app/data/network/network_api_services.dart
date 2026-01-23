@@ -8,6 +8,7 @@ import '../../core/utils/get_utils.dart';
 import '../../routes/app_routes.dart';
 import '../Exception/app_exceptions.dart';
 import '../storage/user_preference.dart';
+import 'app_interceptor.dart';
 import 'base_api_services.dart';
 
 class NetworkApiServices extends BaseApiServices {
@@ -29,7 +30,7 @@ class NetworkApiServices extends BaseApiServices {
     ));
 
     _dio.interceptors.add(ChuckerDioInterceptor());
-    _dio.interceptors.add(ChuckerDioInterceptor());
+    _dio.interceptors.add(AppInterceptor());
 
     assert(() {
       _dio.interceptors.add(LogInterceptor(
@@ -45,47 +46,38 @@ class NetworkApiServices extends BaseApiServices {
 
 
   @override
-  Future<dynamic> getApi(String url, String token) async {
+  Future<dynamic> getApi(String url) async {
     try {
       final response = await _dio.get(
         url,
-        options: Options(
-          headers: {"Authorization": "Bearer $token"},
-        ),
       );
       return returnResponse(response, url);
     }on DioException catch (e) {
-      // return _handleDioError(e);
       return returnResponse(e.response!, url);
     }
   }
 
   Future<dynamic> getApiWithPerms(
-      Map<String, dynamic> data, String url, String token) async {
+      Map<String, dynamic> data, String url) async {
     try {
       final response = await _dio.get(
         url,
         queryParameters: data,
-        options: Options(
-          headers: {"Authorization": "Bearer $token"},
-        ),
       );
       return returnResponse(response, url);
     }on DioException catch (e) {
-      // return _handleDioError(e);
       return returnResponse(e.response!, url);
     }
   }
 
   @override
-  Future<dynamic> postApi(var data, String url, String token) async {
+  Future<dynamic> postApi(var data, String url) async {
     try {
       final response = await _dio.post(
         url,
         data: jsonEncode(data),
         options: Options(
           headers: {
-            "Authorization": "Bearer $token",
             "Content-Type": "application/json",
             "Accept": "application/json",
           },
@@ -93,23 +85,21 @@ class NetworkApiServices extends BaseApiServices {
       );
       return returnResponse(response, url);
     }on DioException catch (e) {
-      // return _handleDioError(e);
       return returnResponse(e.response!, url);
     }
   }
 
-  Future<dynamic> patchApi(var data, String url, String token) async {
+  Future<dynamic> patchApi(var data, String url) async {
     try {
       final response = await _dio.patch(
         url,
         data: jsonEncode(data),
         options: Options(
-          headers: {"Authorization": "Bearer $token", "Content-Type": "application/json"},
+          headers: { "Content-Type": "application/json"},
         ),
       );
       return returnResponse(response, url);
     }on DioException catch (e) {
-      // return _handleDioError(e);
       return returnResponse(e.response!, url);
     }
   }
@@ -117,7 +107,6 @@ class NetworkApiServices extends BaseApiServices {
   Future<dynamic> patchMultipartApi(
       Map<String, String> fields,
       String url,
-      String token,
       ) async {
     try {
       FormData formData = FormData.fromMap(fields);
@@ -125,9 +114,6 @@ class NetworkApiServices extends BaseApiServices {
       final response = await _dio.patch(
         url,
         data: formData,
-        options: Options(
-          headers: {"Authorization": "Bearer $token"},
-        ),
       );
       return returnResponse(response, url);
     }on DioException catch (e) {
@@ -160,47 +146,44 @@ class NetworkApiServices extends BaseApiServices {
       return returnResponse(response, url);
     }on DioException catch (e) {
       return returnResponse(e.response!, url);
-      // return _handleDioError(e);
     }
   }
-  Future<dynamic> deleteApi(var data, String url, String token) async {
+  Future<dynamic> deleteApi(var data, String url) async {
     try {
       final response = await _dio.delete(
         url,
         data: jsonEncode(data),
         options: Options(
-          headers: {"Authorization": "Bearer $token", "Content-Type": "application/json"},
+          headers: { "Content-Type": "application/json"},
         ),
       );
       return returnResponse(response, url);
     }on DioException catch (e) {
       return returnResponse(e.response!, url);
-      // return _handleDioError(e);
     }
   }
 
-  Future<dynamic> deleteApiWithoutData(String url, String token) async {
+  Future<dynamic> deleteApiWithoutData(String url) async {
     try {
       final response = await _dio.delete(
         url,
         options: Options(
-          headers: {"Authorization": "Bearer $token", "Content-Type": "application/json"},
+          headers: { "Content-Type": "application/json"},
         ),
       );
       return returnResponse(response, url);
     }on DioException catch (e) {
       return returnResponse(e.response!, url);
-      // return _handleDioError(e);
     }
   }
 
-  Future<dynamic> putApi(var data, String url, String token) async {
+  Future<dynamic> putApi(var data, String url) async {
     try {
       final response = await _dio.put(
         url,
         data: jsonEncode(data),
         options: Options(
-          headers: {"Authorization": "Bearer $token", "Content-Type": "application/json"},
+          headers: { "Content-Type": "application/json"},
         ),
       );
       return returnResponse(response, url);
@@ -212,7 +195,6 @@ class NetworkApiServices extends BaseApiServices {
 
   Future<dynamic> postApiMultiPart(
       String url,
-      String token,
       Map<String, String> fields,
       Map<String, dynamic> files,
       ) async {
@@ -232,9 +214,6 @@ class NetworkApiServices extends BaseApiServices {
       final response = await _dio.post(
         url,
         data: formData,
-        options: Options(
-          headers: {"Authorization": "Bearer $token"},
-        ),
       );
       return returnResponse(response, url);
     } on DioException catch  (e) {
@@ -245,7 +224,6 @@ class NetworkApiServices extends BaseApiServices {
 
   Future<dynamic> postApiMultiPartBytes(
       String url,
-      String token,
       Map<String, String> fields,
       Map<String, dynamic> files,
       ) async {
@@ -265,15 +243,11 @@ class NetworkApiServices extends BaseApiServices {
       final response = await _dio.post(
         url,
         data: formData,
-        options: Options(
-          headers: {"Authorization": "Bearer $token"},
-        ),
       );
 
       return returnResponse(response, url);
     }  on DioException catch (e) {
       return returnResponse(e.response!, url);
-      // return _handleDioError(e);
     }
   }
 
@@ -313,16 +287,5 @@ class NetworkApiServices extends BaseApiServices {
       );
     }
   }
-  dynamic _handleDioError(DioException e) {
-    if (e.type == DioExceptionType.connectionError ||
-        e.type == DioExceptionType.receiveTimeout ||
-        e.type == DioExceptionType.sendTimeout) {
-      throw Exception("Request Time Out..");
-    } else if (e.type == DioExceptionType.unknown) {
-      // throw Exception("Internet Connection Issue..");
-      throw Exception(e.toString());
-    } else {
-      throw Exception("Something went wrong: $e");
-    }
-  }
+
 }
