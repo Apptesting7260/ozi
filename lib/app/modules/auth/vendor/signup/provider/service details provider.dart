@@ -1,11 +1,23 @@
 import 'package:flutter/material.dart';
 import 'dart:io';
 
+import '../../../../../core/constants/app_urls.dart';
+import '../../../../../core/utils/get_utils.dart';
+import '../../../../../data/models/category_dropdown_model.dart';
+import '../../../../../data/network/network_api_services.dart';
+import '../../../../../data/storage/user_preference.dart';
+
 class ServiceDetailsProvider extends ChangeNotifier {
+  final NetworkApiServices _apiService = NetworkApiServices();
+
+  ServiceDetailsProvider(){
+    getCategoriesData();
+  }
+
   File? pickedImage;
 
-  String? category;
-  String? subCategory;
+  CategoryDropDownData? category;
+  Subcategories? subCategory;
   String? durationUnit;
   String? durationValue;
   String? serviceName;
@@ -17,12 +29,13 @@ class ServiceDetailsProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void setCategory(String? val) {
+  void setCategory(CategoryDropDownData? val) {
     category = val;
+    setSubCategory(null);
     notifyListeners();
   }
 
-  void setSubCategory(String? val) {
+  void setSubCategory(Subcategories? val) {
     subCategory = val;
     notifyListeners();
   }
@@ -57,4 +70,65 @@ class ServiceDetailsProvider extends ChangeNotifier {
           serviceName != null &&
           category != null &&
           priceAmount != null;
+
+  //CategoryDropDown
+
+  CategoryDropDown? _categories;
+  CategoryDropDown? get categories => _categories;
+  updateCategories(CategoryDropDown? value){
+    _categories = value;
+    notifyListeners();
+  }
+
+  Future<void> getCategoriesData()async {
+    try {
+      setCategory(null);
+      final String? token = await UserPreference.returnAccessToken();
+      final response = await _apiService.getApi(AppUrls.vendorGetCategoryData,token??'');
+      print(response);
+      updateCategories(CategoryDropDown.fromJson(response));
+    } catch (e) {
+      Get.showToast(e.toString(), type: ToastType.error);
+    }
+  }
+
+
+  bool _addLoading = false;
+  bool get addLoading => _addLoading;
+  updateAddLoading(bool value){
+    _addLoading = value;
+    notifyListeners();
+  }
+
+  Future<void> addNewService()async {
+    if(_addLoading) return;
+    updateAddLoading(true);
+    try {
+      final String? token = await UserPreference.returnAccessToken();
+      final response = await _apiService.postApiMultiPart(AppUrls.storeVendorService,token??'',
+          {
+        "service_name":serviceName??'',
+        "category_id":category?.id??'',
+        "subcategory_id":subCategory?.id??'',
+        "duration_value":durationValue??'',
+        "duration_type":"hours",//durationUnit??'',
+        "service_price":priceAmount??'',
+        "description":description??''
+      },{
+      "service_image":pickedImage?.path??'',
+      });
+      print(response);
+      if(response['status']==true){
+        Navigator.pop(navigatorKey.currentContext!);
+      }
+      updateAddLoading(false);
+    } catch (e) {
+      updateAddLoading(false);
+      Get.showToast(e.toString(), type: ToastType.error);
+    }
+  }
+
+
+
+
 }

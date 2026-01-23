@@ -4,7 +4,6 @@ class AppUrls {
 
 
 
-
   static const String login = "$baseUrl/send-otp";
   static const String verification = "$baseUrl/verify-otp";
   static const String chooseRole = "$baseUrl/select-user-role";
@@ -22,28 +21,14 @@ class AppUrls {
 
 
 
-
   // Vendor APIs
   static const String getAllCategories = "$baseUrl/get-all-categories";
   static const String saveCategoryForVendor = "$baseUrl/vendor-categories";
   static const String saveAvailabilityVendor = "$baseUrl/vendor-availability";
   static const String docsVendor = "$baseUrl/vendor-docs";
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  static const String vendorHome = "$baseUrl/vendor-home-dashboard";
+  static const String changeOnlineStatusVendor = "$baseUrl/vendor/status";
+  static const String vendorGetCategoryData = "$baseUrl/get-vendor-categories";
+  static const String storeVendorService = "$baseUrl/store-vendor-service";
+  static const String acceptRejectBooking = "$baseUrl/vendor-Booking-Action";
 }
