@@ -116,6 +116,7 @@ class VerificationProvider extends ChangeNotifier {
       }
     } catch (e) {
       isLoading = false;
+      Get.showToast(e.toString(), type: ToastType.error);
       // Error occurred - show error but DON'T navigate
       errorMessage = "Wrong OTP. Please try again.";
       notifyListeners();

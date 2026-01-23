@@ -1,6 +1,7 @@
 import 'package:image_picker/image_picker.dart';
 import 'package:ozi/app/modules/auth/vendor/signup/view/set_availability.dart';
 import '../../../../../core/appExports/app_export.dart';
+import '../../../../../data/models/category_dropdown_model.dart';
 import '../../../../../shared/widgets/custom_app_bar.dart';
 import '../../../../../shared/widgets/custom_dropdown.dart';
 import '../../../../../shared/widgets/custom_text_form_field.dart';
@@ -165,14 +166,9 @@ class _ServiceDetailsContent extends StatelessWidget {
 
                     hBox(20),
 
-                    CustomDropDown(
+                    CustomDropDownT<CategoryDropDownData>(
                       label: "Category",
-                      items: const [
-                        "Tailor Services",
-                        "Cleaning",
-                        "Food",
-                        "Engineering"
-                      ],
+                      items: provider.categories?.data??[],
                       selectedValue: provider.category,
                       hintText: "Select category",
                       onChanged: provider.setCategory,
@@ -182,13 +178,9 @@ class _ServiceDetailsContent extends StatelessWidget {
 
                     hBox(20),
 
-                    CustomDropDown(
+                    CustomDropDownT<Subcategories>(
                       label: "Sub Category",
-                      items: const [
-                        "Clothing",
-                        "Home Cleaning",
-                        "Food Delivery"
-                      ],
+                      items: provider.category?.subcategories??[],
                       selectedValue: provider.subCategory,
                       hintText: "Select sub category",
                       onChanged: provider.setSubCategory,
@@ -249,7 +241,7 @@ class _ServiceDetailsContent extends StatelessWidget {
                         const SizedBox(width: 12),
                         Expanded(
                           child: CustomDropDown(
-                            items: const ["Minutes", "Hours"],
+                            items: const ["minutes", "hours"],
                             selectedValue: provider.durationUnit,
                             hintText: "Minutes",
                             onChanged: provider.setDurationUnit,
@@ -266,13 +258,15 @@ class _ServiceDetailsContent extends StatelessWidget {
                       text: "Continue",
                       height: 54,
                       borderRadius: BorderRadius.circular(60),
+                      isLoading: provider.addLoading,
                       onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => SetAvailabilityScreen(),
-                          ),
-                        );
+                        provider.addNewService();
+                        // Navigator.push(
+                        //   context,
+                        //   MaterialPageRoute(
+                        //     builder: (_) => SetAvailabilityScreen(),
+                        //   ),
+                        // );
                       },
                     ),
                   ],

@@ -1,6 +1,16 @@
+import 'dart:io';
+import 'dart:math';
+
+import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
+import 'package:ozi/app/core/utils/toast.dart';
 import 'package:url_launcher/url_launcher.dart';
-import '../appExports/app_export.dart';
+
+import '../../shared/theme/app_colors.dart';
+import '../../shared/theme/font_style.dart';
+// import 'package:awesome_snackbar_content/src/content_type.dart';
+
 
 class Get {
   static OutlineInputBorder defaultBorder(double? borderRadius) {
@@ -418,7 +428,108 @@ class Get {
   //     return '• $name (x$qty) – ₹$price';
   //   }).join('\n');
   // }
+
+
+  static void showToast(
+      String msg, {
+        required ToastType type, // = ToastType.notice,
+      }) {
+    final context = navigatorKey.currentContext!;
+
+    // Map enum to title and ContentType
+    final title = _getTitle(type);
+    // final contentType = _getContentType(type);
+
+    // final snackBar = SnackBar(
+    //   elevation: 0,
+    //   behavior: SnackBarBehavior.floating,
+    //   backgroundColor: Colors.transparent,
+    //   content: AwesomeSnackbarContent(
+    //     title: title,
+    //     message: msg.replaceAll("Exception: ", ''),
+    //     contentType: contentType,
+    //   ),
+    // );
+
+    final snackBar = SnackBar(
+      elevation: 0,
+      // behavior: SnackBarBehavior.floating,
+      behavior: SnackBarBehavior.fixed,
+      backgroundColor: Colors.transparent,
+      content: Container(
+        padding: EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: type == ToastType.success ? Colors.green : Colors.red,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black26,
+              blurRadius: 10,
+              offset: Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            Icon(
+              type == ToastType.success
+                  ? Icons.check_circle
+                  : Icons.error,
+              color: Colors.white,
+            ),
+            SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(title, style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
+                  Text(msg.replaceAll("Exception: ", ''), style: TextStyle(color: Colors.white70)),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+
+
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(snackBar);
+  }
+
+  static String _getTitle(ToastType type) {
+    switch (type) {
+      case ToastType.success:
+        return 'Success';
+      case ToastType.error:
+        return 'Error';
+      case ToastType.warning:
+        return 'Warning';
+      case ToastType.notice:
+      default:
+        return 'Notice';
+    }
+  }
+
+  // static ContentType _getContentType(ToastType type) {
+  //   switch (type) {
+  //     case ToastType.success:
+  //       return ContentType.success as ;
+  //     case ToastType.error:
+  //       return ContentType.failure;
+  //     case ToastType.warning:
+  //       return ContentType.warning;
+  //     case ToastType.notice:
+  //     default:
+  //       return ContentType.help;
+  //   }
+  // }
+
 }
+
+enum ToastType { success, error, warning, notice }
 
 //************************************* Navigator Key *************************************
 GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();

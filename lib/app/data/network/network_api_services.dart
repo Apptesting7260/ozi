@@ -11,16 +11,38 @@ import '../storage/user_preference.dart';
 import 'base_api_services.dart';
 
 class NetworkApiServices extends BaseApiServices {
-  final Dio _dio = Dio();
 
-  NetworkApiServices() {
-    // Add Chucker as an interceptor for logging
+  static final NetworkApiServices _instance =
+  NetworkApiServices._internal();
+
+  factory NetworkApiServices() {
+    return _instance;
+  }
+
+  late Dio _dio;
+
+  NetworkApiServices._internal() {
+    _dio = Dio(BaseOptions(
+      connectTimeout: const Duration(seconds: 60),
+      receiveTimeout: const Duration(seconds: 60),
+      responseType: ResponseType.json,
+    ));
+
     _dio.interceptors.add(ChuckerDioInterceptor());
+    _dio.interceptors.add(ChuckerDioInterceptor());
+
+    assert(() {
+      _dio.interceptors.add(LogInterceptor(
+        request: true,
+        requestBody: true,
+        responseBody: true,
+        error: true,
+      ));
+      return true;
+    }());
   }
 
-  Future<String?> getAccessTokenFromStorage() async {
-    return await UserPreference.returnAccessToken();
-  }
+
 
   @override
   Future<dynamic> getApi(String url, String token) async {
@@ -33,7 +55,8 @@ class NetworkApiServices extends BaseApiServices {
       );
       return returnResponse(response, url);
     }on DioException catch (e) {
-      return _handleDioError(e);
+      // return _handleDioError(e);
+      return returnResponse(e.response!, url);
     }
   }
 
@@ -49,7 +72,8 @@ class NetworkApiServices extends BaseApiServices {
       );
       return returnResponse(response, url);
     }on DioException catch (e) {
-      return _handleDioError(e);
+      // return _handleDioError(e);
+      return returnResponse(e.response!, url);
     }
   }
 
@@ -69,7 +93,8 @@ class NetworkApiServices extends BaseApiServices {
       );
       return returnResponse(response, url);
     }on DioException catch (e) {
-      return _handleDioError(e);
+      // return _handleDioError(e);
+      return returnResponse(e.response!, url);
     }
   }
 
@@ -84,7 +109,8 @@ class NetworkApiServices extends BaseApiServices {
       );
       return returnResponse(response, url);
     }on DioException catch (e) {
-      return _handleDioError(e);
+      // return _handleDioError(e);
+      return returnResponse(e.response!, url);
     }
   }
 
@@ -105,7 +131,8 @@ class NetworkApiServices extends BaseApiServices {
       );
       return returnResponse(response, url);
     }on DioException catch (e) {
-      return _handleDioError(e);
+      // return _handleDioError(e);
+      return returnResponse(e.response!, url);
     }
   }
 
@@ -120,7 +147,8 @@ class NetworkApiServices extends BaseApiServices {
       );
       return returnResponse(response, url);
     }on DioException catch (e) {
-      return _handleDioError(e);
+      return returnResponse(e.response!, url);
+      // return _handleDioError(e);
     }
   }
 
@@ -131,7 +159,8 @@ class NetworkApiServices extends BaseApiServices {
       );
       return returnResponse(response, url);
     }on DioException catch (e) {
-      return _handleDioError(e);
+      return returnResponse(e.response!, url);
+      // return _handleDioError(e);
     }
   }
 
@@ -146,7 +175,8 @@ class NetworkApiServices extends BaseApiServices {
       );
       return returnResponse(response, url);
     }on DioException catch (e) {
-      return _handleDioError(e);
+      return returnResponse(e.response!, url);
+      // return _handleDioError(e);
     }
   }
 
@@ -160,7 +190,8 @@ class NetworkApiServices extends BaseApiServices {
       );
       return returnResponse(response, url);
     }on DioException catch (e) {
-      return _handleDioError(e);
+      return returnResponse(e.response!, url);
+      // return _handleDioError(e);
     }
   }
 
@@ -175,7 +206,8 @@ class NetworkApiServices extends BaseApiServices {
       );
       return returnResponse(response, url);
     }on DioException catch (e) {
-      return _handleDioError(e);
+      return returnResponse(e.response!, url);
+      // return _handleDioError(e);
     }
   }
 
@@ -207,7 +239,8 @@ class NetworkApiServices extends BaseApiServices {
       );
       return returnResponse(response, url);
     } on DioException catch  (e) {
-      return _handleDioError(e);
+      return returnResponse(e.response!, url);
+      // return _handleDioError(e);
     }
   }
 
@@ -237,25 +270,28 @@ class NetworkApiServices extends BaseApiServices {
           headers: {"Authorization": "Bearer $token"},
         ),
       );
+
       return returnResponse(response, url);
     }  on DioException catch (e) {
-      return _handleDioError(e);
+      return returnResponse(e.response!, url);
+      // return _handleDioError(e);
     }
   }
 
   dynamic returnResponse(Response response, String url) {
-    if (response.statusCode == 200 || response.statusCode == 201) {
+    if(response.data['status']==false){
+      throw FetchDataException(response.data['message'] ?? 'Error ${response.statusCode}');
+    }else if (response.statusCode == 200 || response.statusCode == 201) {
       return response.data;
-    } else if (response.statusCode == 401) {
+    }else if (response.statusCode == 401) {
       _handleLogout();
       throw UnauthenticatedException();
-    } else {
+    }else {
       throw FetchDataException(response.data['message'] ?? 'Error ${response.statusCode}');
     }
   }
 
-  dynamic returnResponseMultiPart(
-      Response response, String responseBody, String url) {
+  dynamic returnResponseMultiPart(Response response, String responseBody, String url) {
     if (response.statusCode == 200 || response.statusCode == 201) {
       return response.data;
     } else if (response.statusCode == 401) {
@@ -285,7 +321,8 @@ class NetworkApiServices extends BaseApiServices {
         e.type == DioExceptionType.sendTimeout) {
       throw Exception("Request Time Out..");
     } else if (e.type == DioExceptionType.unknown) {
-      throw Exception("Internet Connection Issue..");
+      // throw Exception("Internet Connection Issue..");
+      throw Exception(e.toString());
     } else {
       throw Exception("Something went wrong: $e");
     }
