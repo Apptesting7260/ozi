@@ -83,8 +83,7 @@ class ServiceDetailsProvider extends ChangeNotifier {
   Future<void> getCategoriesData()async {
     try {
       setCategory(null);
-      final String? token = await UserPreference.returnAccessToken();
-      final response = await _apiService.getApi(AppUrls.vendorGetCategoryData,token??'');
+      final response = await _apiService.getApi(AppUrls.vendorGetCategoryData);
       print(response);
       updateCategories(CategoryDropDown.fromJson(response));
     } catch (e) {
@@ -104,8 +103,7 @@ class ServiceDetailsProvider extends ChangeNotifier {
     if(_addLoading) return;
     updateAddLoading(true);
     try {
-      final String? token = await UserPreference.returnAccessToken();
-      final response = await _apiService.postApiMultiPart(AppUrls.storeVendorService,token??'',
+      final response = await _apiService.postApiMultiPart(AppUrls.storeVendorService,
           {
         "service_name":serviceName??'',
         "category_id":category?.id??'',

@@ -30,8 +30,7 @@ class VendorHomeProvider extends ChangeNotifier {
     print('getting categories');
     setHomeModel(ApiResponse.loading());
     try {
-      final String? token = await UserPreference.returnAccessToken();
-      final response = await _apiService.getApi(AppUrls.vendorHome,token??'');
+      final response = await _apiService.getApi(AppUrls.vendorHome);
       print(response);
       setHomeModel(ApiResponse.completed(VendorHomeModel.fromJson(response)));
       checkForUpdateLocationAndIsServiceAvailable();
@@ -48,10 +47,9 @@ class VendorHomeProvider extends ChangeNotifier {
     if(_toggleLoading) return;
     _toggleLoading = true;
     try {
-      final String? token = await UserPreference.returnAccessToken();
       final response = await _apiService.postApi({
         "is_online":(_homeModel.data?.vendorStatus?.isOnline??false)?0:1
-      },AppUrls.changeOnlineStatusVendor,token??'');
+      },AppUrls.changeOnlineStatusVendor);
       print(response);
       if(response['status']==true){
         _homeModel.data?.vendorStatus?.isOnline = response['is_online'];
@@ -142,11 +140,10 @@ class VendorHomeProvider extends ChangeNotifier {
     currentAction = status;
     updateAcceptLoading(true);
     try {
-      final String? token = await UserPreference.returnAccessToken();
       final response = await _apiService.postApi({
         "booking_id" : bookingId,
         "action" : status
-      },AppUrls.acceptRejectBooking,token??'');
+      },AppUrls.acceptRejectBooking);
       print(response);
       _homeModel.data?.requests?.forEach((e){
         if(e.bookingId==bookingId){

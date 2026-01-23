@@ -75,8 +75,7 @@ class AvailabilityProvider extends ChangeNotifier {
         'availability': jsonEncode(formatAvailability(availability))
       };
       print(fields);
-      final token = await UserPreference.returnAccessToken();
-      final response = await _apiService.postApiMultiPart(AppUrls.saveAvailabilityVendor,token!,fields,{});
+      final response = await _apiService.postApiMultiPart(AppUrls.saveAvailabilityVendor,fields,{});
       print(response);
       await UserPreference.saveStep('3');
       Navigator.push(
