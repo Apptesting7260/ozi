@@ -1,6 +1,6 @@
-import 'dart:io';
-
 import 'package:chucker_flutter/chucker_flutter.dart';
+import 'package:ozi/app/modules/user/profile/add%20new%20address/provider/add_address_provider.dart';
+import 'package:ozi/app/modules/user/profile/edit%20address/provider/edit_user_address_provider.dart';
 import 'package:ozi/app/modules/vendor/navigation%20tab/provider/navigation_provider.dart';
 import 'package:ozi/app/view/auth/login/provider/login_provider.dart';
 import 'package:webview_flutter/webview_flutter.dart';
@@ -9,6 +9,7 @@ import 'package:webview_flutter_wkwebview/webview_flutter_wkwebview.dart';
 import 'app/core/appExports/app_export.dart';
 import 'app/modules/user/home/provider/HomeScreenProvider.dart';
 import 'app/modules/user/navigation tab/provider/navigation_provider.dart';
+import 'app/modules/user/profile/save address/provider/saved_address_provider.dart';
 import 'app/modules/user/profile/view/profile_provider/profile_provider.dart';
 import 'app/routes/app_routes.dart';
 import 'app/view/splash/provider/splash_provider.dart';
@@ -42,6 +43,9 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => NavigationProvider(),),
         ChangeNotifierProvider(create: (_) => HomeScreenProvider(),),
         ChangeNotifierProvider(create: (_) => ProfileProvider(),),
+        ChangeNotifierProvider(create: (_) => SavedAddressProvider(),),
+        ChangeNotifierProvider(create: (_) => AddAddressProvider()),
+        ChangeNotifierProvider(create: (_) => EditUserAddressProvider()),
       ],
       child: ScreenUtilInit(
         designSize: const Size(375, 812),

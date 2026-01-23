@@ -11,10 +11,6 @@ import '../edit profile/view/EditProfileScreen.dart';
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
 
-  // void initState(BuildContext context) {
-  //   final profileProvider = context.read<ProfileProvider>();
-  //   profileProvider.fetchUserProfile();
-  // }
   @override
   Widget build(BuildContext context) {
     return const ProfileScreenView();
@@ -28,180 +24,188 @@ class ProfileScreenView extends StatelessWidget {
 
     return Scaffold(
       body: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: const EdgeInsets.only(left: 20),
-              child: Text(
-                "My Profile",
-                style: AppFontStyle.text_24_600(
-                  AppColors.darkText,
-                  fontFamily: AppFontFamily.semiBold,
+        child: RefreshIndicator(
+          onRefresh: () => profileProvider.refreshProfile(),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(left: 20),
+                child: Text(
+                  "My Profile",
+                  style: AppFontStyle.text_24_600(
+                    AppColors.darkText,
+                    fontFamily: AppFontFamily.semiBold,
+                  ),
                 ),
               ),
-            ),
-            Expanded(
-              child: profileProvider.isProfileLoading
-                  ? Center(
-                child: CircularProgressIndicator(
-                  color: AppColors.primary,
-                ),
-              )
-                  : profileProvider.errorMessage.isNotEmpty &&
-                  profileProvider.userProfile == null
-                  ? Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.error_outline,
-                      size: 60,
-                      color: AppColors.grey,
-                    ),
-                    hBox(16),
-                    Text(
-                      profileProvider.errorMessage,
-                      style: AppFontStyle.text_14_400(AppColors.grey),
-                      textAlign: TextAlign.center,
-                    ),
-                    hBox(16),
-                    CustomButton(
-                      text: "Retry",
-                      onPressed: () {
-                        profileProvider.fetchUserProfile();
-                      },
-                      borderRadius: BorderRadius.circular(30),
-                    ),
-                  ],
-                ),
-              )
-                  : SingleChildScrollView(
-                padding: REdgeInsets.symmetric(horizontal: 16),
-                child: Column(
-                  children: [
-                    hBox(10),
-                    Container(
-                      width: double.infinity,
-                      padding:
-                       EdgeInsets.symmetric(vertical: 20),
-                      decoration: BoxDecoration(
-                        color: AppColors.primary
-                            .withValues(alpha: 0.20),
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      child: Column(
-                        children: [
-                          profileAvatarStatic(
-                            imageUrl: profileProvider.profileImage.isNotEmpty
-                                ? profileProvider.profileImage
-                                : "",
-                            size: 90,
-                          ),
-                          hBox(14),
-                          Text(
-                            profileProvider.fullName.isNotEmpty
-                                ? profileProvider.fullName
-                                : "User",
-                            style: AppFontStyle.text_18_600(
-                              AppColors.black,
-                              fontFamily: AppFontFamily.bold,
-                            ),
-                          ),
-                          hBox(2),
-                          Text(
-                            profileProvider.phoneNumber.isNotEmpty
-                                ? profileProvider.phoneNumber
-                                : "No phone number",
-                            style: AppFontStyle.text_14_400(
-                                AppColors.grey),
-                          ),
-                        ],
-                      ),
-                    ),
-                    hBox(26),
-                    _profileTile(
-                      icon: ImageConstants.profile,
-                      title: "Edit Profile",
-                      onTap: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) {
-                            final userData = context.read<ProfileProvider>().userData;
-
-                            return ChangeNotifierProvider(
-                              create: (_) => EditProfileProvider()..populateProfileData(userData),
-                              child: EditProfileScreen(),
-                            );
+              Expanded(
+                child: profileProvider.isProfileLoading
+                    ? Center(
+                  child: CircularProgressIndicator(
+                    color: AppColors.primary,
+                  ),
+                )
+                    : profileProvider.errorMessage.isNotEmpty &&
+                    profileProvider.userProfile == null
+                    ? Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(10),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.error_outline,
+                          size: 60,
+                          color: AppColors.grey,
+                        ),
+                        hBox(16),
+                        Text(
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          profileProvider.errorMessage,
+                          style: AppFontStyle.text_14_400(AppColors.grey),
+                          textAlign: TextAlign.center,
+                        ),
+                        hBox(16),
+                        CustomButton(
+                          text: "Retry",
+                          onPressed: () {
+                            profileProvider.fetchUserProfile();
                           },
+                          borderRadius: BorderRadius.circular(30),
                         ),
-                      ),
+                      ],
                     ),
-                      _profileTile(
-                      icon: ImageConstants.location,
-                      title: "Saved Addresses",
-                      onTap: () => Navigator.pushNamed(
-                          context, AppRoutes.savedAddressScreen),
-                    ),
-                    _profileTile(
-                      icon: ImageConstants.card,
-                      title: "Payment Methods",
-                      onTap: () => Navigator.pushNamed(
-                          context, AppRoutes.paymentMethodsScreen),
-                    ),
-                    _profileTile(
-                      icon: ImageConstants.setting,
-                      title: "Settings",
-                      onTap: () => Navigator.pushNamed(
-                          context, AppRoutes.settingsScreen),
-                    ),
-                    hBox(10),
-                    CustomButton(
-                      borderRadius: BorderRadius.circular(30),
-                      color:
-                      AppColors.primary.withValues(alpha: 0.30),
-                      onPressed: () {
-                        if (!profileProvider.isLoading) {
-                          showDeleteDialog(context, profileProvider);
-                        }
-                      },
-                      child: profileProvider.isLoading
-                          ? SizedBox(
-                        height: 22,
-                        width: 22,
-                        child: CircularProgressIndicator(
-                          color: AppColors.primary,
-                          strokeWidth: 2,
+                  ),
+                )
+                    : SingleChildScrollView(
+                  padding: REdgeInsets.symmetric(horizontal: 16),
+                  child: Column(
+                    children: [
+                      hBox(10),
+                      Container(
+                        width: double.infinity,
+                        padding:
+                         EdgeInsets.symmetric(vertical: 20),
+                        decoration: BoxDecoration(
+                          color: AppColors.primary
+                              .withValues(alpha: 0.20),
+                          borderRadius: BorderRadius.circular(16),
                         ),
-                      )
-                          : Row(
-                        mainAxisAlignment:
-                        MainAxisAlignment.center,
-                        children: [
-                          CustomImage(
-                            path: ImageConstants.logout,
-                            color: AppColors.primary,
-                            height: 22,
-                            width: 22,
-                          ),
-                          wBox(8),
-                          Text(
-                            "Logout",
-                            style: AppFontStyle.text_16_600(
-                              AppColors.primary,
-                              fontFamily:
-                              AppFontFamily.semiBold,
+                        child: Column(
+                          children: [
+                            profileAvatarStatic(
+                              imageUrl: profileProvider.profileImage.isNotEmpty
+                                  ? profileProvider.profileImage
+                                  : "",
+                              size: 90,
                             ),
-                          ),
-                        ],
+                            hBox(14),
+                            Text(
+                              profileProvider.fullName.isNotEmpty
+                                  ? profileProvider.fullName
+                                  : "User",
+                              style: AppFontStyle.text_18_600(
+                                AppColors.black,
+                                fontFamily: AppFontFamily.bold,
+                              ),
+                            ),
+                            hBox(2),
+                            Text(
+                              profileProvider.phoneNumber.isNotEmpty
+                                  ? profileProvider.phoneNumber
+                                  : "No phone number",
+                              style: AppFontStyle.text_14_400(
+                                  AppColors.grey),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                    hBox(30),
-                  ],
+                      hBox(26),
+                      _profileTile(
+                        icon: ImageConstants.profile,
+                        title: "Edit Profile",
+                        onTap: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) {
+                              final userData = context.read<ProfileProvider>().userData;
+
+                              return ChangeNotifierProvider(
+                                create: (_) => EditProfileProvider()..populateProfileData(userData),
+                                child: EditProfileScreen(),
+                              );
+                            },
+                          ),
+                        ),
+                      ),
+                        _profileTile(
+                        icon: ImageConstants.location,
+                        title: "Saved Addresses",
+                        onTap: () => Navigator.pushNamed(
+                            context, AppRoutes.savedAddressScreen),
+                      ),
+                      _profileTile(
+                        icon: ImageConstants.card,
+                        title: "Payment Methods",
+                        onTap: () => Navigator.pushNamed(
+                            context, AppRoutes.paymentMethodsScreen),
+                      ),
+                      _profileTile(
+                        icon: ImageConstants.setting,
+                        title: "Settings",
+                        onTap: () => Navigator.pushNamed(
+                            context, AppRoutes.settingsScreen),
+                      ),
+                      hBox(10),
+                      CustomButton(
+                        borderRadius: BorderRadius.circular(30),
+                        color:
+                        AppColors.primary.withValues(alpha: 0.30),
+                        onPressed: () {
+                          if (!profileProvider.isLoading) {
+                            showDeleteDialog(context, profileProvider);
+                          }
+                        },
+                        child: profileProvider.isLoading
+                            ? SizedBox(
+                          height: 22,
+                          width: 22,
+                          child: CircularProgressIndicator(
+                            color: AppColors.primary,
+                            strokeWidth: 2,
+                          ),
+                        )
+                            : Row(
+                          mainAxisAlignment:
+                          MainAxisAlignment.center,
+                          children: [
+                            CustomImage(
+                              path: ImageConstants.logout,
+                              color: AppColors.primary,
+                              height: 22,
+                              width: 22,
+                            ),
+                            wBox(8),
+                            Text(
+                              "Logout",
+                              style: AppFontStyle.text_16_600(
+                                AppColors.primary,
+                                fontFamily:
+                                AppFontFamily.semiBold,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      hBox(30),
+                    ],
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

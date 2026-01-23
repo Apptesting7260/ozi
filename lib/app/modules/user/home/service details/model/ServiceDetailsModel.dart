@@ -21,14 +21,14 @@ class ServiceDetailsModel {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['status'] = this.status;
-    data['message'] = this.message;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['status'] = status;
+    data['message'] = message;
     if (this.data != null) {
       data['data'] = this.data!.map((v) => v.toJson()).toList();
     }
-    if (this.pagination != null) {
-      data['pagination'] = this.pagination!.toJson();
+    if (pagination != null) {
+      data['pagination'] = pagination!.toJson();
     }
     return data;
   }
@@ -42,15 +42,15 @@ class ServiceData {
   int? categoryId;
   int? subcategoryId;
   String? description;
-  Null? latitude;
-  Null? longitude;
+  Null latitude;
+  Null longitude;
   int? servicePrice;
   int? durationValue;
   String? durationType;
   String? status;
   String? createdAt;
   String? updatedAt;
-  Null? deletedAt;
+  Null deletedAt;
   Category? category;
   Category? subcategory;
   Vendor? vendor;
@@ -105,30 +105,30 @@ class ServiceData {
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['id'] = this.id;
-    data['vendor_id'] = this.vendorId;
-    data['service_name'] = this.serviceName;
-    data['service_image'] = this.serviceImage;
-    data['category_id'] = this.categoryId;
-    data['subcategory_id'] = this.subcategoryId;
-    data['description'] = this.description;
-    data['latitude'] = this.latitude;
-    data['longitude'] = this.longitude;
-    data['service_price'] = this.servicePrice;
-    data['duration_value'] = this.durationValue;
-    data['duration_type'] = this.durationType;
-    data['status'] = this.status;
-    data['created_at'] = this.createdAt;
-    data['updated_at'] = this.updatedAt;
-    data['deleted_at'] = this.deletedAt;
-    if (this.category != null) {
-      data['category'] = this.category!.toJson();
+    data['id'] = id;
+    data['vendor_id'] = vendorId;
+    data['service_name'] = serviceName;
+    data['service_image'] = serviceImage;
+    data['category_id'] = categoryId;
+    data['subcategory_id'] = subcategoryId;
+    data['description'] = description;
+    data['latitude'] = latitude;
+    data['longitude'] = longitude;
+    data['service_price'] = servicePrice;
+    data['duration_value'] = durationValue;
+    data['duration_type'] = durationType;
+    data['status'] = status;
+    data['created_at'] = createdAt;
+    data['updated_at'] = updatedAt;
+    data['deleted_at'] = deletedAt;
+    if (category != null) {
+      data['category'] = category!.toJson();
     }
-    if (this.subcategory != null) {
-      data['subcategory'] = this.subcategory!.toJson();
+    if (subcategory != null) {
+      data['subcategory'] = subcategory!.toJson();
     }
-    if (this.vendor != null) {
-      data['vendor'] = this.vendor!.toJson();
+    if (vendor != null) {
+      data['vendor'] = vendor!.toJson();
     }
     return data;
   }
@@ -137,7 +137,7 @@ class ServiceData {
 class Category {
   int? id;
   String? categoryName;
-  Null? parentName;
+  Null parentName;
 
   Category({this.id, this.categoryName, this.parentName});
 
@@ -149,9 +149,9 @@ class Category {
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['id'] = this.id;
-    data['category_name'] = this.categoryName;
-    data['parent_name'] = this.parentName;
+    data['id'] = id;
+    data['category_name'] = categoryName;
+    data['parent_name'] = parentName;
     return data;
   }
 }
@@ -171,9 +171,9 @@ class Vendor {
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['id'] = this.id;
-    data['first_name'] = this.firstName;
-    data['last_name'] = this.lastName;
+    data['id'] = id;
+    data['first_name'] = firstName;
+    data['last_name'] = lastName;
     return data;
   }
 }
@@ -202,11 +202,11 @@ class Pagination {
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['current_page'] = this.currentPage;
-    data['per_page'] = this.perPage;
-    data['total'] = this.total;
-    data['last_page'] = this.lastPage;
-    data['has_more'] = this.hasMore;
+    data['current_page'] = currentPage;
+    data['per_page'] = perPage;
+    data['total'] = total;
+    data['last_page'] = lastPage;
+    data['has_more'] = hasMore;
     return data;
   }
 }

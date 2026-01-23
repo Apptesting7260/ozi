@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import '../../../../../data/repository/repository.dart';
 import '../model/cart_items_model.dart';
+import '../model/increase_cart_quantity_model.dart';
 
 class CartProvider with ChangeNotifier {
   final Repository _repository;
@@ -23,102 +24,89 @@ class CartProvider with ChangeNotifier {
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
 
-  // Fetch cart items from API
   Future<void> fetchCartItems() async {
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
 
     try {
-      final response = await _repository.getCartItemsApi();
-      print('Cart Response: $response');
+      final CartItemsModel response =
+      await _repository.getCartItemsApi();
 
-      if (response != null && response['status'] == true) {
-        final data = response['data'];
+      if (response.status == true && response.data != null) {
+        // ✅ Items
+        _items = response.data!.items ?? [];
 
-        // Parse items
-        if (data['items'] != null) {
-          _items = (data['items'] as List)
-              .map((item) => CartItem.fromJson(item))
-              .toList();
-        } else {
-          _items = [];
-        }
-
-        // Parse summary
-        if (data['summary'] != null) {
-          final summary = data['summary'];
-          _subtotal = summary['subtotal'] ?? 0;
-          _serviceFee = summary['service_fee'] ?? 0;
-          _total = summary['total'] ?? 0;
-        } else {
-          _subtotal = 0;
-          _serviceFee = 0;
-          _total = 0;
-        }
-
-        _isLoading = false;
-        notifyListeners();
+        // ✅ Summary
+        final summary = response.data!.summary;
+        _subtotal = summary?.subtotal ?? 0;
+        _serviceFee = summary?.serviceFee ?? 0;
+        _total = summary?.total ?? 0;
       } else {
-        throw Exception(response?['message'] ?? 'Failed to load cart items');
+        _items = [];
+        _subtotal = 0;
+        _serviceFee = 0;
+        _total = 0;
+        _errorMessage = response.message ?? 'Failed to load cart';
       }
+
+      _isLoading = false;
+      notifyListeners();
     } catch (e) {
-      _errorMessage = e.toString();
       _isLoading = false;
       _items = [];
       _subtotal = 0;
       _serviceFee = 0;
       _total = 0;
+      _errorMessage = e.toString();
       notifyListeners();
+
       print('Error fetching cart items: $e');
     }
   }
 
-  // Update quantity - increase or decrease
   Future<void> updateQuantity(int cartId, int delta) async {
     final index = _items.indexWhere((item) => item.cartId == cartId);
     if (index == -1) return;
 
-    final _ = _items[index].quantity ?? 1;
-
     try {
       dynamic response;
 
-      // Call appropriate API based on delta
+      // 🔼 Increase API
       if (delta > 0) {
-        // Increase quantity
         response = await _repository.increaseCartItemApi(cartId);
-      } else if (delta < 0) {
-        // Decrease quantity
+      }
+      // 🔽 Decrease API
+      else {
         response = await _repository.decreaseCartItemApi(cartId);
       }
 
-      print('Update Quantity Response: $response');
+      print("Update Quantity Parsed Model: $response");
 
-      // Check if API call was successful
-      if (response != null && response['status'] == true) {
-        // Update quantity from API response
-        if (response['data'] != null) {
-          final newQuantity = response['data']['quantity'] as int;
-          _items[index].quantity = newQuantity;
+      // 🎯 Correct model access
+      if (response.status == true && response.data != null) {
 
-          // Update item total
-          final itemPrice = _items[index].servicePrice ?? 0;
-          _items[index].serviceItemTotal = (itemPrice * newQuantity).toInt();
+        final newQty = response.data!.quantity ?? 1;
 
-          // Recalculate totals
-          _subtotal = _items.fold(0, (sum, item) => sum + (item.serviceItemTotal ?? 0));
-          _total = _subtotal + _serviceFee;
+        _items[index].quantity = newQty;
 
-          notifyListeners();
-        }
+        final price = _items[index].servicePrice ?? 0;
+        _items[index].serviceItemTotal = (price * newQty) as int?;
+
+        // Recalculate totals
+        _subtotal = _items.fold(
+          0,
+              (sum, item) => sum + (item.serviceItemTotal ?? 0),
+        );
+        _total = _subtotal + _serviceFee;
+
+        notifyListeners();
       } else {
-        throw Exception(response?['message'] ?? 'Failed to update quantity');
+        throw Exception(response.message ?? "Failed to update quantity");
       }
     } catch (e) {
-      _errorMessage = 'Failed to update quantity: ${e.toString()}';
+      _errorMessage = "Failed to update quantity: $e";
       notifyListeners();
-      print('Error updating quantity: $e');
     }
   }
 

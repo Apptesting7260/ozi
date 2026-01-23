@@ -25,7 +25,6 @@ class _NavigationTabScreenState extends State<NavigationTabScreen> {
       path: path,
       width: 22.0,
       height: 22.0,
-      // color: isActive ? AppColors.primary : AppColors.grey,
     );
   }
 
@@ -59,7 +58,7 @@ class _NavigationTabScreenState extends State<NavigationTabScreen> {
                     color: AppColors.white,
                     boxShadow: [
                       BoxShadow(
-                        color: const Color(0x1A051331),
+                        color: AppColors.black.withValues(alpha: 0.05),
                         blurRadius: 20,
                       ),
                     ],
@@ -78,8 +77,6 @@ class _NavigationTabScreenState extends State<NavigationTabScreen> {
                     },
                     backgroundColor: AppColors.transparent,
                     elevation: 0,
-                   // selectedItemColor: AppColors.primary,
-                    //unselectedItemColor: AppColors.grey,
                     showUnselectedLabels: true,
                     type: BottomNavigationBarType.fixed,
                     items: [

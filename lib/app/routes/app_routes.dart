@@ -11,10 +11,11 @@ import '../modules/user/help/view/help_screen.dart';
 import '../modules/user/home/service details/view/ServiceDetailScreen.dart';
 import '../modules/user/home/view/homescreen.dart';
 import '../modules/user/navigation tab/view/navigation_tab_screen.dart';
-import '../modules/user/profile/add new address/view/AddAddressScreen.dart';
+import '../modules/user/profile/add new address/view/add_address_screen.dart';
 import '../modules/user/profile/add new card/view/AddNewCardScreen.dart';
 import '../modules/user/profile/common screen/provider/comman_screen_provider.dart';
 import '../modules/user/profile/common screen/view/common_screen.dart';
+import '../modules/user/profile/edit address/view/edit_user_address_screen.dart';
 import '../modules/user/profile/edit profile/view/EditProfileScreen.dart';
 import '../modules/user/profile/payment method/view/PaymentMethodsScreen.dart';
 import '../modules/user/profile/save address/view/SavedAddressScreen.dart';
@@ -48,6 +49,7 @@ class AppRoutes {
   static const String editProfileScreen = '/editProfileScreen';
   static const String savedAddressScreen = '/savedAddressScreen';
   static const String addAddressScreen = '/addAddressScreen';
+  static const String editAddressScreen = '/editAddressScreen';
   static const String paymentMethodsScreen = '/paymentMethodsScreen';
   static const String addNewCardScreen = '/addNewCardScreen';
   static const String settingsScreen = '/settingsScreen';
@@ -138,6 +140,9 @@ class AppRoutes {
 
       case savedAddressScreen:
         return MaterialPageRoute(builder: (_) => SavedAddressScreen());
+
+        case editAddressScreen:
+        return MaterialPageRoute(builder: (_) => EditUserAddressScreen());
 
       case addAddressScreen:
         return MaterialPageRoute(builder: (_) => AddAddressScreen());

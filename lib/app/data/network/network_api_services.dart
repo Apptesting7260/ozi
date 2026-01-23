@@ -134,7 +134,6 @@ class NetworkApiServices extends BaseApiServices {
       return _handleDioError(e);
     }
   }
-
   Future<dynamic> deleteApi(var data, String url, String token) async {
     try {
       final response = await _dio.delete(
@@ -278,7 +277,6 @@ class NetworkApiServices extends BaseApiServices {
       );
     }
   }
-
   dynamic _handleDioError(DioException e) {
     if (e.type == DioExceptionType.connectionError ||
         e.type == DioExceptionType.receiveTimeout ||

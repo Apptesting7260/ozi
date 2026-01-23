@@ -1,4 +1,4 @@
-class UserProfileModel {
+class UserProfileModel         {
   bool? status;
   String? message;
   ProfileData? data;

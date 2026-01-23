@@ -16,13 +16,13 @@ class EditProfileScreen extends StatelessWidget {
   }
   @override
   Widget build(BuildContext context) {
-
     final provider = context.watch<EditProfileProvider>();
 
     return Scaffold(
           body: Column(
             children: [
               const CustomAppBar(title: "Edit Profile"),
+
               Expanded(
                 child: SingleChildScrollView(
                   padding: EdgeInsets.symmetric(horizontal: 16),
@@ -60,6 +60,7 @@ class EditProfileScreen extends StatelessWidget {
   }
 
   // ─────────────────── PROFILE SECTION ───────────────────
+
   Widget _profileSection(EditProfileProvider provider, context) {
     return Column(
       children: [
