@@ -3,9 +3,10 @@ class VendorHomeModel {
   VendorHomeVendorStatus? vendorStatus;
   VendorHomeDashboard? dashboard;
   List<VendorHomeRequests>? requests;
+  VendorHomeProfile? profile;
 
   VendorHomeModel(
-      {this.status, this.vendorStatus, this.dashboard, this.requests});
+      {this.status, this.vendorStatus, this.dashboard, this.requests,this.profile});
 
   VendorHomeModel.fromJson(Map<String, dynamic> json) {
     status = json['status'];
@@ -20,6 +21,9 @@ class VendorHomeModel {
       json['requests'].forEach((v) {
         requests!.add(new VendorHomeRequests.fromJson(v));
       });
+      profile = json['vendor_profile'] != null
+          ? new VendorHomeProfile.fromJson(json['vendor_profile'])
+          : null;
     }
   }
 
@@ -57,6 +61,23 @@ class VendorHomeVendorStatus {
     data['is_online'] = this.isOnline;
     data['has_location'] = this.hasLocation;
     data['has_service'] = this.hasService;
+    return data;
+  }
+}
+
+class VendorHomeProfile {
+  String? name;
+  String? image;
+
+  VendorHomeProfile({this.name,this.image});
+
+  VendorHomeProfile.fromJson(Map<String, dynamic> json) {
+    image = json['pro_img']?.toString();
+    name = json['vendor_name']?.toString();
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = new Map<String, dynamic>();
     return data;
   }
 }
@@ -99,6 +120,8 @@ class VendorHomeRequests {
   String? totalAmount;
   String? status;
   String? customerImage;
+  bool isLoadingAccept = false;
+  bool isLoadingReject = false;
 
   VendorHomeRequests(
       {this.bookingId,
@@ -162,6 +185,33 @@ class VendorHomeServiceTime {
     final Map<String, dynamic> data = new Map<String, dynamic>();
     data['from'] = this.from;
     data['to'] = this.to;
+    return data;
+  }
+}
+
+class VendorAllRequestsModel {
+  bool? status;
+  List<VendorHomeRequests>? requests;
+
+  VendorAllRequestsModel(
+      {this.status, this.requests});
+
+  VendorAllRequestsModel.fromJson(Map<String, dynamic> json) {
+    status = json['status'];
+    if (json['requests'] != null) {
+      requests = <VendorHomeRequests>[];
+      json['requests'].forEach((v) {
+        requests!.add(new VendorHomeRequests.fromJson(v));
+      });
+    }
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    data['status'] = this.status;
+    if (this.requests != null) {
+      data['requests'] = this.requests!.map((v) => v.toJson()).toList();
+    }
     return data;
   }
 }

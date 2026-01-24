@@ -1,3 +1,5 @@
+import 'package:ozi/app/modules/user/profile/view/profile_screen.dart';
+
 import '../../../../core/appExports/app_export.dart';
 import '../../bookings/view/vendor_mybookings_screen.dart';
 import '../../home/view/vendor_home_screen.dart';
@@ -30,7 +32,7 @@ class VendorNavigationProvider extends ChangeNotifier {
     VendorMybookingsScreen(),
     VendorMyWalletScreen(),
     VendorServicesScreen(),
-    VendorProfileScreen(),
+    ProfileScreen(),
   ];
 
   // --------------------------------------------------------

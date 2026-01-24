@@ -35,4 +35,6 @@ class AppUrls {
   static const String vendorGetCategoryData = "$baseUrl/get-vendor-categories";
   static const String storeVendorService = "$baseUrl/store-vendor-service";
   static const String acceptRejectBooking = "$baseUrl/vendor-Booking-Action";
+  static const String vendorUpdateLocation = "$baseUrl/vendor-update-location";
+  static const String vendorAllBookings = "$baseUrl/vendor-home-all-bookings";
 }

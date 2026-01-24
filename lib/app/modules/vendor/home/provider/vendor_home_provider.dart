@@ -8,6 +8,7 @@ import '../../../../data/models/vendor_home_model.dart';
 import '../../../../data/network/network_api_services.dart';
 import '../../../../data/response/api_response.dart';
 import '../../../../data/storage/user_preference.dart';
+import 'package:geolocator/geolocator.dart';
 
 class VendorHomeProvider extends ChangeNotifier {
   final NetworkApiServices _apiService = NetworkApiServices();
@@ -63,11 +64,10 @@ class VendorHomeProvider extends ChangeNotifier {
   }
 
   checkForUpdateLocationAndIsServiceAvailable(){
-    if(_homeModel.data?.vendorStatus?.hasService==false){
-      _showPopup(navigatorKey.currentContext!);
-    }
     if(_homeModel.data?.vendorStatus?.hasLocation==false){
-
+      showLocationPopup(navigatorKey.currentContext!);
+    } else if(_homeModel.data?.vendorStatus?.hasService==false){
+      _showPopup(navigatorKey.currentContext!);
     }
   }
 
@@ -81,52 +81,17 @@ class VendorHomeProvider extends ChangeNotifier {
   double walletBalance = 3420.00;
   int totalJobs = 124;
 
-  // ================= BOOKINGS LIST =================
-  // final List<BookingRequest> _newRequests = [
-  //   BookingRequest(
-  //     customerName: "Alex Johnson",
-  //     service: "Deep Cleaning",
-  //     price: 84.13,
-  //     date: "Today",
-  //     time: "2:00 PM",
-  //     address: "123 Main St, San Francisco",
-  //     status: BookingStatus.newRequest,
-  //   ),
-  // ];
-  //
-  // final List<BookingRequest> _confirmedRequests = [
-  //   BookingRequest(
-  //     customerName: "Alex Johnson",
-  //     service: "Deep Cleaning",
-  //     price: 84.13,
-  //     date: "Tomorrow",
-  //     time: "2:00 PM",
-  //     address: "123 Main St, San Francisco",
-  //     status: BookingStatus.confirmed,
-  //   ),
-  // ];
-  //
-  // List<BookingRequest> get newRequests => _newRequests;
-  // List<BookingRequest> get confirmedRequests => _confirmedRequests;
-  //
-  // // ================= ACTIONS =================
-  // void acceptRequest(int index) {
-  //   final request = _newRequests.removeAt(index);
-  //   _confirmedRequests.add(
-  //     request.copyWith(status: BookingStatus.confirmed),
-  //   );
-  //   notifyListeners();
-  // }
-  //
-  // void rejectRequest(int index) {
-  //   _newRequests.removeAt(index);
-  //   notifyListeners();
-  // }
-
   bool _acceptRejectLoading = false;
   bool get acceptRejectLoading => _acceptRejectLoading;
-  updateAcceptLoading(bool value){
+  updateAcceptLoading(bool value,String bookingId,String status){
     _acceptRejectLoading = value;
+    _homeModel.data?.requests?.forEach((e){
+      if(status=='accept'){
+        e.isLoadingAccept = value;
+      }else{
+        e.isLoadingReject = value;
+      }
+    });
     notifyListeners();
   }
 
@@ -138,7 +103,7 @@ class VendorHomeProvider extends ChangeNotifier {
     if(_acceptRejectLoading) return;
     currentBookingId = bookingId;
     currentAction = status;
-    updateAcceptLoading(true);
+    updateAcceptLoading(true,bookingId,status);
     try {
       final response = await _apiService.postApi({
         "booking_id" : bookingId,
@@ -150,18 +115,30 @@ class VendorHomeProvider extends ChangeNotifier {
           e.status = status;
         }
       });
-      updateAcceptLoading(false);
+      updateAcceptLoading(false,bookingId,status);
       currentBookingId = null;
       currentAction = null;
     } catch (e) {
-      updateAcceptLoading(false);
+      updateAcceptLoading(false,bookingId,status);
       currentBookingId = null;
       currentAction = null;
       Get.showToast(e.toString(), type: ToastType.error);
     }
   }
 
-
+  Future<void> updateLocation(Position? location)async {
+    if(location==null) return;
+    try {
+      final response = await _apiService.postApi({
+        "latitude" : location.latitude,
+        "longitude" : location.longitude
+      },AppUrls.vendorUpdateLocation);
+      getHomeData();
+    } catch (e) {
+      getHomeData();
+      Get.showToast(e.toString(), type: ToastType.error);
+    }
+  }
 
   void _showPopup(BuildContext context) {
     showDialog(
@@ -198,11 +175,86 @@ class VendorHomeProvider extends ChangeNotifier {
       },
     );
   }
+
+
+
+
+  Future<void> showLocationPopup(BuildContext context) async {
+    // Prevent showing multiple times by checking the top route
+    bool isAlreadyOpen = false;
+    Navigator.popUntil(context, (route) {
+      if (route.settings.name == 'location_popup') {
+        isAlreadyOpen = true;
+      }
+      return true;
+    });
+
+    if (isAlreadyOpen) return;
+
+    // Show dialog
+    await showDialog(
+      context: context,
+      barrierDismissible: false, // Cannot dismiss by tapping outside
+      builder: (context) {
+        return WillPopScope(
+          onWillPop: () async => false, // Disable back button
+          child: AlertDialog(
+            title: const Text('Location Required'),
+            content: const Text(
+                'Vendor location not available. Please update your location.'),
+            actions: [
+              ElevatedButton(
+                onPressed: () async {
+                  try {
+                    // Get current location
+                    Position position = await _determinePosition();
+                    print('Lat: ${position.latitude}, Lng: ${position.longitude}');
+                    updateLocation(position);
+                    Navigator.of(context).pop();
+                  } catch (e) {
+                    Get.showToast(e.toString(), type: ToastType.error);
+                  }
+                },
+                child: const Text('Update'),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+// Helper function to get current location
+  Future<Position> _determinePosition() async {
+    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      return Future.error('Location services are disabled.');
+    }
+
+    LocationPermission permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        return Future.error('Location permissions are denied');
+      }
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      return Future.error(
+          'Location permissions are permanently denied, we cannot request permissions.');
+    }
+
+    return await Geolocator.getCurrentPosition();
+  }
+
 }
 
 // ===================================================
 // MODELS
 // ===================================================
+
+
+
 
 enum BookingStatus { newRequest, confirmed }
 

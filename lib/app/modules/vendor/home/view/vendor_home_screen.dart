@@ -6,11 +6,30 @@ import '../../../../core/appExports/app_export.dart';
 import '../../../../data/models/vendor_home_model.dart';
 import '../../../../data/response/api_status.dart';
 import '../../../../shared/widgets/custom_toggle_switch.dart';
+import '../../../user/profile/view/profile_provider/profile_provider.dart';
 import '../new requests/view/new_request_screen.dart';
 import '../notification/view/vendor_notifications_screen.dart';
+import '../request_card/view/request_card_view.dart';
 
-class VendorHomeScreen extends StatelessWidget {
+class VendorHomeScreen extends StatefulWidget {
   const VendorHomeScreen({super.key});
+
+  @override
+  State<VendorHomeScreen> createState() => _VendorHomeScreenState();
+}
+
+class _VendorHomeScreenState extends State<VendorHomeScreen> {
+
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        context.read<ProfileProvider>().fetchUserProfile();
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -56,24 +75,38 @@ class VendorHomeScreen extends StatelessWidget {
                         ),
 
                         hBox(12),
-
+                        value.homeModel.data?.requests==null || value.homeModel.data?.requests?.length==0?
+                            SizedBox(
+                              height: MediaQuery.of(context).size.height*0.2,
+                              child: Center(
+                                child: Text(
+                                  "No new requests available",
+                                  style: AppFontStyle.text_16_500(AppColors.grey),
+                                ),
+                              ),
+                            )
+                            :
                         ListView.builder(
                           itemCount: value.homeModel.data?.requests?.length??0,
                           physics: NeverScrollableScrollPhysics(),
                           shrinkWrap: true,
                           itemBuilder: (context, index) {
                             VendorHomeRequests request = value.homeModel.data!.requests![index];
-                          return _requestCard(
-                              statusColor: AppColors.purple,
-                              request:request
-                            );
-                        },),
+                          return RequestCard(
+                            onAccept: () {
+                              value.acceptOrRejectRequest('accept',request.bookingId??'');
+                            },
+                            onReject: () {
+                              value.acceptOrRejectRequest('reject',request.bookingId??'');
+                            },
+                            request: request
+                          );
 
-                        // _newRequestCard(),
-                        //
-                        // hBox(16),
-                        //
-                        // _confirmedRequestCard(),
+                            // _requestCard(
+                            //   statusColor: AppColors.purple,
+                            //   request:request
+                            // );
+                        },),
 
                         hBox(20),
                       ],
@@ -93,67 +126,86 @@ class VendorHomeScreen extends StatelessWidget {
   }
 
   Widget _header(BuildContext context) {
-    return Row(
-      children: [
-        CircleAvatar(
-          radius: 22,
-          backgroundImage: const NetworkImage(
-            "https://i.pravatar.cc/150?img=3",
-          ),
-        ),
-
-        wBox(12),
-
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                "Good Morning",
-                style: AppFontStyle.text_12_400(AppColors.grey),
+    return Consumer<VendorHomeProvider>(
+      builder: (context,provider,_) {
+        return Row(
+          children: [
+            CircleAvatar(
+              radius: 22,
+              backgroundImage: NetworkImage(
+                '${AppUrls.imageBaseUrl}${provider.homeModel.data?.profile?.image}',
               ),
-              Text(
-                "John Doe",
-                style: AppFontStyle.text_16_600(
-                  AppColors.darkText,
-                  fontFamily: AppFontFamily.semiBold,
+            ),
+
+            wBox(12),
+
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    getGreetingMessage(),
+                    style: AppFontStyle.text_12_400(AppColors.grey),
+                  ),
+                  Text(
+                    provider.homeModel.data?.profile?.name??'',
+                    style: AppFontStyle.text_16_600(
+                      AppColors.darkText,
+                      fontFamily: AppFontFamily.semiBold,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+
+            InkWell(
+              borderRadius: BorderRadius.circular(40),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const NotificationsScreen(),
+                  ),
+                );
+              },
+              child: Container(
+                height: 40,
+                width: 40,
+                decoration: BoxDecoration(
+                  color: AppColors.lightGrey,
+                  shape: BoxShape.circle,
+                ),
+                child: Center(
+                  child: CustomImage(
+                    path: ImageConstants.bell,
+                    height: 20,
+                    width: 20,
+                    color: AppColors.black,
+                  ),
                 ),
               ),
-            ],
-          ),
-        ),
-
-
-        InkWell(
-          borderRadius: BorderRadius.circular(40),
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) => const NotificationsScreen(),
-              ),
-            );
-          },
-          child: Container(
-            height: 40,
-            width: 40,
-            decoration: BoxDecoration(
-              color: AppColors.lightGrey,
-              shape: BoxShape.circle,
             ),
-            child: Center(
-              child: CustomImage(
-                path: ImageConstants.bell,
-                height: 20,
-                width: 20,
-                color: AppColors.black,
-              ),
-            ),
-          ),
-        ),
-      ],
+          ],
+        );
+      }
     );
   }
+
+  String getGreetingMessage() {
+    final hour = DateTime.now().hour;
+
+    if (hour >= 5 && hour < 12) {
+      return 'Good Morning';
+    } else if (hour >= 12 && hour < 17) {
+      return 'Good Afternoon';
+    } else if (hour >= 17 && hour < 21) {
+      return 'Good Evening';
+    } else {
+      return 'Good Night';
+    }
+  }
+
 
   Widget _onlineStatus() {
     return Consumer<VendorHomeProvider>(
@@ -338,186 +390,171 @@ class VendorHomeScreen extends StatelessWidget {
   }
 
   // Widget _newRequestCard(VendorHomeRequests request) {
-  //   return _requestCard(
-  //     status: "New Request",
-  //     statusColor: AppColors.purple,
-  //     showActions: true,
-  //   );
-  // }
+  // Widget _requestCard({
+  //   required Color statusColor,
+  //    required VendorHomeRequests request,
+  // }) {
+  //   return Consumer<VendorHomeProvider>(
+  //     builder: (context,provider,_) {
+  //       return Container(
+  //         padding: const EdgeInsets.all(16),
+  //         decoration: BoxDecoration(
+  //           color: AppColors.white,
+  //           borderRadius: BorderRadius.circular(16),
+  //           boxShadow: [
+  //             BoxShadow(
+  //               color: Colors.black.withValues(alpha: .05),
+  //               blurRadius: 10,
+  //             ),
+  //           ],
+  //         ),
+  //         child: Column(
+  //           children: [
+  //             Row(
+  //               children: [
+  //         Container(
+  //           height: 36,
+  //           width: 36,
+  //         decoration: BoxDecoration(
+  //           shape: BoxShape.circle,
+  //           border: Border.all(
+  //             color: AppColors.primary,
+  //             width: 2,
+  //           ),
+  //         ),
+  //         child: ClipRRect(
+  //           borderRadius: BorderRadius.circular(36),
+  //           child: CustomImage(
+  //             path: "${AppUrls.imageBaseUrl}${request.customerImage??''}",
+  //             height: 36,
+  //             width: 36,
+  //           ),
+  //         ),
+  //       ),
   //
-  // Widget _confirmedRequestCard(VendorHomeRequests request) {
-  //   return _requestCard(
-  //     status: "Confirmed",
-  //     statusColor: AppColors.blue,
-  //     showActions: false,
+  //       wBox(10),
+  //                 Expanded(
+  //                   child: Column(
+  //                     crossAxisAlignment: CrossAxisAlignment.start,
+  //                     children: [
+  //                       Text(
+  //                         request.customerName??'',
+  //                         style: AppFontStyle.text_14_600(AppColors.darkText),
+  //                       ),
+  //                       Text(
+  //                         request.bookingCode??'',
+  //                         style: AppFontStyle.text_12_400(AppColors.grey),
+  //                       ),
+  //                     ],
+  //                   ),
+  //                 ),
+  //                 Container(
+  //                   padding:
+  //                   const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+  //                   decoration: BoxDecoration(
+  //                     color: statusColor.withValues(alpha: 0.1),
+  //                     borderRadius: BorderRadius.circular(20),
+  //                   ),
+  //                   child: Text(
+  //                     request.status?.toUpperCase()??'',
+  //                     style: AppFontStyle.text_12_500(statusColor),
+  //                   ),
+  //                 ),
+  //               ],
+  //             ),
+  //
+  //             hBox(12),
+  //
+  //             Row(
+  //               children: [
+  //                 Icon(Icons.calendar_today, size: 14, color: AppColors.grey),
+  //                 wBox(6),
+  //                 Text(Get.getFormattedDate(request.serviceDate??''), style: AppFontStyle.text_12_400(AppColors.grey)),
+  //                 wBox(12),
+  //                 Icon(Icons.access_time, size: 14, color: AppColors.grey),
+  //                 wBox(6),
+  //                 Text('${request.serviceTime?.from?.toString()} - ${request.serviceTime?.to?.toString()}', style: AppFontStyle.text_12_400(AppColors.grey)),
+  //               ],
+  //             ),
+  //
+  //             hBox(8),
+  //
+  //             Row(
+  //               children: [
+  //                 Icon(Icons.location_on_outlined,
+  //                     size: 14, color: AppColors.grey),
+  //                 wBox(6),
+  //                 Expanded(
+  //                   child: Text(
+  //                     request.address??'',
+  //                     style: AppFontStyle.text_12_400(AppColors.grey),
+  //                     maxLines: 10,
+  //                   ),
+  //                 ),
+  //               ],
+  //             ),
+  //
+  //             hBox(14),
+  //             Divider(thickness: 1, color: AppColors.black.withValues(alpha: 0.10), ),
+  //             hBox(14),
+  //
+  //             Row(
+  //               children: [
+  //                 Text(
+  //                   "\$${request.totalAmount??''}",
+  //                   style: AppFontStyle.text_14_600(AppColors.primary),
+  //                 ),
+  //                 const Spacer(),
+  //
+  //                 if (request.status=='pending') ...[
+  //                   CustomButton(
+  //                     isLoading: provider.acceptRejectLoading&&provider.currentBookingId==request.bookingId&&provider.currentAction=='reject',
+  //                     height: 40,
+  //                     width: 90,
+  //                     // isOutlined: true,
+  //                     text: "Reject",
+  //                     textStyle: AppFontStyle.text_14_500(AppColors.white),
+  //                     color: AppColors.red,
+  //                     onPressed: () {
+  //                       provider.acceptOrRejectRequest('reject',request.bookingId??'');
+  //                     },
+  //                   ),
+  //                   wBox(10),
+  //                   CustomButton(
+  //                     isLoading: provider.acceptRejectLoading&&provider.currentBookingId==request.bookingId&&provider.currentAction=='accept',
+  //                     height: 40,
+  //                     width: 90,
+  //                     text: "Accept",
+  //                     onPressed: () {
+  //                       provider.acceptOrRejectRequest('accept',request.bookingId??'');
+  //                     },
+  //                   ),
+  //                 ] else
+  //                   GestureDetector(
+  //                     onTap: () async {
+  //                       final Uri launchUri = Uri(
+  //                         scheme: 'tel',
+  //                         path: request.customerPhone,
+  //                       );
+  //                       await launchUrl(launchUri);
+  //                     },
+  //                     child: Container(
+  //                       height: 36,
+  //                       width: 36,
+  //                       decoration: BoxDecoration(
+  //                         color: AppColors.primary,
+  //                         shape: BoxShape.circle,
+  //                       ),
+  //                       child:
+  //                       Icon(Icons.call, color: Colors.white, size: 18),
+  //                     ),
+  //                   ),
+  //               ],
+  //             ),
+  //           ],
+  //         ),
+  //       );
+  //     }
   //   );
   // }
-
-  Widget _requestCard({
-    required Color statusColor,
-     required VendorHomeRequests request,
-  }) {
-    return Consumer<VendorHomeProvider>(
-      builder: (context,provider,_) {
-        return Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: AppColors.white,
-            borderRadius: BorderRadius.circular(16),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: .05),
-                blurRadius: 10,
-              ),
-            ],
-          ),
-          child: Column(
-            children: [
-              Row(
-                children: [
-          Container(
-            height: 36,
-            width: 36,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            border: Border.all(
-              color: AppColors.primary,
-              width: 2,
-            ),
-          ),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(36),
-            child: CustomImage(
-              path: "${AppUrls.imageBaseUrl}${request.customerImage??''}",
-              height: 36,
-              width: 36,
-            ),
-          ),
-        ),
-
-        wBox(10),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          request.customerName??'',
-                          style: AppFontStyle.text_14_600(AppColors.darkText),
-                        ),
-                        Text(
-                          request.bookingCode??'',
-                          style: AppFontStyle.text_12_400(AppColors.grey),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Container(
-                    padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: statusColor.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Text(
-                      request.status?.toUpperCase()??'',
-                      style: AppFontStyle.text_12_500(statusColor),
-                    ),
-                  ),
-                ],
-              ),
-
-              hBox(12),
-
-              Row(
-                children: [
-                  Icon(Icons.calendar_today, size: 14, color: AppColors.grey),
-                  wBox(6),
-                  Text(Get.getFormattedDate(request.serviceDate??''), style: AppFontStyle.text_12_400(AppColors.grey)),
-                  wBox(12),
-                  Icon(Icons.access_time, size: 14, color: AppColors.grey),
-                  wBox(6),
-                  Text('${request.serviceTime?.from?.toString()} - ${request.serviceTime?.to?.toString()}', style: AppFontStyle.text_12_400(AppColors.grey)),
-                ],
-              ),
-
-              hBox(8),
-
-              Row(
-                children: [
-                  Icon(Icons.location_on_outlined,
-                      size: 14, color: AppColors.grey),
-                  wBox(6),
-                  Expanded(
-                    child: Text(
-                      request.address??'',
-                      style: AppFontStyle.text_12_400(AppColors.grey),
-                      maxLines: 10,
-                    ),
-                  ),
-                ],
-              ),
-
-              hBox(14),
-              Divider(thickness: 1, color: AppColors.black.withValues(alpha: 0.10), ),
-              hBox(14),
-
-              Row(
-                children: [
-                  Text(
-                    "\$${request.totalAmount??''}",
-                    style: AppFontStyle.text_14_600(AppColors.primary),
-                  ),
-                  const Spacer(),
-
-                  if (request.status=='pending') ...[
-                    CustomButton(
-                      isLoading: provider.acceptRejectLoading&&provider.currentBookingId==request.bookingId&&provider.currentAction=='reject',
-                      height: 40,
-                      width: 90,
-                      // isOutlined: true,
-                      text: "Reject",
-                      textStyle: AppFontStyle.text_14_500(AppColors.white),
-                      color: AppColors.red,
-                      onPressed: () {
-                        provider.acceptOrRejectRequest('reject',request.bookingId??'');
-                      },
-                    ),
-                    wBox(10),
-                    CustomButton(
-                      isLoading: provider.acceptRejectLoading&&provider.currentBookingId==request.bookingId&&provider.currentAction=='accept',
-                      height: 40,
-                      width: 90,
-                      text: "Accept",
-                      onPressed: () {
-                        provider.acceptOrRejectRequest('accept',request.bookingId??'');
-                      },
-                    ),
-                  ] else
-                    GestureDetector(
-                      onTap: () async {
-                        final Uri launchUri = Uri(
-                          scheme: 'tel',
-                          path: request.customerPhone,
-                        );
-                        await launchUrl(launchUri);
-                      },
-                      child: Container(
-                        height: 36,
-                        width: 36,
-                        decoration: BoxDecoration(
-                          color: AppColors.primary,
-                          shape: BoxShape.circle,
-                        ),
-                        child:
-                        Icon(Icons.call, color: Colors.white, size: 18),
-                      ),
-                    ),
-                ],
-              ),
-            ],
-          ),
-        );
-      }
-    );
-  }
 }
