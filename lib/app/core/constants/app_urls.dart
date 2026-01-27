@@ -37,4 +37,6 @@ class AppUrls {
   static const String acceptRejectBooking = "$baseUrl/vendor-Booking-Action";
   static const String vendorUpdateLocation = "$baseUrl/vendor-update-location";
   static const String vendorAllBookings = "$baseUrl/vendor-home-all-bookings";
+  static const String vendorMyBookings = "$baseUrl/my-bookings?page={page}&limit=10";
+  static const String vendorMyBookingsDetails = "$baseUrl/booking-details/{bookingid}";
 }

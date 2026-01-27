@@ -6,7 +6,9 @@ import '../../../../../routes/app_routes.dart';
 import '../model/user_profile_model.dart';
 
 class ProfileProvider extends ChangeNotifier {
+
   final _repository = Repository();
+
 
   bool _isLoading = false;
   bool get isLoading => _isLoading;
@@ -80,7 +82,7 @@ class ProfileProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> fetchUserProfile() async {
+  Future<void> fetchUserProfile() async { 
     _isProfileLoading = true;
     _errorMessage = '';
     notifyListeners();

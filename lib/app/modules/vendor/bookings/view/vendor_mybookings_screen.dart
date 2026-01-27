@@ -1,5 +1,10 @@
 import 'package:ozi/app/core/appExports/app_export.dart';
+import 'package:ozi/app/core/constants/app_urls.dart';
+import '../../../../data/models/all_bookings_model.dart';
+import '../../../../data/models/vendor_home_model.dart';
+import '../../../../data/response/api_status.dart';
 import '../../../user/booking/booking details/view/booking_details_screen.dart';
+import '../booking details/view/vendor_booking_details_screen.dart';
 import '../provider/vendor_mybookings_provider.dart';
 
 class VendorMybookingsScreen extends StatelessWidget {
@@ -76,55 +81,50 @@ class _MyBookingsContent extends StatelessWidget {
 
             hBox(16),
 
-            Expanded(
-              child: RefreshIndicator(
-                onRefresh: provider.refreshBookings,
-                child: provider.filteredBookings.isEmpty
-                    ? Center(
-                  child: Text(
-                    "No ${provider.tabs[provider.selectedTab].toLowerCase()} bookings",
-                    style:  TextStyle(
-                      fontSize: 14,
-                      color: AppColors.grey,
+            switch (provider.homeModel.status) {
+              ApiStatus.loading =>
+              Expanded(child: const Center(child: CircularProgressIndicator())),
+
+              ApiStatus.completed =>
+                  Expanded(
+                    child: RefreshIndicator(
+                      onRefresh: provider.getAllBookings,
+                      child:provider.homeModel.data?.data==null ||provider.homeModel.data!.data!.isEmpty
+                          ? Center(
+                        child: Text(
+                          "No ${provider.tabs[provider.selectedTab].toLowerCase()} bookings",
+                          style:  TextStyle(
+                            fontSize: 14,
+                            color: AppColors.grey,
+                          ),
+                        ),
+                      )
+                          : ListView.builder(
+                        padding:  EdgeInsets.symmetric(horizontal: 16),
+                        itemCount: provider.homeModel.data!.data!.length,
+                        itemBuilder: (context, index) {
+                          final booking = provider.homeModel.data!.data![index];
+                          return _BookingCard(
+                            booking: booking,
+                            onTap: () {
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (_) => VendorBookingDetailsScreen( bookingId: booking.id.toString(),),
+                                ),
+                              );
+                            },
+                          );
+                        },
+                      ),
                     ),
                   ),
-                )
-                    : ListView.builder(
-                  padding:  EdgeInsets.symmetric(horizontal: 16),
-                  itemCount: provider.filteredBookings.length,
-                  itemBuilder: (context, index) {
-                    final booking = provider.filteredBookings[index];
-                    return _BookingCard(
-                      booking: booking,
-                      onTap: () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (_) => BookingDetailsScreen(
-                              bookingData: {
-                                'id': booking.id,
-                                'name': booking.name,
-                                'service': booking.service,
-                                'date': booking.date,
-                                'time': booking.time,
-                                'address': booking.address,
-                                'price': booking.price,
-                                'status': booking.status,
-                                'phone': booking.phone,
-                                'email': booking.email,
-                                'paymentMethod': booking.paymentMethod,
-                                'serviceFee': booking.serviceFee,
-                                'imageUrl': booking.imageUrl,
-                              },
-                              tabIndex: provider.selectedTab,
-                            ),
-                          ),
-                        );
-                      },
-                    );
-                  },
-                ),
-              ),
-            ),
+
+              ApiStatus.error =>
+              Expanded(child: const Center(child: Text('Something went wrong'))),
+
+              _ =>
+              const SizedBox.shrink(),
+            },
           ],
         ),
       ),
@@ -135,7 +135,7 @@ class _MyBookingsContent extends StatelessWidget {
 // ==================== WIDGET: BOOKING CARD ====================
 
 class _BookingCard extends StatelessWidget {
-  final BookingModel booking;
+  final AllBookingsModelData booking;
   final VoidCallback onTap;
 
    const _BookingCard({
@@ -177,7 +177,7 @@ class _BookingCard extends StatelessWidget {
                   ),
                   child:  CircleAvatar(
                     radius: 18,
-                    backgroundImage: NetworkImage("https://i.pravatar.cc/150"),
+                    backgroundImage: NetworkImage('${AppUrls.imageBaseUrl}${booking.user?.proImg??''}'),
                   ),
                 ),
                  SizedBox(width: 10),
@@ -186,7 +186,7 @@ class _BookingCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        booking.name,
+                        booking.user?.firstName??'',
                         style:  TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
@@ -194,7 +194,7 @@ class _BookingCard extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        booking.service,
+                        booking.bookingCode??'',
                         style:  TextStyle(
                           fontSize: 12,
                           color: AppColors.grey,
@@ -205,7 +205,7 @@ class _BookingCard extends StatelessWidget {
                     ],
                   ),
                 ),
-                _StatusChip(status: booking.status),
+                _StatusChip(status: booking.status??''),
               ],
             ),
 
@@ -219,12 +219,12 @@ class _BookingCard extends StatelessWidget {
                   children: [
                     _InfoRowInline(
                       icon: Icons.calendar_today,
-                      text: booking.date,
+                      text: Get.getFormattedDate(booking.serviceDate??''),
                     ),
                      SizedBox(width: 14),
                     _InfoRowInline(
                       icon: Icons.access_time,
-                      text: booking.time,
+                      text: '${booking.serviceTime?.from??''} - ${booking.serviceTime?.to??''}',
                     ),
                   ],
                 ),
@@ -233,7 +233,7 @@ class _BookingCard extends StatelessWidget {
                 /// LOCATION
                 _InfoRowFull(
                   icon: Icons.location_on,
-                  text: booking.address,
+                  text: booking.address?.fullAddress??"",
                 ),
               ],
             ),
@@ -243,7 +243,7 @@ class _BookingCard extends StatelessWidget {
              SizedBox(height: 8),
 
             Text(
-              "\$${booking.price.toStringAsFixed(2)}",
+              "\$${booking.total??''}",
               style:  AppFontStyle.text_16_500(AppColors.primary, fontFamily: AppFontFamily.medium),
             ),
           ],
@@ -312,7 +312,12 @@ class _StatusChip extends StatelessWidget {
     Color textColor;
 
     switch (status) {
-      case "in_progress":
+      case "pending":
+        bg = AppColors.orange.withValues(alpha: 0.15);
+        text = "Pending";
+        textColor = AppColors.orange;
+        break;
+      case "ongoing":
         bg = AppColors.orange.withValues(alpha: 0.15);
         text = "In Progress";
         textColor = AppColors.orange;
@@ -330,6 +335,11 @@ class _StatusChip extends StatelessWidget {
       case "cancelled":
         bg = AppColors.red.withValues(alpha: 0.15);
         text = "Cancelled";
+        textColor = AppColors.red;
+        break;
+      case "rejected":
+        bg = AppColors.red.withValues(alpha: 0.15);
+        text = "Rejected";
         textColor = AppColors.red;
         break;
       default:

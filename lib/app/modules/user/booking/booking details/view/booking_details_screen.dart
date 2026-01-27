@@ -3,7 +3,7 @@ import '../../../../../shared/widgets/custom_app_bar.dart';
 
 class BookingDetailsScreen extends StatelessWidget {
   final Map<String, dynamic> bookingData;
-  final int tabIndex; // 0=All, 1=Ongoing, 2=Upcoming, 3=Completed, 4=Canceled
+  final int tabIndex;
 
   const BookingDetailsScreen({
     super.key,

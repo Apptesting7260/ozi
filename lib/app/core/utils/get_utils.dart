@@ -88,6 +88,19 @@ class Get {
       return "";
     }
   }
+  static String getFormattedDate2(String dateTimeString) {
+    try {
+      final dateTime = DateTime.parse(dateTimeString).toLocal();
+
+      final outputFormat = DateFormat('MMMM dd, yyyy');
+
+      return outputFormat.format(dateTime);
+    } catch (e) {
+      return "";
+    }
+  }
+
+
   static String getFormattedFullDate(String dateTimeString) {
     try {
       final dateTime = DateTime.parse(dateTimeString).toLocal();
