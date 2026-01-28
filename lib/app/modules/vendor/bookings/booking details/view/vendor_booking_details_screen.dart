@@ -4,6 +4,7 @@
 
 import 'package:ozi/app/core/constants/app_urls.dart';
 import 'package:ozi/app/data/models/booking_detail_model.dart';
+import 'package:pin_code_fields/pin_code_fields.dart';
 
 import '../../../../../core/appExports/app_export.dart';
 import '../../../../../data/response/api_status.dart';
@@ -62,14 +63,122 @@ class VendorBookingDetailsScreen extends StatelessWidget {
                                 ),
                                 hBox(20),
                                 _bookingDetailsSection(
-                                  address: provider.homeModel.data?.data?.bookingCode??'',
+                                  address: provider.homeModel.data?.data?.address?.fullAddress??'',
                                   date: Get.getFormattedDate2(provider.homeModel.data?.data?.serviceDate??''),
                                   time:provider.homeModel.data?.data?.serviceTime?.from??''
                                 ),
                                 hBox(20),
+                                SizedBox(
+                                width: double.infinity,
+                                height: 46,
+                                child: OutlinedButton(
+                                  onPressed: provider.navigateToCustomer,
+                                  style: OutlinedButton.styleFrom(
+                                    side: const BorderSide(color: Color(0x1A13AC6F)),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(30),
+                                    ),
+                                    backgroundColor: Color(0x1A13AC6F)
+                                  ),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      CustomImage(path: ImageConstants.navigationIcon),
+                                      wBox(10),
+                                      const Text(
+                                        "Navigate to Customer",
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w500,
+                                          color: Color(0xFF13AC6F),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+
+                                hBox(20),
                                 _paymentMethod(),
                                 hBox(20),
-                                _paymentSummary(),
+                                _paymentSummary(
+                                  serviceFee:provider.homeModel.data?.data?.serviceFee??'' ,
+                                  subTotal: provider.homeModel.data?.data?.subtotal??'',
+                                  total: provider.homeModel.data?.data?.total??''
+                                ),
+                                if(provider.homeModel.data?.data?.status=='confirmed'&&provider.isOpenOtpBox)...[
+                                  hBox(20),
+                                  Text(
+                                    'Ask the customer for the 4-digit OTP to start the job.',
+                                    style: TextStyle(color: Colors.grey),
+                                  ),
+                                  hBox(20),
+                                  Padding(
+                                    padding: const EdgeInsets.only(right: 40,left: 40),
+                                    child: PinCodeTextField(
+                                      appContext: context,
+                                      controller: provider.pinController,
+                                      autoDisposeControllers: false,
+                                      length: 4,
+                                      keyboardType: TextInputType.number,
+                                      animationType: AnimationType.fade,
+                                      enableActiveFill: true,
+                                      pinTheme: PinTheme(
+                                        shape: PinCodeFieldShape.circle,
+                                        borderRadius: BorderRadius.all(Radius.circular(12)),
+                                        fieldHeight: 55,
+                                        fieldWidth: 55,
+                                        inactiveColor: Colors.transparent,
+                                        selectedColor: Colors.transparent,
+                                        activeColor: Colors.transparent,
+                                        inactiveFillColor: AppColors.lightGrey,
+                                        selectedFillColor: AppColors.lightGrey,
+                                        activeFillColor: AppColors.lightGrey,
+                                        borderWidth: 0,
+                                      ),
+                                      onChanged: (value) {
+                                        provider.updateErrorMessage(null);
+                                      },
+                                    ),
+                                  )
+                                ],
+                                if (provider.errorMessage != null) ...[
+                                  hBox(8),
+                                  Text(
+                                    provider.errorMessage!,
+                                    style: AppFontStyle.text_14_400(Colors.red),
+                                  ),
+                                  hBox(20),
+                                ],
+                                if(provider.homeModel.data?.data?.status=='confirmed')
+                                CustomButton(
+                                    isLoading: provider.otpVerifyLoading,
+                                    text:provider.homeModel.data?.data?.status=='confirmed'&&provider.isOpenOtpBox?'Verify & Start Job': 'Start Job',
+                                    onPressed: (){
+                                      if(provider.homeModel.data?.data?.status=='confirmed'&&provider.isOpenOtpBox){
+                                         provider.verifyOtp(bookingId);
+                                      }else{
+                                        provider.updateIsOpenOtpBox(true);
+                                      }
+                                      // showModalBottomSheet(
+                                      //   context: context,
+                                      //   isScrollControlled: true, // Allow the bottom sheet to resize
+                                      //   builder: (BuildContext context) {
+                                      //     return SingleChildScrollView(
+                                      //       child: OTPBottomSheet(),
+                                      //     );
+                                      //   },
+                                      // );
+                                    }),
+
+                                if(provider.homeModel.data?.data?.status=='ongoing')
+                                  CustomButton(
+                                      isLoading: provider.completeJobLoading,
+                                      text: 'Complete Job',
+                                      onPressed: (){
+                                        provider.completeTheJob(bookingId);
+                                      }
+                                  ),
 
                                 if (tabIndex == 2)
                                   hBox(100)
@@ -589,7 +698,7 @@ class VendorBookingDetailsScreen extends StatelessWidget {
     );
   }
 
-  Widget _paymentSummary() {
+  Widget _paymentSummary({required String subTotal,required String serviceFee,required String total}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -607,13 +716,13 @@ class VendorBookingDetailsScreen extends StatelessWidget {
           // ),
           child: Column(
             children: [
-              _summaryRow("Subtotal", "\$168.26"),
+              _summaryRow("Subtotal", "\$${subTotal}"),
               hBox(12),
-              _summaryRow("Service Fee", "\$5.00"),
+              _summaryRow("Service Fee", "\$${serviceFee}"),
               hBox(16),
               Divider(color: AppColors.black.withValues(alpha: 0.10), thickness: 2,),
               hBox(12),
-              _summaryRow("Total", "\$173.26", isTotal: true),
+              _summaryRow("Total", "\$${total}", isTotal: true),
             ],
           ),
         ),
@@ -761,6 +870,72 @@ class _StatusChip extends StatelessWidget {
             text,
             style: AppFontStyle.text_14_600(textColor, fontFamily: AppFontFamily.medium)
         ),
+      ),
+    );
+  }
+}
+
+class OTPBottomSheet extends StatelessWidget {
+  final TextEditingController otpController = TextEditingController();
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            'Verify OTP',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
+          SizedBox(height: 8),
+          Text(
+            'Ask the customer for the 4-digit OTP to start the job.',
+            style: TextStyle(color: Colors.grey),
+          ),
+          SizedBox(height: 16),
+          // OTP input field using PinCodeTextField
+          PinCodeTextField(
+            length: 4,
+            controller: otpController,
+            keyboardType: TextInputType.number,
+            pinTheme: PinTheme(
+              shape: PinCodeFieldShape.box,
+              borderRadius: BorderRadius.circular(8),
+              fieldHeight: 60,
+              fieldWidth: 60,
+              activeFillColor: Colors.white,
+              inactiveFillColor: Colors.white,
+              activeColor: Colors.green,
+              inactiveColor: Colors.grey,
+              selectedColor: Colors.blue,
+              selectedFillColor: Colors.white,
+            ),
+            onCompleted: (pin) {
+              print("OTP: $pin");
+            },
+            onChanged: (value) {
+              print(value);
+            },
+            appContext: context,
+          ),
+          SizedBox(height: 24),
+          ElevatedButton(
+            onPressed: () {
+              // Handle OTP verification and job start logic here
+              print("OTP: ${otpController.text}");
+              Navigator.pop(context);
+            },
+            child: Text('Verify & Start Job'),
+            style: ElevatedButton.styleFrom(
+              minimumSize: Size(double.infinity, 50),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

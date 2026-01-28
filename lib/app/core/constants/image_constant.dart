@@ -103,6 +103,7 @@ class ImageConstants{
   static String serviceFill = "$svgPath/service_fill.svg";
   static String walletFill = "$svgPath/wallet_fill.svg";
   static String supportFill = "$svgPath/supportfill.svg";
+  static String navigationIcon = "$svgPath/navigation_icon.svg";
 
 
 }
