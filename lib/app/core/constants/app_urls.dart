@@ -22,7 +22,8 @@ class AppUrls {
   static const String addUserAddress = "$baseUrl/store-user-address";
   static const String updateUserAddress = "$baseUrl/update-user-address";
   static const String deleteUserAddress = "$baseUrl/delete-user-address";
-
+  static const String schedule_service = "$baseUrl/booking-vendor-availability";
+  static const String bookService = "$baseUrl/book-services";
 
 
   // Vendor APIs

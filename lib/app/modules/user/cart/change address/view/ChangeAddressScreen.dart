@@ -1,183 +1,317 @@
+import 'package:ozi/app/modules/user/profile/add%20new%20address/view/add_address_screen.dart';
+import 'package:ozi/app/modules/vendor/profile/add%20new%20address/view/AddAddressScreen.dart';
+import 'package:ozi/app/routes/app_routes.dart';
+import 'package:ozi/app/shared/widgets/custom_shimmer_box.dart';
+
 import '../../../../../core/appExports/app_export.dart';
 import '../../../../../shared/widgets/custom_app_bar.dart';
 import '../../../../../shared/widgets/custom_radio_button.dart';
 import '../provider/ChangeAddressProvider.dart';
 
-class ChangeAddressScreen extends StatelessWidget {
+class ChangeAddressScreen extends StatefulWidget {
   const ChangeAddressScreen({super.key});
 
   @override
+  State<ChangeAddressScreen> createState() => _ChangeAddressScreenState();
+}
+
+class _ChangeAddressScreenState extends State<ChangeAddressScreen> {
+  ChangeAddressProvider provider = ChangeAddressProvider();
+  @override
+  void initState() {
+    super.initState();
+    provider.fetchUserAddresses();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (_) => ChangeAddressProvider(),
-      child: Scaffold(
-        backgroundColor: AppColors.white,
-        body: Column(
-          children: [
-            CustomAppBar(title: "Change Address"),
+    // final provider = context.watch<ChangeAddressProvider>();
 
-            Expanded(
-              child: Consumer<ChangeAddressProvider>(
-                builder: (context, provider, _) {
-                  return ListView(
-                    padding: REdgeInsets.symmetric(horizontal: 16),
-                    children: [
-                      ...List.generate(provider.addresses.length, (index) {
-                        final data = provider.addresses[index];
-                        final isSelected = provider.selectedIndex == index;
-
-                        return GestureDetector(
-                          onTap: () => provider.selectCard(index),
-                          child: Container(
-                            margin: const EdgeInsets.only(bottom: 12),
-                            padding: EdgeInsets.all(16),
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(12),
-                              border: Border.all(
-                                color: isSelected
-                                    ? AppColors.primary
-                                    : AppColors.containerBorder,
-                              ),
-                              color: isSelected
-                                  ? AppColors.primary.withValues(alpha: 0.08)
-                                  : AppColors.white,
-                            ),
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
+    return Scaffold(
+      body: SafeArea(
+        child: ChangeNotifierProvider(
+          create: (_) => provider..fetchUserAddresses(),
+          child: Consumer<ChangeAddressProvider>(
+            builder: (context, value, child) {
+              return Column(
+                children: [
+                  CustomAppBar(title: "Saved Addresses"),
+                  Expanded(
+                    child: RefreshIndicator(
+                      onRefresh: () async {
+                        await provider.fetchUserAddresses();
+                      },
+                      child: provider.isLoading
+                          ? ListView(
+                              padding: const EdgeInsets.all(16),
                               children: [
-                                _leftIcon(data.title),
-
-                                wBox(12),
-
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Row(
-                                        children: [
-                                          Text(
-                                            data.title,
-                                            style: AppFontStyle.text_16_700(
-                                              AppColors.black,
-                                            ),
-                                          ),
-
-                                          if (data.label != null) ...[
-                                            SizedBox(width: 6),
-                                            Container(
-                                              padding: EdgeInsets.symmetric(
-                                                horizontal: 8,
-                                                vertical: 2,
-                                              ),
-                                              decoration: BoxDecoration(
-                                                color: AppColors.primary
-                                                    .withOpacity(0.1),
-                                                borderRadius:
-                                                    BorderRadius.circular(6),
-                                              ),
-                                              child: Text(
-                                                data.label!,
-                                                style: AppFontStyle.text_10_600(
-                                                  AppColors.primary,
-                                                ),
-                                              ),
-                                            ),
-                                          ],
-                                        ],
-                                      ),
-
-                                      hBox(4),
-
-                                      Text(
-                                        data.address,
-                                        maxLines: 3,
-                                        overflow: TextOverflow.ellipsis,
-                                        style: AppFontStyle.text_13_400(
-                                          AppColors.grey,
-                                        ),
-                                      ),
-                                    ],
+                                ...List.generate(
+                                  3,
+                                  (_) => Padding(
+                                    padding: const EdgeInsets.only(bottom: 16),
+                                    child: ShimmerBox(
+                                      width: double.infinity,
+                                      height: 90,
+                                      radius: 14,
+                                    ),
                                   ),
                                 ),
+                              ],
+                            )
+                          : provider.errorMessage.isNotEmpty &&
+                                provider.addresses.isEmpty
+                          ? Center(
+                              child: Padding(
+                                padding: const EdgeInsets.all(20),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(
+                                      Icons.location_off_outlined,
+                                      size: 60,
+                                      color: AppColors.grey,
+                                    ),
+                                    SizedBox(height: 16),
+                                    Text(
+                                      provider.errorMessage,
+                                      style: AppFontStyle.text_14_400(
+                                        AppColors.grey,
+                                      ),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                    SizedBox(height: 16),
+                                    CustomButton(
+                                      text: "Retry",
+                                      onPressed: () {
+                                        provider.fetchUserAddresses();
+                                      },
+                                      borderRadius: BorderRadius.circular(30),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            )
+                          : provider.addresses.isEmpty
+                          ? Center(
+                              child: Padding(
+                                padding: const EdgeInsets.all(20),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(
+                                      Icons.location_off_outlined,
+                                      size: 60,
+                                      color: AppColors.grey,
+                                    ),
+                                    SizedBox(height: 16),
+                                    Text(
+                                      'No saved addresses',
+                                      style: AppFontStyle.text_16_600(
+                                        AppColors.black,
+                                      ),
+                                    ),
+                                    SizedBox(height: 8),
+                                    Text(
+                                      'Add your first address to get started',
+                                      style: AppFontStyle.text_14_400(
+                                        AppColors.grey,
+                                      ),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                    SizedBox(height: 20),
+                                    CustomButton(
+                                      text: "+ Add New Address",
+                                      onPressed: () async {
+                                        final result = await Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) =>
+                                                AddAddressScreen(),
+                                          ),
+                                        );
+                                        if (result == true) {
+                                          provider.fetchUserAddresses();
+                                        }
+                                      },
+                                      borderRadius: BorderRadius.circular(30),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            )
+                          : ListView(
+                              padding: REdgeInsets.all(16),
+                              children: [
+                                ...List.generate(provider.addresses.length, (
+                                  index,
+                                ) {
+                                  final address = provider.addresses[index];
+                                  return _addressTile(
+                                    provider: provider,
+                                    index: index,
+                                    selected: provider.selectedIndex == index,
+                                    title: address.addressType ?? 'Other',
+                                    tag: address.isDefault == 1
+                                        ? 'Default'
+                                        : null,
+                                    icon: provider.getIconForAddressType(
+                                      address.addressType,
+                                    ),
+                                    address: provider.getFormattedAddress(
+                                      address,
+                                    ),
+                                    onTap: () {
+                                      provider.selectAddress(index);
+                                      Navigator.pop(context, provider.selectedIndex);
+                                    },
+                                    // onEdit: () {
+                                    //   // Set the address to edit
+                                    //   provider.setEditingAddress(address);
 
-                                SizedBox(width: 12),
-
-                                CustomRadioButton(
-                                  value: isSelected,
-                                  onChanged: (_) => provider.selectCard(index),
+                                    //   // Navigate to edit screen
+                                    //   Navigator.pushNamed(
+                                    //     context,
+                                    //     AppRoutes.editAddressScreen,
+                                    //   ).then((_) {
+                                    //     // Refresh addresses when coming back
+                                    //     provider.fetchUserAddresses();
+                                    //   });
+                                    // },
+                                    // onDelete: () {
+                                    //   provider.deleteAddress(index, context);
+                                    // },
+                                  );
+                                }),
+                                SizedBox(height: 8),
+                                CustomButton(
+                                  text: "+ Add New Address",
+                                  isOutlined: true,
+                                  onPressed: () async {
+                                    print("click o uegfuwegfw");
+                                    final result = await Navigator.pushNamed(
+                                      context,
+                                      AppRoutes.addAddressScreen,
+                                    );
+                                    if (result == true) {
+                                      print('in this resukt');
+                                      provider.fetchUserAddresses();
+                                    }
+                                  },
+                                  height: 56,
+                                  borderRadius: BorderRadius.circular(60),
                                 ),
                               ],
                             ),
-                          ),
-                        );
-                      }),
-
-                      CustomButton(
-                        onPressed: () {},
-                        isOutlined: true,
-                        color: AppColors.primary,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(Icons.add, size: 20, color:AppColors.primary),
-                            wBox(1),
-                            Text(
-                              'Add New Service',
-                              style: AppFontStyle.text_14_600(
-                                AppColors.primary,
-                                fontFamily: AppFontFamily.bold,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-
-
-                      hBox(30),
-                    ],
-                  );
-                },
-              ),
-            ),
-
-            Padding(
-              padding: REdgeInsets.all(16),
-              child: CustomButton(
-                text: "Continue",
-                onPressed: () {},
-                height: 50,
-                borderRadius: BorderRadius.circular(60),
-              ),
-            ),
-          ],
+                    ),
+                  ),
+                ],
+              );
+            },
+          ),
         ),
       ),
     );
   }
 
-  Widget _leftIcon(String text) {
-    if (text == "Home") {
-      return _circleIcon(ImageConstants.home2);
-    } else if (text == "Work") {
-      return _circleIcon(ImageConstants.work);
-    } else if (text == "Other") {
-      return _circleIcon(ImageConstants.location);
-    } else {
-      return CustomImage(path: ImageConstants.appLogo);
-    }
-  }
+  Widget _addressTile({
+    required ChangeAddressProvider provider,
+    required int index,
+    required bool selected,
+    required String title,
+    required String address,
+    required String icon,
+    String? tag,
+    required VoidCallback onTap,
+    // required VoidCallback onEdit,
+    // required VoidCallback onDelete,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: EdgeInsets.all(16),
+        margin: EdgeInsets.only(bottom: 12),
+        decoration: BoxDecoration(
+          color: selected
+              ? AppColors.primary.withOpacity(.08)
+              : AppColors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: selected ? AppColors.primary : AppColors.containerBorder,
+            width: selected ? 1.5 : 1,
+          ),
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            /// ICON CONTAINER
+            Container(
+              height: 44,
+              width: 44,
+              decoration: BoxDecoration(
+                color: selected
+                    ? AppColors.primary
+                    : AppColors.primary.withOpacity(.20),
+                borderRadius: BorderRadius.circular(30),
+              ),
+              padding: EdgeInsets.all(12),
+              child: CustomImage(
+                path: icon,
+                color: selected ? AppColors.white : AppColors.primary,
+              ),
+            ),
 
-  Widget _circleIcon(String imagePath) {
-    return Container(
-      height: 40,
-      width: 40,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: AppColors.primary.withValues(alpha: 0.3),
+            SizedBox(width: 14),
+
+            /// TITLE + ADDRESS
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Text(
+                        title,
+                        style: AppFontStyle.text_16_600(AppColors.black),
+                      ),
+                      if (tag != null)
+                        Padding(
+                          padding: const EdgeInsets.only(left: 8),
+                          child: Text(
+                            tag,
+                            style: AppFontStyle.text_12_500(AppColors.primary),
+                          ),
+                        ),
+                    ],
+                  ),
+                  SizedBox(height: 6),
+                  Text(
+                    address.isNotEmpty ? address : 'No address details',
+                    style: AppFontStyle.text_13_400(AppColors.grey),
+                    maxLines: 2,
+                  ),
+                ],
+              ),
+            ),
+
+            SizedBox(width: 12),
+
+            /// ICONS
+            // Row(
+            //   children: [
+            //     GestureDetector(
+            //       onTap: onEdit,
+            //       child: CustomImage(path: ImageConstants.edit),
+            //     ),
+            //     SizedBox(width: 16),
+            //     GestureDetector(
+            //       onTap: onDelete,
+            //       child: CustomImage(path: ImageConstants.bin),
+            //     ),
+            //   ],
+            // ),
+          ],
+        ),
       ),
-      padding: const EdgeInsets.all(10),
-      child: CustomImage(path: imagePath, color: AppColors.primary),
     );
   }
 }

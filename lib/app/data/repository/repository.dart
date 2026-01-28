@@ -1,5 +1,5 @@
-
 import 'dart:developer' as dev;
+import 'package:ozi/app/modules/user/cart/schedule_service/Model/bookservicemodel.dart';
 import 'package:ozi/app/modules/user/home/model/category_model.dart';
 import 'package:ozi/app/modules/user/home/service%20details/model/ServiceDetailsModel.dart';
 import 'package:ozi/app/modules/user/profile/view/model/logout_model.dart';
@@ -22,8 +22,6 @@ import '../storage/user_preference.dart';
 class Repository {
   final _apiService = NetworkApiServices();
 
-
-
   //**************************************************** Login API *****************************************************************//
   Future<LoginModel> userLoginApi(Map<String, dynamic> data) async {
     try {
@@ -37,7 +35,7 @@ class Repository {
     }
   }
 
-//   //************************************************** Verification API **************************************************//
+  //   //************************************************** Verification API **************************************************//
   Future<verifyOtp> verificationUser(Map<String, dynamic> data) async {
     try {
       dynamic response = await _apiService.postApiWithoutToken(
@@ -63,13 +61,11 @@ class Repository {
     }
   }
 
-// ********************************** Category Api ****************************//
+  // ********************************** Category Api ****************************//
 
   Future<CategoryModel> homePageCategoryApi(Map<String, dynamic> data) async {
     try {
-      dynamic response = await _apiService.getApi(
-        AppUrls.getHomeCategories,
-      );
+      dynamic response = await _apiService.getApi(AppUrls.getHomeCategories);
       return CategoryModel.fromJson(response);
     } catch (e) {
       throw Exception(e);
@@ -80,10 +76,7 @@ class Repository {
 
   Future<LogoutModel> logoutApi() async {
     try {
-      dynamic response = await _apiService.postApi(
-        {},
-        AppUrls.logout,
-      );
+      dynamic response = await _apiService.postApi({}, AppUrls.logout);
       return LogoutModel.fromJson(response);
     } catch (e) {
       throw Exception(e);
@@ -91,16 +84,17 @@ class Repository {
   }
 
   // *********************************** ServiceDetails Api ***************************************//
-  Future<ServiceDetailsModel> serviceDetailsApi(int categoryId, int subcategoryId) async {
+  Future<ServiceDetailsModel> serviceDetailsApi(
+    int categoryId,
+    int subcategoryId,
+  ) async {
     try {
-      final url = '${AppUrls.getServiceDetailsApi}?category_id=$categoryId&subcategory_id=$subcategoryId';
+      final url =
+          '${AppUrls.getServiceDetailsApi}?category_id=$categoryId&subcategory_id=$subcategoryId';
 
       dev.log('Service Details API URL: $url');
 
-
-      dynamic response = await _apiService.getApi(
-        url,
-      );
+      dynamic response = await _apiService.getApi(url);
 
       dev.log('Service Details Raw Response: $response');
 
@@ -110,20 +104,14 @@ class Repository {
       throw Exception(e);
     }
   }
+
   // **************************  AddToCart Api **************************//
   Future<AddToCartModel> addToCartApi(Map<String, dynamic> data) async {
-
-
     try {
       print('API Request URL: ${AppUrls.addToCartApi}');
       print('API Request Data: $data');
 
-
-
-      dynamic response = await _apiService.postApi(
-        data,
-        AppUrls.addToCartApi,
-      );
+      dynamic response = await _apiService.postApi(data, AppUrls.addToCartApi);
 
       print('API Response: $response');
       print('API Response Type: ${response.runtimeType}');
@@ -135,14 +123,13 @@ class Repository {
       rethrow;
     }
   }
+
   // **************************  Get Cart Items Api **************************//
   Future<CartItemsModel> getCartItemsApi() async {
     try {
       print('API Request URL: ${AppUrls.getCartItemsApi}');
 
-      dynamic response = await _apiService.getApi(
-        AppUrls.getCartItemsApi,
-      );
+      dynamic response = await _apiService.getApi(AppUrls.getCartItemsApi);
       print('API Response: $response');
       return CartItemsModel.fromJson(response);
     } catch (e) {
@@ -150,6 +137,7 @@ class Repository {
       rethrow;
     }
   }
+
   // **************************  Remove Cart Item Api **************************//
   Future<dynamic> removeCartItemApi(int cartId) async {
     try {
@@ -157,12 +145,7 @@ class Repository {
 
       dev.log('Remove Cart Item API URL: $url');
 
-
-
-      dynamic response = await _apiService.postApi(
-        {},
-        url,
-      );
+      dynamic response = await _apiService.postApi({}, url);
 
       dev.log('Remove Cart Item Raw Response: $response');
 
@@ -172,20 +155,15 @@ class Repository {
       throw Exception(e);
     }
   }
+
   //********************************* increaseCartQuantity Api ********************************//
   Future<IncreaseCartQuantityModel> increaseCartItemApi(int cartId) async {
-
     try {
       final url = '${AppUrls.increaseCartQuantity}?cart_id=$cartId';
 
       dev.log('Increase Cart Item API URL: $url');
 
-
-
-      dynamic response = await _apiService.postApi(
-        {},
-        url
-      );
+      dynamic response = await _apiService.postApi({}, url);
 
       dev.log('Increase Cart Item Raw Response: $response');
 
@@ -195,20 +173,15 @@ class Repository {
       throw Exception(e);
     }
   }
- //********************************* decreaseCartQuantity Api ********************************//
-  Future<DecreaseCartQuantityModel> decreaseCartItemApi(int cartId) async {
 
+  //********************************* decreaseCartQuantity Api ********************************//
+  Future<DecreaseCartQuantityModel> decreaseCartItemApi(int cartId) async {
     try {
       final url = '${AppUrls.decreaseCartQuantity}?cart_id=$cartId';
 
       dev.log('Decrease Cart Item API URL: $url');
 
-
-
-      dynamic response = await _apiService.postApi(
-        {},
-        url
-      );
+      dynamic response = await _apiService.postApi({}, url);
 
       dev.log('Decrease Cart Item Raw Response: $response');
 
@@ -221,13 +194,8 @@ class Repository {
 
   // ********************************************* GetProfile Api ***********************************************//
   Future<dynamic> getProfileApi() async {
-
-
-
     try {
-      dynamic response = await _apiService.getApi(
-        AppUrls.getUserProfile,
-      );
+      dynamic response = await _apiService.getApi(AppUrls.getUserProfile);
       print('Profile API Response: $response');
       return response;
     } catch (e) {
@@ -238,10 +206,9 @@ class Repository {
 
   // ********************************************* UpdateProfile Api ***********************************************//
   Future<UpdateProfileModel> updateProfileApi(
-      Map<String, String> fields,
-      File? image,
-      ) async {
-
+    Map<String, String> fields,
+    File? image,
+  ) async {
     Map<String, File> fileMap = {};
 
     if (image != null) {
@@ -255,12 +222,10 @@ class Repository {
     return UpdateProfileModel.fromJson(response);
   }
 
-// ********************************************* getUserAddress Api ***********************************************//
+  // ********************************************* getUserAddress Api ***********************************************//
   Future<dynamic> getUserAddressApi() async {
     try {
-      dynamic response = await _apiService.getApi(
-        AppUrls.getUserAddress,
-      );
+      dynamic response = await _apiService.getApi(AppUrls.getUserAddress);
       return response;
     } catch (e) {
       throw Exception(e);
@@ -269,18 +234,13 @@ class Repository {
 
   // ********************************************* AddNewUserAddress Api ***********************************************//
   Future<dynamic> addNewUserAddressApi(Map<String, dynamic> data) async {
-
     try {
       dev.log("Add New User Address API URL: ${AppUrls.addUserAddress}");
       dev.log("Request Data: $data");
 
-      final response = await _apiService.postApi(
-        data,
-        AppUrls.addUserAddress,
-      );
+      final response = await _apiService.postApi(data, AppUrls.addUserAddress);
 
       return response;
-
     } catch (e) {
       dev.log("Error in addNewUserAddressApi: $e");
       throw Exception(e);
@@ -289,31 +249,32 @@ class Repository {
 
   // ********************************************* deleteUserAddress Api ***********************************************//
   Future<DeleteAddressModel> deleteUserAddressApi(int addressId) async {
-
     try {
       dev.log("Delete User Address API URL: ${AppUrls.deleteUserAddress}");
       dev.log("Address ID: $addressId");
 
       // Use DELETE method with correct parameter name
       final response = await _apiService.deleteApi(
-        {"address_id": addressId},  // Changed from "id" to "address_id"
+        {"address_id": addressId}, // Changed from "id" to "address_id"
         AppUrls.deleteUserAddress,
       );
 
       return DeleteAddressModel.fromJson(response);
-
     } catch (e) {
       dev.log("Error in deleteUserAddressApi: $e");
       throw Exception(e);
     }
   }
 
-
   // ********************************************* editUserAddress Api ***********************************************//
-  Future<EditAddressModel> editUserAddressApi(int addressId, Map<String, dynamic> data) async {
-
+  Future<EditAddressModel> editUserAddressApi(
+    int addressId,
+    Map<String, dynamic> data,
+  ) async {
     try {
-      dev.log("Edit User Address API URL: ${AppUrls.updateUserAddress}/$addressId");
+      dev.log(
+        "Edit User Address API URL: ${AppUrls.updateUserAddress}/$addressId",
+      );
       dev.log("Request Data: $data");
 
       // Use PUT method and append addressId to URL
@@ -323,9 +284,24 @@ class Repository {
       );
 
       return EditAddressModel.fromJson(response);
-
     } catch (e) {
       dev.log("Error in editUserAddressApi: $e");
       throw Exception(e);
     }
-  }}
+  }
+
+  // ********************************************* editUserAddress Api ***********************************************//
+  Future<BookServiceModel> scheduleServiceApi() async {
+    try {
+      dev.log("scheduleServiceApi API URL: ${AppUrls.schedule_service}");
+
+      // Use PUT method and append addressId to URL
+      final response = await _apiService.getApi(AppUrls.schedule_service);
+
+      return BookServiceModel.fromJson(response);
+    } catch (e) {
+      dev.log("Error in scheduleServiceApi: $e");
+      throw Exception(e);
+    }
+  }
+}
