@@ -140,12 +140,34 @@ class ProfileScreenView extends StatelessWidget {
                           ),
                         ),
                       ),
+                       if(profileProvider.userProfile?.data?.userRole=='vendor')
+                      _profileTile(
+                        icon: ImageConstants.calendor,
+                        title: "Availability",
+                        onTap: () => Navigator.pushNamed(context, AppRoutes.editProfileScreen),
+                      ),
+
+                      if(profileProvider.userProfile?.data?.userRole=='vendor')
+                      _profileTile(
+                        icon: ImageConstants.document,
+                        title: "Documents",
+                        onTap: () => Navigator.pushNamed(context, AppRoutes.savedAddressScreen),
+                      ),
+
+                      if(profileProvider.userProfile?.data?.userRole=='vendor')
+                      _profileTile(
+                        icon: ImageConstants.help,
+                        title: "Help & Support",
+                        onTap: () => Navigator.pushNamed(context, AppRoutes.helpSupportScreen),
+                      ),
+                      if(profileProvider.userProfile?.data?.userRole=='user')
                         _profileTile(
                         icon: ImageConstants.location,
                         title: "Saved Addresses",
                         onTap: () => Navigator.pushNamed(
                             context, AppRoutes.savedAddressScreen),
                       ),
+                      if(profileProvider.userProfile?.data?.userRole=='user')
                       _profileTile(
                         icon: ImageConstants.card,
                         title: "Payment Methods",

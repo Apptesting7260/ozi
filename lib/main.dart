@@ -25,7 +25,7 @@ void main() {
       WebViewPlatform.instance = WebKitWebViewPlatform();
     }
   }
-  ChuckerFlutter.showOnRelease = true;
+  ChuckerFlutter.showOnRelease = false;
 
   runApp(const MyApp());
 }
