@@ -34,6 +34,20 @@ class CustomButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bool isDisabled = onPressed == null && isLoading != true;
+    final Color effectiveColor = isDisabled
+        ? (color?.withOpacity(0.3) ?? AppColors.primaryLight)
+        : (color ?? AppColors.primary);
+    final Color effectiveBorderColor = isDisabled
+        ? (borderColor?.withOpacity(0.1) ?? AppColors.primaryLight)
+        : (borderColor ?? color ?? AppColors.primary);
+    final Color effectiveTextColor = isDisabled
+        ? AppColors.white
+        : (forGroundColor ??
+              (isOutlined
+                  ? AppColors.primary
+                  : (AppColors.containerBorder ?? Colors.white)));
+
     return GestureDetector(
       onTap: isLoading == true ? null : onPressed,
       child: Container(
@@ -41,36 +55,35 @@ class CustomButton extends StatelessWidget {
         height: height ?? 50,
         alignment: Alignment.center,
         decoration: BoxDecoration(
-          color: isOutlined  ? Colors.transparent : color,
-          gradient: isOutlined
+          color: isOutlined ? Colors.transparent : effectiveColor,
+          gradient: isOutlined || isDisabled
               ? null
-              : LinearGradient(colors: [
-            color ?? AppColors.primary,
-            color ?? AppColors.primary,
-          ]),
+              : LinearGradient(colors: [effectiveColor, effectiveColor]),
           borderRadius: borderRadius ?? BorderRadius.circular(60.0.r),
           border: Border.all(
-            color: color ?? AppColors.primary,
+            color: isOutlined
+                ? (borderColor ?? AppColors.primary)
+                : effectiveBorderColor,
             width: 1,
           ),
         ),
-        child: child ??
+        child:
+            child ??
             (isLoading == true
                 ? LoadingAnimationWidget.threeArchedCircle(
-              color: forGroundColor ?? AppColors.white,
-              size: 30,
-            )
+                    color: forGroundColor ?? AppColors.white,
+                    size: 30,
+                  )
                 : Text(
-              text,
-              style: textStyle ??
-                  AppFontStyle.text_14_600(
-                    isOutlined
-                        ? AppColors.primary
-                        : (AppColors.containerBorder ?? Colors.white),
-                    fontFamily: AppFontFamily.semiBold,
-                  ),
-              textAlign: TextAlign.center,
-            )),
+                    text,
+                    style:
+                        textStyle ??
+                        AppFontStyle.text_14_600(
+                          effectiveTextColor,
+                          fontFamily: AppFontFamily.semiBold,
+                        ),
+                    textAlign: TextAlign.center,
+                  )),
       ),
     );
   }

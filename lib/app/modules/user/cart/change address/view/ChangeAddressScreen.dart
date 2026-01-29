@@ -16,198 +16,193 @@ class ChangeAddressScreen extends StatefulWidget {
 }
 
 class _ChangeAddressScreenState extends State<ChangeAddressScreen> {
-  ChangeAddressProvider provider = ChangeAddressProvider();
-  @override
-  void initState() {
-    super.initState();
-    provider.fetchUserAddresses();
-  }
-
   @override
   Widget build(BuildContext context) {
-    // final provider = context.watch<ChangeAddressProvider>();
+    final provider = context.watch<ChangeAddressProvider>();
 
     return Scaffold(
       body: SafeArea(
-        child: ChangeNotifierProvider(
-          create: (_) => provider..fetchUserAddresses(),
-          child: Consumer<ChangeAddressProvider>(
-            builder: (context, value, child) {
-              return Column(
-                children: [
-                  CustomAppBar(title: "Saved Addresses"),
-                  Expanded(
-                    child: RefreshIndicator(
-                      onRefresh: () async {
-                        await provider.fetchUserAddresses();
-                      },
-                      child: provider.isLoading
-                          ? ListView(
-                              padding: const EdgeInsets.all(16),
-                              children: [
-                                ...List.generate(
-                                  3,
-                                  (_) => Padding(
-                                    padding: const EdgeInsets.only(bottom: 16),
-                                    child: ShimmerBox(
-                                      width: double.infinity,
-                                      height: 90,
-                                      radius: 14,
-                                    ),
+        // child: ChangeNotifierProvider(
+        //   create: (_) => provider..fetchUserAddresses(),
+        child: Consumer<ChangeAddressProvider>(
+          builder: (context, value, child) {
+            return Column(
+              children: [
+                CustomAppBar(title: "Saved Addresses"),
+                Expanded(
+                  child: RefreshIndicator(
+                    onRefresh: () async {
+                      await provider.fetchUserAddresses();
+                    },
+                    child: provider.isLoading
+                        ? ListView(
+                            padding: const EdgeInsets.all(16),
+                            children: [
+                              ...List.generate(
+                                3,
+                                (_) => Padding(
+                                  padding: const EdgeInsets.only(bottom: 16),
+                                  child: ShimmerBox(
+                                    width: double.infinity,
+                                    height: 90,
+                                    radius: 14,
                                   ),
                                 ),
-                              ],
-                            )
-                          : provider.errorMessage.isNotEmpty &&
-                                provider.addresses.isEmpty
-                          ? Center(
-                              child: Padding(
-                                padding: const EdgeInsets.all(20),
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Icon(
-                                      Icons.location_off_outlined,
-                                      size: 60,
-                                      color: AppColors.grey,
-                                    ),
-                                    SizedBox(height: 16),
-                                    Text(
-                                      provider.errorMessage,
-                                      style: AppFontStyle.text_14_400(
-                                        AppColors.grey,
-                                      ),
-                                      textAlign: TextAlign.center,
-                                    ),
-                                    SizedBox(height: 16),
-                                    CustomButton(
-                                      text: "Retry",
-                                      onPressed: () {
-                                        provider.fetchUserAddresses();
-                                      },
-                                      borderRadius: BorderRadius.circular(30),
-                                    ),
-                                  ],
-                                ),
                               ),
-                            )
-                          : provider.addresses.isEmpty
-                          ? Center(
-                              child: Padding(
-                                padding: const EdgeInsets.all(20),
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Icon(
-                                      Icons.location_off_outlined,
-                                      size: 60,
-                                      color: AppColors.grey,
+                            ],
+                          )
+                        : provider.errorMessage.isNotEmpty &&
+                              provider.addresses.isEmpty
+                        ? Center(
+                            child: Padding(
+                              padding: const EdgeInsets.all(20),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    Icons.location_off_outlined,
+                                    size: 60,
+                                    color: AppColors.grey,
+                                  ),
+                                  SizedBox(height: 16),
+                                  Text(
+                                    provider.errorMessage,
+                                    style: AppFontStyle.text_14_400(
+                                      AppColors.grey,
                                     ),
-                                    SizedBox(height: 16),
-                                    Text(
-                                      'No saved addresses',
-                                      style: AppFontStyle.text_16_600(
-                                        AppColors.black,
-                                      ),
-                                    ),
-                                    SizedBox(height: 8),
-                                    Text(
-                                      'Add your first address to get started',
-                                      style: AppFontStyle.text_14_400(
-                                        AppColors.grey,
-                                      ),
-                                      textAlign: TextAlign.center,
-                                    ),
-                                    SizedBox(height: 20),
-                                    CustomButton(
-                                      text: "+ Add New Address",
-                                      onPressed: () async {
-                                        final result = await Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (context) =>
-                                                AddAddressScreen(),
-                                          ),
-                                        );
-                                        if (result == true) {
-                                          provider.fetchUserAddresses();
-                                        }
-                                      },
-                                      borderRadius: BorderRadius.circular(30),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            )
-                          : ListView(
-                              padding: REdgeInsets.all(16),
-                              children: [
-                                ...List.generate(provider.addresses.length, (
-                                  index,
-                                ) {
-                                  final address = provider.addresses[index];
-                                  return _addressTile(
-                                    provider: provider,
-                                    index: index,
-                                    selected: provider.selectedIndex == index,
-                                    title: address.addressType ?? 'Other',
-                                    tag: address.isDefault == 1
-                                        ? 'Default'
-                                        : null,
-                                    icon: provider.getIconForAddressType(
-                                      address.addressType,
-                                    ),
-                                    address: provider.getFormattedAddress(
-                                      address,
-                                    ),
-                                    onTap: () {
-                                      provider.selectAddress(index);
-                                      Navigator.pop(context, provider.selectedIndex);
-                                    },
-                                    // onEdit: () {
-                                    //   // Set the address to edit
-                                    //   provider.setEditingAddress(address);
-
-                                    //   // Navigate to edit screen
-                                    //   Navigator.pushNamed(
-                                    //     context,
-                                    //     AppRoutes.editAddressScreen,
-                                    //   ).then((_) {
-                                    //     // Refresh addresses when coming back
-                                    //     provider.fetchUserAddresses();
-                                    //   });
-                                    // },
-                                    // onDelete: () {
-                                    //   provider.deleteAddress(index, context);
-                                    // },
-                                  );
-                                }),
-                                SizedBox(height: 8),
-                                CustomButton(
-                                  text: "+ Add New Address",
-                                  isOutlined: true,
-                                  onPressed: () async {
-                                    print("click o uegfuwegfw");
-                                    final result = await Navigator.pushNamed(
-                                      context,
-                                      AppRoutes.addAddressScreen,
-                                    );
-                                    if (result == true) {
-                                      print('in this resukt');
+                                    textAlign: TextAlign.center,
+                                  ),
+                                  SizedBox(height: 16),
+                                  CustomButton(
+                                    text: "Retry",
+                                    onPressed: () {
                                       provider.fetchUserAddresses();
-                                    }
-                                  },
-                                  height: 56,
-                                  borderRadius: BorderRadius.circular(60),
-                                ),
-                              ],
+                                    },
+                                    borderRadius: BorderRadius.circular(30),
+                                  ),
+                                ],
+                              ),
                             ),
-                    ),
+                          )
+                        : provider.addresses.isEmpty
+                        ? Center(
+                            child: Padding(
+                              padding: const EdgeInsets.all(20),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    Icons.location_off_outlined,
+                                    size: 60,
+                                    color: AppColors.grey,
+                                  ),
+                                  SizedBox(height: 16),
+                                  Text(
+                                    'No saved addresses',
+                                    style: AppFontStyle.text_16_600(
+                                      AppColors.black,
+                                    ),
+                                  ),
+                                  SizedBox(height: 8),
+                                  Text(
+                                    'Add your first address to get started',
+                                    style: AppFontStyle.text_14_400(
+                                      AppColors.grey,
+                                    ),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                  SizedBox(height: 20),
+                                  CustomButton(
+                                    text: "+ Add New Address",
+                                    onPressed: () async {
+                                      final result = await Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) =>
+                                              AddAddressScreen(),
+                                        ),
+                                      );
+                                      if (result == true) {
+                                        provider.fetchUserAddresses();
+                                      }
+                                    },
+                                    borderRadius: BorderRadius.circular(30),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          )
+                        : ListView(
+                            padding: REdgeInsets.all(16),
+                            children: [
+                              ...List.generate(provider.addresses.length, (
+                                index,
+                              ) {
+                                final address = provider.addresses[index];
+                                return _addressTile(
+                                  provider: provider,
+                                  index: index,
+                                  selected: provider.selectedIndex == index,
+                                  title: address.addressType ?? 'Other',
+                                  tag: address.isDefault == 1
+                                      ? 'Default'
+                                      : null,
+                                  icon: provider.getIconForAddressType(
+                                    address.addressType,
+                                  ),
+                                  address: provider.getFormattedAddress(
+                                    address,
+                                  ),
+                                  onTap: () {
+                                    provider.selectAddress(index);
+                                    Navigator.pop(
+                                      context,
+                                      provider.selectedIndex,
+                                    );
+                                  },
+                                  // onEdit: () {
+                                  //   // Set the address to edit
+                                  //   provider.setEditingAddress(address);
+
+                                  //   // Navigate to edit screen
+                                  //   Navigator.pushNamed(
+                                  //     context,
+                                  //     AppRoutes.editAddressScreen,
+                                  //   ).then((_) {
+                                  //     // Refresh addresses when coming back
+                                  //     provider.fetchUserAddresses();
+                                  //   });
+                                  // },
+                                  // onDelete: () {
+                                  //   provider.deleteAddress(index, context);
+                                  // },
+                                );
+                              }),
+                              SizedBox(height: 8),
+                              CustomButton(
+                                text: "+ Add New Address",
+                                isOutlined: true,
+                                onPressed: () async {
+                                  print("click o uegfuwegfw");
+                                  final result = await Navigator.pushNamed(
+                                    context,
+                                    AppRoutes.addAddressScreen,
+                                  );
+                                  if (result == true) {
+                                    print('in this resukt');
+                                    provider.fetchUserAddresses();
+                                  }
+                                },
+                                height: 56,
+                                borderRadius: BorderRadius.circular(60),
+                              ),
+                            ],
+                          ),
                   ),
-                ],
-              );
-            },
-          ),
+                ),
+              ],
+            );
+          },
         ),
       ),
     );

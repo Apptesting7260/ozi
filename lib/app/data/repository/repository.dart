@@ -247,6 +247,21 @@ class Repository {
     }
   }
 
+  // ********************************************* scheduleApi ***********************************************//
+  Future<dynamic> completescheduleServiceApi(Map<String, dynamic> data) async {
+    try {
+      dev.log("completescheduleServiceApi API URL: ${AppUrls.bookService}");
+      dev.log("Request Data: $data");
+
+      final response = await _apiService.postApi(data, AppUrls.bookService);
+
+      return response;
+    } catch (e) {
+      dev.log("Error in scheduleServiceApi: $e");
+      throw Exception(e);
+    }
+  }
+
   // ********************************************* deleteUserAddress Api ***********************************************//
   Future<DeleteAddressModel> deleteUserAddressApi(int addressId) async {
     try {

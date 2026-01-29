@@ -1,11 +1,8 @@
-import 'package:ozi/app/data/response/api_status.dart';
 import 'package:ozi/app/modules/user/cart/change%20address/provider/ChangeAddressProvider.dart';
 import '../../../../../core/appExports/app_export.dart';
 import '../../../../../shared/widgets/custom_app_bar.dart';
 import '../../../../../shared/widgets/custom_date_picker.dart';
-import '../../../profile/save address/model/user_address_model.dart';
 import '../../change address/view/ChangeAddressScreen.dart';
-import '../../checkout/view/CheckoutScreen.dart';
 import '../../chnge payment method/view/ChangePaymentMethodScreen.dart';
 import '../provider/ScheduleProvider.dart';
 
@@ -34,16 +31,9 @@ class _ScheduleServiceScreenContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final addressProvider = context.watch<ChangeAddressProvider>();
-    Data? selectedAddress;
-
-    if (addressProvider.selectedIndex >= 0 &&
-        addressProvider.selectedIndex < addressProvider.addresses.length) {
-      selectedAddress =
-          addressProvider.addresses[addressProvider.selectedIndex];
-    }
-
     final provider = context.watch<ScheduleProvider>();
     final times = provider.availableTimesForSelectedDay;
+
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
@@ -242,7 +232,10 @@ class _ScheduleServiceScreenContent extends StatelessWidget {
                           final selectedIndex = await Navigator.push<int>(
                             context,
                             MaterialPageRoute(
-                              builder: (_) => ChangeAddressScreen(),
+                              builder: (_) => ChangeNotifierProvider.value(
+                                value: addressProvider,
+                                child: const ChangeAddressScreen(),
+                              ),
                             ),
                           );
                           if (selectedIndex != null) {
@@ -290,9 +283,13 @@ class _ScheduleServiceScreenContent extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                selectedAddress?.addressType != null &&
-                                        selectedAddress!.addressType!.isNotEmpty
-                                    ? '${selectedAddress!.addressType![0].toUpperCase()}${selectedAddress!.addressType!.substring(1)}'
+                                addressProvider.selectedAddress?.addressType !=
+                                            null &&
+                                        addressProvider
+                                            .selectedAddress!
+                                            .addressType!
+                                            .isNotEmpty
+                                    ? '${addressProvider.selectedAddress!.addressType![0].toUpperCase()}${addressProvider.selectedAddress!.addressType!.substring(1)}'
                                     : 'Address',
                                 style: AppFontStyle.text_14_600(
                                   AppColors.black,
@@ -301,9 +298,9 @@ class _ScheduleServiceScreenContent extends StatelessWidget {
                               ),
                               SizedBox(height: 4),
                               Text(
-                                selectedAddress != null
+                                addressProvider.selectedAddress != null
                                     ? addressProvider.getFormattedAddress(
-                                        selectedAddress,
+                                        addressProvider.selectedAddress!,
                                       )
                                     : '',
                                 style: AppFontStyle.text_14_400(AppColors.grey),
@@ -427,7 +424,7 @@ class _ScheduleServiceScreenContent extends StatelessWidget {
                             style: AppFontStyle.text_16_400(AppColors.grey),
                           ),
                           // Text(
-                          //   provider.selectedTime,
+                          //   provider.selectedTime ?? '',
                           //   style: AppFontStyle.text_16_400(AppColors.darkText),
                           // ),
                         ],
@@ -439,12 +436,20 @@ class _ScheduleServiceScreenContent extends StatelessWidget {
 
                   // ========== CONTINUE BUTTON ==========
                   CustomButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (_) => CheckoutScreen()),
-                      );
-                    },
+                    isLoading: provider.isBookingLoading,
+                    onPressed:
+                        (provider.selectedTime == null ||
+                            addressProvider.selectedAddress == null)
+                        ? null
+                        : () {
+                            print("inside this onPresses");
+                            provider.bookServiceApi(
+                              context: context,
+                              addressId:
+                                  addressProvider.selectedAddress?.id ?? 0,
+                              paymentMethod: 'cash',
+                            );
+                          },
                     text: 'Continue to Payment',
                   ),
                 ],
