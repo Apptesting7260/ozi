@@ -1,4 +1,7 @@
 import 'dart:developer' as dev;
+import 'package:ozi/app/modules/user/booking/model/bookingdetailsmodel.dart'
+    as details;
+import 'package:ozi/app/modules/user/booking/model/bookingmodel.dart';
 import 'package:ozi/app/modules/user/cart/schedule_service/Model/bookservicemodel.dart';
 import 'package:ozi/app/modules/user/home/model/category_model.dart';
 import 'package:ozi/app/modules/user/home/service%20details/model/ServiceDetailsModel.dart';
@@ -13,11 +16,9 @@ import '../../modules/user/home/service details/model/add_to_cart.dart';
 import '../../modules/user/profile/edit address/model/edit_address_model.dart';
 import '../../modules/user/profile/edit profile/model/update_profile_model.dart';
 import '../../modules/user/profile/save address/model/delete_address_model.dart';
-import '../../modules/user/profile/view/model/user_profile_model.dart';
 import '../../view/auth/login/model/login_model.dart';
 import '../../view/auth/verification_screen/model/verify_otp.dart';
 import '../network/network_api_services.dart';
-import '../storage/user_preference.dart';
 
 class Repository {
   final _apiService = NetworkApiServices();
@@ -124,6 +125,25 @@ class Repository {
     }
   }
 
+  // **************************  cancelBooking Api **************************//
+  Future<dynamic> cancelBookingApi(int bookingId) async {
+    try {
+      print('API Request URL: ${AppUrls.cancelBooking}');
+      print('API Request Data: $bookingId');
+
+      dynamic response = await _apiService.postApi({
+        "booking_id": bookingId,
+      }, AppUrls.cancelBooking);
+
+      print('API Response: $response');
+      print('API Response Type: ${response.runtimeType}');
+      return response;
+    } catch (e) {
+      print('cancelBookingApi: $e');
+      rethrow;
+    }
+  }
+
   // **************************  Get Cart Items Api **************************//
   Future<CartItemsModel> getCartItemsApi() async {
     try {
@@ -134,6 +154,43 @@ class Repository {
       return CartItemsModel.fromJson(response);
     } catch (e) {
       print('getCartItemsApi Error: $e');
+      rethrow;
+    }
+  }
+
+  // **************************  GetBookingDetails Api **************************//
+  Future<details.bookingDetailsModel> getBookingDetailsApi(
+    int bookingId,
+  ) async {
+    try {
+      final url = "${AppUrls.getBookingDetails}booking_id=$bookingId";
+      print('API Request URL: $url');
+
+      dynamic response = await _apiService.getApi(url);
+      print('API Response: $response');
+      return details.bookingDetailsModel.fromJson(response);
+    } catch (e) {
+      print('getBookingDetailsApi Error: $e');
+      rethrow;
+    }
+  }
+
+  // **************************  GetAllBookings Api **************************//
+  Future<bookingModel> getAllBookings(
+    String status,
+    int limit,
+    int page,
+  ) async {
+    try {
+      final url =
+          '${AppUrls.getAllBookings}?status=$status&limit=$limit&page=$page';
+      print('API Request URL: $url');
+
+      dynamic response = await _apiService.getApi(url);
+      print('API Response: $response');
+      return bookingModel.fromJson(response);
+    } catch (e) {
+      print('getAllBookings Error: $e');
       rethrow;
     }
   }

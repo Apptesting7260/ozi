@@ -31,10 +31,7 @@ class BookingDetailsScreen extends StatelessWidget {
                     _serviceCards(),
                     hBox(20),
 
-                    if (tabIndex == 1) ...[
-                      _otpSection(),
-                      hBox(20),
-                    ],
+                    if (tabIndex == 1) ...[_otpSection(), hBox(20)],
 
                     _serviceProvider(),
                     hBox(20),
@@ -44,18 +41,14 @@ class BookingDetailsScreen extends StatelessWidget {
                     hBox(20),
                     _paymentSummary(),
 
-                    if (tabIndex == 2)
-                      hBox(100)
-                    else
-                      hBox(20),
+                    if (tabIndex == 2) hBox(100) else hBox(20),
                   ],
                 ),
               ),
             ),
 
             // Bottom Button - Only for Upcoming (Cancel Booking in RED)
-            if (tabIndex == 2)
-              _bottomButton(context),
+            if (tabIndex == 2) _bottomButton(context),
           ],
         ),
       ),
@@ -75,10 +68,7 @@ class BookingDetailsScreen extends StatelessWidget {
           ),
         ],
       ),
-      child: SafeArea(
-        top: false,
-        child: _getBottomButton(context),
-      ),
+      child: SafeArea(top: false, child: _getBottomButton(context)),
     );
   }
 
@@ -105,10 +95,7 @@ class BookingDetailsScreen extends StatelessWidget {
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              "Booking ID",
-              style: AppFontStyle.text_12_400(AppColors.grey),
-            ),
+            Text("Booking ID", style: AppFontStyle.text_12_400(AppColors.grey)),
             hBox(4),
             Text(
               "BK-2024-001",
@@ -124,7 +111,7 @@ class BookingDetailsScreen extends StatelessWidget {
                   borderRadius: BorderRadius.circular(30),
                 ),
                 child: Padding(
-                  padding:  EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+                  padding: EdgeInsets.symmetric(horizontal: 12, vertical: 5),
                   child: Text(
                     "Cancelled",
                     style: AppFontStyle.text_14_600(AppColors.red),
@@ -142,7 +129,7 @@ class BookingDetailsScreen extends StatelessWidget {
                   borderRadius: BorderRadius.circular(30),
                 ),
                 child: Padding(
-                  padding:  EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+                  padding: EdgeInsets.symmetric(horizontal: 12, vertical: 5),
                   child: Text(
                     "in Progress",
                     style: AppFontStyle.text_14_600(AppColors.orange),
@@ -159,7 +146,7 @@ class BookingDetailsScreen extends StatelessWidget {
                   borderRadius: BorderRadius.circular(30),
                 ),
                 child: Padding(
-                  padding:  EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+                  padding: EdgeInsets.symmetric(horizontal: 12, vertical: 5),
                   child: Text(
                     "Confirmed",
                     style: AppFontStyle.text_14_600(AppColors.blue),
@@ -176,7 +163,7 @@ class BookingDetailsScreen extends StatelessWidget {
                   borderRadius: BorderRadius.circular(30),
                 ),
                 child: Padding(
-                  padding:  EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+                  padding: EdgeInsets.symmetric(horizontal: 12, vertical: 5),
                   child: Text(
                     "Completed",
                     style: AppFontStyle.text_14_600(AppColors.primary),
@@ -184,16 +171,12 @@ class BookingDetailsScreen extends StatelessWidget {
                 ),
               ),
             ],
-
           ],
         ),
         Column(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
-            Text(
-              "Total",
-              style: AppFontStyle.text_12_400(AppColors.grey),
-            ),
+            Text("Total", style: AppFontStyle.text_12_400(AppColors.grey)),
             hBox(4),
             Text(
               "\$173.26",
@@ -208,15 +191,9 @@ class BookingDetailsScreen extends StatelessWidget {
   Widget _serviceCards() {
     return Column(
       children: [
-        _serviceCard(
-          "Shirt Sleeve Shortening & Fitting...",
-          "\$84.13",
-        ),
+        _serviceCard("Shirt Sleeve Shortening & Fitting...", "\$84.13"),
         hBox(12),
-        _serviceCard(
-          "Shirt Sleeve Shortening & Fitting...",
-          "\$84.13",
-        ),
+        _serviceCard("Shirt Sleeve Shortening & Fitting...", "\$84.13"),
       ],
     );
   }
@@ -252,10 +229,7 @@ class BookingDetailsScreen extends StatelessWidget {
                   style: AppFontStyle.text_14_600(AppColors.black),
                 ),
                 hBox(4),
-                Text(
-                  price,
-                  style: AppFontStyle.text_14_600(AppColors.primary),
-                ),
+                Text(price, style: AppFontStyle.text_14_600(AppColors.primary)),
               ],
             ),
           ),
@@ -268,14 +242,10 @@ class BookingDetailsScreen extends StatelessWidget {
     return Container(
       width: double.infinity,
 
-
       padding: EdgeInsets.all(6),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12),
-
-      ),
+      decoration: BoxDecoration(borderRadius: BorderRadius.circular(12)),
       child: Container(
-        padding:  EdgeInsets.all(16),
+        padding: EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: AppColors.primary,
           borderRadius: BorderRadius.circular(16),
@@ -315,7 +285,7 @@ class BookingDetailsScreen extends StatelessWidget {
                 ),
 
                 Container(
-                  padding:  EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                  padding: EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                   decoration: BoxDecoration(
                     color: AppColors.lightGrey.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(8),
@@ -330,7 +300,6 @@ class BookingDetailsScreen extends StatelessWidget {
           ],
         ),
       ),
-
     );
   }
 
@@ -343,13 +312,9 @@ class BookingDetailsScreen extends StatelessWidget {
         borderRadius: BorderRadius.circular(8),
       ),
       alignment: Alignment.center,
-      child: Text(
-        digit,
-        style: AppFontStyle.text_20_600(AppColors.white),
-      ),
+      child: Text(digit, style: AppFontStyle.text_20_600(AppColors.white)),
     );
   }
-
 
   Widget _serviceProvider() {
     return Column(
@@ -401,11 +366,7 @@ class BookingDetailsScreen extends StatelessWidget {
                   color: AppColors.primary,
                   shape: BoxShape.circle,
                 ),
-                child: Icon(
-                  Icons.phone,
-                  color: AppColors.white,
-                  size: 20,
-                ),
+                child: Icon(Icons.phone, color: AppColors.white, size: 20),
               ),
             ],
           ),
@@ -423,17 +384,9 @@ class BookingDetailsScreen extends StatelessWidget {
           style: AppFontStyle.text_16_600(AppColors.black),
         ),
         hBox(12),
-        _detailRow(
-          Icons.calendar_today_outlined,
-          "Date",
-          "December 10, 2025",
-        ),
+        _detailRow(Icons.calendar_today_outlined, "Date", "December 10, 2025"),
         hBox(12),
-        _detailRow(
-          Icons.access_time,
-          "Time",
-          "9:00 AM",
-        ),
+        _detailRow(Icons.access_time, "Time", "9:00 AM"),
         hBox(12),
         _detailRow(
           Icons.location_on_outlined,
@@ -454,26 +407,16 @@ class BookingDetailsScreen extends StatelessWidget {
             color: AppColors.primary.withOpacity(0.1),
             borderRadius: BorderRadius.circular(8),
           ),
-          child: Icon(
-            icon,
-            size: 18,
-            color: AppColors.primary,
-          ),
+          child: Icon(icon, size: 18, color: AppColors.primary),
         ),
         wBox(12),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                label,
-                style: AppFontStyle.text_12_400(AppColors.grey),
-              ),
+              Text(label, style: AppFontStyle.text_12_400(AppColors.grey)),
               hBox(2),
-              Text(
-                value,
-                style: AppFontStyle.text_14_500(AppColors.black),
-              ),
+              Text(value, style: AppFontStyle.text_14_500(AppColors.black)),
             ],
           ),
         ),
@@ -545,7 +488,10 @@ class BookingDetailsScreen extends StatelessWidget {
               hBox(12),
               _summaryRow("Service Fee", "\$5.00"),
               hBox(16),
-              Divider(color: AppColors.black.withValues(alpha: 0.10), thickness: 2,),
+              Divider(
+                color: AppColors.black.withValues(alpha: 0.10),
+                thickness: 2,
+              ),
               hBox(12),
               _summaryRow("Total", "\$173.26", isTotal: true),
             ],
