@@ -2,6 +2,7 @@ import '../../../../core/appExports/app_export.dart';
 import '../booking details/view/booking_details_screen.dart';
 import '../provider/booking_provider.dart';
 import '../model/bookingmodel.dart';
+import '../model/bookingmodel.dart';
 
 class MyBookingsScreen extends StatelessWidget {
   const MyBookingsScreen({super.key});
@@ -294,7 +295,8 @@ class MyBookingsScreen extends StatelessWidget {
 
     switch (data["statusColor"]) {
       case "green":
-        statusBgColor = AppColors.lightOrange;
+        statusBgColor = AppColors
+            .lightOrange; // Using orange theme for "completed" as per previous design
         statusTextColor = AppColors.orange;
         break;
       case "blue":
@@ -478,6 +480,7 @@ class MyBookingsScreen extends StatelessWidget {
         ),
         color: AppColors.lightGrey2,
         height: 46,
+        onPressed: navigateToDetails,
         onPressed: navigateToDetails,
       );
     }

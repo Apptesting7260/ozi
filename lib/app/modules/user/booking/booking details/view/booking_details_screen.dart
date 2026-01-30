@@ -205,6 +205,7 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             Text("Total", style: AppFontStyle.text_12_400(AppColors.grey)),
+            Text("Total", style: AppFontStyle.text_12_400(AppColors.grey)),
             hBox(4),
             Text(
               "${data.total ?? '0'}",
@@ -261,6 +262,7 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
                 ),
                 hBox(4),
                 Text(price, style: AppFontStyle.text_14_600(AppColors.primary)),
+                Text(price, style: AppFontStyle.text_14_600(AppColors.primary)),
               ],
             ),
           ),
@@ -275,7 +277,9 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
       width: double.infinity,
       padding: EdgeInsets.all(6),
       decoration: BoxDecoration(borderRadius: BorderRadius.circular(12)),
+      decoration: BoxDecoration(borderRadius: BorderRadius.circular(12)),
       child: Container(
+        padding: EdgeInsets.all(16),
         padding: EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: AppColors.primary,
@@ -331,6 +335,7 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
         borderRadius: BorderRadius.circular(8),
       ),
       alignment: Alignment.center,
+      child: Text(digit, style: AppFontStyle.text_20_600(AppColors.white)),
       child: Text(digit, style: AppFontStyle.text_20_600(AppColors.white)),
     );
   }
@@ -436,6 +441,7 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
             borderRadius: BorderRadius.circular(8),
           ),
           child: Icon(icon, size: 18, color: AppColors.primary),
+          child: Icon(icon, size: 18, color: AppColors.primary),
         ),
         wBox(12),
         Expanded(
@@ -443,7 +449,9 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(label, style: AppFontStyle.text_12_400(AppColors.grey)),
+              Text(label, style: AppFontStyle.text_12_400(AppColors.grey)),
               hBox(2),
+              Text(value, style: AppFontStyle.text_14_500(AppColors.black)),
               Text(value, style: AppFontStyle.text_14_500(AppColors.black)),
             ],
           ),
@@ -504,6 +512,10 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
               hBox(12),
               _summaryRow("Service Fee", "${data.serviceFee ?? '0'}"),
               hBox(16),
+              Divider(
+                color: AppColors.black.withValues(alpha: 0.10),
+                thickness: 2,
+              ),
               Divider(
                 color: AppColors.black.withValues(alpha: 0.10),
                 thickness: 2,
