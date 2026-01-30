@@ -20,7 +20,7 @@ class settingsModel {
 }
 
 class Data {
-  int? isNotificationOn;
+  bool? isNotificationOn;
   String? termsUrl;
   String? privacyUrl;
 

@@ -27,6 +27,7 @@ class AppUrls {
   static const String getBookingDetails = "$baseUrl/user-booking-details?";
   static const String settingsUrl = "$baseUrl/settings?";
   static const String deleteAccountUrl = "$baseUrl/delete-profile";
+  static const String updateNotificationUrl = "$baseUrl/update-notification?";
 
   // Vendor APIs
   static const String getAllCategories = "$baseUrl/get-all-categories";

@@ -1,8 +1,10 @@
 import 'package:ozi/app/modules/user/profile/setting/provider/settingprovider.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../../core/appExports/app_export.dart';
 import '../../../../../shared/widgets/custom_app_bar.dart';
 import '../../../../../shared/widgets/custom_toggle_switch.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../common screen/view/common_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -53,16 +55,19 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         icon: ImageConstants.document,
                         title: "Terms & Conditions",
                         showArrow: true,
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => CommonScreen(
-                                type: "Terms & Conditions",
-                                url: termsUrl,
-                              ),
-                            ),
-                          );
+                        onTap: () async {
+                          final url =
+                              provider.settingsData?.data?.termsUrl ?? "";
+                          print("Launching URL: $url");
+                          if (url.isNotEmpty) {
+                            final uri = Uri.parse(url);
+                            if (!await launchUrl(
+                              uri,
+                              mode: LaunchMode.externalApplication,
+                            )) {
+                              print("Could not launch $url");
+                            }
+                          }
                         },
                       ),
 
@@ -70,16 +75,19 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         icon: ImageConstants.document,
                         title: "Privacy Policy",
                         showArrow: true,
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => CommonScreen(
-                                type: "Privacy Policy",
-                                url: privacyUrl,
-                              ),
-                            ),
-                          );
+                        onTap: () async {
+                          final url =
+                              provider.settingsData?.data?.privacyUrl ?? "";
+                          print("Launching URL: $url");
+                          if (url.isNotEmpty) {
+                            final uri = Uri.parse(url);
+                            if (!await launchUrl(
+                              uri,
+                              mode: LaunchMode.externalApplication,
+                            )) {
+                              print("Could not launch $url");
+                            }
+                          }
                         },
                       ),
 
@@ -134,9 +142,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
             if (toggle)
               CustomToggleSwitch(
-                value: notificationOn,
+                value: provider.settingsData?.data?.isNotificationOn ?? false,
                 onChanged: (val) {
-                  setState(() => notificationOn = val);
+                  provider.updateNotificationApi(context, val);
+                  setState(
+                    () => provider.settingsData?.data?.isNotificationOn = val,
+                  );
                 },
               ),
 
@@ -227,8 +238,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 CustomButton(
                   text: "Yes, Delete",
                   borderRadius: BorderRadius.circular(30),
+                  isLoading: provider.isLoading,
                   onPressed: () {
-                    Navigator.pop(context);
+                    provider.deleteProfile(context);
                   },
                 ),
 

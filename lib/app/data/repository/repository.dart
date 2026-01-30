@@ -390,4 +390,38 @@ class Repository {
       throw Exception(e);
     }
   }
+
+  // **************************  Delete Profile Api **************************//
+  Future<dynamic> deleteProfile() async {
+    try {
+      print('API Request URL: ${AppUrls.deleteAccountUrl}');
+
+      dynamic response = await _apiService.deleteApi(
+        {},
+        AppUrls.deleteAccountUrl,
+      );
+      print('API Response: $response');
+      return response;
+    } catch (e) {
+      print('deleteProfile Error: $e');
+      rethrow;
+    }
+  }
+
+  // **************************  Update Notification Api **************************//
+  Future<dynamic> updateNotificationApi(int status) async {
+    try {
+      final url = '${AppUrls.updateNotificationUrl}notification=$status';
+      print('API Request URL: $url');
+
+      dynamic response = await _apiService.postApi({
+        "notification": status,
+      }, url);
+      print('API Response: $response');
+      return response;
+    } catch (e) {
+      print('updateNotificationApi Error: $e');
+      rethrow;
+    }
+  }
 }
