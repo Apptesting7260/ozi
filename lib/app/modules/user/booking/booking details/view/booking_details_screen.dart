@@ -1,7 +1,11 @@
+import 'package:intl/intl.dart';
+
 import '../../../../../core/appExports/app_export.dart';
 import '../../../../../shared/widgets/custom_app_bar.dart';
+import '../../provider/booking_provider.dart';
+import '../../model/bookingdetailsmodel.dart' as model;
 
-class BookingDetailsScreen extends StatelessWidget {
+class BookingDetailsScreen extends StatefulWidget {
   final Map<String, dynamic> bookingData;
   final int tabIndex;
 
@@ -12,6 +16,25 @@ class BookingDetailsScreen extends StatelessWidget {
   });
 
   @override
+  State<BookingDetailsScreen> createState() => _BookingDetailsScreenState();
+}
+
+class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final bookingId = widget.bookingData['id'];
+      if (bookingId != null) {
+        Provider.of<BookingProvider>(
+          context,
+          listen: false,
+        ).getBookingDetails(bookingId);
+      }
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.white,
@@ -20,183 +43,171 @@ class BookingDetailsScreen extends StatelessWidget {
           children: [
             CustomAppBar(title: "Booking Details"),
             Expanded(
-              child: SingleChildScrollView(
-                physics: BouncingScrollPhysics(),
-                padding: EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _bookingIdAndTotal(),
-                    hBox(20),
-                    _serviceCards(),
-                    hBox(20),
+              child: Consumer<BookingProvider>(
+                builder: (context, provider, child) {
+                  if (provider.isDetailsLoading) {
+                    return Center(
+                      child: LoadingAnimationWidget.staggeredDotsWave(
+                        color: AppColors.primary,
+                        size: 40,
+                      ),
+                    );
+                  }
 
-                    if (tabIndex == 1) ...[
-                      _otpSection(),
-                      hBox(20),
-                    ],
+                  if (provider.detailsErrorMessage != null) {
+                    return Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            provider.detailsErrorMessage!,
+                            style: AppFontStyle.text_14_400(AppColors.red),
+                            textAlign: TextAlign.center,
+                          ),
+                          hBox(16),
+                          CustomButton(
+                            text: "Retry",
+                            width: 120,
+                            height: 40,
+                            onPressed: () {
+                              final bookingId = widget.bookingData['id'];
+                              if (bookingId != null) {
+                                provider.getBookingDetails(bookingId);
+                              }
+                            },
+                          ),
+                        ],
+                      ),
+                    );
+                  }
 
-                    _serviceProvider(),
-                    hBox(20),
-                    _bookingDetailsSection(),
-                    hBox(20),
-                    _paymentMethod(),
-                    hBox(20),
-                    _paymentSummary(),
+                  final data = provider.bookingDetails?.data;
+                  if (data == null) {
+                    return Center(
+                      child: Text(
+                        "No details found",
+                        style: AppFontStyle.text_14_400(AppColors.grey),
+                      ),
+                    );
+                  }
 
-                    if (tabIndex == 2)
-                      hBox(100)
-                    else
-                      hBox(20),
-                  ],
-                ),
+                  return SingleChildScrollView(
+                    physics: BouncingScrollPhysics(),
+                    padding: EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _bookingIdAndTotal(data),
+                        hBox(20),
+                        _serviceCards(data.items ?? []),
+                        hBox(20),
+
+                        if (widget.tabIndex == 1 &&
+                            data.serviceStartOtp != null) ...[
+                          _otpSection(data.serviceStartOtp!),
+                          hBox(20),
+                        ],
+
+                        if (data.vendor != null) ...[
+                          _serviceProvider(data.vendor!, provider),
+                          hBox(20),
+                        ],
+
+                        _bookingDetailsSection(data),
+                        hBox(20),
+                        _paymentMethod(data),
+                        hBox(20),
+                        _paymentSummary(data, provider),
+                        hBox(30),
+                        // // if (widget.tabIndex == 2) ...[
+                        // _getBottomButton(context),
+                        // hBox(30),
+                        // ],
+                      ],
+                    ),
+                  );
+                },
               ),
             ),
-
-            // Bottom Button - Only for Upcoming (Cancel Booking in RED)
-            if (tabIndex == 2)
-              _bottomButton(context),
           ],
         ),
       ),
     );
   }
 
-  Widget _bottomButton(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppColors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: Offset(0, -2),
-          ),
-        ],
-      ),
-      child: SafeArea(
-        top: false,
-        child: _getBottomButton(context),
-      ),
+  Widget _getBottomButton(BuildContext context, BookingProvider provider) {
+    // Upcoming bookings - Cancel Booking button (RED OUTLINED)
+    // if (widget.tabIndex == 2) {
+
+    if (provider.isCancelling) return const SizedBox.shrink();
+
+    return CustomButton(
+      width: MediaQuery.of(context).size.width,
+      text: "Cancel Booking",
+      isOutlined: true,
+      color: AppColors.red,
+      borderColor: AppColors.red,
+      textStyle: AppFontStyle.text_16_600(AppColors.red),
+      height: 52,
+      onPressed: () {
+        showCancelBookingDialog(context, widget.bookingData['id']);
+      },
     );
   }
 
-  Widget _getBottomButton(BuildContext context) {
-    // Upcoming bookings - Cancel Booking button (RED)
-    if (tabIndex == 2) {
-      return CustomButton(
-        text: "Cancel Booking",
-        height: 52,
-        onPressed: () {
-          _showCancelDialog(context);
-        },
-      );
+  Widget _bookingIdAndTotal(model.Data data) {
+    Color statusColor = AppColors.primary;
+    String statusText = data.status ?? "Unknown";
+
+    if (statusText.toLowerCase() == 'cancelled') {
+      statusColor = AppColors.red;
+    } else if (statusText.toLowerCase() == 'pending') {
+      statusColor = AppColors.orange;
+    } else if (statusText.toLowerCase() == 'confirmed') {
+      statusColor = AppColors.blue;
+    } else if (statusText.toLowerCase() == 'ongoing' ||
+        statusText.toLowerCase() == 'in progress') {
+      statusColor = AppColors.orange;
+      statusText = "in Progress";
+    } else if (statusText.toLowerCase() == 'completed') {
+      statusColor = AppColors.primary;
     }
 
-    // Default (shouldn't reach here)
-    return SizedBox.shrink();
-  }
-
-  Widget _bookingIdAndTotal() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              "Booking ID",
-              style: AppFontStyle.text_12_400(AppColors.grey),
-            ),
+            Text("Booking ID", style: AppFontStyle.text_12_400(AppColors.grey)),
             hBox(4),
             Text(
-              "BK-2024-001",
+              data.bookingCode ?? "N/A",
               style: AppFontStyle.text_16_600(AppColors.black),
             ),
-
-            // Show status for canceled bookings
-            if (tabIndex == 4) ...[
-              hBox(4),
-              Container(
-                decoration: BoxDecoration(
-                  color: AppColors.red.withValues(alpha: 0.20),
-                  borderRadius: BorderRadius.circular(30),
-                ),
-                child: Padding(
-                  padding:  EdgeInsets.symmetric(horizontal: 12, vertical: 5),
-                  child: Text(
-                    "Cancelled",
-                    style: AppFontStyle.text_14_600(AppColors.red),
-                  ),
+            hBox(4),
+            Container(
+              decoration: BoxDecoration(
+                color: statusColor.withValues(alpha: 0.20),
+                borderRadius: BorderRadius.circular(30),
+              ),
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+                child: Text(
+                  Get.capitalizeFirstLetter(statusText),
+                  style: AppFontStyle.text_14_600(statusColor),
                 ),
               ),
-            ],
-
-            // Show status for ongoing bookings
-            if (tabIndex == 1) ...[
-              hBox(4),
-              Container(
-                decoration: BoxDecoration(
-                  color: AppColors.orange.withValues(alpha: 0.20),
-                  borderRadius: BorderRadius.circular(30),
-                ),
-                child: Padding(
-                  padding:  EdgeInsets.symmetric(horizontal: 12, vertical: 5),
-                  child: Text(
-                    "in Progress",
-                    style: AppFontStyle.text_14_600(AppColors.orange),
-                  ),
-                ),
-              ),
-            ],
-
-            if (tabIndex == 2) ...[
-              hBox(4),
-              Container(
-                decoration: BoxDecoration(
-                  color: AppColors.blue.withValues(alpha: 0.20),
-                  borderRadius: BorderRadius.circular(30),
-                ),
-                child: Padding(
-                  padding:  EdgeInsets.symmetric(horizontal: 12, vertical: 5),
-                  child: Text(
-                    "Confirmed",
-                    style: AppFontStyle.text_14_600(AppColors.blue),
-                  ),
-                ),
-              ),
-            ],
-
-            if (tabIndex == 3) ...[
-              hBox(4),
-              Container(
-                decoration: BoxDecoration(
-                  color: AppColors.primary.withValues(alpha: 0.20),
-                  borderRadius: BorderRadius.circular(30),
-                ),
-                child: Padding(
-                  padding:  EdgeInsets.symmetric(horizontal: 12, vertical: 5),
-                  child: Text(
-                    "Completed",
-                    style: AppFontStyle.text_14_600(AppColors.primary),
-                  ),
-                ),
-              ),
-            ],
-
+            ),
           ],
         ),
         Column(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
-            Text(
-              "Total",
-              style: AppFontStyle.text_12_400(AppColors.grey),
-            ),
+            Text("Total", style: AppFontStyle.text_12_400(AppColors.grey)),
             hBox(4),
             Text(
-              "\$173.26",
+              "${data.total ?? '0'}",
               style: AppFontStyle.text_16_700(AppColors.primary),
             ),
           ],
@@ -205,36 +216,33 @@ class BookingDetailsScreen extends StatelessWidget {
     );
   }
 
-  Widget _serviceCards() {
-    return Column(
-      children: [
-        _serviceCard(
-          "Shirt Sleeve Shortening & Fitting...",
-          "\$84.13",
-        ),
-        hBox(12),
-        _serviceCard(
-          "Shirt Sleeve Shortening & Fitting...",
-          "\$84.13",
-        ),
-      ],
+  Widget _serviceCards(List<model.Items> items) {
+    return ListView.separated(
+      shrinkWrap: true,
+      physics: NeverScrollableScrollPhysics(),
+      itemCount: items.length,
+      separatorBuilder: (context, index) => hBox(12),
+      itemBuilder: (context, index) {
+        final item = items[index];
+        return _serviceCard(
+          item.serviceName ?? "Service",
+          "${item.serviceItemTotal ?? item.unitPrice ?? '0'}",
+          item.service?.serviceImage,
+        );
+      },
     );
   }
 
-  Widget _serviceCard(String title, String price) {
+  Widget _serviceCard(String title, String price, String? imagePath) {
+    final provider = Provider.of<BookingProvider>(context, listen: false);
     return Container(
       padding: EdgeInsets.all(12),
-      // decoration: BoxDecoration(
-      //   borderRadius: BorderRadius.circular(12),
-      //   border: Border.all(color: AppColors.containerBorder),
-      //   color: AppColors.white,
-      // ),
       child: Row(
         children: [
           ClipRRect(
             borderRadius: BorderRadius.circular(8),
             child: CustomImage(
-              path: "assets/demo/user1.png",
+              path: provider.getFullImageUrl(imagePath),
               height: 50,
               width: 50,
               fit: BoxFit.cover,
@@ -252,10 +260,7 @@ class BookingDetailsScreen extends StatelessWidget {
                   style: AppFontStyle.text_14_600(AppColors.black),
                 ),
                 hBox(4),
-                Text(
-                  price,
-                  style: AppFontStyle.text_14_600(AppColors.primary),
-                ),
+                Text(price, style: AppFontStyle.text_14_600(AppColors.primary)),
               ],
             ),
           ),
@@ -264,18 +269,14 @@ class BookingDetailsScreen extends StatelessWidget {
     );
   }
 
-  Widget _otpSection() {
+  Widget _otpSection(String otp) {
+    final otpDigits = otp.split('');
     return Container(
       width: double.infinity,
-
-
       padding: EdgeInsets.all(6),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12),
-
-      ),
+      decoration: BoxDecoration(borderRadius: BorderRadius.circular(12)),
       child: Container(
-        padding:  EdgeInsets.all(16),
+        padding: EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: AppColors.primary,
           borderRadius: BorderRadius.circular(16),
@@ -287,50 +288,37 @@ class BookingDetailsScreen extends StatelessWidget {
               "Service Start OTP",
               style: AppFontStyle.text_14_600(AppColors.white),
             ),
-
             hBox(4),
-
             Text(
               "Share with provider to begin service",
               style: AppFontStyle.text_12_400(
                 AppColors.lightGrey.withValues(alpha: 0.9),
               ),
             ),
-
             hBox(16),
-
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Row(
-                  children: [
-                    _otpBox("1"),
-                    wBox(12),
-                    _otpBox("1"),
-                    wBox(12),
-                    _otpBox("1"),
-                    wBox(12),
-                    _otpBox("1"),
-                  ],
+                Wrap(
+                  spacing: 12,
+                  children: otpDigits.map((digit) => _otpBox(digit)).toList(),
                 ),
-
-                Container(
-                  padding:  EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                  decoration: BoxDecoration(
-                    color: AppColors.lightGrey.withValues(alpha: 0.15),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Text(
-                    "Hide",
-                    style: AppFontStyle.text_14_600(AppColors.white),
-                  ),
-                ),
+                // Container(
+                //   padding: EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                //   decoration: BoxDecoration(
+                //     color: AppColors.lightGrey.withValues(alpha: 0.15),
+                //     borderRadius: BorderRadius.circular(8),
+                //   ),
+                //   child: Text(
+                //     "Hide",
+                //     style: AppFontStyle.text_14_600(AppColors.white),
+                //   ),
+                // ),
               ],
             ),
           ],
         ),
       ),
-
     );
   }
 
@@ -343,15 +331,11 @@ class BookingDetailsScreen extends StatelessWidget {
         borderRadius: BorderRadius.circular(8),
       ),
       alignment: Alignment.center,
-      child: Text(
-        digit,
-        style: AppFontStyle.text_20_600(AppColors.white),
-      ),
+      child: Text(digit, style: AppFontStyle.text_20_600(AppColors.white)),
     );
   }
 
-
-  Widget _serviceProvider() {
+  Widget _serviceProvider(model.Vendor vendor, BookingProvider provider) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -362,17 +346,12 @@ class BookingDetailsScreen extends StatelessWidget {
         hBox(12),
         Container(
           padding: EdgeInsets.all(12),
-          // decoration: BoxDecoration(
-          //   borderRadius: BorderRadius.circular(12),
-          //   border: Border.all(color: AppColors.containerBorder),
-          //   color: AppColors.white,
-          // ),
           child: Row(
             children: [
               ClipRRect(
                 borderRadius: BorderRadius.circular(25),
                 child: CustomImage(
-                  path: "assets/demo/user2.png",
+                  path: provider.getFullImageUrl(vendor.proImg),
                   height: 50,
                   width: 50,
                   fit: BoxFit.cover,
@@ -384,29 +363,31 @@ class BookingDetailsScreen extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      "John Doe",
+                      "${vendor.firstName ?? ''} ${vendor.lastName ?? ''}",
                       style: AppFontStyle.text_16_600(AppColors.black),
                     ),
                     hBox(2),
                     Text(
-                      "Tailor Service",
+                      vendor.email ?? "Service Provider",
                       style: AppFontStyle.text_12_400(AppColors.grey),
                     ),
                   ],
                 ),
               ),
-              Container(
-                padding: EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: AppColors.primary,
-                  shape: BoxShape.circle,
+              if (vendor.mobile != null)
+                GestureDetector(
+                  onTap: () {
+                    // Implement call functionality if needed
+                  },
+                  child: Container(
+                    padding: EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: AppColors.primary,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(Icons.phone, color: AppColors.white, size: 20),
+                  ),
                 ),
-                child: Icon(
-                  Icons.phone,
-                  color: AppColors.white,
-                  size: 20,
-                ),
-              ),
             ],
           ),
         ),
@@ -414,7 +395,7 @@ class BookingDetailsScreen extends StatelessWidget {
     );
   }
 
-  Widget _bookingDetailsSection() {
+  Widget _bookingDetailsSection(model.Data data) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -426,19 +407,19 @@ class BookingDetailsScreen extends StatelessWidget {
         _detailRow(
           Icons.calendar_today_outlined,
           "Date",
-          "December 10, 2025",
+          data.serviceDate != null
+              ? DateFormat(
+                  'dd-MM-yyyy',
+                ).format(DateTime.parse(data.serviceDate!))
+              : "N/A",
         ),
         hBox(12),
-        _detailRow(
-          Icons.access_time,
-          "Time",
-          "9:00 AM",
-        ),
+        _detailRow(Icons.access_time, "Time", data.serviceTime ?? "N/A"),
         hBox(12),
         _detailRow(
           Icons.location_on_outlined,
           "Address",
-          "123 Main Street, Apt 4B, San Francisco, CA 94102",
+          data.address?.fullAddress ?? data.address?.streetAddress ?? "N/A",
         ),
       ],
     );
@@ -454,26 +435,16 @@ class BookingDetailsScreen extends StatelessWidget {
             color: AppColors.primary.withOpacity(0.1),
             borderRadius: BorderRadius.circular(8),
           ),
-          child: Icon(
-            icon,
-            size: 18,
-            color: AppColors.primary,
-          ),
+          child: Icon(icon, size: 18, color: AppColors.primary),
         ),
         wBox(12),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                label,
-                style: AppFontStyle.text_12_400(AppColors.grey),
-              ),
+              Text(label, style: AppFontStyle.text_12_400(AppColors.grey)),
               hBox(2),
-              Text(
-                value,
-                style: AppFontStyle.text_14_500(AppColors.black),
-              ),
+              Text(value, style: AppFontStyle.text_14_500(AppColors.black)),
             ],
           ),
         ),
@@ -481,7 +452,7 @@ class BookingDetailsScreen extends StatelessWidget {
     );
   }
 
-  Widget _paymentMethod() {
+  Widget _paymentMethod(model.Data data) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -492,19 +463,10 @@ class BookingDetailsScreen extends StatelessWidget {
         hBox(12),
         Container(
           padding: EdgeInsets.all(14),
-          // decoration: BoxDecoration(
-          //   borderRadius: BorderRadius.circular(12),
-          //   border: Border.all(color: AppColors.containerBorder),
-          //   color: AppColors.white,
-          // ),
           child: Row(
             children: [
               Container(
                 padding: EdgeInsets.all(8),
-                // decoration: BoxDecoration(
-                //   color: AppColors.lightGrey,
-                //   borderRadius: BorderRadius.circular(8),
-                // ),
                 child: Icon(
                   Icons.credit_card,
                   color: AppColors.primary,
@@ -513,7 +475,9 @@ class BookingDetailsScreen extends StatelessWidget {
               ),
               wBox(12),
               Text(
-                "Visa •••• 4242",
+                data.paymentMethod != null
+                    ? Get.capitalizeFirstLetter(data.paymentMethod!)
+                    : "Not specified",
                 style: AppFontStyle.text_14_600(AppColors.black),
               ),
             ],
@@ -523,7 +487,7 @@ class BookingDetailsScreen extends StatelessWidget {
     );
   }
 
-  Widget _paymentSummary() {
+  Widget _paymentSummary(model.Data data, BookingProvider provider) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -534,20 +498,23 @@ class BookingDetailsScreen extends StatelessWidget {
         hBox(12),
         Container(
           padding: EdgeInsets.all(16),
-          // decoration: BoxDecoration(
-          //   borderRadius: BorderRadius.circular(12),
-          //   border: Border.all(color: AppColors.containerBorder),
-          //   color: AppColors.white,
-          // ),
           child: Column(
             children: [
-              _summaryRow("Subtotal", "\$168.26"),
+              _summaryRow("Subtotal", "${data.subtotal ?? '0'}"),
               hBox(12),
-              _summaryRow("Service Fee", "\$5.00"),
+              _summaryRow("Service Fee", "${data.serviceFee ?? '0'}"),
               hBox(16),
-              Divider(color: AppColors.black.withValues(alpha: 0.10), thickness: 2,),
+              Divider(
+                color: AppColors.black.withValues(alpha: 0.10),
+                thickness: 2,
+              ),
               hBox(12),
-              _summaryRow("Total", "\$173.26", isTotal: true),
+              _summaryRow("Total", "${data.total ?? '0'}", isTotal: true),
+              hBox(30),
+
+              if (data.status?.toLowerCase() == "confirmed" ||
+                  data.status?.toLowerCase() == "pending")
+                _getBottomButton(context, provider),
             ],
           ),
         ),
@@ -575,47 +542,72 @@ class BookingDetailsScreen extends StatelessWidget {
     );
   }
 
-  void _showCancelDialog(BuildContext context) {
+  void showCancelBookingDialog(BuildContext context, int bookingId) {
+    final bookingProvider = Provider.of<BookingProvider>(
+      context,
+      listen: false,
+    );
+
     showDialog(
       context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
-          title: Text(
-            "Cancel Booking",
-            style: AppFontStyle.text_18_600(AppColors.black),
-          ),
-          content: Text(
-            "Are you sure you want to cancel this booking?",
-            style: AppFontStyle.text_14_400(AppColors.darkText),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text(
-                "No",
-                style: AppFontStyle.text_14_500(AppColors.grey),
-              ),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-                Navigator.pop(context); // Go back to bookings list
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text("Booking canceled successfully"),
-                    backgroundColor: AppColors.red,
+      barrierDismissible: false,
+      builder: (dialogContext) {
+        return ChangeNotifierProvider.value(
+          value: bookingProvider,
+          child: Consumer<BookingProvider>(
+            builder: (context, provider, child) {
+              return AlertDialog(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                title: Text(
+                  "Cancel Booking",
+                  style: AppFontStyle.text_18_600(AppColors.black),
+                ),
+                content: provider.isCancelling
+                    ? SizedBox(
+                        height: 50,
+                        child: Center(
+                          child: CircularProgressIndicator(
+                            color: AppColors.primary,
+                          ),
+                        ),
+                      )
+                    : Text(
+                        "Are you sure you want to cancel this booking?",
+                        maxLines: 2,
+                        style: AppFontStyle.text_14_400(AppColors.darkText),
+                      ),
+                actions: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.pop(dialogContext);
+                    },
+                    child: Text(
+                      "No",
+                      style: AppFontStyle.text_14_500(AppColors.grey),
+                    ),
                   ),
-                );
-              },
-              child: Text(
-                "Yes, Cancel",
-                style: AppFontStyle.text_14_500(AppColors.red),
-              ),
-            ),
-          ],
+                  if (!provider.isCancelling)
+                    TextButton(
+                      onPressed: () async {
+                        final success = await provider.cancelBooking(
+                          bookingId,
+                          context,
+                        );
+                        if (success) {
+                          Navigator.pop(context);
+                        }
+                      },
+                      child: Text(
+                        "Yes, Cancel",
+                        style: AppFontStyle.text_14_500(AppColors.red),
+                      ),
+                    ),
+                ],
+              );
+            },
+          ),
         );
       },
     );
