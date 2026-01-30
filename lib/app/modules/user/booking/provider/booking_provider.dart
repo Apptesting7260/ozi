@@ -23,6 +23,7 @@ class BookingProvider extends ChangeNotifier {
   int _totalBookings = 0;
   int _limit = 20;
   bool _hasMoreData = true;
+
   String getFullImageUrl(String? path) {
     if (path == null || path.isEmpty) return "";
     if (path.startsWith("http")) return path;

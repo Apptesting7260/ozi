@@ -430,6 +430,7 @@ class MyBookingsScreen extends StatelessWidget {
       if (lower.contains('confirm') || lower.contains('upcoming')) return 2;
       if (lower.contains('complet')) return 3;
       if (lower.contains('cancel')) return 4;
+
       return 0;
     }
     return currentTabIndex;
@@ -470,22 +471,9 @@ class MyBookingsScreen extends StatelessWidget {
       }
     }
 
-    if (effectiveTabIndex == 1 || effectiveTabIndex == 0) {
-      return CustomButton(
-        isOutlined: true,
-        text: "View Details",
-        textStyle: AppFontStyle.text_14_500(
-          AppColors.black,
-          fontFamily: AppFontFamily.medium,
-        ),
-        color: AppColors.lightGrey2,
-        height: 46,
-        onPressed: navigateToDetails,
-        onPressed: navigateToDetails,
-      );
-    }
+    bool isPending = booking.status?.toLowerCase().contains('pending') ?? false;
 
-    if (effectiveTabIndex == 2) {
+    if (effectiveTabIndex == 2 || isPending) {
       return Row(
         children: [
           Expanded(
@@ -509,6 +497,7 @@ class MyBookingsScreen extends StatelessWidget {
               child: CustomButton(
                 text: "Cancel Booking",
                 isOutlined: true,
+                borderColor: AppColors.red,
                 color: AppColors.red,
                 textStyle: AppFontStyle.text_14_500(
                   AppColors.red,
@@ -519,6 +508,20 @@ class MyBookingsScreen extends StatelessWidget {
               ),
             ),
         ],
+      );
+    }
+
+    if (effectiveTabIndex == 1 || effectiveTabIndex == 0) {
+      return CustomButton(
+        isOutlined: true,
+        text: "View Details",
+        textStyle: AppFontStyle.text_14_500(
+          AppColors.black,
+          fontFamily: AppFontFamily.medium,
+        ),
+        color: AppColors.lightGrey2,
+        height: 46,
+        onPressed: navigateToDetails,
       );
     }
 
@@ -537,20 +540,6 @@ class MyBookingsScreen extends StatelessWidget {
           ),
         ),
         wBox(14),
-        Expanded(
-          child: CustomButton(
-            text: "Book Again",
-            color: AppColors.primary,
-            onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text("Redirecting to booking..."),
-                  backgroundColor: AppColors.primary,
-                ),
-              );
-            },
-          ),
-        ),
       ],
     );
   }
