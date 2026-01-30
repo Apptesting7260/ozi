@@ -1,14 +1,22 @@
 import '../../../../../core/appExports/app_export.dart';
 import '../../../navigation tab/view/navigation_tab_screen.dart';
+import '../../schedule_service/Model/bookingcompletemodel.dart';
 import '../provider/BookingConfirmProvider.dart';
 
-class BookingConfirmScreen extends StatelessWidget {
-  const BookingConfirmScreen({super.key});
+class BookingConfirmScreen extends StatefulWidget {
+  final BookingconfirmerdModel? bookingModel;
+  const BookingConfirmScreen({super.key, this.bookingModel});
 
+  @override
+  State<BookingConfirmScreen> createState() => _BookingConfirmScreenState();
+}
+
+class _BookingConfirmScreenState extends State<BookingConfirmScreen> {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (_) => BookingConfirmProvider(),
+      create: (_) =>
+          BookingConfirmProvider(bookingconfirmerdModel: widget.bookingModel),
       child: Scaffold(
         backgroundColor: AppColors.white,
         body: SafeArea(
@@ -125,7 +133,7 @@ class BookingConfirmScreen extends StatelessWidget {
           ),
           SizedBox(height: 4),
           Text(
-            provider.bookingId,
+            provider.bookingCode,
             style: AppFontStyle.text_16_700(AppColors.black),
           ),
         ],
@@ -272,7 +280,7 @@ class BookingConfirmScreen extends StatelessWidget {
             children: [
               Text("Total", style: AppFontStyle.text_16_600(AppColors.black)),
               Text(
-                "\$${provider.total.toStringAsFixed(2)}",
+                "\$${provider.total}",
                 style: AppFontStyle.text_16_700(AppColors.primary),
               ),
             ],

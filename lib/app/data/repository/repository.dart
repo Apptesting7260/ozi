@@ -5,6 +5,7 @@ import 'package:ozi/app/modules/user/booking/model/bookingmodel.dart';
 import 'package:ozi/app/modules/user/cart/schedule_service/Model/bookservicemodel.dart';
 import 'package:ozi/app/modules/user/home/model/category_model.dart';
 import 'package:ozi/app/modules/user/home/service%20details/model/ServiceDetailsModel.dart';
+import 'package:ozi/app/modules/user/profile/setting/model/settingsmodel.dart';
 import 'package:ozi/app/modules/user/profile/view/model/logout_model.dart';
 import 'package:ozi/app/view/user_role/choose_your_role/model/choose_role_model.dart';
 import '../../core/appExports/app_export.dart';
@@ -154,6 +155,19 @@ class Repository {
       return CartItemsModel.fromJson(response);
     } catch (e) {
       print('getCartItemsApi Error: $e');
+      rethrow;
+    }
+  }
+
+  Future<settingsModel> settingsApi() async {
+    try {
+      print('API Request URL: ${AppUrls.settingsUrl}');
+
+      dynamic response = await _apiService.getApi(AppUrls.settingsUrl);
+      print('API Response: $response');
+      return settingsModel.fromJson(response);
+    } catch (e) {
+      print('settingsApi Error: $e');
       rethrow;
     }
   }

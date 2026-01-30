@@ -20,6 +20,8 @@ class BookingDetailsScreen extends StatefulWidget {
 }
 
 class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
+  bool _isOtpHidden = false;
+
   @override
   void initState() {
     super.initState();
@@ -102,12 +104,12 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
                         _serviceCards(data.items ?? []),
                         hBox(20),
 
-                        if (widget.tabIndex == 1 &&
-                            data.serviceStartOtp != null) ...[
-                          _otpSection(data.serviceStartOtp!),
-                          hBox(20),
-                        ],
+                        // if (widget.tabIndex == 1 &&
+                        //     data.serviceStartOtp != null) ...[
+                        _otpSection(data.serviceStartOtp!),
 
+                        //   hBox(20),
+                        // ],
                         if (data.vendor != null) ...[
                           _serviceProvider(data.vendor!, provider),
                           hBox(20),
@@ -299,21 +301,37 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Wrap(
-                  spacing: 12,
-                  children: otpDigits.map((digit) => _otpBox(digit)).toList(),
+                Container(
+                  padding: EdgeInsets.all(10),
+                  margin: EdgeInsets.only(right: 12),
+                  width: MediaQuery.of(context).size.width * 0.76,
+                  decoration: BoxDecoration(
+                    color: AppColors.lightGrey.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Row(
+                    children: [
+                      Wrap(
+                        spacing: 12,
+                        children: otpDigits
+                            .map((digit) => _otpBox(digit))
+                            .toList(),
+                      ),
+                      Spacer(),
+                      GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            _isOtpHidden = !_isOtpHidden;
+                          });
+                        },
+                        child: Text(
+                          _isOtpHidden ? "Show" : "Hide",
+                          style: AppFontStyle.text_14_600(AppColors.white),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-                // Container(
-                //   padding: EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                //   decoration: BoxDecoration(
-                //     color: AppColors.lightGrey.withValues(alpha: 0.15),
-                //     borderRadius: BorderRadius.circular(8),
-                //   ),
-                //   child: Text(
-                //     "Hide",
-                //     style: AppFontStyle.text_14_600(AppColors.white),
-                //   ),
-                // ),
               ],
             ),
           ],
@@ -331,7 +349,10 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
         borderRadius: BorderRadius.circular(8),
       ),
       alignment: Alignment.center,
-      child: Text(digit, style: AppFontStyle.text_20_600(AppColors.white)),
+      child: Text(
+        _isOtpHidden ? "*" : digit,
+        style: AppFontStyle.text_20_600(AppColors.white),
+      ),
     );
   }
 

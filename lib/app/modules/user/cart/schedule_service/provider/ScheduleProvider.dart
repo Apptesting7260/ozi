@@ -3,6 +3,8 @@ import 'package:ozi/app/data/repository/repository.dart';
 import 'package:ozi/app/modules/user/cart/booking%20confirmed/view/BookingConfirmScreen.dart';
 import 'package:ozi/app/modules/user/cart/schedule_service/Model/bookservicemodel.dart';
 
+import '../Model/bookingcompletemodel.dart';
+
 class ScheduleProvider extends ChangeNotifier {
   final Repository _repository = Repository();
 
@@ -13,7 +15,6 @@ class ScheduleProvider extends ChangeNotifier {
   );
   String? _selectedTime;
   BookServiceModel? _bookService;
-
   // Map<String, List<DaySlot>> _dayAvailability = {};
   Map<String, List<DaySlot>> _dayAvailability = {};
 
@@ -51,7 +52,6 @@ class ScheduleProvider extends ChangeNotifier {
   DateTime get selectedDate => _selectedDate;
   String? get selectedTime => _selectedTime;
   BookServiceModel? get bookService => _bookService;
-
   // Returns the available time slots for the selected day
   List<String> get availableTimesForSelectedDay {
     final dayName = _getDayName(_selectedDate);
@@ -198,9 +198,17 @@ class ScheduleProvider extends ChangeNotifier {
       if (response['status'] == true) {
         Get.showToast('Booking Placed Sucessfully', type: ToastType.success);
         notifyListeners();
+
+        BookingconfirmerdModel bookingModel = BookingconfirmerdModel.fromJson(
+          response,
+        );
+
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => BookingConfirmScreen()),
+          MaterialPageRoute(
+            builder: (context) =>
+                BookingConfirmScreen(bookingModel: bookingModel),
+          ),
         );
         // Navigator.pop(navigatorKey.currentContext!);
         return true;

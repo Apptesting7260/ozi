@@ -1,7 +1,6 @@
-
-
 import '../../../../../core/appExports/app_export.dart';
 import '../../../../../shared/widgets/custom_app_bar.dart';
+import '../../schedule_service/Model/bookingcompletemodel.dart';
 import '../../booking confirmed/view/BookingConfirmScreen.dart';
 import '../provider/CheckoutProvider.dart';
 
@@ -30,51 +29,60 @@ class CheckoutScreen extends StatelessWidget {
                           date: "Today",
                           time: "2:00 PM",
                         ),
-          
-                         hBox(10),
+
+                        hBox(10),
                         _serviceCard(
                           img: ImageConstants.onboard2,
                           title: "Shirt Sleeve Shortening & Fitting",
                           date: "Dec 10, 2025",
                           time: "2:00 PM",
                         ),
-          
-                    hBox(10),
-                        
+
+                        hBox(10),
+
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
                               'Service Address',
-                              style:  AppFontStyle.text_16_500( AppColors.black, fontFamily: AppFontFamily.medium
+                              style: AppFontStyle.text_16_500(
+                                AppColors.black,
+                                fontFamily: AppFontFamily.medium,
                               ),
                             ),
                             TextButton(
-                              onPressed: () {
-                              },
-                              child:  Text(
+                              onPressed: () {},
+                              child: Text(
                                 'Change Address >',
-                                style:  AppFontStyle.text_14_500( AppColors.primary, fontFamily: AppFontFamily.medium),
+                                style: AppFontStyle.text_14_500(
+                                  AppColors.primary,
+                                  fontFamily: AppFontFamily.medium,
+                                ),
                               ),
                             ),
                           ],
                         ),
                         Container(
-                          padding:  EdgeInsets.all(16),
+                          padding: EdgeInsets.all(16),
                           decoration: BoxDecoration(
                             color: Colors.white,
                             borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color:  AppColors.containerBorder),
+                            border: Border.all(
+                              color: AppColors.containerBorder,
+                            ),
                           ),
                           child: Row(
                             children: [
                               Container(
-                                padding:  EdgeInsets.all(10),
+                                padding: EdgeInsets.all(10),
                                 decoration: BoxDecoration(
-                                  color:   Color(0xFFF1F1F3),
+                                  color: Color(0xFFF1F1F3),
                                   borderRadius: BorderRadius.circular(30),
                                 ),
-                                child:  CustomImage(path: ImageConstants.home2, color: AppColors.black,)
+                                child: CustomImage(
+                                  path: ImageConstants.home2,
+                                  color: AppColors.black,
+                                ),
                               ),
                               SizedBox(width: 12),
                               Expanded(
@@ -83,13 +91,16 @@ class CheckoutScreen extends StatelessWidget {
                                   children: [
                                     Text(
                                       'Home',
-                                      style:  AppFontStyle.text_14_600( AppColors.black, fontFamily: AppFontFamily.semiBold
+                                      style: AppFontStyle.text_14_600(
+                                        AppColors.black,
+                                        fontFamily: AppFontFamily.semiBold,
                                       ),
                                     ),
                                     SizedBox(height: 4),
                                     Text(
                                       '123 Main Street, San Francisco, CA',
-                                      style:  AppFontStyle.text_14_400( AppColors.grey,
+                                      style: AppFontStyle.text_14_400(
+                                        AppColors.grey,
                                       ),
                                     ),
                                   ],
@@ -98,45 +109,48 @@ class CheckoutScreen extends StatelessWidget {
                             ],
                           ),
                         ),
-          
+
                         SizedBox(height: 12),
-          
+
                         // ========== PAYMENT METHOD ==========
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
                               'Payment Method',
-                              style:  AppFontStyle.text_16_500( AppColors.black, fontFamily: AppFontFamily.medium
+                              style: AppFontStyle.text_16_500(
+                                AppColors.black,
+                                fontFamily: AppFontFamily.medium,
                               ),
                             ),
                             TextButton(
-                              onPressed: () {
-                              },
-                              child:  Text(
+                              onPressed: () {},
+                              child: Text(
                                 'Change method >',
-                                style:  AppFontStyle.text_14_500( AppColors.primary, fontFamily: AppFontFamily.medium
+                                style: AppFontStyle.text_14_500(
+                                  AppColors.primary,
+                                  fontFamily: AppFontFamily.medium,
                                 ),
                               ),
                             ),
                           ],
                         ),
                         Container(
-                          padding:  EdgeInsets.all(16),
+                          padding: EdgeInsets.all(16),
                           decoration: BoxDecoration(
                             color: Colors.white,
                             borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color:  Color(0xFFE0E0E0)),
+                            border: Border.all(color: Color(0xFFE0E0E0)),
                           ),
                           child: Row(
                             children: [
                               Container(
-                                padding:  EdgeInsets.all(10),
+                                padding: EdgeInsets.all(10),
                                 decoration: BoxDecoration(
-                                  color:  Color(0xFFF1F1F3),
+                                  color: Color(0xFFF1F1F3),
                                   borderRadius: BorderRadius.circular(30),
                                 ),
-                                child:  Icon(
+                                child: Icon(
                                   Icons.credit_card,
                                   color: Colors.black54,
                                   size: 24,
@@ -149,13 +163,16 @@ class CheckoutScreen extends StatelessWidget {
                                   children: [
                                     Text(
                                       'Credit Card',
-                                      style:  AppFontStyle.text_14_600( AppColors.black, fontFamily: AppFontFamily.semiBold
+                                      style: AppFontStyle.text_14_600(
+                                        AppColors.black,
+                                        fontFamily: AppFontFamily.semiBold,
                                       ),
                                     ),
                                     SizedBox(height: 4),
                                     Text(
                                       '•••• •••• •••• 4242',
-                                      style:  AppFontStyle.text_14_400( AppColors.grey,
+                                      style: AppFontStyle.text_14_400(
+                                        AppColors.grey,
                                       ),
                                     ),
                                   ],
@@ -164,17 +181,16 @@ class CheckoutScreen extends StatelessWidget {
                             ],
                           ),
                         ),
-          
-                        SizedBox(height: 24),
-          
-                        _summary(provider),
 
+                        SizedBox(height: 24),
+
+                        _summary(provider),
                       ],
                     );
                   },
                 ),
               ),
-          
+
               _bottomConfirmButton(context),
             ],
           ),
@@ -210,9 +226,7 @@ class CheckoutScreen extends StatelessWidget {
             height: 50,
             width: 50,
             clipBehavior: Clip.hardEdge,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(12),
-            ),
+            decoration: BoxDecoration(borderRadius: BorderRadius.circular(12)),
             child: CustomImage(path: img, fit: BoxFit.cover),
           ),
 
@@ -222,10 +236,7 @@ class CheckoutScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  title,
-                  style: AppFontStyle.text_14_600(AppColors.black),
-                ),
+                Text(title, style: AppFontStyle.text_14_600(AppColors.black)),
                 hBox(6),
                 Row(
                   children: [
@@ -235,7 +246,7 @@ class CheckoutScreen extends StatelessWidget {
                       date,
                       style: AppFontStyle.text_12_500(AppColors.darkText),
                     ),
-                     wBox(10),
+                    wBox(10),
                     CustomImage(path: ImageConstants.clock),
                     wBox(4),
                     Text(
@@ -256,10 +267,7 @@ class CheckoutScreen extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          "Order Summary",
-          style: AppFontStyle.text_16_700(AppColors.black),
-        ),
+        Text("Order Summary", style: AppFontStyle.text_16_700(AppColors.black)),
 
         SizedBox(height: 10),
 
@@ -271,13 +279,13 @@ class CheckoutScreen extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
-              "Total",
-              style: AppFontStyle.text_16_700(AppColors.black),
-            ),
+            Text("Total", style: AppFontStyle.text_16_700(AppColors.black)),
             Text(
               "\$${provider.total.toStringAsFixed(2)}",
-              style: AppFontStyle.text_16_600(AppColors.primary, fontFamily: AppFontFamily.semiBold),
+              style: AppFontStyle.text_16_600(
+                AppColors.primary,
+                fontFamily: AppFontFamily.semiBold,
+              ),
             ),
           ],
         ),
@@ -291,10 +299,11 @@ class CheckoutScreen extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label,
-              style: AppFontStyle.text_16_400(AppColors.grey)),
-          Text("\$${amount.toStringAsFixed(2)}",
-              style: AppFontStyle.text_16_400(AppColors.black)),
+          Text(label, style: AppFontStyle.text_16_400(AppColors.grey)),
+          Text(
+            "\$${amount.toStringAsFixed(2)}",
+            style: AppFontStyle.text_16_400(AppColors.black),
+          ),
         ],
       ),
     );
@@ -309,7 +318,8 @@ class CheckoutScreen extends StatelessWidget {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (_) => BookingConfirmScreen(),
+              builder: (_) =>
+                  BookingConfirmScreen(bookingModel: BookingconfirmerdModel()),
             ),
           );
         },

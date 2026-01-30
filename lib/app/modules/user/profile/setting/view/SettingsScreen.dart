@@ -1,3 +1,5 @@
+import 'package:ozi/app/modules/user/profile/setting/provider/settingprovider.dart';
+
 import '../../../../../core/appExports/app_export.dart';
 import '../../../../../shared/widgets/custom_app_bar.dart';
 import '../../../../../shared/widgets/custom_toggle_switch.dart';
@@ -11,74 +13,87 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-
   bool notificationOn = true;
-   String termsUrl = "https://www.iubenda.com/en/help/2859-terms-and-conditions-when-are-they-needed";
-   String privacyUrl = "https://www.iubenda.com/en/help/2859-terms-and-conditions-when-are-they-needed";
+  String termsUrl =
+      "https://www.iubenda.com/en/help/2859-terms-and-conditions-when-are-they-needed";
+  String privacyUrl =
+      "https://www.iubenda.com/en/help/2859-terms-and-conditions-when-are-they-needed";
 
+  Settingprovider provider = Settingprovider();
   @override
+  void initState() {
+    super.initState();
+    provider.settingsApi();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Column(
-        children: [
-           CustomAppBar(title: "Settings"),
-
-          Expanded(
-            child: ListView(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
+      body: ChangeNotifierProvider.value(
+        value: provider,
+        child: Consumer<Settingprovider>(
+          builder: (context, provider, child) {
+            return Column(
               children: [
-                hBox(18),
+                CustomAppBar(title: "Settings"),
 
-                _settingsTile(
-                  icon: ImageConstants.bell,
-                  title: "Push Notifications",
-                  toggle: true,
-                ),
+                Expanded(
+                  child: ListView(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    children: [
+                      hBox(18),
 
-                _settingsTile(
-                  icon: ImageConstants.document,
-                  title: "Terms & Conditions",
-                  showArrow: true,
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => CommonScreen(
-                          type: "Terms & Conditions",
-                          url: termsUrl,
-                        ),
+                      _settingsTile(
+                        icon: ImageConstants.bell,
+                        title: "Push Notifications",
+                        toggle: true,
                       ),
-                    );
-                  },
-                ),
 
-                _settingsTile(
-                  icon: ImageConstants.document,
-                  title: "Privacy Policy",
-                  showArrow: true,
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => CommonScreen(
-                          type: "Privacy Policy",
-                          url: privacyUrl,
-                        ),
+                      _settingsTile(
+                        icon: ImageConstants.document,
+                        title: "Terms & Conditions",
+                        showArrow: true,
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => CommonScreen(
+                                type: "Terms & Conditions",
+                                url: termsUrl,
+                              ),
+                            ),
+                          );
+                        },
                       ),
-                    );
-                  },
-                ),
 
-                _deleteTile(),
+                      _settingsTile(
+                        icon: ImageConstants.document,
+                        title: "Privacy Policy",
+                        showArrow: true,
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => CommonScreen(
+                                type: "Privacy Policy",
+                                url: privacyUrl,
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+
+                      _deleteTile(),
+                    ],
+                  ),
+                ),
               ],
-            ),
-          ),
-        ],
+            );
+          },
+        ),
       ),
     );
   }
-
 
   // --------------------------------------------------------------------------
   // NORMAL TILE
@@ -104,7 +119,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ),
         child: Row(
           children: [
-
             CustomImage(path: icon, height: 22, width: 22),
             SizedBox(width: 14),
 
@@ -126,11 +140,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 },
               ),
 
-            if (showArrow)
-              CustomImage(
-                path: ImageConstants.rightBack,
-              ),
-
+            if (showArrow) CustomImage(path: ImageConstants.rightBack),
           ],
         ),
       ),
@@ -157,7 +167,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ),
         child: Row(
           children: [
-
             CustomImage(
               path: ImageConstants.bin,
               color: AppColors.red,
@@ -170,7 +179,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
               "Delete Account",
               style: AppFontStyle.text_14_600(AppColors.red),
             ),
-
           ],
         ),
       ),
@@ -198,7 +206,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-
                 Text(
                   "Delete Account?",
                   style: AppFontStyle.text_20_600(
@@ -229,7 +236,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
                 CustomButton(
                   text: "No, Don’t Delete",
-                  textStyle: AppFontStyle.text_14_500(AppColors.darkText, fontFamily: AppFontFamily.medium),
+                  textStyle: AppFontStyle.text_14_500(
+                    AppColors.darkText,
+                    fontFamily: AppFontFamily.medium,
+                  ),
                   color: AppColors.grey,
                   isOutlined: true,
                   borderRadius: BorderRadius.circular(30),
