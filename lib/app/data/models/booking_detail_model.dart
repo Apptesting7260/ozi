@@ -1,3 +1,5 @@
+import 'all_bookings_model.dart';
+
 class BookingDetailModel {
   bool? status;
   BookingDetailModelData? data;
@@ -36,6 +38,7 @@ class BookingDetailModelData {
   String? createdAt;
   String? updatedAt;
   List<Items>? items;
+  Address? address;
   User? user;
 
   BookingDetailModelData(
@@ -55,6 +58,7 @@ class BookingDetailModelData {
         this.createdAt,
         this.updatedAt,
         this.items,
+        this.address,
         this.user});
 
   BookingDetailModelData.fromJson(Map<String, dynamic> json) {
@@ -81,6 +85,9 @@ class BookingDetailModelData {
         items!.add(new Items.fromJson(v));
       });
     }
+    address = json['address'] != null
+        ? new Address.fromJson(json['address'])
+        : null;
     user = json['user'] != null ? new User.fromJson(json['user']) : null;
   }
 
@@ -166,7 +173,7 @@ class Items {
     serviceItemTotal = json['service_item_total']?.toString();
     createdAt = json['created_at']?.toString();
     updatedAt = json['updated_at']?.toString();
-    image = json['service_image']?.toString();
+    image = json['service']['service_image']?.toString();
   }
 
   Map<String, dynamic> toJson() {
