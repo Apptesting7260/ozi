@@ -1,9 +1,8 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:ozi/app/core/appExports/app_export.dart';
 import 'package:ozi/app/data/storage/user_preference.dart';
-
+import 'package:ozi/app/modules/user/home/provider/HomeScreenProvider.dart';
 import '../../../../../core/constants/app_urls.dart';
 import '../../../../../data/network/network_api_services.dart';
 import '../../../../../data/response/api_response.dart';
@@ -14,8 +13,17 @@ import '../view/set_availability.dart';
 class ServiceCategoryProvider extends ChangeNotifier {
   final NetworkApiServices _apiService = NetworkApiServices();
 
-  ServiceCategoryProvider(){
-    getAllCategorites();
+  ServiceCategoryProvider() {
+    print(
+      "lng: ${navigatorKey.currentContext!.read<HomeScreenProvider>().lng}",
+    );
+    print(
+      "lat: ${navigatorKey.currentContext!.read<HomeScreenProvider>().lat}",
+    );
+    getAllCategorites(
+      navigatorKey.currentContext!.read<HomeScreenProvider>().lng.toString(),
+      navigatorKey.currentContext!.read<HomeScreenProvider>().lat.toString(),
+    );
   }
 
   // final categories = [
@@ -30,7 +38,6 @@ class ServiceCategoryProvider extends ChangeNotifier {
   //   "Painting",
   // ];
 
-
   final List<String> _selected = [];
 
   List<String> get selected => _selected;
@@ -44,11 +51,10 @@ class ServiceCategoryProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-
   ApiResponse<GetAllCategoriesModel> _categoriesModel = ApiResponse.loading();
   ApiResponse<GetAllCategoriesModel> get categoriesModel => _categoriesModel;
 
-  setCategoryModel(ApiResponse<GetAllCategoriesModel> value){
+  setCategoryModel(ApiResponse<GetAllCategoriesModel> value) {
     _categoriesModel = value;
     notifyListeners();
   }
@@ -60,40 +66,45 @@ class ServiceCategoryProvider extends ChangeNotifier {
   //   notifyListeners();
   // }
 
-  Future<void> getAllCategorites()async {
+  Future<void> getAllCategorites(String? lng, String? lat) async {
     // updateDataLoading(true);
     print('getting categories');
     setCategoryModel(ApiResponse.loading());
     try {
-      final response = await _apiService.getApiWithoutToken(AppUrls.getAllCategories,);
-      print(response);//data['api_token'],data['role']
+      final response = await _apiService.getApiWithoutToken(
+        "${AppUrls.getAllCategories}?longitude=${lng}&latitude=${lat}",
+      );
+      print(response); //data['api_token'],data['role']
       // updateCategoryModel(GetAllCategoriesModel.fromJson(response));
-      setCategoryModel(ApiResponse.completed(GetAllCategoriesModel.fromJson(response)));
+      setCategoryModel(
+        ApiResponse.completed(GetAllCategoriesModel.fromJson(response)),
+      );
       // loginWithSaveTokenRedirection(response['data']['user_role']?.toString(),response['data']['api_token']?.toString());
       // ChooseRoleModel.fromJson(response);
     } catch (e) {
       setCategoryModel(ApiResponse.error('Internal Server Error'));
     }
-
   }
 
   bool _submitLoading = false;
   bool get submitLoading => _submitLoading;
-  updateSubmitLoading(bool value){
+  updateSubmitLoading(bool value) {
     _submitLoading = value;
     notifyListeners();
   }
 
-  Future<void> saveCategorites()async {
+  Future<void> saveCategorites() async {
     updateSubmitLoading(true);
     try {
-      Map<String,String> fields = {};
-      _selected.forEach((e){
-        fields.addAll({
-          "categories[]":e
-        });
+      Map<String, String> fields = {};
+      _selected.forEach((e) {
+        fields.addAll({"categories[]": e});
       });
-      final response = await _apiService.postApiMultiPart(AppUrls.saveCategoryForVendor,fields,{});
+      final response = await _apiService.postApiMultiPart(
+        AppUrls.saveCategoryForVendor,
+        fields,
+        {},
+      );
       print(response);
       updateSubmitLoading(false);
       // Navigator.push(
@@ -105,17 +116,13 @@ class ServiceCategoryProvider extends ChangeNotifier {
       await UserPreference.saveStep('2');
       Navigator.push(
         navigatorKey.currentContext!,
-        MaterialPageRoute(
-          builder: (_) => SetAvailabilityScreen(),
-        ),
+        MaterialPageRoute(builder: (_) => SetAvailabilityScreen()),
       );
     } catch (e) {
       updateSubmitLoading(false);
       showCustomToast(navigatorKey.currentContext!, e.toString());
     }
-
   }
-
 
   bool isSelected(String category) => _selected.contains(category);
 }

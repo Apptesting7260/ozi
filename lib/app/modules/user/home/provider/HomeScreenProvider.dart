@@ -1,9 +1,15 @@
+import 'package:geocoding/geocoding.dart';
+import 'package:geolocator/geolocator.dart';
+
 import '../../../../core/appExports/app_export.dart';
 import '../../../../data/repository/repository.dart';
 import '../model/category_model.dart';
 import '../services/view/CategoryDetailScreen.dart';
 
 class HomeScreenProvider extends ChangeNotifier {
+  HomeScreenProvider() {
+    getCurrentLocation();
+  }
   String _selectedLocation = "Select Location";
   final String _userName = "Alex";
 
@@ -43,23 +49,24 @@ class HomeScreenProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-
   Future<void> fetchCategories() async {
     try {
-      final CategoryModel model =
-      await _repository.homePageCategoryApi({});
+      final CategoryModel model = await _repository.homePageCategoryApi(
+        lat ?? "",
+        lng ?? "",
+      );
 
       _serviceCategories.clear();
-
-      if (model.status == true && model.data != null && model.data!.isNotEmpty) {
+      print("lat lonhg : $lat $lng");
+      if (model.status == true &&
+          model.data != null &&
+          model.data!.isNotEmpty) {
         _serviceCategories.addAll(model.data!);
       }
-
     } catch (e) {
       debugPrint("❌ Category API Error: $e");
     }
   }
-
 
   void updateLocation(String location) {
     _selectedLocation = location;
@@ -70,15 +77,77 @@ class HomeScreenProvider extends ChangeNotifier {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => CategoryDetailScreen(
-          category: category,
-        ),
+        builder: (_) => CategoryDetailScreen(category: category),
       ),
     );
   }
   // Future<void> refreshData() async {
   //   await fetchCategories();
   // }
+
+  String? lat;
+  String? lng;
+  String? countryCode;
+  String? countryName;
+  Future<bool> getCurrentLocation() async {
+    try {
+      bool serviceEnabled;
+      LocationPermission permission;
+
+      // GPS on
+      serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) {
+        print("Location denied. Please enable location services");
+        return false;
+      }
+
+      permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+        if (permission == LocationPermission.denied) {
+          print("Location permission denied.");
+          return false;
+        }
+      }
+
+      if (permission == LocationPermission.deniedForever) {
+        print("Location permission denied");
+        return false;
+      }
+
+      Position position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high,
+        timeLimit: Duration(seconds: 10),
+      );
+
+      lat = position.latitude.toStringAsFixed(6);
+      lng = position.longitude.toStringAsFixed(6);
+
+      print("Latitude value: ${lat.toString()}");
+      print("Longitude value: ${lng.toString()}");
+
+      List<Placemark> placemarks = await placemarkFromCoordinates(
+        position.latitude,
+        position.longitude,
+      );
+
+      if (placemarks.isNotEmpty) {
+        Placemark place = placemarks.first;
+
+        countryName = place.country;
+        countryCode = place.isoCountryCode;
+
+        print("Country: $countryName");
+        print("Country Code: $countryCode");
+      }
+      var body = {"lat": lat ?? "", "long": lng ?? ""};
+
+      return true; // success
+    } catch (e) {
+      print("Location error: $e");
+      return false;
+    }
+  }
 
   void onBecomeProviderTap(BuildContext context) {}
   void onLocationTap(BuildContext context) {}

@@ -66,9 +66,15 @@ class Repository {
 
   // ********************************** Category Api ****************************//
 
-  Future<CategoryModel> homePageCategoryApi(Map<String, dynamic> data) async {
+  Future<CategoryModel> homePageCategoryApi(
+    // Map<String, dynamic> data,
+    String lat,
+    String lng,
+  ) async {
     try {
-      dynamic response = await _apiService.getApi(AppUrls.getHomeCategories);
+      dynamic response = await _apiService.getApi(
+        "${AppUrls.getHomeCategories}?longitude=$lng&latitude=$lat",
+      );
       return CategoryModel.fromJson(response);
     } catch (e) {
       throw Exception(e);
