@@ -2,8 +2,6 @@ class AppUrls {
   static const String baseUrl = "https://nbturls.in/oziservice/api";
   static const String imageBaseUrl = "https://nbturls.in/oziservice/public/";
 
-
-
   static const String login = "$baseUrl/send-otp";
   static const String verification = "$baseUrl/verify-otp";
   static const String chooseRole = "$baseUrl/select-user-role";
@@ -22,8 +20,14 @@ class AppUrls {
   static const String addUserAddress = "$baseUrl/store-user-address";
   static const String updateUserAddress = "$baseUrl/update-user-address";
   static const String deleteUserAddress = "$baseUrl/delete-user-address";
-
-
+  static const String schedule_service = "$baseUrl/booking-vendor-availability";
+  static const String bookService = "$baseUrl/book-services";
+  static const String cancelBooking = "$baseUrl/booking-cancel";
+  static const String getAllBookings = "$baseUrl/get-user-bookings";
+  static const String getBookingDetails = "$baseUrl/user-booking-details?";
+  static const String settingsUrl = "$baseUrl/settings?";
+  static const String deleteAccountUrl = "$baseUrl/delete-profile";
+  static const String updateNotificationUrl = "$baseUrl/update-notification?";
 
   // Vendor APIs
   static const String getAllCategories = "$baseUrl/get-all-categories";
@@ -37,8 +41,10 @@ class AppUrls {
   static const String acceptRejectBooking = "$baseUrl/vendor-Booking-Action";
   static const String vendorUpdateLocation = "$baseUrl/vendor-update-location";
   static const String vendorAllBookings = "$baseUrl/vendor-home-all-bookings";
+
   static const String vendorMyBookings = "$baseUrl/my-bookings?page={page}&limit=10";
   static const String vendorMyBookingsDetails = "$baseUrl/booking-details/{bookingid}";
   static const String vendorOtpVerify = "$baseUrl/verify-service-otp";
   static const String completeJob = "$baseUrl/complete-booking-status";
+
 }

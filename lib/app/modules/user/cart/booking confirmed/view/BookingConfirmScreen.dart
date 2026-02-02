@@ -1,17 +1,22 @@
-
-import 'package:ozi/app/modules/user/booking/view/booking_screen.dart';
-
 import '../../../../../core/appExports/app_export.dart';
 import '../../../navigation tab/view/navigation_tab_screen.dart';
+import '../../schedule_service/Model/bookingcompletemodel.dart';
 import '../provider/BookingConfirmProvider.dart';
 
-class BookingConfirmScreen extends StatelessWidget {
-  const BookingConfirmScreen({super.key});
+class BookingConfirmScreen extends StatefulWidget {
+  final BookingconfirmerdModel? bookingModel;
+  const BookingConfirmScreen({super.key, this.bookingModel});
 
+  @override
+  State<BookingConfirmScreen> createState() => _BookingConfirmScreenState();
+}
+
+class _BookingConfirmScreenState extends State<BookingConfirmScreen> {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (_) => BookingConfirmProvider(),
+      create: (_) =>
+          BookingConfirmProvider(bookingconfirmerdModel: widget.bookingModel),
       child: Scaffold(
         backgroundColor: AppColors.white,
         body: SafeArea(
@@ -24,42 +29,39 @@ class BookingConfirmScreen extends StatelessWidget {
                       padding: REdgeInsets.symmetric(horizontal: 16),
                       child: Column(
                         children: [
-
                           hBox(10),
-          
+
                           _successIcon(),
 
                           hBox(14),
-          
+
                           Text(
                             "Booking Confirmed!",
                             style: AppFontStyle.text_20_700(
                               AppColors.black,
-                              fontFamily: AppFontFamily.bold
+                              fontFamily: AppFontFamily.bold,
                             ),
                             textAlign: TextAlign.center,
                           ),
 
                           hBox(6),
-          
+
                           Text(
                             "Your service has been booked successfully",
-                            style: AppFontStyle.text_14_400(
-                              AppColors.darkText,
-                            ),
+                            style: AppFontStyle.text_14_400(AppColors.darkText),
                             textAlign: TextAlign.center,
                           ),
-          
+
                           hBox(20),
-          
+
                           _bookingID(provider),
 
                           hBox(20),
-          
+
                           _otpCard(provider),
 
                           hBox(20),
-          
+
                           _detailsCard(provider),
 
                           hBox(20),
@@ -100,11 +102,7 @@ class BookingConfirmScreen extends StatelessWidget {
             color: AppColors.primary,
           ),
           child: const Center(
-            child: Icon(
-              Icons.check,
-              color: Colors.white,
-              size: 40,
-            ),
+            child: Icon(Icons.check, color: Colors.white, size: 40),
           ),
         ),
       ),
@@ -125,7 +123,6 @@ class BookingConfirmScreen extends StatelessWidget {
             offset: Offset(0, 2),
           ),
         ],
-
       ),
 
       child: Column(
@@ -136,7 +133,7 @@ class BookingConfirmScreen extends StatelessWidget {
           ),
           SizedBox(height: 4),
           Text(
-            provider.bookingId,
+            provider.bookingCode,
             style: AppFontStyle.text_16_700(AppColors.black),
           ),
         ],
@@ -169,27 +166,28 @@ class BookingConfirmScreen extends StatelessWidget {
             children: provider.otp
                 .map(
                   (e) => Container(
-                height: 50,
-                width: 45,
-                margin: EdgeInsets.symmetric(horizontal: 5),
-                decoration: BoxDecoration(
-                  color: AppColors.lightGrey.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Center(
-                  child: Text(
-                    e,
-                    style: AppFontStyle.text_20_700(AppColors.white),
+                    height: 50,
+                    width: 45,
+                    margin: EdgeInsets.symmetric(horizontal: 5),
+                    decoration: BoxDecoration(
+                      color: AppColors.lightGrey.withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Center(
+                      child: Text(
+                        e,
+                        style: AppFontStyle.text_20_700(AppColors.white),
+                      ),
+                    ),
                   ),
-                ),
-              ),
-            )
+                )
                 .toList(),
           ),
         ],
       ),
     );
   }
+
   Widget _detailsCard(BookingConfirmProvider provider) {
     return Container(
       width: double.infinity,
@@ -209,7 +207,6 @@ class BookingConfirmScreen extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-
           /// Title
           Text(
             "Booking Details",
@@ -222,14 +219,14 @@ class BookingConfirmScreen extends StatelessWidget {
           hBox(18),
 
           /// Service
-          Text(
-            "Service",
-            style: AppFontStyle.text_12_400(AppColors.grey, ),
-          ),
+          Text("Service", style: AppFontStyle.text_12_400(AppColors.grey)),
           SizedBox(height: 4),
           Text(
             provider.serviceName,
-            style: AppFontStyle.text_14_500(AppColors.black, fontFamily: AppFontFamily.medium),
+            style: AppFontStyle.text_14_500(
+              AppColors.black,
+              fontFamily: AppFontFamily.medium,
+            ),
           ),
 
           SizedBox(height: 14),
@@ -242,7 +239,10 @@ class BookingConfirmScreen extends StatelessWidget {
           SizedBox(height: 4),
           Text(
             provider.providerName,
-            style: AppFontStyle.text_14_500(AppColors.black, fontFamily: AppFontFamily.medium),
+            style: AppFontStyle.text_14_500(
+              AppColors.black,
+              fontFamily: AppFontFamily.medium,
+            ),
           ),
 
           SizedBox(height: 22),
@@ -278,12 +278,9 @@ class BookingConfirmScreen extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
+              Text("Total", style: AppFontStyle.text_16_600(AppColors.black)),
               Text(
-                "Total",
-                style: AppFontStyle.text_16_600(AppColors.black),
-              ),
-              Text(
-                "\$${provider.total.toStringAsFixed(2)}",
+                "\$${provider.total}",
                 style: AppFontStyle.text_16_700(AppColors.primary),
               ),
             ],
@@ -292,6 +289,7 @@ class BookingConfirmScreen extends StatelessWidget {
       ),
     );
   }
+
   Widget _detailsRow({
     required String imagePath,
     required String label,
@@ -300,7 +298,6 @@ class BookingConfirmScreen extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-
         /// Left circular image
         Container(
           height: 32,
@@ -325,10 +322,7 @@ class BookingConfirmScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                label,
-                style: AppFontStyle.text_12_400(AppColors.grey),
-              ),
+              Text(label, style: AppFontStyle.text_12_400(AppColors.grey)),
               hBox(2),
               Text(
                 value,
@@ -348,10 +342,16 @@ class BookingConfirmScreen extends StatelessWidget {
     return CustomButton(
       text: "View My Bookings",
       onPressed: () {
-        Navigator.push(context, MaterialPageRoute(builder: (_) =>   NavigationTabScreen( initialIndex: 2,)));
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => NavigationTabScreen(initialIndex: 2),
+          ),
+        );
       },
     );
   }
+
   Widget _bottomActions() {
     return Row(
       children: [
@@ -364,11 +364,7 @@ class BookingConfirmScreen extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                CustomImage(
-                  path: ImageConstants.home1,
-                  height: 20,
-                  width: 20,
-                ),
+                CustomImage(path: ImageConstants.home1, height: 20, width: 20),
                 wBox(8),
                 Text(
                   "Home",
@@ -390,11 +386,7 @@ class BookingConfirmScreen extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                CustomImage(
-                  path: ImageConstants.share,
-                  height: 20,
-                  width: 20,
-                ),
+                CustomImage(path: ImageConstants.share, height: 20, width: 20),
                 wBox(8),
                 Text(
                   "Share",
@@ -410,5 +402,4 @@ class BookingConfirmScreen extends StatelessWidget {
       ],
     );
   }
-
 }

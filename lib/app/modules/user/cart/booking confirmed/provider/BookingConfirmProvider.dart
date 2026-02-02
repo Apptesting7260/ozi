@@ -1,18 +1,37 @@
 import 'package:flutter/material.dart';
+import '../../schedule_service/Model/bookingcompletemodel.dart';
 
 class BookingConfirmProvider extends ChangeNotifier {
-  String bookingId = "BK-2024-001";
+  final BookingconfirmerdModel? bookingconfirmerdModel;
 
-  String serviceName = "Shirt Sleeve Shortening & Fitting Service";
-  String providerName = "John Doe";
+  BookingConfirmProvider({this.bookingconfirmerdModel});
 
-  String bookingDate = "December 10, 2024";
-  String bookingTime = "10:00 AM";
+  List<String> get otp {
+    if (bookingconfirmerdModel?.data?.serviceStartOtp != null) {
+      return bookingconfirmerdModel!.data!.serviceStartOtp.toString().split('');
+    }
+    return ["1", "1", "1", "1"];
+  }
 
-  String address =
-      "123 Main Street, Apt 4B, San Francisco, CA 94102";
+  String get serviceName {
+    if (bookingconfirmerdModel?.data?.services != null &&
+        bookingconfirmerdModel!.data!.services!.isNotEmpty) {
+      return bookingconfirmerdModel!.data!.services![0].serviceName ?? "";
+    }
+    return "";
+  }
 
-  double total = 173.26;
+  String get providerName => bookingconfirmerdModel?.data?.vendor?.name ?? "";
 
-  List<String> otp = ["1", "1", "1", "1"];
+  String get bookingDate => bookingconfirmerdModel?.data?.serviceDate ?? "";
+
+  String get bookingTime =>
+      bookingconfirmerdModel?.data?.serviceTime?.from ?? "";
+
+  String get address =>
+      bookingconfirmerdModel?.data?.address?.streetAddress ?? "";
+
+  String get total => bookingconfirmerdModel?.data?.total ?? "0.00";
+
+  String get bookingCode => bookingconfirmerdModel?.data?.bookingCode ?? "";
 }
