@@ -46,5 +46,6 @@ class AppUrls {
   static const String vendorMyBookingsDetails = "$baseUrl/booking-details/{bookingid}";
   static const String vendorOtpVerify = "$baseUrl/verify-service-otp";
   static const String completeJob = "$baseUrl/complete-booking-status";
+  static const String getAllServicesVendor = "$baseUrl/get-vendor-services";
 
 }
