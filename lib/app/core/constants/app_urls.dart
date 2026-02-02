@@ -28,6 +28,8 @@ class AppUrls {
   static const String settingsUrl = "$baseUrl/settings?";
   static const String deleteAccountUrl = "$baseUrl/delete-profile";
   static const String updateNotificationUrl = "$baseUrl/update-notification?";
+  static const String helpSupportUrl = "$baseUrl/get-faqs";
+  static const String SupportUrl = "$baseUrl/send-user-email";
 
   // Vendor APIs
   static const String getAllCategories = "$baseUrl/get-all-categories";
@@ -42,9 +44,10 @@ class AppUrls {
   static const String vendorUpdateLocation = "$baseUrl/vendor-update-location";
   static const String vendorAllBookings = "$baseUrl/vendor-home-all-bookings";
 
-  static const String vendorMyBookings = "$baseUrl/my-bookings?page={page}&limit=10";
-  static const String vendorMyBookingsDetails = "$baseUrl/booking-details/{bookingid}";
+  static const String vendorMyBookings =
+      "$baseUrl/my-bookings?page={page}&limit=10";
+  static const String vendorMyBookingsDetails =
+      "$baseUrl/booking-details/{bookingid}";
   static const String vendorOtpVerify = "$baseUrl/verify-service-otp";
   static const String completeJob = "$baseUrl/complete-booking-status";
-
 }

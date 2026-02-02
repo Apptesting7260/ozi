@@ -7,6 +7,7 @@ import 'package:ozi/app/modules/user/home/model/category_model.dart';
 import 'package:ozi/app/modules/user/home/service%20details/model/ServiceDetailsModel.dart';
 import 'package:ozi/app/modules/user/profile/setting/model/settingsmodel.dart';
 import 'package:ozi/app/modules/user/profile/view/model/logout_model.dart';
+import 'package:ozi/app/modules/vendor/profile/help/model/helpsupportmodel.dart';
 import 'package:ozi/app/view/user_role/choose_your_role/model/choose_role_model.dart';
 import '../../core/appExports/app_export.dart';
 import '../../core/constants/app_urls.dart';
@@ -103,6 +104,24 @@ class Repository {
       return ServiceDetailsModel.fromJson(response);
     } catch (e) {
       dev.log('Error in serviceDetailsApi: $e');
+      throw Exception(e);
+    }
+  }
+
+  // *********************************** HelpCenter Api ***************************************//
+  Future<helpSupportModel> helpCenterApi(String type) async {
+    try {
+      final url = '${AppUrls.helpSupportUrl}?type=$type';
+
+      dev.log('helpCenterApi URL: $url');
+
+      dynamic response = await _apiService.getApi(url);
+
+      dev.log('helpCenterApi Response: $response');
+
+      return helpSupportModel.fromJson(response);
+    } catch (e) {
+      dev.log('Error in helpCenterApi: $e');
       throw Exception(e);
     }
   }
@@ -314,6 +333,21 @@ class Repository {
       return response;
     } catch (e) {
       dev.log("Error in addNewUserAddressApi: $e");
+      throw Exception(e);
+    }
+  }
+
+  // ********************************************* Support Api ***********************************************//
+  Future<dynamic> supportApi(Map<String, dynamic> data) async {
+    try {
+      dev.log("Support API URL: ${AppUrls.SupportUrl}");
+      dev.log("Request Data: $data");
+
+      final response = await _apiService.postApi(data, AppUrls.SupportUrl);
+
+      return response;
+    } catch (e) {
+      dev.log("Error in supportApi: $e");
       throw Exception(e);
     }
   }

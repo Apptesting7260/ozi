@@ -71,9 +71,8 @@ class _LoginScreenState extends State<LoginScreen> {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (_) => VerificationScreen(
-              phone: "+$countryCode $phoneNumber",
-            ),
+            builder: (_) =>
+                VerificationScreen(phone: "+$countryCode $phoneNumber"),
           ),
         );
       }
@@ -91,9 +90,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
     Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (_) => ChooseRoleScreen(),
-      ),
+      MaterialPageRoute(builder: (_) => ChooseRoleScreen()),
     );
   }
 
@@ -125,9 +122,9 @@ class _LoginScreenState extends State<LoginScreen> {
                       fontFamily: AppFontFamily.extraBold,
                     ),
                   ),
-              
+
                   hBox(10),
-              
+
                   Text(
                     maxLines: 2,
                     "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
@@ -136,9 +133,9 @@ class _LoginScreenState extends State<LoginScreen> {
                       fontFamily: AppFontFamily.regular,
                     ),
                   ),
-              
+
                   hBox(30),
-              
+
                   Text(
                     "Phone Number",
                     style: AppFontStyle.text_16_600(
@@ -146,9 +143,9 @@ class _LoginScreenState extends State<LoginScreen> {
                       fontFamily: AppFontFamily.semiBold,
                     ),
                   ),
-              
+
                   hBox(12),
-              
+
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     decoration: BoxDecoration(
@@ -161,44 +158,52 @@ class _LoginScreenState extends State<LoginScreen> {
                           onTap: loginProvider.isLoading
                               ? null
                               : () {
-                            showCountryPicker(
-                              context: context,
-                              showPhoneCode: true,
-                              onSelect: (Country country) {
-                                setState(() {
-                                  _selectedCountry = country;
-                                  _phoneController.clear();
-                                  _updateMaxPhoneLength();
-                                });
-                              },
-                            );
-                          },
+                                  showCountryPicker(
+                                    context: context,
+                                    showPhoneCode: true,
+                                    onSelect: (Country country) {
+                                      setState(() {
+                                        _selectedCountry = country;
+                                        _phoneController.clear();
+                                        _updateMaxPhoneLength();
+                                      });
+                                    },
+                                  );
+                                },
                           child: Row(
                             children: [
                               Text(
                                 "+${_selectedCountry?.phoneCode}",
-                                style: AppFontStyle.text_16_600(AppColors.darkText),
+                                style: AppFontStyle.text_16_600(
+                                  AppColors.darkText,
+                                ),
                               ),
                               const Icon(Icons.keyboard_arrow_down, size: 20),
                             ],
                           ),
                         ),
-              
+
                         wBox(14),
-              
+
                         Expanded(
                           child: TextField(
                             controller: _phoneController,
                             keyboardType: TextInputType.phone,
                             enabled: !loginProvider.isLoading,
                             inputFormatters: [
-                              FilteringTextInputFormatter.digitsOnly, // Only digits
-                              LengthLimitingTextInputFormatter(_maxPhoneLength), // Limit length
+                              FilteringTextInputFormatter
+                                  .digitsOnly, // Only digits
+                              LengthLimitingTextInputFormatter(
+                                _maxPhoneLength,
+                              ), // Limit length
                             ],
                             decoration: InputDecoration(
                               border: InputBorder.none,
-                              hintText: "Phone Number ($_maxPhoneLength digits)",
-                              hintStyle: AppFontStyle.text_16_400(AppColors.grey),
+                              hintText:
+                                  "Phone Number ($_maxPhoneLength digits)",
+                              hintStyle: AppFontStyle.text_16_400(
+                                AppColors.grey,
+                              ),
                               counterText: "", // Hide default counter
                             ),
                             style: AppFontStyle.text_16_400(AppColors.darkText),
@@ -211,7 +216,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             },
                           ),
                         ),
-              
+
                         // Show digit counter
                         if (_phoneController.text.isNotEmpty)
                           Padding(
@@ -228,9 +233,9 @@ class _LoginScreenState extends State<LoginScreen> {
                       ],
                     ),
                   ),
-              
+
                   hBox(8),
-              
+
                   // Helper text showing expected format
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -242,17 +247,17 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     ),
                   ),
-              
+
                   hBox(16),
-              
+
                   CustomButton(
                     text: "Continue",
                     isLoading: loginProvider.isLoading,
                     onPressed: _handleContinue,
                   ),
-              
+
                   hBox(14),
-              
+
                   CustomButton(
                     text: "Skip",
                     textStyle: AppFontStyle.text_14_600(
@@ -261,7 +266,10 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     color: AppColors.lightGrey2,
                     isOutlined: true,
-                    onPressed: _handleSkip,
+                    onPressed: () {
+                      // Navigator.pop(context);
+                    },
+                    // onPressed: _handleSkip,
                   ),
                 ],
               ),

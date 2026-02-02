@@ -1,5 +1,6 @@
 import '../../../../../core/appExports/app_export.dart';
 import '../../../../../shared/widgets/custom_text_form_field.dart';
+import '../../../../../shared/widgets/custom_shimmer_box.dart';
 import '../provider/HelpProvider.dart';
 
 class HelpSupportScreen extends StatelessWidget {
@@ -8,7 +9,7 @@ class HelpSupportScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (_) => HelpProvider(),
+      create: (_) => HelpVendorProvider()..fetchHelpData('vendor'),
       child: Scaffold(
         backgroundColor: Colors.white,
         body: SafeArea(
@@ -16,7 +17,10 @@ class HelpSupportScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 10,
+                ),
                 child: Text(
                   "Help & Support",
                   style: AppFontStyle.text_26_600(
@@ -29,14 +33,14 @@ class HelpSupportScreen extends StatelessWidget {
               _tabButtons(),
               SizedBox(height: 16),
               Expanded(
-                child: Consumer<HelpProvider>(
+                child: Consumer<HelpVendorProvider>(
                   builder: (context, provider, _) {
                     return provider.tabIndex == 0
                         ? _faqWidget(context, provider)
                         : _supportWidget(context);
                   },
                 ),
-              )
+              ),
             ],
           ),
         ),
@@ -48,7 +52,7 @@ class HelpSupportScreen extends StatelessWidget {
   // TAB BUTTONS
   // --------------------------------------------------------------------------
   Widget _tabButtons() {
-    return Consumer<HelpProvider>(
+    return Consumer<HelpVendorProvider>(
       builder: (context, provider, _) {
         return Padding(
           padding: REdgeInsets.symmetric(horizontal: 16),
@@ -125,26 +129,21 @@ class HelpSupportScreen extends StatelessWidget {
   // --------------------------------------------------------------------------
   // FAQ WIDGET - FULL SCREEN SCROLLABLE
   // --------------------------------------------------------------------------
-  Widget _faqWidget(BuildContext context, HelpProvider provider) {
-    final data = [
-      {
-        "q": "How do I cancel a booking?",
-        "a": "Contrary to popular belief, Lorem Ipsum text has roots in classical Latin from 45 BC, making it over 2000 years old. Richard McClintock."
-      },
-      {
-        "q": "What payment methods are accepted?",
-        "a": "We accept various payment methods including Visa, Mastercard, PayPal, UPI, and cash payments. All online transactions are secure and encrypted."
-      },
-      {
-        "q": "How do I contact my service provider?",
-        "a": "You can contact your service provider by opening your booking details and clicking on the chat icon. This will open a direct messaging channel."
-      },
-      {
-        "q": "What if I'm not satisfied with the service?",
-        "a": "If you're not satisfied with the service, you can request a refund within 24 hours of service completion, subject to our refund policy terms and conditions."
-      },
+  Widget _faqWidget(BuildContext context, HelpVendorProvider provider) {
+    if (provider.isLoading) {
+      return _faqShimmer();
+    }
 
-    ];
+    final faqList = provider.helpModel?.data ?? [];
+
+    if (faqList.isEmpty) {
+      return Center(
+        child: Text(
+          "No FAQs found",
+          style: AppFontStyle.text_14_400(AppColors.grey),
+        ),
+      );
+    }
 
     return SingleChildScrollView(
       child: Padding(
@@ -162,13 +161,13 @@ class HelpSupportScreen extends StatelessWidget {
             ListView.separated(
               shrinkWrap: true,
               physics: NeverScrollableScrollPhysics(),
-              itemCount: data.length,
+              itemCount: faqList.length,
               separatorBuilder: (context, index) => SizedBox(height: 12),
               itemBuilder: (context, index) {
+                final faq = faqList[index];
                 final isExpanded = provider.expandedIndex == index;
 
                 return AnimatedContainer(
-
                   duration: Duration(milliseconds: 300),
                   padding: EdgeInsets.all(15),
                   decoration: BoxDecoration(
@@ -185,19 +184,15 @@ class HelpSupportScreen extends StatelessWidget {
                           children: [
                             Expanded(
                               child: Text(
-                                data[index]["q"]!,
-                                style: AppFontStyle.text_14_600(AppColors.darkText),
+                                faq.question ?? "",
+                                style: AppFontStyle.text_14_600(
+                                  AppColors.darkText,
+                                ),
                               ),
                             ),
                             SizedBox(width: 8),
                             Container(
                               padding: EdgeInsets.all(4),
-                              // decoration: BoxDecoration(
-                              //   color: isExpanded
-                              //       ? AppColors.primary.withOpacity(0.1)
-                              //       : Colors.transparent,
-                              //   borderRadius: BorderRadius.circular(4),
-                              // ),
                               child: Icon(
                                 isExpanded ? Icons.remove : Icons.add,
                                 color: AppColors.primary,
@@ -216,8 +211,8 @@ class HelpSupportScreen extends StatelessWidget {
                           children: [
                             hBox(10),
                             Text(
-                              maxLines: 4,
-                              data[index]["a"]!,
+                              maxLines: 10,
+                              faq.answer ?? "",
                               style: AppFontStyle.text_13_400(
                                 AppColors.grey,
                                 height: 1.5,
@@ -253,7 +248,7 @@ class HelpSupportScreen extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _inputBox("Email Address", "Enter email address"),
-         hBox(16),
+          hBox(16),
 
           _inputBox("Subject", "Enter your subject"),
           hBox(16),
@@ -328,11 +323,7 @@ class HelpSupportScreen extends StatelessWidget {
               color: AppColors.white,
               borderRadius: BorderRadius.circular(20),
             ),
-            child: Icon(
-              icon,
-              color: AppColors.primary,
-              size: 20,
-            ),
+            child: Icon(icon, color: AppColors.primary, size: 20),
           ),
 
           SizedBox(width: 12),
@@ -346,10 +337,7 @@ class HelpSupportScreen extends StatelessWidget {
                   style: AppFontStyle.text_14_600(AppColors.darkText),
                 ),
                 SizedBox(height: 2),
-                Text(
-                  subtitle,
-                  style: AppFontStyle.text_12_400(AppColors.grey),
-                ),
+                Text(subtitle, style: AppFontStyle.text_12_400(AppColors.grey)),
               ],
             ),
           ),
@@ -398,6 +386,34 @@ class HelpSupportScreen extends StatelessWidget {
       minLines: 5,
       contentPadding: EdgeInsets.all(14),
       textInputAction: TextInputAction.newline,
+    );
+  }
+
+  Widget _faqShimmer() {
+    return SingleChildScrollView(
+      child: Padding(
+        padding: REdgeInsets.symmetric(horizontal: 16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ShimmerBox(width: 200.w, height: 20.h, radius: 4.r),
+            hBox(20),
+            ListView.separated(
+              itemCount: 8,
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              separatorBuilder: (context, index) => hBox(12),
+              itemBuilder: (context, index) {
+                return ShimmerBox(
+                  width: double.infinity,
+                  height: 60.h,
+                  radius: 12.r,
+                );
+              },
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
