@@ -1,9 +1,6 @@
-import 'dart:io';
-
-import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:ozi/app/core/constants/app_urls.dart';
 import 'package:ozi/app/data/models/all_services_model_vendor.dart';
-import 'package:provider/provider.dart';
 import '../../../../../core/appExports/app_export.dart';
 import '../../../../../data/models/category_dropdown_model.dart';
 import '../../../../../shared/widgets/custom_dropdown.dart';
@@ -48,7 +45,7 @@ class _ServiceDetailsContentState extends State<_ServiceDetailsContent> {
   }
 
   bool _validateImage(ServiceDetailsProvider provider) {
-    if (provider.pickedImage == null) {
+    if (provider.pickedImage == null&&provider.serviceForEdit?.serviceImage==null){
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text("Please upload service image"),
@@ -105,7 +102,7 @@ class _ServiceDetailsContentState extends State<_ServiceDetailsContent> {
                                       : BorderStyle.none,
                                 ),
                               ),
-                              child: provider.pickedImage == null
+                              child: provider.pickedImage == null && provider.serviceForEdit==null
                                   ? Center(
                                       child: CustomImage(
                                         path: ImageConstants.uploadImage,
@@ -116,8 +113,8 @@ class _ServiceDetailsContentState extends State<_ServiceDetailsContent> {
                                     )
                                   : ClipRRect(
                                       borderRadius: BorderRadius.circular(14),
-                                      child: Image.file(
-                                        provider.pickedImage!,
+                                      child: CustomImage(
+                                        path:provider.pickedImage==null?'${AppUrls.imageBaseUrl}${provider.serviceForEdit?.serviceImage??''}':provider.pickedImage?.path??'',
                                         fit: BoxFit.cover,
                                       ),
                                     ),
