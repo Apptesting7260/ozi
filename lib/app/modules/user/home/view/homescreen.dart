@@ -1,3 +1,5 @@
+import 'package:ozi/app/modules/user/navigation%20tab/provider/navigation_provider.dart';
+
 import '../../../../core/appExports/app_export.dart';
 import '../../../../core/constants/app_urls.dart';
 import '../../../../shared/widgets/custom_image_path_helper.dart';
@@ -26,12 +28,12 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
-
   @override
   Widget build(BuildContext context) {
     return HomeScreenView();
   }
 }
+
 class HomeScreenView extends StatelessWidget {
   const HomeScreenView({super.key});
 
@@ -45,7 +47,7 @@ class HomeScreenView extends StatelessWidget {
         child: RefreshIndicator(
           onRefresh: () => provider.refreshData(),
           child: SingleChildScrollView(
-           // physics: BouncingScrollPhysics(),
+            // physics: BouncingScrollPhysics(),
             child: Padding(
               padding: EdgeInsets.all(20.0),
               child: Column(
@@ -127,12 +129,17 @@ class HomeScreenView extends StatelessWidget {
             ),
           ],
         ),
-        profileAvatarStatic(
-          imageUrl: ImagePathHelper.getFullImageUrl(
-            context.watch<ProfileProvider>().profileImage,
-            AppUrls.imageBaseUrl,
+        GestureDetector(
+          onTap: () {
+            context.read<NavigationProvider>().setIndex(4, context);
+          },
+          child: profileAvatarStatic(
+            imageUrl: ImagePathHelper.getFullImageUrl(
+              context.watch<ProfileProvider>().profileImage,
+              AppUrls.imageBaseUrl,
+            ),
+            size: 50,
           ),
-          size: 50,
         ),
       ],
     );
