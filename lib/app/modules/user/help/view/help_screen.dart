@@ -223,9 +223,11 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
                         secondChild: Padding(
                           padding: const EdgeInsets.only(top: 10),
                           child: Text(
-                            faq.answer!,
+                            faq.answer ?? "",
+                            maxLines: 5,
                             style: AppFontStyle.text_13_400(
                               AppColors.grey,
+
                               height: 1.5,
                             ),
                           ),
