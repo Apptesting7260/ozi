@@ -9,10 +9,15 @@ import '../services/view/CategoryDetailScreen.dart';
 class HomeScreenProvider extends ChangeNotifier {
   HomeScreenProvider() {
     getCurrentLocation();
+    print("lat long value lat=$lat, lng=$lng");
   }
   String _selectedLocation = "Select Location";
   final String _userName = "Alex";
 
+  String? lat;
+  String? lng;
+  String? countryCode;
+  String? countryName;
   bool _isLoaded = false;
   bool _isLoading = false;
 
@@ -63,6 +68,7 @@ class HomeScreenProvider extends ChangeNotifier {
           model.data!.isNotEmpty) {
         _serviceCategories.addAll(model.data!);
       }
+      notifyListeners();
     } catch (e) {
       debugPrint("❌ Category API Error: $e");
     }
@@ -85,10 +91,6 @@ class HomeScreenProvider extends ChangeNotifier {
   //   await fetchCategories();
   // }
 
-  String? lat;
-  String? lng;
-  String? countryCode;
-  String? countryName;
   Future<bool> getCurrentLocation() async {
     try {
       bool serviceEnabled;
@@ -126,6 +128,10 @@ class HomeScreenProvider extends ChangeNotifier {
       print("Latitude value: ${lat.toString()}");
       print("Longitude value: ${lng.toString()}");
 
+      notifyListeners(); // Notify UI about location update
+
+      await fetchCategories();
+
       List<Placemark> placemarks = await placemarkFromCoordinates(
         position.latitude,
         position.longitude,
@@ -137,11 +143,17 @@ class HomeScreenProvider extends ChangeNotifier {
         countryName = place.country;
         countryCode = place.isoCountryCode;
 
+        // Update selected location with a more readable address
+        _selectedLocation = "${place.locality ?? ""}, ${place.country ?? ""}";
+        if (_selectedLocation.startsWith(", ")) {
+          _selectedLocation = _selectedLocation.substring(2);
+        }
+
         print("Country: $countryName");
         print("Country Code: $countryCode");
+        print("Location Address: $_selectedLocation");
+        notifyListeners();
       }
-      var body = {"lat": lat ?? "", "long": lng ?? ""};
-
       return true; // success
     } catch (e) {
       print("Location error: $e");

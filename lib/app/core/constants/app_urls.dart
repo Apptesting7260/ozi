@@ -6,7 +6,7 @@ class AppUrls {
   static const String verification = "$baseUrl/verify-otp";
   static const String chooseRole = "$baseUrl/select-user-role";
   static const String completeRegistration = "$baseUrl/complete-registration";
-  static const String getHomeCategories = "$baseUrl/get-all-categories";
+  static const String getHomeCategories = "$baseUrl/get-categories-by-lat-long";
   static const String logout = "$baseUrl/logout";
   static const String getServiceDetailsApi = "$baseUrl/get-services";
   static const String addToCartApi = "$baseUrl/add-to-cart";

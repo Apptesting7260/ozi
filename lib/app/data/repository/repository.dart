@@ -71,10 +71,9 @@ class Repository {
     String lat,
     String lng,
   ) async {
+    final url = "${AppUrls.getHomeCategories}?longitude=$lng&latitude=$lat";
     try {
-      dynamic response = await _apiService.getApi(
-        "${AppUrls.getHomeCategories}?longitude=$lng&latitude=$lat",
-      );
+      dynamic response = await _apiService.getApi(url);
       return CategoryModel.fromJson(response);
     } catch (e) {
       throw Exception(e);
