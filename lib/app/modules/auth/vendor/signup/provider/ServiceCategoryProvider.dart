@@ -87,13 +87,15 @@ class ServiceCategoryProvider extends ChangeNotifier {
   Future<void> saveCategorites()async {
     updateSubmitLoading(true);
     try {
-      Map<String,String> fields = {};
-      _selected.forEach((e){
-        fields.addAll({
-          "categories[]":e
-        });
-      });
-      final response = await _apiService.postApiMultiPart(AppUrls.saveCategoryForVendor,fields,{});
+
+      // _selected.forEach((e){
+      //   fields.addAll({
+      //     "categories[]":e
+      //   });
+      // });
+      final response = await _apiService.postApi({
+        "categories":_selected
+      },AppUrls.saveCategoryForVendor);
       print(response);
       updateSubmitLoading(false);
       // Navigator.push(
