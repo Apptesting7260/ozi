@@ -17,7 +17,6 @@ import 'app/view/splash/provider/splash_provider.dart';
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
 
-  /// ===== IMPORTANT WEBVIEW PLATFORM SETUP =====
   if (WebViewPlatform.instance == null) {
     if (Platform.isAndroid) {
       WebViewPlatform.instance = AndroidWebViewPlatform();
