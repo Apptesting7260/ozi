@@ -52,6 +52,7 @@ class AppUrls {
   static const String completeJob = "$baseUrl/complete-booking-status";
 
   static const String getAllServicesVendor = "$baseUrl/get-vendor-services";
+  static const String deleteServiceVendor = "$baseUrl/delete-vendor-service/{serviceid}";
 
 
 }
