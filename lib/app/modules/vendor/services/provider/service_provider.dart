@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-
 import '../../../../core/constants/app_urls.dart';
 import '../../../../core/utils/get_utils.dart';
 import '../../../../data/models/all_services_model_vendor.dart';
@@ -59,35 +58,31 @@ class VendorServicesProvider extends ChangeNotifier {
   //   // later API / navigation
   // }
 
-
   final NetworkApiServices _apiService = NetworkApiServices();
 
-  VendorServicesProvider(){
+  VendorServicesProvider() {
     getAllBookings();
   }
 
   ApiResponse<VendorGetAllServicesModel> _homeModel = ApiResponse.loading();
   ApiResponse<VendorGetAllServicesModel> get homeModel => _homeModel;
 
-  setHomeModel(ApiResponse<VendorGetAllServicesModel> value){
+  setHomeModel(ApiResponse<VendorGetAllServicesModel> value) {
     _homeModel = value;
     notifyListeners();
   }
 
-
-  Future<void> getAllBookings()async {
+  Future<void> getAllBookings() async {
     try {
       setHomeModel(ApiResponse.loading());
       final response = await _apiService.getApi(AppUrls.getAllServicesVendor);
       print(response);
-      setHomeModel(ApiResponse.completed(VendorGetAllServicesModel.fromJson(response)));
+      setHomeModel(
+        ApiResponse.completed(VendorGetAllServicesModel.fromJson(response)),
+      );
     } catch (e) {
       Get.showToast(e.toString(), type: ToastType.error);
       setHomeModel(ApiResponse.error('Internal Server Error'));
     }
   }
-
-
-
-
 }

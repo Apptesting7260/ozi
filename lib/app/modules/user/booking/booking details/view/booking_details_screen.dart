@@ -4,6 +4,7 @@ import '../../../../../core/appExports/app_export.dart';
 import '../../../../../shared/widgets/custom_app_bar.dart';
 import '../../provider/booking_provider.dart';
 import '../../model/bookingdetailsmodel.dart' as model;
+import 'package:ozi/app/shared/widgets/custom_date_picker.dart';
 
 class BookingDetailsScreen extends StatefulWidget {
   final Map<String, dynamic> bookingData;
@@ -154,6 +155,252 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
       onPressed: () {
         showCancelBookingDialog(context, widget.bookingData['id']);
       },
+    );
+  }
+
+  Widget _getBottomRescheduleButton(
+    BuildContext context,
+    BookingProvider provider,
+  ) {
+    return CustomButton(
+      width: MediaQuery.of(context).size.width,
+      isOutlined: true,
+      borderColor: AppColors.primary,
+      height: 52,
+      onPressed: () {
+        showRescheduleBottomSheet(context, widget.bookingData['id'], provider);
+      },
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.refresh, color: AppColors.primary, size: 20),
+          wBox(10),
+          Text(
+            "Reschedule Booking",
+            style: AppFontStyle.text_16_600(AppColors.primary),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void showRescheduleBottomSheet(
+    BuildContext context,
+    int bookingId,
+    BookingProvider provider,
+  ) {
+    provider.fetchAvailability();
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (bottomSheetContext) {
+        return ListenableBuilder(
+          listenable: provider,
+          builder: (context, child) {
+            final times = provider.availableTimesForSelectedDay;
+
+            return Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
+              ),
+              padding: EdgeInsets.fromLTRB(
+                20,
+                20,
+                20,
+                MediaQuery.of(context).padding.bottom + 20,
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Center(
+                    child: Container(
+                      width: 40,
+                      height: 4,
+                      decoration: BoxDecoration(
+                        color: AppColors.lightGrey,
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                    ),
+                  ),
+                  hBox(20),
+                  Center(
+                    child: Text(
+                      "Reschedule Booking",
+                      style: AppFontStyle.text_20_600(AppColors.black),
+                    ),
+                  ),
+                  hBox(24),
+                  Text(
+                    'Select Date',
+                    style: AppFontStyle.text_16_600(AppColors.black),
+                  ),
+                  hBox(16),
+                  if (provider.isAvailabilityLoading)
+                    Center(
+                      child: CircularProgressIndicator(
+                        color: AppColors.primary,
+                      ),
+                    )
+                  else
+                    SizedBox(
+                      height: 80,
+                      child: ListView.builder(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: provider.quickDates.length + 1,
+                        itemBuilder: (context, index) {
+                          if (index == provider.quickDates.length) {
+                            return _buildMoreDatesButton(context, provider);
+                          }
+                          return _buildDateItem(provider, index);
+                        },
+                      ),
+                    ),
+                  hBox(24),
+                  Text(
+                    'Select Time',
+                    style: AppFontStyle.text_16_600(AppColors.black),
+                  ),
+                  hBox(16),
+                  if (times.isEmpty)
+                    Center(
+                      child: Text(
+                        'No service available for this day',
+                        style: AppFontStyle.text_14_400(AppColors.red),
+                      ),
+                    )
+                  else
+                    Wrap(
+                      spacing: 12,
+                      runSpacing: 12,
+                      children: times.map((time) {
+                        final isSelected =
+                            provider.selectedRescheduleTime == time;
+                        return GestureDetector(
+                          onTap: () => provider.selectRescheduleTime(time),
+                          child: Container(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 20,
+                              vertical: 12,
+                            ),
+                            decoration: BoxDecoration(
+                              color: isSelected
+                                  ? AppColors.primary
+                                  : AppColors.lightGrey,
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Text(
+                              time,
+                              style: TextStyle(
+                                color: isSelected ? Colors.white : Colors.black,
+                              ),
+                            ),
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                  if (provider.selectedRescheduleTime != null) ...[
+                    hBox(32),
+                    CustomButton(
+                      isLoading: provider
+                          .isCancelling, // Reusing isCancelling state for loading
+                      text: "Submit",
+                      onPressed: () {},
+                      // // onPressed: () async {
+                      // //   final success = await provider.rescheduleBooking(
+                      // //     bookingId,
+                      // //     context,
+                      // //   );
+                      //   if (success) {
+                      //     // Success already handles toast and closing
+                      //   }
+                      // },
+                    ),
+                  ],
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildDateItem(BookingProvider provider, int index) {
+    final date = DateTime.now().add(Duration(days: index));
+    final isSelected =
+        provider.selectedRescheduleDate.day == date.day &&
+        provider.selectedRescheduleDate.month == date.month &&
+        provider.selectedRescheduleDate.year == date.year;
+
+    return GestureDetector(
+      onTap: () => provider.selectRescheduleDate(date),
+      child: Container(
+        width: 70,
+        margin: EdgeInsets.only(right: 12),
+        decoration: BoxDecoration(
+          color: isSelected ? AppColors.primary : AppColors.lightGrey,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              provider.quickDates[index]['day']!,
+              style: TextStyle(color: isSelected ? Colors.white : Colors.grey),
+            ),
+            hBox(4),
+            Text(
+              provider.quickDates[index]['date']!,
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: isSelected ? Colors.white : Colors.black,
+              ),
+            ),
+            Text(
+              provider.quickDates[index]['month']!,
+              style: TextStyle(color: isSelected ? Colors.white : Colors.grey),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMoreDatesButton(BuildContext context, BookingProvider provider) {
+    return GestureDetector(
+      onTap: () async {
+        final pickedDate = await CustomDatePicker.showServiceDatePicker(
+          context,
+        );
+        if (pickedDate != null) {
+          provider.selectRescheduleDate(pickedDate);
+        }
+      },
+      child: Container(
+        width: 70,
+        decoration: BoxDecoration(
+          color: AppColors.lightGrey,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: const Color(0xFFE0E0E0)),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: const [
+            Icon(Icons.calendar_today, size: 20, color: Colors.grey),
+            SizedBox(height: 4),
+            Text(
+              'More\nDates',
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 10, color: Colors.grey),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -542,6 +789,9 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
               if (data.status?.toLowerCase() == "confirmed" ||
                   data.status?.toLowerCase() == "pending")
                 _getBottomButton(context, provider),
+              hBox(15),
+              if (data.status?.toLowerCase() == "pending")
+                _getBottomRescheduleButton(context, provider),
             ],
           ),
         ),

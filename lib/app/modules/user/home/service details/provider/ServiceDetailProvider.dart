@@ -1,8 +1,11 @@
 import 'dart:developer' as dev;
 import 'package:flutter/material.dart';
+import 'package:ozi/app/core/utils/get_utils.dart';
+import 'package:ozi/app/data/response/api_response.dart';
+import 'package:ozi/app/modules/user/home/service%20details/model/vendordetaiulmodel.dart';
 import '../../../../../core/constants/app_urls.dart';
 import '../../../../../data/repository/repository.dart';
-import '../../model/category_model.dart';
+import '../../model/category_model.dart' hide Data;
 import '../model/ServiceDetailsModel.dart';
 import '../model/add_to_cart.dart';
 
@@ -11,8 +14,72 @@ class ServiceDetailProvider extends ChangeNotifier {
   final int categoryId;
   final Repository _repository = Repository();
 
+  ApiResponse<vendorDetailModel> _vendorDetailData = ApiResponse.loading();
+  ApiResponse<vendorDetailModel> get vendorDetailData => _vendorDetailData;
+
+  void setVendorDetailModel(ApiResponse<vendorDetailModel> value) {
+    _vendorDetailData = value;
+    notifyListeners();
+  }
+
+  final TextEditingController searchController = TextEditingController();
+  String _searchQuery = '';
+  String get searchQuery => _searchQuery;
+
+  void updateSearchQuery(String query) {
+    _searchQuery = query;
+    dev.log('Search query updated: "$_searchQuery"');
+    notifyListeners();
+  }
+
+  void clearSearch() {
+    _searchQuery = '';
+    searchController.clear();
+    dev.log('Search cleared');
+    notifyListeners();
+  }
+
+  List<Data> get filteredVendorServices {
+    final allServices = _vendorDetailData.data?.data ?? [];
+    dev.log(
+      'Filtering ${allServices.length} services with query: "$_searchQuery"',
+    );
+
+    if (_searchQuery.trim().isEmpty) {
+      return allServices;
+    }
+
+    final query = _searchQuery.trim().toLowerCase();
+    return allServices.where((service) {
+      final name = service.serviceName?.toLowerCase() ?? '';
+      final description = service.description?.toLowerCase() ?? '';
+      final match = name.contains(query) || description.contains(query);
+      if (match) {
+        dev.log('Match found: ${service.serviceName}');
+      }
+      return match;
+    }).toList();
+  }
+
+  @override
+  void dispose() {
+    searchController.dispose();
+    super.dispose();
+  }
+
   ServiceDetailProvider(this.service, this.categoryId) {
     _fetchServiceDetails();
+  }
+
+  Future<void> vendorDetailsApi(String vendorId) async {
+    try {
+      setVendorDetailModel(ApiResponse.loading());
+      final response = await _repository.vendorDetailsApi(vendorId);
+      setVendorDetailModel(ApiResponse.completed(response));
+    } catch (e) {
+      Get.showToast(e.toString(), type: ToastType.error);
+      setVendorDetailModel(ApiResponse.error(e.toString()));
+    }
   }
 
   List<ServiceData> _serviceProviders = [];
@@ -39,10 +106,14 @@ class ServiceDetailProvider extends ChangeNotifier {
       _errorMessage = null;
       notifyListeners();
 
-      dev.log('Fetching services - Category ID: $categoryId, Subcategory ID: ${service.id}');
+      dev.log(
+        'Fetching services - Category ID: $categoryId, Subcategory ID: ${service.id}',
+      );
 
-      final response =
-      await _repository.serviceDetailsApi(categoryId, service.id!);
+      final response = await _repository.serviceDetailsApi(
+        categoryId,
+        service.id!,
+      );
 
       dev.log('API Response - Status: ${response.status}');
       dev.log('API Response - Message: ${response.message}');
@@ -100,7 +171,7 @@ class ServiceDetailProvider extends ChangeNotifier {
       AddToCartModel addToCartResponse = response;
 
       if (addToCartResponse.status == true) {
-          _cartItems[serviceId] = addToCartResponse.data?.quantity ?? 1;
+        _cartItems[serviceId] = addToCartResponse.data?.quantity ?? 1;
 
         dev.log('Successfully added to cart: Service ID $serviceId');
 
@@ -110,7 +181,6 @@ class ServiceDetailProvider extends ChangeNotifier {
       } else {
         throw Exception(addToCartResponse.message ?? 'Failed to add to cart');
       }
-
     } catch (e) {
       dev.log('Error adding to cart: $e');
       dev.log('Error type: ${e.runtimeType}');
@@ -130,7 +200,7 @@ class ServiceDetailProvider extends ChangeNotifier {
 
         // Find the service details
         final serviceData = _serviceProviders.firstWhere(
-              (sp) => sp.id == serviceId,
+          (sp) => sp.id == serviceId,
           orElse: () => ServiceData(),
         );
 
@@ -153,7 +223,9 @@ class ServiceDetailProvider extends ChangeNotifier {
         }
 
         // Parse the response
-        AddToCartModel addToCartResponse = AddToCartModel.fromJson(jsonResponse);
+        AddToCartModel addToCartResponse = AddToCartModel.fromJson(
+          jsonResponse,
+        );
 
         if (addToCartResponse.status == true) {
           _cartItems[serviceId] = newQuantity;
@@ -203,7 +275,9 @@ class ServiceDetailProvider extends ChangeNotifier {
             throw Exception('Invalid response format');
           }
 
-          AddToCartModel addToCartResponse = AddToCartModel.fromJson(jsonResponse);
+          AddToCartModel addToCartResponse = AddToCartModel.fromJson(
+            jsonResponse,
+          );
 
           if (addToCartResponse.status == true) {
             _cartItems[serviceId] = newQuantity;
@@ -212,7 +286,9 @@ class ServiceDetailProvider extends ChangeNotifier {
             notifyListeners();
             return true;
           } else {
-            throw Exception(addToCartResponse.message ?? 'Failed to update cart');
+            throw Exception(
+              addToCartResponse.message ?? 'Failed to update cart',
+            );
           }
         } else {
           // Quantity is 1, so remove from cart
@@ -236,7 +312,7 @@ class ServiceDetailProvider extends ChangeNotifier {
     double total = 0;
     _cartItems.forEach((serviceId, quantity) {
       final service = _serviceProviders.firstWhere(
-            (sp) => sp.id == serviceId,
+        (sp) => sp.id == serviceId,
         orElse: () => ServiceData(),
       );
       total += (service.servicePrice ?? 0) * quantity;

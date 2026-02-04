@@ -10,18 +10,18 @@ class BookServiceModel {
     this.vendorAvailability,
     this.defaultAddress,
   });
-BookServiceModel.fromJson(Map<String, dynamic> json) {
-  status = json['status'];
-  vendorId = json['vendor_id'];
+  BookServiceModel.fromJson(Map<String, dynamic> json) {
+    status = json['status'];
+    vendorId = json['vendor_id'];
 
-  vendorAvailability = json['vendor_availability'] != null
-      ? VendorAvailability.fromJson(json['vendor_availability'])
-      : null;
+    vendorAvailability = json['vendor_availability'] != null
+        ? VendorAvailability.fromJson(json['vendor_availability'])
+        : null;
 
-  defaultAddress = json['default_address'] != null
-      ? DefaultAddress.fromJson(json['default_address'])
-      : null;
-}
+    defaultAddress = json['default_address'] != null
+        ? DefaultAddress.fromJson(json['default_address'])
+        : null;
+  }
 
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
@@ -30,7 +30,7 @@ BookServiceModel.fromJson(Map<String, dynamic> json) {
     if (vendorAvailability != null) {
       data['vendor_availability'] = vendorAvailability!.toJson();
     }
-   data['default_address'] = defaultAddress?.toJson();
+    data['default_address'] = defaultAddress?.toJson();
     return data;
   }
 }
@@ -70,11 +70,9 @@ class DaySlot {
     to = json['to'];
   }
 
-  Map<String, dynamic> toJson() => {
-        'from': from,
-        'to': to,
-      };
+  Map<String, dynamic> toJson() => {'from': from, 'to': to};
 }
+
 class DefaultAddress {
   int? id;
   int? userId;
@@ -88,18 +86,19 @@ class DefaultAddress {
   String? updatedAt;
   String? fullAddress;
 
-  DefaultAddress(
-      {this.id,
-      this.userId,
-      this.addressType,
-      this.isDefault,
-      this.streetAddress,
-      this.apartment,
-      this.city,
-      this.zipCode,
-      this.createdAt,
-      this.updatedAt,
-      this.fullAddress});
+  DefaultAddress({
+    this.id,
+    this.userId,
+    this.addressType,
+    this.isDefault,
+    this.streetAddress,
+    this.apartment,
+    this.city,
+    this.zipCode,
+    this.createdAt,
+    this.updatedAt,
+    this.fullAddress,
+  });
 
   DefaultAddress.fromJson(Map<String, dynamic> json) {
     id = json['id'];
