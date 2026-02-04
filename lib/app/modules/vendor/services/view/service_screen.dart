@@ -1,5 +1,7 @@
 
 
+import 'package:ozi/app/core/constants/app_urls.dart';
+
 import '../../../../core/appExports/app_export.dart';
 import '../../../../data/models/all_services_model_vendor.dart';
 import '../../../../data/response/api_status.dart';
@@ -87,8 +89,11 @@ class _MyServicesContent extends StatelessWidget {
               height: 50,
               isOutlined: true,
               borderRadius: BorderRadius.circular(60),
-              onPressed: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => ServiceDetailsScreen(),));
+              onPressed: () async {
+               final result = await Navigator.push(context, MaterialPageRoute(builder: (context) => ServiceDetailsScreen(null),));
+               if(result==null||result!=null){
+                 provider.getAllBookings();
+               }
                 // Navigator.push(
                 //   context,
                 //   MaterialPageRoute(
@@ -179,16 +184,15 @@ class _MyServicesContent extends StatelessWidget {
     return GestureDetector(
       onTap: () async {
         // Navigate to Service Details Screen
-        final result = await Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => ServiceDetailsScreen(
-            ),
-          ),
-        );
-        if(result==null||result!=null){
-          provider.getAllBookings();
-        }
+        // final result = await Navigator.push(
+        //   context,
+        //   MaterialPageRoute(
+        //     builder: (context) => ServiceDetailsScreen(),
+        //   ),
+        // );
+        // if(result==null||result!=null){
+        //   provider.getAllBookings();
+        // }
       },
       child: Container(
         padding: const EdgeInsets.all(12),
@@ -209,7 +213,7 @@ class _MyServicesContent extends StatelessWidget {
                 ClipRRect(
                   borderRadius: BorderRadius.circular(12),
                   child: CustomImage(
-                    path: ImageConstants.onboard2,
+                    path: '${AppUrls.imageBaseUrl}${service?.serviceImage??''}',
                     height: 70,
                     width: 70,
                   ),
@@ -319,6 +323,7 @@ class _MyServicesContent extends StatelessWidget {
                       isOutlined: true,
                       borderRadius: BorderRadius.circular(30),
                       onPressed: () {
+                        Navigator.push(context, MaterialPageRoute(builder: (context) => ServiceDetailsScreen(service),));
                         // provider.editService(service);
                         // Navigate to edit screen
                         // Navigator.push(context, MaterialPageRoute(builder: (_) => EditServiceScreen(service: service)));
@@ -380,9 +385,9 @@ class _MyServicesContent extends StatelessWidget {
               ),
             ),
             TextButton(
-              onPressed: () {
-                // provider.deleteService(service.id);
-                // Navigator.pop(dialogContext);
+              onPressed: () async {
+                await provider.deleteService(service.id??'');
+                 Navigator.pop(dialogContext);
                 // ScaffoldMessenger.of(context).showSnackBar(
                 //   SnackBar(
                 //     content: Text('${service.title} deleted successfully'),

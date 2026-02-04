@@ -28,6 +28,7 @@ import '../modules/vendor/wallet/view/wallet_screen.dart';
 import '../view/auth/create account/view/create_account_screen.dart';
 import '../view/auth/login/view/login_screen.dart';
 import '../view/auth/verification_screen/view/verification_screen.dart';
+import '../view/message/message_details/screens/message_details.dart';
 import '../view/splash/view/splash_screen.dart';
 import '../view/welcome/view/welcome_screen.dart';
 
@@ -95,6 +96,7 @@ class AppRoutes {
   static const String vendorWalletScreen = '/vendorWalletScreen';
   static const String vendorTransactionHistory = '/vendorTransactionHistory';
   static const String vendorWithdrawScreen = '/vendorWithdrawScreen';
+  static const String messageDetailsScreen = '/messageDetailsScreen';
 
 
 
@@ -112,6 +114,17 @@ class AppRoutes {
 
       case otpVerification:
         return MaterialPageRoute(builder: (context) => VerificationScreen(phone: '',));
+      case messageDetailsScreen:
+        final args = setting.arguments as Map<String, dynamic>;
+        return MaterialPageRoute(
+          builder:
+              (context) => MessageDetailsScreen(
+            conversionId: args['conversion_id'],
+            dataLink: args['dataLink'],
+            messageForSend: args['messageForSend'],
+          ),
+          settings: RouteSettings(name: messageDetailsScreen),
+        );
 
       // case createAccount:
       //   return MaterialPageRoute(builder: (context) => CreateAccountScreen());

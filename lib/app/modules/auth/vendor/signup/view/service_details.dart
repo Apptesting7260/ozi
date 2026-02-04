@@ -1,8 +1,6 @@
-import 'dart:io';
-
-import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:provider/provider.dart';
+import 'package:ozi/app/core/constants/app_urls.dart';
+import 'package:ozi/app/data/models/all_services_model_vendor.dart';
 import '../../../../../core/appExports/app_export.dart';
 import '../../../../../data/models/category_dropdown_model.dart';
 import '../../../../../shared/widgets/custom_dropdown.dart';
@@ -11,12 +9,12 @@ import '../provider/service details provider.dart';
 import '../widget/vendor_custom_appbar.dart';
 
 class ServiceDetailsScreen extends StatelessWidget {
-  const ServiceDetailsScreen({super.key});
-
+  const ServiceDetailsScreen(this.service, {super.key});
+  final VendorGetAllServicesModelData? service;
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (_) => ServiceDetailsProvider(),
+      create: (_) => ServiceDetailsProvider(service),
       child: const _ServiceDetailsContent(),
     );
   }
@@ -47,7 +45,7 @@ class _ServiceDetailsContentState extends State<_ServiceDetailsContent> {
   }
 
   bool _validateImage(ServiceDetailsProvider provider) {
-    if (provider.pickedImage == null) {
+    if (provider.pickedImage == null&&provider.serviceForEdit?.serviceImage==null){
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text("Please upload service image"),
@@ -104,7 +102,7 @@ class _ServiceDetailsContentState extends State<_ServiceDetailsContent> {
                                       : BorderStyle.none,
                                 ),
                               ),
-                              child: provider.pickedImage == null
+                              child: provider.pickedImage == null && provider.serviceForEdit==null
                                   ? Center(
                                       child: CustomImage(
                                         path: ImageConstants.uploadImage,
@@ -115,8 +113,8 @@ class _ServiceDetailsContentState extends State<_ServiceDetailsContent> {
                                     )
                                   : ClipRRect(
                                       borderRadius: BorderRadius.circular(14),
-                                      child: Image.file(
-                                        provider.pickedImage!,
+                                      child: CustomImage(
+                                        path:provider.pickedImage==null?'${AppUrls.imageBaseUrl}${provider.serviceForEdit?.serviceImage??''}':provider.pickedImage?.path??'',
                                         fit: BoxFit.cover,
                                       ),
                                     ),
@@ -186,9 +184,10 @@ class _ServiceDetailsContentState extends State<_ServiceDetailsContent> {
                       /// ================= SERVICE NAME =================
                       CustomTextFormField(
                         label: "Service Name",
+                        controller: provider.serviceName,
                         hintText: "e.g. Deep House Cleaning",
                         borderRadius: 60,
-                        onChanged: provider.setName,
+                        // onChanged: provider.setName,
                         validator: (value) {
                           if (value == null || value.trim().isEmpty) {
                             return "Service name is required";
@@ -234,12 +233,13 @@ class _ServiceDetailsContentState extends State<_ServiceDetailsContent> {
 
                       /// ================= DESCRIPTION =================
                       CustomTextFormField(
+                        controller: provider.description,
                         label: "Description",
                         hintText: "Describe your service in detail...",
                         maxLines: 5,
                         minLines: 5,
                         borderRadius: 30,
-                        onChanged: provider.setDescription,
+                        // onChanged: provider.setDescription,
                         validator: (value) {
                           if (value == null || value.trim().isEmpty) {
                             return "Description is required";
@@ -255,6 +255,7 @@ class _ServiceDetailsContentState extends State<_ServiceDetailsContent> {
 
                       /// ================= PRICE =================
                       CustomTextFormField(
+                        controller: provider.priceAmount,
                         label: "Service Price",
                         hintText: "0.00",
                         textInputType: TextInputType.number,
@@ -267,7 +268,7 @@ class _ServiceDetailsContentState extends State<_ServiceDetailsContent> {
                           ),
                         ),
                         borderRadius: 60,
-                        onChanged: provider.setPrice,
+                        // onChanged: provider.setPrice,
                         validator: (value) {
                           if (value == null || value.isEmpty)
                             return "Price is required";
@@ -294,7 +295,7 @@ class _ServiceDetailsContentState extends State<_ServiceDetailsContent> {
                             child: CustomDropDown(
                               items: const ["1", "2", "3", "4"],
                               selectedValue: provider.durationValue,
-                              hintText: "0",
+                              hintText: "Select Duration",
                               onChanged: provider.setDurationValue,
                               validator: (value) {
                                 if (value == null) return "Select duration";
@@ -308,7 +309,7 @@ class _ServiceDetailsContentState extends State<_ServiceDetailsContent> {
                             child: CustomDropDown(
                               items: const ["minutes", "hours"],
                               selectedValue: provider.durationUnit,
-                              hintText: "Minutes",
+                              hintText: "Duration Type",
                               onChanged: provider.setDurationUnit,
                               validator: (value) {
                                 if (value == null) return "Select unit";
