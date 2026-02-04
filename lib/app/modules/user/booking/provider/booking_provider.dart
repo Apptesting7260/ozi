@@ -323,12 +323,14 @@ class BookingProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> fetchAvailability() async {
+  Future<void> fetchAvailability(String bookingId) async {
     try {
       _isAvailabilityLoading = true;
       notifyListeners();
 
-      final response = await _repository.scheduleServiceApi();
+      final response = await _repository.fetchRescheduleAvailabilityApi(
+        bookingId,
+      );
 
       if (response.vendorAvailability?.days != null) {
         final rawDays = response.vendorAvailability!.days!;
@@ -345,68 +347,121 @@ class BookingProvider extends ChangeNotifier {
     }
   }
 
-  // Future<bool> rescheduleBooking(int bookingId, BuildContext context) async {
-  //   try {
-  //     setCancelling(true); // Reusing isCancelling for progress state
-  //     notifyListeners();
+  bool _isScheduleAgain = false;
+  int? _scheduleAgainBookingId;
+  bool get isScheduleAgain => _isScheduleAgain;
+  int? get scheduleAgainBookingId => _scheduleAgainBookingId;
 
-  //     if (_selectedRescheduleTime == null) {
-  //       throw Exception("Time not selected");
-  //     }
+  void setScheduleAgain(bool value, {int? id}) {
+    _isScheduleAgain = value;
+    _scheduleAgainBookingId = id;
+    notifyListeners();
+  }
 
-  //     final dayName = _getDayName(_selectedRescheduleDate);
-  //     final slots = _dayAvailability[dayName] ?? [];
+  Future<bool> rescheduleBooking(int bookingId, BuildContext context) async {
+    try {
+      setScheduleAgain(true); // Reusing isCancelling for progress state
+      notifyListeners();
 
-  //     DaySlot? selectedSlot;
-  //     for (var slot in slots) {
-  //       if (slot.from != null && slot.to != null) {
-  //         if (_formatSlotForDisplay(slot) == _selectedRescheduleTime) {
-  //           selectedSlot = slot;
-  //           break;
-  //         }
-  //       }
-  //     }
+      if (_selectedRescheduleTime == null) {
+        throw Exception("Time not selected");
+      }
 
-  //     if (selectedSlot == null) {
-  //       throw Exception("Selected slot not found");
-  //     }
+      final dayName = _getDayName(_selectedRescheduleDate);
+      final slots = _dayAvailability[dayName] ?? [];
 
-  //     final Map<String, dynamic> data = {
-  //       "booking_id": bookingId,
-  //       "reschedule_date": _selectedRescheduleDate
-  //           .toIso8601String()
-  //           .split('T')
-  //           .first,
-  //       "reschedule_time_from": selectedSlot.from,
-  //       "reschedule_time_to": selectedSlot.to,
-  //     };
+      DaySlot? selectedSlot;
+      for (var slot in slots) {
+        if (slot.from != null && slot.to != null) {
+          if (_formatSlotForDisplay(slot) == _selectedRescheduleTime) {
+            selectedSlot = slot;
+            break;
+          }
+        }
+      }
 
-  //     final response = await _repository.rescheduleServiceApi(data);
+      if (selectedSlot == null) {
+        throw Exception("Selected slot not found");
+      }
 
-  //     if (response != null && response['status'] == true) {
-  //       Get.showToast(
-  //         'Booking Rescheduled Successfully',
-  //         type: ToastType.success,
-  //       );
+      final Map<String, dynamic> data = {
+        "booking_id": bookingId,
+        "service_date": _selectedRescheduleDate
+            .toIso8601String()
+            .split('T')
+            .first,
+        "service_day": dayName,
+        "service_time": {"from": selectedSlot.from, "to": selectedSlot.to},
+      };
 
-  //       // Refresh details
-  //       await getBookingDetails(bookingId);
+      final response = await _repository.rescheduleBookingApi(data);
 
-  //       Navigator.pop(context);
-  //       return true;
-  //     } else {
-  //       Get.showToast(
-  //         response?['message'] ?? 'Reschedule failed',
-  //         type: ToastType.error,
-  //       );
-  //       return false;
-  //     }
-  //   } catch (e) {
-  //     Get.showToast('Reschedule Failed', type: ToastType.error);
-  //     return false;
-  //   } finally {
-  //     setCancelling(false);
-  //     notifyListeners();
-  //   }
-  // }
+      if (response != null && response['status'] == true) {
+        Get.showToast(
+          'Booking Rescheduled Successfully',
+          type: ToastType.success,
+        );
+
+        // Refresh details
+        await getBookingDetails(bookingId);
+
+        Navigator.pop(context);
+        selectedSlot.from = null;
+        selectedSlot.to = null;
+        _selectedRescheduleDate = DateTime.now();
+        _selectedRescheduleTime = null;
+
+        setScheduleAgain(false);
+        return true;
+      } else {
+        Get.showToast(
+          response?['message'] ?? 'Reschedule failed',
+          type: ToastType.error,
+        );
+        return false;
+      }
+    } catch (e) {
+      Get.showToast('Reschedule Failed', type: ToastType.error);
+      return false;
+    } finally {
+      setCancelling(false);
+      notifyListeners();
+    }
+  }
+
+  bool _isReviewLoading = false;
+  bool get isReviewLoading => _isReviewLoading;
+
+  Future<bool> submitReview(
+    String vendorId,
+    String rating,
+    String review,
+  ) async {
+    _isReviewLoading = true;
+    notifyListeners();
+    try {
+      var body = {"vendor_id": vendorId, "review": review, "rating": rating};
+
+      final response = await _repository.submitReviewApi(body);
+      if (response != null && response['status'] == true) {
+        Get.showToast(
+          response['message'] ?? 'Review submitted successfully',
+          type: ToastType.success,
+        );
+        return true;
+      } else {
+        Get.showToast(
+          response?['message'] ?? 'Failed to submit review',
+          type: ToastType.error,
+        );
+        return false;
+      }
+    } catch (e) {
+      Get.showToast('Something went wrong', type: ToastType.error);
+      return false;
+    } finally {
+      _isReviewLoading = false;
+      notifyListeners();
+    }
+  }
 }

@@ -22,7 +22,10 @@ class AppUrls {
   static const String updateUserAddress = "$baseUrl/update-user-address";
   static const String deleteUserAddress = "$baseUrl/delete-user-address";
   static const String schedule_service = "$baseUrl/booking-vendor-availability";
+  static const String reschedule_service = "$baseUrl/get-vendor-availability";
   static const String bookService = "$baseUrl/book-services";
+  static const String vendorReview = "$baseUrl/get-reviews";
+  static const String AddReview = "$baseUrl/add-update-review";
   static const String cancelBooking = "$baseUrl/booking-cancel";
   static const String getAllBookings = "$baseUrl/get-user-bookings";
   static const String getBookingDetails = "$baseUrl/user-booking-details?";
@@ -31,7 +34,10 @@ class AppUrls {
   static const String updateNotificationUrl = "$baseUrl/update-notification?";
   static const String helpSupportUrl = "$baseUrl/get-faqs";
   static const String SupportUrl = "$baseUrl/send-user-email";
+  static const String getCoupons = "$baseUrl/get-coupons";
   static const String vendorServiceUrl = "$baseUrl/get-vendor-services-users";
+  static const String rescheduleservicePostApiUrl =
+      "$baseUrl/reschedule-booking";
   // Vendor APIs
   static const String getAllCategories = "$baseUrl/get-all-categories";
   static const String saveCategoryForVendor = "$baseUrl/vendor-categories";
@@ -54,9 +60,8 @@ class AppUrls {
 
   static const String getAllServicesVendor = "$baseUrl/get-vendor-services";
 
-  static const String deleteServiceVendor = "$baseUrl/delete-vendor-service/{serviceid}";
-
-
+  static const String deleteServiceVendor =
+      "$baseUrl/delete-vendor-service/{serviceid}";
 
   //-------------------------------Socket Events---------------------
   static String goOnlineEvent = "go_online";
@@ -82,7 +87,4 @@ class AppUrls {
   static String updateLiveStream = "update_live_stream";
   static String leaveLiveStream = "leave_live_stream";
   static String receiveLiveStreamMessage = "receive_live_stream_message";
-
-
-
 }

@@ -1,8 +1,10 @@
 import 'dart:developer' as dev;
+import 'package:ozi/app/modules/user/Reviews%20Section/model/reviewmodel.dart';
 import 'package:ozi/app/modules/user/booking/model/bookingdetailsmodel.dart'
     as details;
 import 'package:ozi/app/modules/user/booking/model/bookingmodel.dart';
 import 'package:ozi/app/modules/user/cart/schedule_service/Model/bookservicemodel.dart';
+import 'package:ozi/app/modules/user/cart/view/model/couponmodel.dart';
 import 'package:ozi/app/modules/user/home/model/category_model.dart';
 import 'package:ozi/app/modules/user/home/service%20details/model/ServiceDetailsModel.dart';
 import 'package:ozi/app/modules/user/home/service%20details/model/vendordetaiulmodel.dart';
@@ -202,6 +204,39 @@ class Repository {
     }
   }
 
+  // **************************  GetvendorReview Api **************************//
+  Future<getVendorReviewsModel> getvendorReviewApi(
+    String vendorId, {
+    int page = 1,
+  }) async {
+    try {
+      final url = "${AppUrls.vendorReview}?vendor_id=$vendorId&page=$page";
+      print('API Request URL: $url');
+
+      dynamic response = await _apiService.getApi(url);
+      print('API Response: $response');
+      return getVendorReviewsModel.fromJson(response);
+    } catch (e) {
+      print('getvendorReviewApi Error: $e');
+      rethrow;
+    }
+  }
+
+  // **************************  Submit Review Api **************************//
+  Future<dynamic> submitReviewApi(Map<String, dynamic> data) async {
+    try {
+      print('API Request URL: ${AppUrls.AddReview}');
+      print('API Request Data: $data');
+
+      dynamic response = await _apiService.postApi(data, AppUrls.AddReview);
+      print('API Response: $response');
+      return response;
+    } catch (e) {
+      print('submitReviewApi Error: $e');
+      rethrow;
+    }
+  }
+
   Future<settingsModel> settingsApi() async {
     try {
       print('API Request URL: ${AppUrls.settingsUrl}');
@@ -226,6 +261,21 @@ class Repository {
       dynamic response = await _apiService.getApi(url);
       print('API Response: $response');
       return details.bookingDetailsModel.fromJson(response);
+    } catch (e) {
+      print('getBookingDetailsApi Error: $e');
+      rethrow;
+    }
+  }
+
+  // **************************  GetgetCouponsDetails Api **************************//
+  Future<getCupponsModel> getgetCouponsApi() async {
+    try {
+      final url = AppUrls.getCoupons;
+      print('API Request URL: $url');
+
+      dynamic response = await _apiService.getApi(url);
+      print('API Response: $response');
+      return getCupponsModel.fromJson(response);
     } catch (e) {
       print('getBookingDetailsApi Error: $e');
       rethrow;
@@ -434,7 +484,7 @@ class Repository {
     }
   }
 
-  // ********************************************* editUserAddress Api ***********************************************//
+  // ********************************************* scheduleService Api ***********************************************//
   Future<BookServiceModel> scheduleServiceApi() async {
     try {
       dev.log("scheduleServiceApi API URL: ${AppUrls.schedule_service}");
@@ -445,6 +495,47 @@ class Repository {
       return BookServiceModel.fromJson(response);
     } catch (e) {
       dev.log("Error in scheduleServiceApi: $e");
+      throw Exception(e);
+    }
+  }
+
+  // ********************************** Reschedule Availability Api ********************************** //
+  Future<BookServiceModel> fetchRescheduleAvailabilityApi(
+    String bookingId,
+  ) async {
+    try {
+      dev.log(
+        "fetchRescheduleAvailabilityApi URL: ${AppUrls.reschedule_service}?booking_id=$bookingId",
+      );
+
+      // Use PUT method and append addressId to URL
+      final response = await _apiService.getApi(
+        "${AppUrls.reschedule_service}?booking_id=$bookingId",
+      );
+
+      return BookServiceModel.fromJson(response);
+    } catch (e) {
+      dev.log("Error in fetchRescheduleAvailabilityApi: $e");
+      throw Exception(e);
+    }
+  }
+
+  // ********************************** Reschedule Booking Api ********************************** //
+  Future<dynamic> rescheduleBookingApi(Map<String, dynamic> data) async {
+    try {
+      dev.log(
+        "rescheduleBookingApi URL: ${AppUrls.rescheduleservicePostApiUrl}",
+      );
+      dev.log("Request Data: $data");
+
+      final response = await _apiService.postApi(
+        data,
+        AppUrls.rescheduleservicePostApiUrl,
+      );
+
+      return response;
+    } catch (e) {
+      dev.log("Error in rescheduleBookingApi: $e");
       throw Exception(e);
     }
   }

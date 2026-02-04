@@ -189,7 +189,7 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
     int bookingId,
     BookingProvider provider,
   ) {
-    provider.fetchAvailability();
+    provider.fetchAvailability(bookingId.toString());
 
     showModalBottomSheet(
       context: context,
@@ -302,30 +302,202 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
                         );
                       }).toList(),
                     ),
-                  if (provider.selectedRescheduleTime != null) ...[
-                    hBox(32),
-                    CustomButton(
-                      isLoading: provider
-                          .isCancelling, // Reusing isCancelling state for loading
-                      text: "Submit",
-                      onPressed: () {},
-                      // // onPressed: () async {
-                      // //   final success = await provider.rescheduleBooking(
-                      // //     bookingId,
-                      // //     context,
-                      // //   );
-                      //   if (success) {
-                      //     // Success already handles toast and closing
-                      //   }
-                      // },
-                    ),
-                  ],
+                  hBox(32),
+                  CustomButton(
+                    isLoading: provider.isScheduleAgain,
+                    text: "Submit",
+                    color: provider.selectedRescheduleTime != null
+                        ? AppColors.primary
+                        : AppColors.lightGrey2,
+                    onPressed: provider.selectedRescheduleTime != null
+                        ? () {
+                            provider.rescheduleBooking(
+                              widget.bookingData['id'],
+                              context,
+                            );
+                          }
+                        : null,
+                  ),
                 ],
               ),
             );
           },
         );
       },
+    );
+  }
+
+  void showRatingBottomSheet(
+    BuildContext context,
+    model.Vendor vendor,
+    int bookingId,
+    BookingProvider provider,
+  ) {
+    int selectedRating = 0;
+    final TextEditingController reviewController = TextEditingController();
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setModalState) {
+            return Container(
+              padding: EdgeInsets.fromLTRB(
+                20,
+                20,
+                20,
+                MediaQuery.of(context).viewInsets.bottom + 20,
+              ),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    width: 40,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: AppColors.lightGrey2,
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                  hBox(20),
+                  Text(
+                    "Rate this Provider",
+                    style: AppFontStyle.text_20_600(AppColors.black),
+                  ),
+                  hBox(24),
+                  CircleAvatar(
+                    radius: 40.r,
+                    backgroundImage: NetworkImage(
+                      provider.getFullImageUrl(vendor.proImg),
+                    ),
+                    child: vendor.proImg != null
+                        ? null
+                        : Icon(
+                            Icons.person,
+                            size: 40.r,
+                            color: AppColors.black,
+                          ),
+
+                    backgroundColor: AppColors.lightGrey,
+                  ),
+                  hBox(12),
+                  Text(
+                    "${vendor.firstName ?? ''} ${vendor.lastName ?? ''}",
+                    style: AppFontStyle.text_16_600(AppColors.black),
+                  ),
+                  hBox(24),
+                  Text(
+                    "What is you rate?",
+                    style: AppFontStyle.text_16_600(AppColors.black),
+                  ),
+                  hBox(16),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: List.generate(5, (index) {
+                      return GestureDetector(
+                        onTap: () {
+                          setModalState(() {
+                            selectedRating = index + 1;
+                          });
+                        },
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 4.w),
+                          child: Icon(
+                            index < selectedRating
+                                ? Icons.star
+                                : Icons.star_border,
+                            size: 36.w,
+                            color: index < selectedRating
+                                ? AppColors.orange
+                                : AppColors.lightGrey3,
+                          ),
+                        ),
+                      );
+                    }),
+                  ),
+                  hBox(24),
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      "How was your experience?",
+                      style: AppFontStyle.text_16_600(AppColors.black),
+                    ),
+                  ),
+                  hBox(16),
+                  Container(
+                    padding: EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: AppColors.lightGrey,
+                      borderRadius: BorderRadius.circular(15.r),
+                    ),
+                    child: TextField(
+                      controller: reviewController,
+                      maxLines: 4,
+                      decoration: InputDecoration(
+                        hintText: "Write your review...",
+                        hintStyle: AppFontStyle.text_14_400(
+                          AppColors.lightGrey3,
+                        ),
+                        border: InputBorder.none,
+                      ),
+                    ),
+                  ),
+                  hBox(32),
+                  ListenableBuilder(
+                    listenable: provider,
+                    builder: (context, child) {
+                      return CustomButton(
+                        isLoading: provider.isReviewLoading,
+                        text: "Submit",
+                        onPressed: selectedRating > 0
+                            ? () async {
+                                final success = await provider.submitReview(
+                                  vendor.id.toString(),
+                                  selectedRating.toString(),
+                                  reviewController.text.toString(),
+                                );
+                                if (success) {
+                                  Navigator.pop(context);
+                                }
+                              }
+                            : null,
+                      );
+                    },
+                  ),
+                  hBox(10),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Widget _getRatingsButton(BuildContext context, BookingProvider provider) {
+    final data = provider.bookingDetails?.data;
+    if (data == null || data.vendor == null) return const SizedBox.shrink();
+
+    return CustomButton(
+      width: MediaQuery.of(context).size.width,
+      isOutlined: true,
+      color: AppColors.primary,
+      borderColor: AppColors.primary,
+      textStyle: AppFontStyle.text_16_600(AppColors.primary),
+      height: 52,
+      onPressed: () {
+        showRatingBottomSheet(context, data.vendor!, data.id!, provider);
+      },
+      child: Text(
+        "Rate this Provider",
+        style: AppFontStyle.text_16_600(AppColors.primary),
+      ),
     );
   }
 
@@ -792,6 +964,10 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
               hBox(15),
               if (data.status?.toLowerCase() == "pending")
                 _getBottomRescheduleButton(context, provider),
+              hBox(15),
+              if (data.status?.toLowerCase() == "completed")
+                _getRatingsButton(context, provider),
+              // _getBottomCancelButton(context, provider),
             ],
           ),
         ),

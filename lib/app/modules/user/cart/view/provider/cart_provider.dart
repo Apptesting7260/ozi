@@ -17,7 +17,8 @@ class CartProvider with ChangeNotifier {
 
   // Getters
   List<CartItem> get items => _items;
-  int get itemCount => _items.fold(0, (sum, item) => sum + (item.quantity ?? 0));
+  int get itemCount =>
+      _items.fold(0, (sum, item) => sum + (item.quantity ?? 0));
   int get subtotal => _subtotal;
   int get serviceFee => _serviceFee;
   int get total => _total;
@@ -30,8 +31,7 @@ class CartProvider with ChangeNotifier {
     notifyListeners();
 
     try {
-      final CartItemsModel response =
-      await _repository.getCartItemsApi();
+      final CartItemsModel response = await _repository.getCartItemsApi();
 
       if (response.status == true && response.data != null) {
         // ✅ Items
@@ -85,7 +85,6 @@ class CartProvider with ChangeNotifier {
 
       // 🎯 Correct model access
       if (response.status == true && response.data != null) {
-
         final newQty = response.data!.quantity ?? 1;
 
         _items[index].quantity = newQty;
@@ -96,7 +95,7 @@ class CartProvider with ChangeNotifier {
         // Recalculate totals
         _subtotal = _items.fold(
           0,
-              (sum, item) => sum + (item.serviceItemTotal ?? 0),
+          (sum, item) => sum + (item.serviceItemTotal ?? 0),
         );
         _total = _subtotal + _serviceFee;
 
@@ -122,7 +121,10 @@ class CartProvider with ChangeNotifier {
     _items.removeAt(index);
 
     // Recalculate totals optimistically
-    _subtotal = _items.fold(0, (sum, item) => sum + (item.serviceItemTotal ?? 0));
+    _subtotal = _items.fold(
+      0,
+      (sum, item) => sum + (item.serviceItemTotal ?? 0),
+    );
     _total = _subtotal + _serviceFee;
 
     notifyListeners();
@@ -144,7 +146,10 @@ class CartProvider with ChangeNotifier {
       _items.insert(index, removedItem);
 
       // Recalculate totals after reverting
-      _subtotal = _items.fold(0, (sum, item) => sum + (item.serviceItemTotal ?? 0));
+      _subtotal = _items.fold(
+        0,
+        (sum, item) => sum + (item.serviceItemTotal ?? 0),
+      );
       _total = _subtotal + _serviceFee;
 
       _errorMessage = 'Failed to remove item: ${e.toString()}';
