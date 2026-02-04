@@ -85,4 +85,30 @@ class VendorServicesProvider extends ChangeNotifier {
       setHomeModel(ApiResponse.error('Internal Server Error'));
     }
   }
+
+
+  bool _deleteServiceLoading = false;
+  bool get deleteServiceLoading => _deleteServiceLoading;
+  updateDeleteServiceLoading(bool value){
+    _deleteServiceLoading = value;
+    notifyListeners();
+  }
+
+  Future<void> deleteService(String serviceId)async {
+    try {
+      if(_deleteServiceLoading) return;
+      updateDeleteServiceLoading(true);
+      final response = await _apiService.deleteApi({},AppUrls.deleteServiceVendor.replaceAll("{serviceid}", serviceId));
+      print(response);
+      _homeModel.data?.data?.removeWhere((e)=>e.id==serviceId);
+      notifyListeners();
+      updateDeleteServiceLoading(false);
+    } catch (e) {
+      Get.showToast(e.toString(), type: ToastType.error);
+      updateDeleteServiceLoading(false);
+    }
+  }
+
+
+
 }

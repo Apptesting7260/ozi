@@ -1,17 +1,19 @@
 import 'package:flutter/material.dart';
 import 'dart:io';
-
 import '../../../../../core/constants/app_urls.dart';
 import '../../../../../core/utils/get_utils.dart';
+import '../../../../../data/models/all_services_model_vendor.dart';
 import '../../../../../data/models/category_dropdown_model.dart';
 import '../../../../../data/network/network_api_services.dart';
-import '../../../../../data/storage/user_preference.dart';
+
 
 class ServiceDetailsProvider extends ChangeNotifier {
   final NetworkApiServices _apiService = NetworkApiServices();
+  VendorGetAllServicesModelData? serviceForEdit;
 
-  ServiceDetailsProvider(){
-    getCategoriesData();
+  ServiceDetailsProvider(VendorGetAllServicesModelData? service){
+    serviceForEdit = service;
+    getCategoriesData(service);
   }
 
   File? pickedImage;
@@ -20,9 +22,10 @@ class ServiceDetailsProvider extends ChangeNotifier {
   Subcategories? subCategory;
   String? durationUnit;
   String? durationValue;
-  String? serviceName;
-  String? description;
-  String? priceAmount;
+  TextEditingController serviceName  = TextEditingController();
+  TextEditingController description  = TextEditingController();
+  TextEditingController priceAmount  = TextEditingController();
+
 
   void setImage(File file) {
     pickedImage = file;
@@ -50,20 +53,20 @@ class ServiceDetailsProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void setPrice(String? val) {
-    priceAmount = val;
-    notifyListeners();
-  }
+  // void setPrice(String? val) {
+  //   priceAmount = val;
+  //   notifyListeners();
+  // }
 
-  void setName(String? val) {
-    serviceName = val;
-    notifyListeners();
-  }
+  // void setName(String? val) {
+  //   serviceName = val;
+  //   notifyListeners();
+  // }
 
-  void setDescription(String? val) {
-    description = val;
-    notifyListeners();
-  }
+  // void setDescription(String? val) {
+  //   description = val;
+  //   notifyListeners();
+  // }
 
   bool get enableContinue =>
       pickedImage != null &&
@@ -80,12 +83,22 @@ class ServiceDetailsProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> getCategoriesData()async {
+  Future<void> getCategoriesData(VendorGetAllServicesModelData? service)async {
     try {
       setCategory(null);
       final response = await _apiService.getApi(AppUrls.vendorGetCategoryData);
       print(response);
       updateCategories(CategoryDropDown.fromJson(response));
+      if(service!=null){
+        serviceName.text = service.serviceName??'';
+        description.text = service.description??'';
+        priceAmount.text = service.servicePrice??'';
+        setCategory(categories?.data?.firstWhere((e)=>e.id==service.category?.id));
+        setSubCategory(category?.subcategories?.firstWhere((e)=>e.id==service.subcategory?.id));
+        setDurationUnit(service.durationType);
+        setDurationValue(service.durationValue);
+        notifyListeners();
+      }
     } catch (e) {
       Get.showToast(e.toString(), type: ToastType.error);
     }
@@ -102,19 +115,25 @@ class ServiceDetailsProvider extends ChangeNotifier {
   Future<void> addNewService()async {
     if(_addLoading) return;
     updateAddLoading(true);
+    Map<String,String> data = {
+      "service_name":serviceName.text,
+      "category_id":category?.id??'',
+      "subcategory_id":subCategory?.id??'',
+      "duration_value":durationValue??'',
+      "duration_type":durationUnit??'',
+      "service_price":priceAmount.text,
+      "description":description.text
+    };
+    Map<String,dynamic> files = {};
+    if(pickedImage!=null){
+      files["service_image"] = pickedImage?.path??'';
+    }
+    if(serviceForEdit!=null){
+      data['service_id'] = serviceForEdit?.id??'';
+    }
     try {
       final response = await _apiService.postApiMultiPart(AppUrls.storeVendorService,
-          {
-        "service_name":serviceName??'',
-        "category_id":category?.id??'',
-        "subcategory_id":subCategory?.id??'',
-        "duration_value":durationValue??'',
-        "duration_type":"hours",//durationUnit??'',
-        "service_price":priceAmount??'',
-        "description":description??''
-      },{
-      "service_image":pickedImage?.path??'',
-      });
+          data,files);
       print(response);
       if(response['status']==true){
         Navigator.pop(navigatorKey.currentContext!);
@@ -125,8 +144,5 @@ class ServiceDetailsProvider extends ChangeNotifier {
       Get.showToast(e.toString(), type: ToastType.error);
     }
   }
-
-
-
 
 }
