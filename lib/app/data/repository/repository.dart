@@ -4,6 +4,7 @@ import 'package:ozi/app/modules/user/booking/model/bookingdetailsmodel.dart'
     as details;
 import 'package:ozi/app/modules/user/booking/model/bookingmodel.dart';
 import 'package:ozi/app/modules/user/cart/schedule_service/Model/bookservicemodel.dart';
+import 'package:ozi/app/modules/user/cart/view/model/couponmodel.dart';
 import 'package:ozi/app/modules/user/home/model/category_model.dart';
 import 'package:ozi/app/modules/user/home/service%20details/model/ServiceDetailsModel.dart';
 import 'package:ozi/app/modules/user/home/service%20details/model/vendordetaiulmodel.dart';
@@ -260,6 +261,21 @@ class Repository {
       dynamic response = await _apiService.getApi(url);
       print('API Response: $response');
       return details.bookingDetailsModel.fromJson(response);
+    } catch (e) {
+      print('getBookingDetailsApi Error: $e');
+      rethrow;
+    }
+  }
+
+  // **************************  GetgetCouponsDetails Api **************************//
+  Future<getCupponsModel> getgetCouponsApi() async {
+    try {
+      final url = AppUrls.getCoupons;
+      print('API Request URL: $url');
+
+      dynamic response = await _apiService.getApi(url);
+      print('API Response: $response');
+      return getCupponsModel.fromJson(response);
     } catch (e) {
       print('getBookingDetailsApi Error: $e');
       rethrow;

@@ -1,4 +1,5 @@
 import 'package:ozi/app/modules/user/cart/view/provider/cart_provider.dart';
+import 'package:ozi/app/modules/user/cart/view/copponscreen.dart';
 import 'package:ozi/app/shared/widgets/custom_image_path_helper.dart';
 import '../../../../core/appExports/app_export.dart';
 import '../../../../core/constants/app_urls.dart';
@@ -87,35 +88,43 @@ class CartScreenContent extends StatelessWidget {
   }
 
   Widget _buildCouponContainer(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.borderColor),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          CustomImage(path: 'assets/images/Group.png', width: 24, height: 24),
-          wBox(12),
-          Expanded(
-            child: Text(
-              'Apply Coupon Code',
-              style: AppFontStyle.text_16_500(
-                AppColors.darkText,
-                fontFamily: AppFontFamily.medium,
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const CopponScreen()),
+        );
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: AppColors.borderColor),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.05),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            CustomImage(path: 'assets/images/Group.png', width: 24, height: 24),
+            wBox(12),
+            Expanded(
+              child: Text(
+                'Apply Coupon Code',
+                style: AppFontStyle.text_16_500(
+                  AppColors.darkText,
+                  fontFamily: AppFontFamily.medium,
+                ),
               ),
             ),
-          ),
-          Icon(Icons.arrow_forward_ios, size: 16, color: AppColors.grey),
-        ],
+            Icon(Icons.arrow_forward_ios, size: 16, color: AppColors.grey),
+          ],
+        ),
       ),
     );
   }
