@@ -1,6 +1,7 @@
 class AppUrls {
   static const String baseUrl = "https://nbturls.in/oziservice/api";
   static const String imageBaseUrl = "https://nbturls.in/oziservice/public/";
+  static const String baseUrlSocket = "https://nbturls.in/oziservice/public/";
 
   static const String login = "$baseUrl/send-otp";
   static const String verification = "$baseUrl/verify-otp";
@@ -53,6 +54,33 @@ class AppUrls {
 
   static const String getAllServicesVendor = "$baseUrl/get-vendor-services";
   static const String deleteServiceVendor = "$baseUrl/delete-vendor-service/{serviceid}";
+
+
+
+  //-------------------------------Socket Events---------------------
+  static String goOnlineEvent = "go_online";
+  static String checkConversationEvent = "check_conversation";
+  static String changePageStatusEvent = "change_page_status";
+  static String sendPersonalMessageEvent = "send_message";
+  static String receivePersonalMessageEvent = "receive_message";
+  static String conversationListEvent = "conversation_list";
+  static String messageListEvent = "message_list";
+  static String changeMsgStatusEvent = "change_msg_status";
+  static String messageReactionEvent = "message_reaction";
+  static String updateMessageEvent = "update_message";
+  static String deleteMsgEvent = "delete_msg";
+  static String updateConverstationEvent = "update_converstation";
+  static String createGroupEvent = "create_group";
+  static String requestCallEvent = "request_call";
+  static String acceptCallEvent = "accept_call";
+  static String rejectCallEvent = "reject_call";
+  static String checkCallStatusEvent = "check_call_status";
+  static String requestLiveStream = "request_live_streaming";
+  static String liveStreamMessage = "live_stream_message";
+  static String joinLiveStreaming = "join_live_streaming";
+  static String updateLiveStream = "update_live_stream";
+  static String leaveLiveStream = "leave_live_stream";
+  static String receiveLiveStreamMessage = "receive_live_stream_message";
 
 
 }

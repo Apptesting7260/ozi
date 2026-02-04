@@ -13,6 +13,39 @@ import '../../shared/theme/font_style.dart';
 
 
 class Get {
+
+  static width(){
+    return MediaQuery.of(navigatorKey.currentContext!).size.width;
+  }
+
+  static height(){
+    return MediaQuery.of(navigatorKey.currentContext!).size.height;
+  }
+
+  static String timeAgo(String? timestamp) {
+    if (timestamp == null || timestamp.isEmpty) {
+      return '';
+    }
+    final DateTime time = DateTime.parse(timestamp).toLocal();
+    final Duration diff = DateTime.now().difference(time);
+
+    if (diff.inSeconds < 60) {
+      return '${diff.inSeconds}s ago';
+    } else if (diff.inMinutes < 60) {
+      return '${diff.inMinutes}m ago';
+    } else if (diff.inHours < 24) {
+      return '${diff.inHours}h ago';
+    } else if (diff.inDays < 30) {
+      return '${diff.inDays}d ago';
+    } else if (diff.inDays < 365) {
+      final months = (diff.inDays / 30).floor();
+      return '${months}mth ago';
+    } else {
+      final years = (diff.inDays / 365).floor();
+      return '${years}y ago';
+    }
+  }
+
   static OutlineInputBorder defaultBorder(double? borderRadius) {
     return OutlineInputBorder(
       borderSide: BorderSide(width: 0, color: AppColors.fieldBgColor),

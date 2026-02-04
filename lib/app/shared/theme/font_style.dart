@@ -205,13 +205,14 @@ static text_24_700(Color color, {fontFamily, height}) {
     );
   }
 
-  static text_16_300(Color color, {fontFamily, height}) {
+  static text_16_300(Color color, {fontFamily, height, TextOverflow? overflow}) {
     return _textStyle(
       color,
       16.0,
       FontWeight.w300,
       height: height,
       fontFamily: fontFamily,
+      overflow: overflow
     );
   }
 
