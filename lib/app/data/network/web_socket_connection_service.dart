@@ -1,11 +1,7 @@
-
 import 'dart:async';
 import 'dart:convert';
-import 'dart:developer';
-
 import 'package:flutter/cupertino.dart';
 import 'package:socket_io_client/socket_io_client.dart' as io;
-
 import '../../core/constants/app_urls.dart';
 import '../storage/user_preference.dart';
 
