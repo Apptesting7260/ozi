@@ -213,7 +213,9 @@ class VendorDetailView extends StatelessWidget {
                         Navigator.push(
                           navigatorKey.currentContext!,
                           MaterialPageRoute(
-                            builder: (context) => AllReviewsScreen(),
+                            builder: (context) => AllReviewsScreen(
+                              VendorId: vendor?.id?.toString() ?? "",
+                            ),
                           ),
                         );
                       },
