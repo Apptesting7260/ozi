@@ -1,10 +1,12 @@
 
 
+import 'package:ozi/app/modules/auth/vendor/signup/view/set_availability.dart';
 import 'package:ozi/app/modules/user/profile/view/profile_provider/profile_provider.dart';
 import '../../../../core/appExports/app_export.dart';
 import '../../../../core/constants/app_urls.dart';
 import '../../../../routes/app_routes.dart';
 import '../../../../shared/widgets/custom_image_path_helper.dart';
+import '../../../auth/vendor/signup/view/identity_verification_screen.dart';
 import '../edit profile/provider/EditProfileProvider.dart';
 import '../edit profile/view/EditProfileScreen.dart';
 
@@ -144,14 +146,18 @@ class ProfileScreenView extends StatelessWidget {
                       _profileTile(
                         icon: ImageConstants.calendor,
                         title: "Availability",
-                        onTap: () => Navigator.pushNamed(context, AppRoutes.editProfileScreen),
+                        onTap: () {
+                          Navigator.push(context, MaterialPageRoute(builder: (context) => SetAvailabilityScreen(),));
+                        },
                       ),
 
                       if(profileProvider.userProfile?.data?.userRole=='vendor')
                       _profileTile(
                         icon: ImageConstants.document,
                         title: "Documents",
-                        onTap: () => Navigator.pushNamed(context, AppRoutes.savedAddressScreen),
+                        onTap: () {
+                          Navigator.push(context, MaterialPageRoute(builder: (context) => IdentityVerificationScreen(),));
+                        },
                       ),
 
                       if(profileProvider.userProfile?.data?.userRole=='vendor')
@@ -161,7 +167,7 @@ class ProfileScreenView extends StatelessWidget {
                         onTap: () => Navigator.pushNamed(context, AppRoutes.helpSupportScreen),
                       ),
                       if(profileProvider.userProfile?.data?.userRole=='user')
-                        _profileTile(
+                      _profileTile(
                         icon: ImageConstants.location,
                         title: "Saved Addresses",
                         onTap: () => Navigator.pushNamed(
