@@ -12,9 +12,7 @@ import 'app_interceptor.dart';
 import 'base_api_services.dart';
 
 class NetworkApiServices extends BaseApiServices {
-
-  static final NetworkApiServices _instance =
-  NetworkApiServices._internal();
+  static final NetworkApiServices _instance = NetworkApiServices._internal();
 
   factory NetworkApiServices() {
     return _instance;
@@ -23,49 +21,45 @@ class NetworkApiServices extends BaseApiServices {
   late Dio _dio;
 
   NetworkApiServices._internal() {
-    _dio = Dio(BaseOptions(
-      connectTimeout: const Duration(seconds: 60),
-      receiveTimeout: const Duration(seconds: 60),
-      responseType: ResponseType.json,
-    ));
+    _dio = Dio(
+      BaseOptions(
+        connectTimeout: const Duration(seconds: 60),
+        receiveTimeout: const Duration(seconds: 60),
+        responseType: ResponseType.json,
+      ),
+    );
 
     _dio.interceptors.add(ChuckerDioInterceptor());
     _dio.interceptors.add(AppInterceptor());
 
     assert(() {
-      _dio.interceptors.add(LogInterceptor(
-        request: true,
-        requestBody: true,
-        responseBody: true,
-        error: true,
-      ));
+      _dio.interceptors.add(
+        LogInterceptor(
+          request: true,
+          requestBody: true,
+          responseBody: true,
+          error: true,
+        ),
+      );
       return true;
     }());
   }
 
-
-
   @override
   Future<dynamic> getApi(String url) async {
     try {
-      final response = await _dio.get(
-        url,
-      );
+      final response = await _dio.get(url);
       return returnResponse(response, url);
-    }on DioException catch (e) {
+    } on DioException catch (e) {
       return returnResponse(e.response!, url);
     }
   }
 
-  Future<dynamic> getApiWithPerms(
-      Map<String, dynamic> data, String url) async {
+  Future<dynamic> getApiWithPerms(Map<String, dynamic> data, String url) async {
     try {
-      final response = await _dio.get(
-        url,
-        queryParameters: data,
-      );
+      final response = await _dio.get(url, queryParameters: data);
       return returnResponse(response, url);
-    }on DioException catch (e) {
+    } on DioException catch (e) {
       return returnResponse(e.response!, url);
     }
   }
@@ -84,7 +78,7 @@ class NetworkApiServices extends BaseApiServices {
         ),
       );
       return returnResponse(response, url);
-    }on DioException catch (e) {
+    } on DioException catch (e) {
       return returnResponse(e.response!, url);
     }
   }
@@ -94,29 +88,24 @@ class NetworkApiServices extends BaseApiServices {
       final response = await _dio.patch(
         url,
         data: jsonEncode(data),
-        options: Options(
-          headers: { "Content-Type": "application/json"},
-        ),
+        options: Options(headers: {"Content-Type": "application/json"}),
       );
       return returnResponse(response, url);
-    }on DioException catch (e) {
+    } on DioException catch (e) {
       return returnResponse(e.response!, url);
     }
   }
 
   Future<dynamic> patchMultipartApi(
-      Map<String, String> fields,
-      String url,
-      ) async {
+    Map<String, String> fields,
+    String url,
+  ) async {
     try {
       FormData formData = FormData.fromMap(fields);
 
-      final response = await _dio.patch(
-        url,
-        data: formData,
-      );
+      final response = await _dio.patch(url, data: formData);
       return returnResponse(response, url);
-    }on DioException catch (e) {
+    } on DioException catch (e) {
       // return _handleDioError(e);
       return returnResponse(e.response!, url);
     }
@@ -127,12 +116,10 @@ class NetworkApiServices extends BaseApiServices {
       final response = await _dio.post(
         url,
         data: jsonEncode(data),
-        options: Options(
-          headers: {"Content-Type": "application/json"},
-        ),
+        options: Options(headers: {"Content-Type": "application/json"}),
       );
       return returnResponse(response, url);
-    }on DioException catch (e) {
+    } on DioException catch (e) {
       return returnResponse(e.response!, url);
       // return _handleDioError(e);
     }
@@ -140,25 +127,22 @@ class NetworkApiServices extends BaseApiServices {
 
   Future<dynamic> getApiWithoutToken(String url) async {
     try {
-      final response = await _dio.get(
-        url,
-      );
+      final response = await _dio.get(url);
       return returnResponse(response, url);
-    }on DioException catch (e) {
+    } on DioException catch (e) {
       return returnResponse(e.response!, url);
     }
   }
+
   Future<dynamic> deleteApi(var data, String url) async {
     try {
       final response = await _dio.delete(
         url,
         data: jsonEncode(data),
-        options: Options(
-          headers: { "Content-Type": "application/json"},
-        ),
+        options: Options(headers: {"Content-Type": "application/json"}),
       );
       return returnResponse(response, url);
-    }on DioException catch (e) {
+    } on DioException catch (e) {
       return returnResponse(e.response!, url);
     }
   }
@@ -167,12 +151,10 @@ class NetworkApiServices extends BaseApiServices {
     try {
       final response = await _dio.delete(
         url,
-        options: Options(
-          headers: { "Content-Type": "application/json"},
-        ),
+        options: Options(headers: {"Content-Type": "application/json"}),
       );
       return returnResponse(response, url);
-    }on DioException catch (e) {
+    } on DioException catch (e) {
       return returnResponse(e.response!, url);
     }
   }
@@ -182,51 +164,50 @@ class NetworkApiServices extends BaseApiServices {
       final response = await _dio.put(
         url,
         data: jsonEncode(data),
-        options: Options(
-          headers: { "Content-Type": "application/json"},
-        ),
+        options: Options(headers: {"Content-Type": "application/json"}),
       );
       return returnResponse(response, url);
-    }on DioException catch (e) {
+    } on DioException catch (e) {
       return returnResponse(e.response!, url);
       // return _handleDioError(e);
     }
   }
 
   Future<dynamic> postApiMultiPart(
-      String url,
-      Map<String, String> fields,
-      Map<String, dynamic> files,
-      ) async {
+    String url,
+    Map<String, String> fields,
+    Map<String, dynamic> files,
+  ) async {
     try {
       FormData formData = FormData.fromMap(fields);
 
       files.forEach((key, value) async {
         if (value is String) {
-          formData.files.add(MapEntry(key, await MultipartFile.fromFile(value)));
+          formData.files.add(
+            MapEntry(key, await MultipartFile.fromFile(value)),
+          );
         } else if (value is File) {
-          formData.files.add(MapEntry(key, await MultipartFile.fromFile(value.path)));
+          formData.files.add(
+            MapEntry(key, await MultipartFile.fromFile(value.path)),
+          );
         } else {
           throw Exception("Unsupported file input type for key '$key'");
         }
       });
 
-      final response = await _dio.post(
-        url,
-        data: formData,
-      );
+      final response = await _dio.post(url, data: formData);
       return returnResponse(response, url);
-    } on DioException catch  (e) {
+    } on DioException catch (e) {
       return returnResponse(e.response!, url);
       // return _handleDioError(e);
     }
   }
 
   Future<dynamic> postApiMultiPartBytes(
-      String url,
-      Map<String, String> fields,
-      Map<String, dynamic> files,
-      ) async {
+    String url,
+    Map<String, String> fields,
+    Map<String, dynamic> files,
+  ) async {
     try {
       FormData formData = FormData.fromMap(fields);
 
@@ -234,37 +215,44 @@ class NetworkApiServices extends BaseApiServices {
         if (value is Uint8List) {
           formData.files.add(MapEntry(key, MultipartFile.fromBytes(value)));
         } else if (value is File) {
-          formData.files.add(MapEntry(key, await MultipartFile.fromFile(value.path)));
+          formData.files.add(
+            MapEntry(key, await MultipartFile.fromFile(value.path)),
+          );
         } else {
           throw Exception("Unsupported file input type for key '$key'");
         }
       });
 
-      final response = await _dio.post(
-        url,
-        data: formData,
-      );
+      final response = await _dio.post(url, data: formData);
 
       return returnResponse(response, url);
-    }  on DioException catch (e) {
+    } on DioException catch (e) {
       return returnResponse(e.response!, url);
     }
   }
 
   dynamic returnResponse(Response response, String url) {
-    if(response.data['status']==false){
-      throw FetchDataException(response.data['message'] ?? 'Error ${response.statusCode}');
-    }else if (response.statusCode == 200 || response.statusCode == 201) {
+    if (response.data['status'] == false) {
+      throw FetchDataException(
+        response.data['message'] ?? 'Error ${response.statusCode}',
+      );
+    } else if (response.statusCode == 200 || response.statusCode == 201) {
       return response.data;
-    }else if (response.statusCode == 401) {
+    } else if (response.statusCode == 401) {
       _handleLogout();
       throw UnauthenticatedException();
-    }else {
-      throw FetchDataException(response.data['message'] ?? 'Error ${response.statusCode}');
+    } else {
+      throw FetchDataException(
+        response.data['message'] ?? 'Error ${response.statusCode}',
+      );
     }
   }
 
-  dynamic returnResponseMultiPart(Response response, String responseBody, String url) {
+  dynamic returnResponseMultiPart(
+    Response response,
+    String responseBody,
+    String url,
+  ) {
     if (response.statusCode == 200 || response.statusCode == 201) {
       return response.data;
     } else if (response.statusCode == 401) {
@@ -272,7 +260,8 @@ class NetworkApiServices extends BaseApiServices {
       throw UnauthenticatedException();
     } else {
       throw FetchDataException(
-          response.data['message']?.toString() ?? 'Error ${response.statusCode}');
+        response.data['message']?.toString() ?? 'Error ${response.statusCode}',
+      );
     }
   }
 
@@ -283,9 +272,8 @@ class NetworkApiServices extends BaseApiServices {
       Navigator.pushNamedAndRemoveUntil(
         context,
         AppRoutes.login,
-            (route) => false,
+        (route) => false,
       );
     }
   }
-
 }

@@ -31,7 +31,7 @@ class AppUrls {
   static const String updateNotificationUrl = "$baseUrl/update-notification?";
   static const String helpSupportUrl = "$baseUrl/get-faqs";
   static const String SupportUrl = "$baseUrl/send-user-email";
-
+  static const String vendorServiceUrl = "$baseUrl/get-vendor-services-users";
   // Vendor APIs
   static const String getAllCategories = "$baseUrl/get-all-categories";
   static const String saveCategoryForVendor = "$baseUrl/vendor-categories";
@@ -53,6 +53,7 @@ class AppUrls {
   static const String completeJob = "$baseUrl/complete-booking-status";
 
   static const String getAllServicesVendor = "$baseUrl/get-vendor-services";
+
   static const String deleteServiceVendor = "$baseUrl/delete-vendor-service/{serviceid}";
 
 
@@ -81,6 +82,7 @@ class AppUrls {
   static String updateLiveStream = "update_live_stream";
   static String leaveLiveStream = "leave_live_stream";
   static String receiveLiveStreamMessage = "receive_live_stream_message";
+
 
 
 }

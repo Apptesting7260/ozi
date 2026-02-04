@@ -55,26 +55,27 @@ class ServiceData {
   Category? subcategory;
   Vendor? vendor;
 
-  ServiceData(
-      {this.id,
-        this.vendorId,
-        this.serviceName,
-        this.serviceImage,
-        this.categoryId,
-        this.subcategoryId,
-        this.description,
-        this.latitude,
-        this.longitude,
-        this.servicePrice,
-        this.durationValue,
-        this.durationType,
-        this.status,
-        this.createdAt,
-        this.updatedAt,
-        this.deletedAt,
-        this.category,
-        this.subcategory,
-        this.vendor});
+  ServiceData({
+    this.id,
+    this.vendorId,
+    this.serviceName,
+    this.serviceImage,
+    this.categoryId,
+    this.subcategoryId,
+    this.description,
+    this.latitude,
+    this.longitude,
+    this.servicePrice,
+    this.durationValue,
+    this.durationType,
+    this.status,
+    this.createdAt,
+    this.updatedAt,
+    this.deletedAt,
+    this.category,
+    this.subcategory,
+    this.vendor,
+  });
 
   ServiceData.fromJson(Map<String, dynamic> json) {
     id = json['id'];
@@ -99,8 +100,9 @@ class ServiceData {
     subcategory = json['subcategory'] != null
         ? new Category.fromJson(json['subcategory'])
         : null;
-    vendor =
-    json['vendor'] != null ? new Vendor.fromJson(json['vendor']) : null;
+    vendor = json['vendor'] != null
+        ? new Vendor.fromJson(json['vendor'])
+        : null;
   }
 
   Map<String, dynamic> toJson() {
@@ -160,13 +162,14 @@ class Vendor {
   int? id;
   String? firstName;
   String? lastName;
-
-  Vendor({this.id, this.firstName, this.lastName});
+  String? profileImage;
+  Vendor({this.id, this.firstName, this.lastName, this.profileImage});
 
   Vendor.fromJson(Map<String, dynamic> json) {
     id = json['id'];
     firstName = json['first_name'];
     lastName = json['last_name'];
+    profileImage = json['pro_img'];
   }
 
   Map<String, dynamic> toJson() {
@@ -174,6 +177,7 @@ class Vendor {
     data['id'] = id;
     data['first_name'] = firstName;
     data['last_name'] = lastName;
+    data['pro_img'] = profileImage;
     return data;
   }
 }
@@ -185,12 +189,13 @@ class Pagination {
   int? lastPage;
   bool? hasMore;
 
-  Pagination(
-      {this.currentPage,
-        this.perPage,
-        this.total,
-        this.lastPage,
-        this.hasMore});
+  Pagination({
+    this.currentPage,
+    this.perPage,
+    this.total,
+    this.lastPage,
+    this.hasMore,
+  });
 
   Pagination.fromJson(Map<String, dynamic> json) {
     currentPage = json['current_page'];

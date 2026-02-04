@@ -5,6 +5,7 @@ import 'package:ozi/app/modules/user/booking/model/bookingmodel.dart';
 import 'package:ozi/app/modules/user/cart/schedule_service/Model/bookservicemodel.dart';
 import 'package:ozi/app/modules/user/home/model/category_model.dart';
 import 'package:ozi/app/modules/user/home/service%20details/model/ServiceDetailsModel.dart';
+import 'package:ozi/app/modules/user/home/service%20details/model/vendordetaiulmodel.dart';
 import 'package:ozi/app/modules/user/profile/setting/model/settingsmodel.dart';
 import 'package:ozi/app/modules/user/profile/view/model/logout_model.dart';
 import 'package:ozi/app/modules/vendor/profile/help/model/helpsupportmodel.dart';
@@ -127,6 +128,24 @@ class Repository {
       return helpSupportModel.fromJson(response);
     } catch (e) {
       dev.log('Error in helpCenterApi: $e');
+      throw Exception(e);
+    }
+  }
+
+  // *********************************** VendorDetails Api ***************************************//
+  Future<vendorDetailModel> vendorDetailsApi(String vendorId) async {
+    try {
+      final url = '${AppUrls.vendorServiceUrl}?vendor_id=$vendorId';
+
+      dev.log('vendorDetailsApi URL: $url');
+
+      dynamic response = await _apiService.getApi(url);
+
+      dev.log('vendorDetailsApi Response: $response');
+
+      return vendorDetailModel.fromJson(response);
+    } catch (e) {
+      dev.log('Error in vendorDetailsApi: $e');
       throw Exception(e);
     }
   }

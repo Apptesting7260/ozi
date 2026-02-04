@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:ozi/app/core/constants/app_urls.dart';
 import 'package:ozi/app/core/utils/get_utils.dart';
 import 'package:ozi/app/data/repository/repository.dart';
+import 'package:ozi/app/modules/user/cart/schedule_service/Model/bookservicemodel.dart';
 import '../model/bookingmodel.dart';
 import '../model/bookingdetailsmodel.dart' as details;
+import 'dart:developer' as dev;
 
 class BookingProvider extends ChangeNotifier {
   Repository _repository = Repository();
@@ -219,4 +221,192 @@ class BookingProvider extends ChangeNotifier {
       return false;
     }
   }
+
+  // ======================== RESCHEDULE LOGIC ========================
+
+  DateTime _selectedRescheduleDate = DateTime.now();
+  String? _selectedRescheduleTime;
+  Map<String, List<DaySlot>> _dayAvailability = {};
+  bool _isAvailabilityLoading = false;
+
+  DateTime get selectedRescheduleDate => _selectedRescheduleDate;
+  String? get selectedRescheduleTime => _selectedRescheduleTime;
+  bool get isAvailabilityLoading => _isAvailabilityLoading;
+
+  List<Map<String, String>> get quickDates {
+    List<Map<String, String>> dates = [];
+    const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+    const months = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
+    ];
+
+    for (int i = 0; i < 4; i++) {
+      DateTime date = DateTime.now().add(Duration(days: i));
+      dates.add({
+        'day': days[date.weekday - 1],
+        'date': date.day.toString(),
+        'month': months[date.month - 1],
+      });
+    }
+    return dates;
+  }
+
+  List<String> get availableTimesForSelectedDay {
+    final dayName = _getDayName(_selectedRescheduleDate);
+    final slots = _dayAvailability[dayName];
+
+    if (slots == null || slots.isEmpty) return [];
+
+    List<String> times = [];
+    for (var slot in slots) {
+      if (slot.from != null && slot.to != null) {
+        times.add(_formatSlotForDisplay(slot));
+      }
+    }
+    return times;
+  }
+
+  String _getDayName(DateTime date) {
+    const days = [
+      'monday',
+      'tuesday',
+      'wednesday',
+      'thursday',
+      'friday',
+      'saturday',
+      'sunday',
+    ];
+    return days[date.weekday - 1].toLowerCase();
+  }
+
+  String _formatSlotForDisplay(DaySlot slot) {
+    if (slot.from == null || slot.to == null) return "";
+
+    String formatTime(String timeStr) {
+      try {
+        final parts = timeStr.split(':');
+        int hour = int.parse(parts[0]);
+        int minute = int.parse(parts[1]);
+
+        int displayHour = hour % 12;
+        if (displayHour == 0) displayHour = 12;
+        final minuteStr = minute.toString().padLeft(2, '0');
+        final period = hour >= 12 ? 'PM' : 'AM';
+        return '$displayHour:$minuteStr $period';
+      } catch (e) {
+        return timeStr;
+      }
+    }
+
+    return "${formatTime(slot.from!)} - ${formatTime(slot.to!)}";
+  }
+
+  void selectRescheduleDate(DateTime date) {
+    _selectedRescheduleDate = DateTime(date.year, date.month, date.day);
+    _selectedRescheduleTime = null;
+    notifyListeners();
+  }
+
+  void selectRescheduleTime(String time) {
+    _selectedRescheduleTime = time;
+    notifyListeners();
+  }
+
+  Future<void> fetchAvailability() async {
+    try {
+      _isAvailabilityLoading = true;
+      notifyListeners();
+
+      final response = await _repository.scheduleServiceApi();
+
+      if (response.vendorAvailability?.days != null) {
+        final rawDays = response.vendorAvailability!.days!;
+        _dayAvailability.clear();
+        rawDays.forEach((key, value) {
+          _dayAvailability[key.toLowerCase()] = value;
+        });
+      }
+    } catch (e) {
+      print('Error fetching availability: $e');
+    } finally {
+      _isAvailabilityLoading = false;
+      notifyListeners();
+    }
+  }
+
+  // Future<bool> rescheduleBooking(int bookingId, BuildContext context) async {
+  //   try {
+  //     setCancelling(true); // Reusing isCancelling for progress state
+  //     notifyListeners();
+
+  //     if (_selectedRescheduleTime == null) {
+  //       throw Exception("Time not selected");
+  //     }
+
+  //     final dayName = _getDayName(_selectedRescheduleDate);
+  //     final slots = _dayAvailability[dayName] ?? [];
+
+  //     DaySlot? selectedSlot;
+  //     for (var slot in slots) {
+  //       if (slot.from != null && slot.to != null) {
+  //         if (_formatSlotForDisplay(slot) == _selectedRescheduleTime) {
+  //           selectedSlot = slot;
+  //           break;
+  //         }
+  //       }
+  //     }
+
+  //     if (selectedSlot == null) {
+  //       throw Exception("Selected slot not found");
+  //     }
+
+  //     final Map<String, dynamic> data = {
+  //       "booking_id": bookingId,
+  //       "reschedule_date": _selectedRescheduleDate
+  //           .toIso8601String()
+  //           .split('T')
+  //           .first,
+  //       "reschedule_time_from": selectedSlot.from,
+  //       "reschedule_time_to": selectedSlot.to,
+  //     };
+
+  //     final response = await _repository.rescheduleServiceApi(data);
+
+  //     if (response != null && response['status'] == true) {
+  //       Get.showToast(
+  //         'Booking Rescheduled Successfully',
+  //         type: ToastType.success,
+  //       );
+
+  //       // Refresh details
+  //       await getBookingDetails(bookingId);
+
+  //       Navigator.pop(context);
+  //       return true;
+  //     } else {
+  //       Get.showToast(
+  //         response?['message'] ?? 'Reschedule failed',
+  //         type: ToastType.error,
+  //       );
+  //       return false;
+  //     }
+  //   } catch (e) {
+  //     Get.showToast('Reschedule Failed', type: ToastType.error);
+  //     return false;
+  //   } finally {
+  //     setCancelling(false);
+  //     notifyListeners();
+  //   }
+  // }
 }

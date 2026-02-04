@@ -229,7 +229,7 @@ class HomeScreenView extends StatelessWidget {
             Positioned.fill(
               child: CustomImage(
                 path: ImagePathHelper.getFullImageUrl(
-                  category.icon,
+                  category.icon ?? ImageConstants.homeService,
                   AppUrls.imageBaseUrl,
                 ),
 

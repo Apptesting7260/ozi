@@ -1,0 +1,428 @@
+import 'package:ozi/app/modules/user/Reviews%20Section/screens/allreviewsscreen.dart';
+import 'package:ozi/app/modules/user/home/model/category_model.dart';
+import '../../../../../core/appExports/app_export.dart';
+import '../../../../../core/constants/app_urls.dart';
+import '../../../../../data/response/api_status.dart';
+import '../../../../../shared/widgets/custom_app_bar.dart';
+import '../provider/ServiceDetailProvider.dart';
+import '../model/vendordetaiulmodel.dart' as vdm;
+
+class VendorDetailScreen extends StatelessWidget {
+  final String vendorId;
+  final String vendorName;
+  final Subcategories service;
+  final int categoryId;
+
+  const VendorDetailScreen({
+    super.key,
+    required this.vendorId,
+    required this.vendorName,
+    required this.service,
+    required this.categoryId,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ChangeNotifierProvider(
+      create: (_) =>
+          ServiceDetailProvider(service, categoryId)
+            ..vendorDetailsApi(vendorId),
+      child: const VendorDetailView(),
+    );
+  }
+}
+
+class VendorDetailView extends StatelessWidget {
+  const VendorDetailView({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final provider = context.watch<ServiceDetailProvider>();
+
+    return PopScope(
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) {
+          provider.clearSearch();
+        }
+      },
+      child: Scaffold(
+        backgroundColor: AppColors.white,
+        body: SafeArea(
+          child: Column(
+            children: [
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 10.h),
+                child: CustomAppBar(
+                  title:
+                      (provider.vendorDetailData.data?.data?.isNotEmpty ??
+                          false)
+                      ? "${provider.vendorDetailData.data?.data?.first.vendor?.firstName ?? ''} ${provider.vendorDetailData.data?.data?.first.vendor?.lastName ?? ''}"
+                            .trim()
+                      : "Vendor Details",
+                ),
+              ),
+              Expanded(child: _buildBody(context, provider)),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBody(BuildContext context, ServiceDetailProvider provider) {
+    if (provider.vendorDetailData.status == ApiStatus.loading) {
+      return Center(
+        child: LoadingAnimationWidget.fourRotatingDots(
+          color: AppColors.primary,
+          size: 40,
+        ),
+      );
+    }
+
+    if (provider.vendorDetailData.status == ApiStatus.error) {
+      return Center(
+        child: Text(
+          provider.vendorDetailData.message ?? "Something went wrong",
+          style: AppFontStyle.text_16_400(AppColors.grey),
+        ),
+      );
+    }
+
+    final dataList = provider.vendorDetailData.data?.data;
+    if (dataList == null || dataList.isEmpty) {
+      return Center(
+        child: Text(
+          "No services found for this vendor",
+          style: AppFontStyle.text_16_400(AppColors.grey),
+        ),
+      );
+    }
+
+    final vendor = dataList.first.vendor;
+    final categoryName = dataList.first.category?.categoryName;
+
+    return SingleChildScrollView(
+      physics: const BouncingScrollPhysics(),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildHeader(vendor, categoryName),
+          hBox(10.h),
+          _buildSearchBar(provider),
+          hBox(20.h),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16.w),
+            child: Text(
+              "Services",
+              style: AppFontStyle.text_20_600(
+                AppColors.black,
+                fontFamily: AppFontFamily.semiBold,
+              ),
+            ),
+          ),
+          hBox(16.h),
+          provider.filteredVendorServices.isEmpty
+              ? Center(
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(vertical: 20.h),
+                    child: Text(
+                      "No service found",
+                      style: AppFontStyle.text_16_400(AppColors.grey),
+                    ),
+                  ),
+                )
+              : ListView.separated(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 16.w,
+                    vertical: 8.h,
+                  ),
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: provider.filteredVendorServices.length,
+                  separatorBuilder: (context, index) => hBox(24.h),
+                  itemBuilder: (context, index) {
+                    return _buildServiceCard(
+                      context,
+                      provider.filteredVendorServices[index],
+                      provider,
+                    );
+                  },
+                ),
+          hBox(20.h),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildHeader(vdm.Vendor? vendor, String? categoryName) {
+    final name = "${vendor?.firstName ?? ''} ${vendor?.lastName ?? ''}".trim();
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.h),
+      child: Row(
+        children: [
+          Container(
+            padding: EdgeInsets.all(2.w),
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              border: Border.all(color: AppColors.primary, width: 2),
+            ),
+            child: CircleAvatar(
+              radius: 40.w,
+              backgroundColor: AppColors.lightGrey,
+              backgroundImage: vendor?.proImg != null
+                  ? CachedNetworkImageProvider(
+                      "${AppUrls.imageBaseUrl}${vendor?.proImg}",
+                    )
+                  : null,
+              child: vendor?.proImg == null
+                  ? Icon(Icons.person, size: 40.w, color: AppColors.lightGrey2)
+                  : null,
+            ),
+          ),
+          wBox(16.w),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  name.isEmpty ? "No Name" : name,
+                  style: AppFontStyle.text_20_600(
+                    AppColors.black,
+                    fontFamily: AppFontFamily.semiBold,
+                  ),
+                ),
+                Text(
+                  categoryName ?? "Services",
+                  style: AppFontStyle.text_14_400(AppColors.lightGrey3),
+                ),
+                hBox(4.h),
+                Row(
+                  children: [
+                    Icon(Icons.star, size: 18.w, color: AppColors.orange),
+                    wBox(4.w),
+                    Text(
+                      vendor?.receivedReviewsAvgRating ?? "0",
+                      style: AppFontStyle.text_14_600(
+                        AppColors.black,
+                        fontFamily: AppFontFamily.bold,
+                      ),
+                    ),
+                    wBox(8.w),
+                    InkWell(
+                      onTap: () {
+                        Navigator.push(
+                          navigatorKey.currentContext!,
+                          MaterialPageRoute(
+                            builder: (context) => AllReviewsScreen(),
+                          ),
+                        );
+                      },
+                      child: Text(
+                        "${vendor?.received_reviews_count ?? 0} Reviews",
+                        style:
+                            AppFontStyle.text_14_400(
+                              AppColors.primary,
+                              fontFamily: AppFontFamily.regular,
+                            ).copyWith(
+                              decoration: TextDecoration.underline,
+                              decorationColor: AppColors.primary,
+                            ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSearchBar(ServiceDetailProvider provider) {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 16.w),
+      child: Container(
+        height: 50.h,
+        decoration: BoxDecoration(
+          color: AppColors.lightGrey,
+          borderRadius: BorderRadius.circular(25.h),
+        ),
+        padding: EdgeInsets.symmetric(horizontal: 20.w),
+        child: Row(
+          children: [
+            Icon(Icons.search, color: AppColors.lightGrey3, size: 24.w),
+            wBox(10.w),
+            Expanded(
+              child: TextField(
+                controller: provider.searchController,
+                onChanged: (value) => provider.updateSearchQuery(value),
+                decoration: InputDecoration(
+                  hintText: "Search...",
+                  hintStyle: AppFontStyle.text_16_400(AppColors.lightGrey3),
+                  border: InputBorder.none,
+                  isDense: true,
+                  suffixIcon: provider.searchQuery.isNotEmpty
+                      ? IconButton(
+                          icon: Icon(Icons.clear, color: AppColors.lightGrey3),
+                          onPressed: () => provider.clearSearch(),
+                        )
+                      : null,
+                ),
+                style: AppFontStyle.text_16_400(AppColors.black),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildServiceCard(
+    BuildContext context,
+    vdm.Data service,
+    ServiceDetailProvider provider,
+  ) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(15),
+              child: CachedNetworkImage(
+                imageUrl: "${AppUrls.imageBaseUrl}${service.serviceImage}",
+                width: 100.w,
+                height: 100.w,
+                fit: BoxFit.cover,
+                placeholder: (context, url) => Container(
+                  width: 100.w,
+                  height: 100.w,
+                  color: AppColors.lightGrey,
+                ),
+                errorWidget: (context, url, error) => Container(
+                  width: 100.w,
+                  height: 100.w,
+                  color: AppColors.lightGrey,
+                  child: Icon(Icons.image, color: AppColors.lightGrey2),
+                ),
+              ),
+            ),
+            wBox(16.w),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    service.serviceName ?? "",
+                    style: AppFontStyle.text_16_600(
+                      AppColors.black,
+                      fontFamily: AppFontFamily.semiBold,
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  hBox(4.h),
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.access_time,
+                        size: 16.w,
+                        color: AppColors.lightGrey3,
+                      ),
+                      wBox(4.w),
+                      Text(
+                        "${service.durationValue} ${service.durationType}",
+                        style: AppFontStyle.text_14_400(AppColors.lightGrey3),
+                      ),
+                    ],
+                  ),
+                  hBox(12.h),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        "\$${service.servicePrice}",
+                        style: AppFontStyle.text_18_600(
+                          AppColors.primary,
+                          fontFamily: AppFontFamily.bold,
+                        ),
+                      ),
+                      provider.isInCart(service.id ?? 0)
+                          ? _buildCounter(service.id ?? 0, provider)
+                          : CustomButton(
+                              text: "Add",
+                              width: 80.w,
+                              height: 35.h,
+                              borderRadius: BorderRadius.circular(20),
+                              color: AppColors.primary,
+                              textStyle: AppFontStyle.text_14_600(
+                                Colors.white,
+                                fontFamily: AppFontFamily.bold,
+                              ),
+                              onPressed: () {
+                                if (service.id != null) {
+                                  provider.addToCart(service.id!);
+                                }
+                              },
+                            ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+        hBox(16.h),
+        Text(
+          service.description ?? "",
+          style: AppFontStyle.text_14_400(AppColors.lightGrey3),
+          maxLines: 8,
+          overflow: TextOverflow.ellipsis,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildCounter(int serviceId, ServiceDetailProvider provider) {
+    final quantity = provider.getQuantity(serviceId);
+
+    return Container(
+      height: 35.h,
+      padding: EdgeInsets.symmetric(horizontal: 4.w),
+      decoration: BoxDecoration(
+        border: Border.all(color: AppColors.primary, width: 1),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          GestureDetector(
+            onTap: () => provider.decrementQuantity(serviceId),
+            child: Padding(
+              padding: EdgeInsets.all(4.0.w),
+              child: Icon(Icons.remove, size: 16.w, color: AppColors.primary),
+            ),
+          ),
+          wBox(8.w),
+          Text(
+            '$quantity',
+            style: AppFontStyle.text_14_600(
+              AppColors.primary,
+              fontFamily: AppFontFamily.bold,
+            ),
+          ),
+          wBox(8.w),
+          GestureDetector(
+            onTap: () => provider.incrementQuantity(serviceId),
+            child: Padding(
+              padding: EdgeInsets.all(4.0.w),
+              child: Icon(Icons.add, size: 16.w, color: AppColors.primary),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
