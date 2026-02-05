@@ -129,17 +129,31 @@ class HomeScreenView extends StatelessWidget {
             ),
           ],
         ),
-        GestureDetector(
-          onTap: () {
-            context.read<NavigationProvider>().setIndex(4, context);
-          },
-          child: profileAvatarStatic(
-            imageUrl: ImagePathHelper.getFullImageUrl(
-              context.watch<ProfileProvider>().profileImage,
-              AppUrls.imageBaseUrl,
+
+        Row(
+          children: [
+            GestureDetector(
+              onTap: () {},
+              child: Image.asset(
+                "assets/images/msgimg.png",
+                height: 46,
+                width: 46,
+              ),
             ),
-            size: 50,
-          ),
+            wBox(12),
+            GestureDetector(
+              onTap: () {
+                context.read<NavigationProvider>().setIndex(4, context);
+              },
+              child: profileAvatarStatic(
+                imageUrl: ImagePathHelper.getFullImageUrl(
+                  context.watch<ProfileProvider>().profileImage,
+                  AppUrls.imageBaseUrl,
+                ),
+                size: 50,
+              ),
+            ),
+          ],
         ),
       ],
     );

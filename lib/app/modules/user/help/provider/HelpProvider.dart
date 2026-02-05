@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ozi/app/data/repository/repository.dart';
 import 'package:ozi/app/modules/vendor/profile/help/model/helpsupportmodel.dart';
-
 import '../../../../core/utils/get_utils.dart';
 
 class HelpUserProvider extends ChangeNotifier {
@@ -39,7 +38,9 @@ class HelpUserProvider extends ChangeNotifier {
 
     try {
       final result = await _repository.helpCenterApi(type);
-      if (result.status?.toLowerCase() == "success") {
+      if (result.status.toString().toLowerCase() == "success" ||
+          result.status == true ||
+          result.status == "1") {
         _helpModel = result;
       }
     } catch (e) {

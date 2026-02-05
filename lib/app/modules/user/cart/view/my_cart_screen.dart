@@ -3,19 +3,29 @@ import 'package:ozi/app/modules/user/cart/view/copponscreen.dart';
 import 'package:ozi/app/shared/widgets/custom_image_path_helper.dart';
 import '../../../../core/appExports/app_export.dart';
 import '../../../../core/constants/app_urls.dart';
-import '../../../../data/repository/repository.dart';
 import '../schedule_service/view/ScheduleServiceScreen.dart';
 import 'model/cart_items_model.dart';
+import 'model/couponmodel.dart' as model;
 
-class CartScreen extends StatelessWidget {
+class CartScreen extends StatefulWidget {
   const CartScreen({super.key});
 
   @override
+  State<CartScreen> createState() => _CartScreenState();
+}
+
+class _CartScreenState extends State<CartScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<CartProvider>().fetchCartItems();
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (_) => CartProvider(repository: Repository())..fetchCartItems(),
-      child: const CartScreenContent(),
-    );
+    return const CartScreenContent();
   }
 }
 
@@ -88,12 +98,19 @@ class CartScreenContent extends StatelessWidget {
   }
 
   Widget _buildCouponContainer(BuildContext context) {
+    final cart = Provider.of<CartProvider>(context, listen: false);
+
     return GestureDetector(
-      onTap: () {
-        Navigator.push(
+      onTap: () async {
+        final result = await Navigator.push(
           context,
           MaterialPageRoute(builder: (_) => const CopponScreen()),
         );
+
+        if (result != null && result is model.Data) {
+          cart.setAppliedCoupon(result.code);
+          cart.fetchCartItems(); // Refresh cart to see updated prices if any
+        }
       },
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
@@ -114,12 +131,18 @@ class CartScreenContent extends StatelessWidget {
             CustomImage(path: 'assets/images/Group.png', width: 24, height: 24),
             wBox(12),
             Expanded(
-              child: Text(
-                'Apply Coupon Code',
-                style: AppFontStyle.text_16_500(
-                  AppColors.darkText,
-                  fontFamily: AppFontFamily.medium,
-                ),
+              child: Consumer<CartProvider>(
+                builder: (context, cart, child) {
+                  return Text(
+                    cart.appliedCouponCode ?? 'Apply Coupon Code',
+                    style: AppFontStyle.text_16_500(
+                      cart.appliedCouponCode != null
+                          ? AppColors.primary
+                          : AppColors.darkText,
+                      fontFamily: AppFontFamily.medium,
+                    ),
+                  );
+                },
               ),
             ),
             Icon(Icons.arrow_forward_ios, size: 16, color: AppColors.grey),

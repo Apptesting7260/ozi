@@ -13,6 +13,9 @@ import 'app/modules/user/profile/save address/provider/saved_address_provider.da
 import 'app/modules/user/profile/view/profile_provider/profile_provider.dart';
 import 'app/routes/app_routes.dart';
 import 'app/view/splash/provider/splash_provider.dart';
+import 'app/modules/user/cart/view/cupponprovider.dart';
+import 'app/modules/user/cart/view/provider/cart_provider.dart';
+import 'app/data/repository/repository.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -38,13 +41,17 @@ class MyApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(create: (_) => LoginProvider()),
         ChangeNotifierProvider(create: (_) => SplashProvider()),
-        ChangeNotifierProvider(create: (_) => VendorNavigationProvider(),),
-        ChangeNotifierProvider(create: (_) => NavigationProvider(),),
-        ChangeNotifierProvider(create: (_) => HomeScreenProvider(),),
-        ChangeNotifierProvider(create: (_) => ProfileProvider(),),
-        ChangeNotifierProvider(create: (_) => SavedAddressProvider(),),
+        ChangeNotifierProvider(create: (_) => VendorNavigationProvider()),
+        ChangeNotifierProvider(create: (_) => NavigationProvider()),
+        ChangeNotifierProvider(create: (_) => HomeScreenProvider()),
+        ChangeNotifierProvider(create: (_) => ProfileProvider()),
+        ChangeNotifierProvider(create: (_) => SavedAddressProvider()),
         ChangeNotifierProvider(create: (_) => AddAddressProvider()),
         ChangeNotifierProvider(create: (_) => EditUserAddressProvider()),
+        ChangeNotifierProvider(create: (_) => CupponProvider()),
+        ChangeNotifierProvider(
+          create: (_) => CartProvider(repository: Repository()),
+        ),
       ],
       child: ScreenUtilInit(
         designSize: const Size(375, 812),
@@ -60,9 +67,7 @@ class MyApp extends StatelessWidget {
               theme: ThemeData(
                 primaryColor: AppColors.primary,
                 scaffoldBackgroundColor: AppColors.white,
-                colorScheme: ColorScheme.fromSeed(
-                  seedColor: AppColors.primary,
-                ),
+                colorScheme: ColorScheme.fromSeed(seedColor: AppColors.primary),
                 useMaterial3: false,
               ),
               initialRoute: AppRoutes.splashScreen,
@@ -75,6 +80,3 @@ class MyApp extends StatelessWidget {
     );
   }
 }
-
-
-

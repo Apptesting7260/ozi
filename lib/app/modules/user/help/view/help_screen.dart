@@ -177,71 +177,89 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
             ),
 
             hBox(20),
-
-            ListView.separated(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: faqs.length,
-              separatorBuilder: (_, __) => const SizedBox(height: 12),
-              itemBuilder: (context, index) {
-                final isExpanded = provider.expandedIndex == index;
-                final faq = faqs[index];
-
-                return AnimatedContainer(
-                  duration: const Duration(milliseconds: 300),
-                  padding: const EdgeInsets.all(15),
-                  decoration: BoxDecoration(
-                    color: AppColors.lightGrey,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
+            if (faqs.isEmpty)
+              Center(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 40),
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      InkWell(
-                        onTap: () => provider.toggleExpanded(index),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Expanded(
-                              child: Text(
-                                faq.question!,
-                                style: AppFontStyle.text_14_600(
-                                  AppColors.darkText,
-                                ),
-                              ),
-                            ),
-                            Icon(
-                              isExpanded ? Icons.remove : Icons.add,
-                              color: AppColors.primary,
-                            ),
-                          ],
-                        ),
+                      Icon(
+                        Icons.help_outline,
+                        size: 60,
+                        color: AppColors.grey.withOpacity(0.5),
                       ),
-
-                      AnimatedCrossFade(
-                        firstChild: const SizedBox.shrink(),
-                        secondChild: Padding(
-                          padding: const EdgeInsets.only(top: 10),
-                          child: Text(
-                            faq.answer ?? "",
-                            maxLines: 5,
-                            style: AppFontStyle.text_13_400(
-                              AppColors.grey,
-
-                              height: 1.5,
-                            ),
-                          ),
-                        ),
-                        crossFadeState: isExpanded
-                            ? CrossFadeState.showSecond
-                            : CrossFadeState.showFirst,
-                        duration: const Duration(milliseconds: 300),
+                      hBox(16),
+                      Text(
+                        "No FAQs available at the moment.",
+                        style: AppFontStyle.text_14_400(AppColors.grey),
                       ),
                     ],
                   ),
-                );
-              },
-            ),
+                ),
+              )
+            else
+              ListView.separated(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: faqs.length,
+                separatorBuilder: (_, __) => const SizedBox(height: 12),
+                itemBuilder: (context, index) {
+                  final isExpanded = provider.expandedIndex == index;
+                  final faq = faqs[index];
+
+                  return AnimatedContainer(
+                    duration: const Duration(milliseconds: 300),
+                    padding: const EdgeInsets.all(15),
+                    decoration: BoxDecoration(
+                      color: AppColors.lightGrey,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        InkWell(
+                          onTap: () => provider.toggleExpanded(index),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  faq.question!,
+                                  style: AppFontStyle.text_14_600(
+                                    AppColors.darkText,
+                                  ),
+                                ),
+                              ),
+                              Icon(
+                                isExpanded ? Icons.remove : Icons.add,
+                                color: AppColors.primary,
+                              ),
+                            ],
+                          ),
+                        ),
+                        AnimatedCrossFade(
+                          firstChild: const SizedBox.shrink(),
+                          secondChild: Padding(
+                            padding: const EdgeInsets.only(top: 10),
+                            child: Text(
+                              faq.answer ?? "",
+                              maxLines: 5,
+                              style: AppFontStyle.text_13_400(
+                                AppColors.grey,
+                                height: 1.5,
+                              ),
+                            ),
+                          ),
+                          crossFadeState: isExpanded
+                              ? CrossFadeState.showSecond
+                              : CrossFadeState.showFirst,
+                          duration: const Duration(milliseconds: 300),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
 
             hBox(20),
           ],
@@ -249,102 +267,6 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
       ),
     );
   }
-
-  // Widget _faqWidget(BuildContext context, HelpUserProvider provider) {
-  //   if (provider.isLoading) {
-  //     return _faqShimmer();
-  //   }
-  //   return SingleChildScrollView(
-  //     child: Padding(
-  //       padding: REdgeInsets.symmetric(horizontal: 16),
-  //       child: Column(
-  //         crossAxisAlignment: CrossAxisAlignment.start,
-  //         children: [
-  //           Text(
-  //             "Frequently Asked Questions",
-  //             style: AppFontStyle.text_16_600(AppColors.darkText),
-  //           ),
-  //           hBox(20),
-
-  //           // FAQ List
-  //           ListView.separated(
-  //             shrinkWrap: true,
-  //             physics: NeverScrollableScrollPhysics(),
-  //             itemCount: provider.helpModel?.data?.length ?? 0,
-  //             separatorBuilder: (context, index) => SizedBox(height: 12),
-  //             itemBuilder: (context, index) {
-  //               final isExpanded = provider.expandedIndex == index;
-
-  //               return AnimatedContainer(
-  //                 duration: Duration(milliseconds: 300),
-  //                 padding: EdgeInsets.all(15),
-  //                 decoration: BoxDecoration(
-  //                   color: AppColors.lightGrey,
-  //                   borderRadius: BorderRadius.circular(12),
-  //                 ),
-  //                 child: Column(
-  //                   crossAxisAlignment: CrossAxisAlignment.start,
-  //                   children: [
-  //                     InkWell(
-  //                       onTap: () => provider.toggleExpanded(index),
-  //                       child: Row(
-  //                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-  //                         children: [
-  //                           Expanded(
-  //                             child: Text(
-  //                               provider.helpModel?.data?[index].question ?? "",
-  //                               style: AppFontStyle.text_14_600(
-  //                                 AppColors.darkText,
-  //                               ),
-  //                             ),
-  //                           ),
-  //                           SizedBox(width: 8),
-  //                           Container(
-  //                             padding: EdgeInsets.all(4),
-  //                             child: Icon(
-  //                               isExpanded ? Icons.remove : Icons.add,
-  //                               color: AppColors.primary,
-  //                               size: 20,
-  //                             ),
-  //                           ),
-  //                         ],
-  //                       ),
-  //                     ),
-
-  //                     // Animated Answer
-  //                     AnimatedCrossFade(
-  //                       firstChild: SizedBox.shrink(),
-  //                       secondChild: Column(
-  //                         crossAxisAlignment: CrossAxisAlignment.start,
-  //                         children: [
-  //                           hBox(10),
-  //                           Text(
-  //                             maxLines: 4,
-  //                             provider.helpModel?.data?[index].answer ?? "",
-  //                             style: AppFontStyle.text_13_400(
-  //                               AppColors.grey,
-  //                               height: 1.5,
-  //                             ),
-  //                           ),
-  //                         ],
-  //                       ),
-  //                       crossFadeState: isExpanded
-  //                           ? CrossFadeState.showSecond
-  //                           : CrossFadeState.showFirst,
-  //                       duration: Duration(milliseconds: 300),
-  //                     ),
-  //                   ],
-  //                 ),
-  //               );
-  //             },
-  //           ),
-
-  //           hBox(20),
-  //         ],
-  //       ),
-  //     ),
-  //   );
-  // }
 
   // --------------------------------------------------------------------------
   // SUPPORT WIDGET - FULL SCREEN SCROLLABLE

@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:ozi/app/core/appExports/app_export.dart';
 import 'package:ozi/app/shared/widgets/custom_app_bar.dart';
 import 'package:ozi/app/modules/user/cart/view/cupponprovider.dart';
+import 'package:ozi/app/modules/user/cart/view/provider/cart_provider.dart';
 import 'package:ozi/app/modules/user/cart/view/model/couponmodel.dart' as model;
 import 'package:intl/intl.dart';
 
@@ -15,15 +16,14 @@ class CopponScreen extends StatefulWidget {
 
 class _CopponScreenState extends State<CopponScreen> {
   final TextEditingController _couponController = TextEditingController();
-  CupponProvider provider = CupponProvider();
 
   @override
   void initState() {
     super.initState();
-    provider.fetchCoupons();
-    // WidgetsBinding.instance.addPostFrameCallback((_) {
-    //   context.read<CupponProvider>().fetchCoupons();
-    // });
+    final cupponProvider = context.read<CupponProvider>();
+    final cartProvider = context.read<CartProvider>();
+    cupponProvider.setAppliedCouponCode(cartProvider.appliedCouponCode);
+    cupponProvider.fetchCoupons();
   }
 
   @override
@@ -31,54 +31,56 @@ class _CopponScreenState extends State<CopponScreen> {
     return Scaffold(
       backgroundColor: AppColors.white,
       body: SafeArea(
-        child: ChangeNotifierProvider.value(
-          value: provider,
-          child: Column(
-            children: [
-              CustomAppBar(title: "Coupon Code"),
-              Expanded(
-                child: Consumer<CupponProvider>(
-                  builder: (context, provider, child) {
-                    if (provider.isLoading) {
-                      return Center(
-                        child: CircularProgressIndicator(
-                          color: AppColors.primary,
-                        ),
-                      );
-                    }
-
-                    if (provider.errorMessage != null) {
-                      return Center(child: Text(provider.errorMessage!));
-                    }
-
-                    final coupons = provider.couponsModel?.data ?? [];
-
-                    return SingleChildScrollView(
-                      padding: EdgeInsets.symmetric(horizontal: 20.w),
-                      child: Column(
-                        children: [
-                          hBox(20),
-                          _buildCouponInput(),
-                          hBox(24),
-                          ...coupons.map(
-                            (coupon) => _buildCouponCard(coupon, provider),
+        child: Consumer<CupponProvider>(
+          builder: (context, provider, child) {
+            return Column(
+              children: [
+                CustomAppBar(title: "Coupon Code"),
+                Expanded(
+                  child: Column(
+                    children: [
+                      if (provider.isLoading)
+                        Expanded(
+                          child: Center(
+                            child: CircularProgressIndicator(
+                              color: AppColors.primary,
+                            ),
                           ),
-                          hBox(20),
-                        ],
-                      ),
-                    );
-                  },
+                        )
+                      else if (provider.errorMessage != null)
+                        Center(child: Text(provider.errorMessage!))
+                      else
+                        Expanded(
+                          child: SingleChildScrollView(
+                            padding: EdgeInsets.symmetric(horizontal: 20.w),
+                            child: Column(
+                              children: [
+                                hBox(20),
+                                _buildCouponInput(provider),
+                                hBox(24),
+                                ...provider.couponsModel?.data?.map(
+                                      (coupon) =>
+                                          _buildCouponCard(coupon, provider),
+                                    ) ??
+                                    [],
+                                hBox(20),
+                              ],
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
                 ),
-              ),
-              _buildBottomApplyButton(),
-            ],
-          ),
+                _buildBottomApplyButton(provider),
+              ],
+            );
+          },
         ),
       ),
     );
   }
 
-  Widget _buildCouponInput() {
+  Widget _buildCouponInput(CupponProvider provider) {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
       decoration: BoxDecoration(
@@ -100,8 +102,30 @@ class _CopponScreenState extends State<CopponScreen> {
             ),
           ),
           GestureDetector(
-            onTap: () {
-              // Handle manual apply
+            onTap: () async {
+              if (provider.selectedCoupon != null) {
+                bool success = await provider.applyCoupon(
+                  provider.selectedCoupon!.id.toString(),
+                );
+                if (success) {
+                  Navigator.pop(context, provider.selectedCoupon);
+                }
+              } else if (_couponController.text.isNotEmpty) {
+                bool success = await provider.applyCoupon(
+                  _couponController.text,
+                );
+                if (success) {
+                  Navigator.pop(
+                    context,
+                    model.Data(code: _couponController.text),
+                  );
+                }
+              } else {
+                Get.showToast(
+                  "Please enter or select a coupon",
+                  type: ToastType.error,
+                );
+              }
             },
             child: Text(
               "Apply",
@@ -151,7 +175,9 @@ class _CopponScreenState extends State<CopponScreen> {
                   height: 20.w,
                   decoration: BoxDecoration(
                     color: isSelected ? AppColors.primary : AppColors.white,
-                    border: Border.all(color: AppColors.lightGrey),
+                    border: Border.all(
+                      color: isSelected ? AppColors.primary : AppColors.grey,
+                    ),
                     borderRadius: BorderRadius.circular(4.r),
                   ),
                   child: isSelected
@@ -177,7 +203,7 @@ class _CopponScreenState extends State<CopponScreen> {
                     .solid, // Custom dashed border would be better but standard for now
               ),
               borderRadius: BorderRadius.circular(12.r),
-              color: AppColors.primary.withOpacity(0.05),
+              color: AppColors.primary.withOpacity(0.0),
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -209,25 +235,27 @@ class _CopponScreenState extends State<CopponScreen> {
     );
   }
 
-  Widget _buildBottomApplyButton() {
-    return Consumer<CupponProvider>(
-      builder: (context, provider, child) {
-        return Padding(
-          padding: EdgeInsets.all(20.w),
-          child: CustomButton(
-            text: "Apply",
-            height: 52.h,
-            color: provider.selectedCoupon != null
-                ? AppColors.primary
-                : AppColors.primary.withOpacity(0.3),
-            onPressed: provider.selectedCoupon != null
-                ? () {
-                    Navigator.pop(context, provider.selectedCoupon);
-                  }
-                : null,
-          ),
-        );
-      },
+  Widget _buildBottomApplyButton(CupponProvider provider) {
+    return Padding(
+      padding: EdgeInsets.all(20.w),
+      child: CustomButton(
+        text: "Apply",
+        height: 52.h,
+        isLoading: provider.isApplyLoading,
+        color: provider.selectedCoupon != null
+            ? AppColors.primary
+            : AppColors.primary.withOpacity(0.3),
+        onPressed: provider.selectedCoupon != null
+            ? () async {
+                bool success = await provider.applyCoupon(
+                  provider.selectedCoupon!.id.toString(),
+                );
+                if (success) {
+                  Navigator.pop(context, provider.selectedCoupon);
+                }
+              }
+            : null,
+      ),
     );
   }
 }

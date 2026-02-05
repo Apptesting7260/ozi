@@ -356,6 +356,26 @@ class Repository {
     }
   }
 
+  //********************************* bookAgain Api ********************************//
+  Future<dynamic> bookAgainApi(int bookingId) async {
+    try {
+      final url = AppUrls.bookAgainUrl;
+
+      dev.log('Decrease Cart Item API URL: $url');
+
+      dynamic response = await _apiService.postApi({
+        "booking_id": bookingId,
+      }, url);
+
+      dev.log('Decrease Cart Item Raw Response: $response');
+
+      return response;
+    } catch (e) {
+      dev.log('Error in decreaseCartItemApi: $e');
+      throw Exception(e);
+    }
+  }
+
   // ********************************************* GetProfile Api ***********************************************//
   Future<dynamic> getProfileApi() async {
     try {
@@ -536,6 +556,22 @@ class Repository {
       return response;
     } catch (e) {
       dev.log("Error in rescheduleBookingApi: $e");
+      throw Exception(e);
+    }
+  }
+
+  // ********************************** ApplyorRemoveCuppon Api ********************************** //
+  Future<dynamic> applyorRemoveCupponApi(String promoId) async {
+    try {
+      dev.log("applyorRemoveCupponApi URL: ${AppUrls.applyCoupoon}");
+
+      final response = await _apiService.postApi({
+        "promo_id": promoId,
+      }, AppUrls.applyCoupoon);
+
+      return response;
+    } catch (e) {
+      dev.log("Error in applyorRemoveCupponApi: $e");
       throw Exception(e);
     }
   }
