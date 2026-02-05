@@ -35,6 +35,9 @@ class AppUrls {
   static const String helpSupportUrl = "$baseUrl/get-faqs";
   static const String SupportUrl = "$baseUrl/send-user-email";
   static const String getCoupons = "$baseUrl/get-coupons";
+  static const String bookAgainUrl = "$baseUrl/book-again";
+  static const String applyCoupoon = "$baseUrl/apply-remove-coupon";
+
   static const String vendorServiceUrl = "$baseUrl/get-vendor-services-users";
   static const String rescheduleservicePostApiUrl =
       "$baseUrl/reschedule-booking";

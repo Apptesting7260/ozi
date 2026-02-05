@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:ozi/app/core/appExports/app_export.dart';
 import 'package:ozi/app/core/constants/app_urls.dart';
 import 'package:ozi/app/core/utils/get_utils.dart';
 import 'package:ozi/app/data/repository/repository.dart';
 import 'package:ozi/app/modules/user/cart/schedule_service/Model/bookservicemodel.dart';
+import 'package:ozi/app/modules/user/cart/view/my_cart_screen.dart';
+import 'package:ozi/app/modules/user/navigation%20tab/provider/navigation_provider.dart';
 import '../model/bookingmodel.dart';
 import '../model/bookingdetailsmodel.dart' as details;
 import 'dart:developer' as dev;
@@ -461,6 +464,45 @@ class BookingProvider extends ChangeNotifier {
       return false;
     } finally {
       _isReviewLoading = false;
+      notifyListeners();
+    }
+  }
+
+  bool _isBookAgainLoading = false;
+  int? _bookAgainBookingId;
+  bool get isBookAgainLoading => _isBookAgainLoading;
+  int? get bookAgainBookingId => _bookAgainBookingId;
+
+  Future<bool> bookAgain(int bookingId) async {
+    _isBookAgainLoading = true;
+    _bookAgainBookingId = bookingId;
+    notifyListeners();
+    try {
+      final response = await _repository.bookAgainApi(bookingId);
+      if (response != null && response['status'] == true) {
+        navigatorKey.currentContext!.read<NavigationProvider>().setIndex(
+          1,
+          navigatorKey.currentContext!,
+        );
+        Get.showToast(
+          response['message'] ?? 'Items added to cart successfully',
+          type: ToastType.success,
+        );
+        return true;
+      } else {
+        Get.showToast(
+          response?['message'] ?? 'Failed to add items to cart',
+          type: ToastType.error,
+        );
+        return false;
+      }
+    } catch (e) {
+      dev.log('BookAgain Error: $e');
+      Get.showToast('Something went wrong', type: ToastType.error);
+      return false;
+    } finally {
+      _isBookAgainLoading = false;
+      _bookAgainBookingId = null;
       notifyListeners();
     }
   }

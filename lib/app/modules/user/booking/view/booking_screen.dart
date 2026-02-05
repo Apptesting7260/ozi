@@ -148,6 +148,12 @@ class MyBookingsScreen extends StatelessWidget {
     }
   }
 
+  String _resolveStatus(Data booking) {
+    String status =
+        booking.status ?? booking.firstService?.service?.status ?? "";
+    return status.trim();
+  }
+
   // Transform Data model to Map format for the card UI
   Map<String, dynamic> _transformBookingData(
     Data booking,
@@ -184,13 +190,7 @@ class MyBookingsScreen extends StatelessWidget {
     }
 
     // Try booking status first, then fallback to service status if needed
-    String status =
-        booking.status ??
-        booking.firstService?.service?.status ??
-        booking.firstService?.service?.status ??
-        "";
-
-    status = status.trim();
+    String status = _resolveStatus(booking);
 
     String statusColor = _getStatusColor(status);
 
@@ -442,7 +442,8 @@ class MyBookingsScreen extends StatelessWidget {
     int tabIndex,
     BookingProvider provider,
   ) {
-    int effectiveTabIndex = _getEffectiveTabIndex(tabIndex, booking.status);
+    String status = _resolveStatus(booking);
+    int effectiveTabIndex = _getEffectiveTabIndex(tabIndex, status);
 
     // Common navigation helper
     void navigateToDetails() async {
@@ -471,9 +472,9 @@ class MyBookingsScreen extends StatelessWidget {
       }
     }
 
-    bool isPending = booking.status?.toLowerCase().contains('pending') ?? false;
+    bool isPending = status.toLowerCase().contains('pending');
 
-    if (effectiveTabIndex == 2 || isPending) {
+    if (effectiveTabIndex == 2 || effectiveTabIndex == 3 || isPending) {
       return Row(
         children: [
           Expanded(
@@ -489,22 +490,39 @@ class MyBookingsScreen extends StatelessWidget {
             ),
           ),
           wBox(14),
-          if (provider.isCancelling &&
-              provider.cancellingBookingId == booking.bookingId)
-            SizedBox.shrink()
-          else
+          if (effectiveTabIndex == 2 || isPending)
+            if (provider.isCancelling &&
+                provider.cancellingBookingId == booking.bookingId)
+              SizedBox.shrink()
+            else
+              Expanded(
+                child: CustomButton(
+                  text: "Cancel Booking",
+                  isOutlined: true,
+                  borderColor: AppColors.red,
+                  color: AppColors.red,
+                  textStyle: AppFontStyle.text_14_500(
+                    AppColors.red,
+                    fontFamily: AppFontFamily.medium,
+                  ),
+                  height: 46,
+                  onPressed: () => _showCancelDialog(context, booking),
+                ),
+              )
+          else if (effectiveTabIndex == 3)
             Expanded(
               child: CustomButton(
-                text: "Cancel Booking",
-                isOutlined: true,
-                borderColor: AppColors.red,
-                color: AppColors.red,
+                text: "Book Again",
+                isOutlined: false,
+                color: AppColors.primary,
                 textStyle: AppFontStyle.text_14_500(
-                  AppColors.red,
+                  AppColors.white,
                   fontFamily: AppFontFamily.medium,
                 ),
-                height: 46,
-                onPressed: () => _showCancelDialog(context, booking),
+                isLoading:
+                    provider.isBookAgainLoading &&
+                    provider.bookAgainBookingId == booking.bookingId,
+                onPressed: () => provider.bookAgain(booking.bookingId ?? 0),
               ),
             ),
         ],
@@ -525,22 +543,16 @@ class MyBookingsScreen extends StatelessWidget {
       );
     }
 
-    return Row(
-      children: [
-        Expanded(
-          child: CustomButton(
-            text: "View Details",
-            isOutlined: true,
-            color: AppColors.lightGrey2,
-            textStyle: AppFontStyle.text_14_500(
-              AppColors.black,
-              fontFamily: AppFontFamily.medium,
-            ),
-            onPressed: navigateToDetails,
-          ),
-        ),
-        wBox(14),
-      ],
+    return CustomButton(
+      text: "View Details",
+      isOutlined: true,
+      color: AppColors.lightGrey2,
+      textStyle: AppFontStyle.text_14_500(
+        AppColors.black,
+        fontFamily: AppFontFamily.medium,
+      ),
+      height: 46,
+      onPressed: navigateToDetails,
     );
   }
 

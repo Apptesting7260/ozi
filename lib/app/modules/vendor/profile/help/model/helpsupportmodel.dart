@@ -1,5 +1,5 @@
 class helpSupportModel {
-  String? status;
+  dynamic status;
   String? massage;
   Actions? actions;
   List<Data>? data;
@@ -8,7 +8,7 @@ class helpSupportModel {
 
   helpSupportModel.fromJson(Map<String, dynamic> json) {
     status = json['status'];
-    massage = json['massage'];
+    massage = json['massage'] ?? json['message'];
     actions = json['actions'] != null
         ? new Actions.fromJson(json['actions'])
         : null;
@@ -36,7 +36,7 @@ class helpSupportModel {
 
 class Actions {
   String? emailUs;
-  int? callUs;
+  dynamic callUs;
 
   Actions({this.emailUs, this.callUs});
 

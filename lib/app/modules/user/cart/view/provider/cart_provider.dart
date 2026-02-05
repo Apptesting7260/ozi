@@ -14,6 +14,7 @@ class CartProvider with ChangeNotifier {
   int _total = 0;
   bool _isLoading = false;
   String? _errorMessage;
+  String? _appliedCouponCode;
 
   // Getters
   List<CartItem> get items => _items;
@@ -24,6 +25,7 @@ class CartProvider with ChangeNotifier {
   int get total => _total;
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
+  String? get appliedCouponCode => _appliedCouponCode;
 
   Future<void> fetchCartItems() async {
     _isLoading = true;
@@ -161,6 +163,11 @@ class CartProvider with ChangeNotifier {
   // Clear error message
   void clearError() {
     _errorMessage = null;
+    notifyListeners();
+  }
+
+  void setAppliedCoupon(String? code) {
+    _appliedCouponCode = code;
     notifyListeners();
   }
 }
