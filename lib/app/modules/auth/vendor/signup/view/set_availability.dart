@@ -5,19 +5,21 @@ import '../provider/availability_provider.dart';
 import '../widget/vendor_custom_appbar.dart';
 
 class SetAvailabilityScreen extends StatelessWidget {
-  const SetAvailabilityScreen({super.key});
+  const SetAvailabilityScreen(this.isFromProfile,{super.key});
+  final bool isFromProfile;
 
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (_) => AvailabilityProvider(),
-      child: const _SetAvailabilityContent(),
+      create: (_) => AvailabilityProvider(isFromProfile),
+      child:  _SetAvailabilityContent(isFromProfile),
     );
   }
 }
 
 class _SetAvailabilityContent extends StatelessWidget {
-  const _SetAvailabilityContent();
+  const _SetAvailabilityContent(this.isFromProfile);
+  final bool isFromProfile;
 
   @override
   Widget build(BuildContext context) {
@@ -36,7 +38,7 @@ class _SetAvailabilityContent extends StatelessWidget {
           borderRadius: BorderRadius.circular(60),
           onPressed: provider.submitLoading?(){}: () {
             print(provider.availability.toString());
-            provider.saveAvailability();
+            provider.saveAvailability(isFromProfile);
           },
         ),
       ),
@@ -49,7 +51,7 @@ class _SetAvailabilityContent extends StatelessWidget {
             /// -------- FIXED APP BAR --------
             VendorCustomAppBar(
               title: "Set Your Availability",
-              columnChild: Text(
+              columnChild:isFromProfile? Text('') : Text(
                 "Step 3 of 6",
                 style: AppFontStyle.text_12_400(AppColors.grey),
               ),

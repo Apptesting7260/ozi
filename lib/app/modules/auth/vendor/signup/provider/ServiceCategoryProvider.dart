@@ -118,7 +118,7 @@ class ServiceCategoryProvider extends ChangeNotifier {
       await UserPreference.saveStep('2');
       Navigator.push(
         navigatorKey.currentContext!,
-        MaterialPageRoute(builder: (_) => SetAvailabilityScreen()),
+        MaterialPageRoute(builder: (_) => SetAvailabilityScreen(false)),
       );
     } catch (e) {
       updateSubmitLoading(false);
