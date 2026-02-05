@@ -54,14 +54,14 @@ class _SplashScreenState extends State<SplashScreen> {
         Navigator.push(
           navigatorKey.currentContext!,
           MaterialPageRoute(
-            builder: (_) => SetAvailabilityScreen(),
+            builder: (_) => SetAvailabilityScreen(false),
           ),
         );
       }else if(step=='3'&&role=='vendor'){
         Navigator.push(
           navigatorKey.currentContext!,
           MaterialPageRoute(
-            builder: (_) => IdentityVerificationScreen(),
+            builder: (_) => IdentityVerificationScreen(isFromProfile: false,),
           ),
         );
       }else{

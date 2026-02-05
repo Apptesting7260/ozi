@@ -147,7 +147,7 @@ class ProfileScreenView extends StatelessWidget {
                         icon: ImageConstants.calendor,
                         title: "Availability",
                         onTap: () {
-                          Navigator.push(context, MaterialPageRoute(builder: (context) => SetAvailabilityScreen(),));
+                          Navigator.push(context, MaterialPageRoute(builder: (context) => SetAvailabilityScreen(true),));
                         },
                       ),
 
@@ -156,7 +156,7 @@ class ProfileScreenView extends StatelessWidget {
                         icon: ImageConstants.document,
                         title: "Documents",
                         onTap: () {
-                          Navigator.push(context, MaterialPageRoute(builder: (context) => IdentityVerificationScreen(),));
+                          Navigator.push(context, MaterialPageRoute(builder: (context) => IdentityVerificationScreen(isFromProfile: true,),));
                         },
                       ),
 

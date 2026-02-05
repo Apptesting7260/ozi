@@ -62,6 +62,10 @@ class AppUrls {
 
   static const String deleteServiceVendor =
       "$baseUrl/delete-vendor-service/{serviceid}";
+  static const String getAvailabilityVendor =
+      "$baseUrl/my-availability";
+  static const String getDocumentsVendor =
+      "$baseUrl/my-availability";
 
   //-------------------------------Socket Events---------------------
   static String goOnlineEvent = "go_online";

@@ -89,7 +89,7 @@ class VerificationProvider extends ChangeNotifier {
             Navigator.push(
               navigatorKey.currentContext!,
               MaterialPageRoute(
-                builder: (_) => SetAvailabilityScreen(),
+                builder: (_) => SetAvailabilityScreen(false),
               ),
             );
           }else if(response.stepCompleted=='3'&&response.role=='vendor'){
@@ -97,7 +97,7 @@ class VerificationProvider extends ChangeNotifier {
             Navigator.push(
               navigatorKey.currentContext!,
               MaterialPageRoute(
-                builder: (_) => IdentityVerificationScreen(),
+                builder: (_) => IdentityVerificationScreen(isFromProfile: false,),
               ),
             );
           }else{

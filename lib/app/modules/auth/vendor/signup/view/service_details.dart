@@ -15,13 +15,14 @@ class ServiceDetailsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
       create: (_) => ServiceDetailsProvider(service),
-      child: const _ServiceDetailsContent(),
+      child:  _ServiceDetailsContent(service),
     );
   }
 }
 
 class _ServiceDetailsContent extends StatefulWidget {
-  const _ServiceDetailsContent();
+  const _ServiceDetailsContent(this.service);
+  final VendorGetAllServicesModelData? service;
 
   @override
   State<_ServiceDetailsContent> createState() => _ServiceDetailsContentState();
@@ -68,12 +69,11 @@ class _ServiceDetailsContentState extends State<_ServiceDetailsContent> {
           children: [
             VendorCustomAppBar(
               title: "Service Details",
-              columnChild: Text(
+              columnChild: widget.service==null? Text(
                 "Step 2 of 6",
                 style: AppFontStyle.text_12_400(AppColors.grey),
-              ),
+              ):Text(''),
             ),
-
             Expanded(
               child: Form(
                 key: _formKey,

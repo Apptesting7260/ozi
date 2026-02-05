@@ -9,19 +9,21 @@ import '../widget/vendor_custom_appbar.dart';
 
 
 class IdentityVerificationScreen extends StatelessWidget {
-  const IdentityVerificationScreen({super.key});
+  const IdentityVerificationScreen({super.key, required this.isFromProfile});
+  final bool isFromProfile;
 
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (_) => IdentityVerificationProvider(),
-      child: const _IdentityVerificationContent(),
+      create: (_) => IdentityVerificationProvider(isFromProfile),
+      child:  _IdentityVerificationContent(isFromProfile),
     );
   }
 }
 
 class _IdentityVerificationContent extends StatelessWidget {
-  const _IdentityVerificationContent();
+  const _IdentityVerificationContent(this.isFromProfile);
+  final bool isFromProfile;
 
   Future<void> _pickFile(
       BuildContext context,
@@ -55,7 +57,7 @@ class _IdentityVerificationContent extends StatelessWidget {
               : AppColors.primary.withValues(alpha: 0.6),
           onPressed: () {
             if (!provider.canContinue) return;
-            provider.saveDocuments();
+            provider.saveDocuments(isFromProfile);
           },
         ),
       ),
@@ -69,7 +71,7 @@ class _IdentityVerificationContent extends StatelessWidget {
               children: [
                 VendorCustomAppBar(
                   title: "Identity Verification",
-                  columnChild: Text(
+                  columnChild: isFromProfile?Text(''): Text(
                     "Step 4 of 6",
                     style: AppFontStyle.text_12_400(AppColors.grey),
                   ),
@@ -129,7 +131,7 @@ class _IdentityVerificationContent extends StatelessWidget {
                       onUpload: () => _pickFile(
                         context,
                         provider.setGovernmentId,
-                      ),
+                      ), remotePath: provider.govtIdImage,
                     ),
 
                     hBox(16),
@@ -144,7 +146,7 @@ class _IdentityVerificationContent extends StatelessWidget {
                       onUpload: () => _pickFile(
                         context,
                         provider.setCertification,
-                      ),
+                      ), remotePath: provider.fetchedCertificate,
                     ),
 
                     hBox(20),
@@ -166,6 +168,7 @@ class _IdentityVerificationContent extends StatelessWidget {
     required bool required,
     required bool uploaded,
     required String iconPath,
+    required String? remotePath,
     required VoidCallback onUpload,
   }) {
     return Container(

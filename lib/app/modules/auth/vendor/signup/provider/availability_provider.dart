@@ -1,5 +1,6 @@
 import '../../../../../core/appExports/app_export.dart';
 import '../../../../../core/constants/app_urls.dart';
+import '../../../../../data/models/vendor_availability.dart';
 import '../../../../../data/network/network_api_services.dart';
 import '../../../../../data/storage/user_preference.dart';
 import '../view/identity_verification_screen.dart';
@@ -7,6 +8,12 @@ import '../view/identity_verification_screen.dart';
 
 
 class AvailabilityProvider extends ChangeNotifier {
+
+  AvailabilityProvider(bool isFromProfile){
+    if(isFromProfile){
+      getAvailability();
+    }
+  }
 
   final NetworkApiServices _apiService = NetworkApiServices();
 
@@ -68,7 +75,7 @@ class AvailabilityProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> saveAvailability()async {
+  Future<void> saveAvailability(bool isFromProfile)async {
     updateSubmitLoading(true);
     try {
       Map<String,String> fields = {
@@ -77,18 +84,58 @@ class AvailabilityProvider extends ChangeNotifier {
       print(fields);
       final response = await _apiService.postApiMultiPart(AppUrls.saveAvailabilityVendor,fields,{});
       print(response);
-      await UserPreference.saveStep('3');
-      Navigator.push(
-        navigatorKey.currentContext!,
-        MaterialPageRoute(
-          builder: (_) => IdentityVerificationScreen(),
-        ),
-      );
+      if(isFromProfile==false){
+        await UserPreference.saveStep('3');
+        Navigator.push(
+          navigatorKey.currentContext!,
+          MaterialPageRoute(
+            builder: (_) => IdentityVerificationScreen(isFromProfile: false,),
+          ),
+        );
+      }else{
+        Navigator.pop(navigatorKey.currentContext!);
+      }
       updateSubmitLoading(false);
     } catch (e) {
       updateSubmitLoading(false);
       showCustomToast(navigatorKey.currentContext!, e.toString());
     }
+  }
+
+  Future<void> getAvailability()async {
+    try {
+      final response = await _apiService.getApi(AppUrls.getAvailabilityVendor);
+      VendorAvailability fetchedAvailability = VendorAvailability.fromJson(response);
+      fetchedAvailability.vendorAvailability?.forEach((key, value) {
+        if (key != null && value != null && value.isNotEmpty) {
+          List<TimeSlot> slots = [];
+          value.forEach((e) {
+            slots.add(
+              TimeSlot(
+                from: e['from'] ?? '',
+                to: e['to'] ?? '',
+              ),
+            );
+          });
+
+          availability[capitalizeFirstLetter(key)] = DayAvailability(
+            enabled: true,
+            slots: slots,
+          );
+        }
+      });
+      notifyListeners();
+      print(response);
+    } catch (e) {
+      showCustomToast(navigatorKey.currentContext!, e.toString());
+    }
+  }
+
+  String capitalizeFirstLetter(String str) {
+    if (str.isEmpty) {
+      return str;
+    }
+    return str[0].toUpperCase() + str.substring(1);
   }
 
 }
