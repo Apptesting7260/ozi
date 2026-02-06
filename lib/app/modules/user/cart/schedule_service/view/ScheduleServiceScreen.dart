@@ -1,3 +1,4 @@
+import 'package:intl/intl.dart';
 import 'package:ozi/app/modules/user/cart/change%20address/provider/ChangeAddressProvider.dart';
 import '../../../../../core/appExports/app_export.dart';
 import '../../../../../shared/widgets/custom_app_bar.dart';
@@ -408,11 +409,12 @@ class _ScheduleServiceScreenContent extends StatelessWidget {
                             'Date',
                             style: AppFontStyle.text_16_400(AppColors.grey),
                           ),
-                          // Text(
-                          //   '${provider.selectedDay}, ${provider
-                          //       .selectedDateNumber} ${provider.selectedMonth}',
-                          //   style: AppFontStyle.text_16_400(AppColors.darkText),
-                          // ),
+                          Text(
+                            DateFormat(
+                              'dd MMM, yyyy',
+                            ).format(provider.selectedDate),
+                            style: AppFontStyle.text_16_400(AppColors.darkText),
+                          ),
                         ],
                       ),
                       SizedBox(height: 12),
@@ -423,10 +425,10 @@ class _ScheduleServiceScreenContent extends StatelessWidget {
                             'Time',
                             style: AppFontStyle.text_16_400(AppColors.grey),
                           ),
-                          // Text(
-                          //   provider.selectedTime ?? '',
-                          //   style: AppFontStyle.text_16_400(AppColors.darkText),
-                          // ),
+                          Text(
+                            provider.selectedTime ?? 'Not selected',
+                            style: AppFontStyle.text_16_400(AppColors.darkText),
+                          ),
                         ],
                       ),
                     ],

@@ -35,8 +35,9 @@ class CartItemsData {
         items!.add(CartItem.fromJson(v));
       });
     }
-    summary =
-    json['summary'] != null ? Summary.fromJson(json['summary']) : null;
+    summary = json['summary'] != null
+        ? Summary.fromJson(json['summary'])
+        : null;
   }
 
   Map<String, dynamic> toJson() {
@@ -53,30 +54,33 @@ class CartItemsData {
 
 class CartItem {
   int? cartId;
-  int? serviceId;
+  String? serviceId;
   String? serviceName;
   String? serviceImage;
   int? servicePrice;
   int? quantity;
   int? serviceItemTotal;
 
-  CartItem(
-      {this.cartId,
-        this.serviceId,
-        this.serviceName,
-        this.serviceImage,
-        this.servicePrice,
-        this.quantity,
-        this.serviceItemTotal});
+  CartItem({
+    this.cartId,
+    this.serviceId,
+    this.serviceName,
+    this.serviceImage,
+    this.servicePrice,
+    this.quantity,
+    this.serviceItemTotal,
+  });
 
   CartItem.fromJson(Map<String, dynamic> json) {
     cartId = json['cart_id'];
-    serviceId = json['service_id'];
-    serviceName = json['service_name'];
-    serviceImage = json['service_image'];
-    servicePrice = json['service_price'];
+    serviceId = json['service_id']?.toString();
+    serviceName = json['service_name']?.toString();
+    serviceImage = json['service_image']?.toString();
+    servicePrice = int.tryParse(json['service_price']?.toString() ?? "0");
     quantity = json['quantity'];
-    serviceItemTotal = json['service_item_total'];
+    serviceItemTotal = int.tryParse(
+      json['service_item_total']?.toString() ?? "0",
+    );
   }
 
   Map<String, dynamic> toJson() {
@@ -97,14 +101,22 @@ class Summary {
   int? subtotal;
   int? serviceFee;
   int? total;
+  String? appliedCuppon;
 
-  Summary({this.itemsCount, this.subtotal, this.serviceFee, this.total});
+  Summary({
+    this.itemsCount,
+    this.subtotal,
+    this.serviceFee,
+    this.total,
+    this.appliedCuppon,
+  });
 
   Summary.fromJson(Map<String, dynamic> json) {
-    itemsCount = json['items_count'];
-    subtotal = json['subtotal'];
-    serviceFee = json['service_fee'];
-    total = json['total'];
+    itemsCount = int.tryParse(json['items_count']?.toString() ?? "0");
+    subtotal = int.tryParse(json['subtotal']?.toString() ?? "0");
+    serviceFee = int.tryParse(json['service_fee']?.toString() ?? "0");
+    total = int.tryParse(json['total']?.toString() ?? "0");
+    appliedCuppon = json['applied_coupon']?.toString();
   }
 
   Map<String, dynamic> toJson() {
@@ -113,6 +125,7 @@ class Summary {
     data['subtotal'] = subtotal;
     data['service_fee'] = serviceFee;
     data['total'] = total;
+    data['applied_coupon'] = appliedCuppon;
     return data;
   }
 }

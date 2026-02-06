@@ -25,16 +25,16 @@ class getCupponsModel {
 }
 
 class Data {
-  int? id;
+  String? id;
   String? code;
   String? type;
   String? value;
   String? minCartAmount;
   String? maxDiscount;
-  int? usageLimit;
-  int? usedCount;
+  String? usageLimit;
+  String? usedCount;
   String? expiryDate;
-  int? status;
+  String? status;
   String? createdAt;
   String? updatedAt;
 
@@ -54,18 +54,18 @@ class Data {
   });
 
   Data.fromJson(Map<String, dynamic> json) {
-    id = json['id'];
-    code = json['code'];
-    type = json['type'];
-    value = json['value'];
-    minCartAmount = json['min_cart_amount'];
-    maxDiscount = json['max_discount'];
-    usageLimit = json['usage_limit'];
-    usedCount = json['used_count'];
-    expiryDate = json['expiry_date'];
-    status = json['status'];
-    createdAt = json['created_at'];
-    updatedAt = json['updated_at'];
+    id = json['id']?.toString();
+    code = json['code']?.toString();
+    type = json['type']?.toString();
+    value = json['value']?.toString();
+    minCartAmount = json['min_cart_amount']?.toString();
+    maxDiscount = json['max_discount']?.toString();
+    usageLimit = json['usage_limit']?.toString();
+    usedCount = json['used_count']?.toString();
+    expiryDate = json['expiry_date']?.toString();
+    status = json['status']?.toString();
+    createdAt = json['created_at']?.toString();
+    updatedAt = json['updated_at']?.toString();
   }
 
   Map<String, dynamic> toJson() {

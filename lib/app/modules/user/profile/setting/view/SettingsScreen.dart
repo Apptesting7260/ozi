@@ -49,6 +49,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         icon: ImageConstants.bell,
                         title: "Push Notifications",
                         toggle: true,
+                        notificationType: 'push',
+                      ),
+
+                      _settingsTile(
+                        icon: ImageConstants.email,
+                        title: "Email Notifications",
+                        toggle: true,
+                        notificationType: 'email',
                       ),
 
                       _settingsTile(
@@ -113,6 +121,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     bool toggle = false,
     bool showArrow = false,
     VoidCallback? onTap,
+    String? notificationType,
   }) {
     return GestureDetector(
       onTap: onTap,
@@ -142,12 +151,22 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
             if (toggle)
               CustomToggleSwitch(
-                value: provider.settingsData?.data?.isNotificationOn ?? false,
+                value: notificationType == 'push'
+                    ? provider.settingsData?.data?.isNotificationOn ?? false
+                    : provider.settingsData?.data?.emailnotification ?? false,
                 onChanged: (val) {
-                  provider.updateNotificationApi(context, val);
-                  setState(
-                    () => provider.settingsData?.data?.isNotificationOn = val,
-                  );
+                  if (notificationType == 'push') {
+                    provider.updateNotificationApi(context, pushValue: val);
+                    setState(
+                      () => provider.settingsData?.data?.isNotificationOn = val,
+                    );
+                  } else {
+                    provider.updateNotificationApi(context, emailValue: val);
+                    setState(
+                      () =>
+                          provider.settingsData?.data?.emailnotification = val,
+                    );
+                  }
                 },
               ),
 

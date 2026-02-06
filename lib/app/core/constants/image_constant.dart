@@ -1,11 +1,11 @@
-class ImageConstants{
+class ImageConstants {
   //************************************************ base path ******************************************************************//
 
   static String imagePath = "assets/images";
   static String svgPath = "assets/svg";
   static String lottiePath = "assets/lottie";
 
-//****************************************** Splash Screen *****************************************************************//
+  //****************************************** Splash Screen *****************************************************************//
   static String splashLogo = "$imagePath/SplashLogo.png";
   static String back = "$svgPath/Back.svg";
   static String rightBack = "$svgPath/right_back.svg";
@@ -46,10 +46,9 @@ class ImageConstants{
   static String emptyLocation = "$svgPath/emptyLocation.svg";
   static String notification = "$svgPath/notification.svg";
 
-//*******************************************Service Category *****************************************************************//
+  //*******************************************Service Category *****************************************************************//
   static String smallFlowerDecoration = "$imagePath/smallFlowerDecoration.png";
   static String bigFlowerDecoration = "$imagePath/bigFlowerDecoration.png";
-
 
   //*******************************************My Cart  Screen *****************************************************************//
   static String bin = "$svgPath/bin.svg";
@@ -64,27 +63,21 @@ class ImageConstants{
   static String clock = '$svgPath/clock.svg';
   static String share = '$svgPath/share.svg';
 
-
   // ******************************************* Help Screen *****************************************************************//
 
   static String call = "$svgPath/call.svg";
 
   static String document = "$svgPath/document.svg";
 
-
-//******************************************* Profile Screen  *******************************************************************************//
+  //******************************************* Profile Screen  *******************************************************************************//
 
   static String setting = "$svgPath/setting.svg";
   static String bell = "$svgPath/bell.svg";
+  static String email = "$svgPath/mage--email 1.svg";
   static String edit = "$svgPath/edit.svg";
   static String home2 = "$svgPath/home2.svg";
   static String appLogo = "$imagePath/appLogo.png";
   static String logout = '$svgPath/logout.svg';
-
-
-
-
-
 
   //******************************************* vendor screens  *******************************************************************************//
 
@@ -104,6 +97,4 @@ class ImageConstants{
   static String walletFill = "$svgPath/wallet_fill.svg";
   static String supportFill = "$svgPath/supportfill.svg";
   static String navigationIcon = "$svgPath/navigation_icon.svg";
-
-
 }
