@@ -1,4 +1,3 @@
-
 import '../../../../../core/appExports/app_export.dart';
 import '../../../../../shared/widgets/custom_app_bar.dart';
 import '../../../../../shared/widgets/custom_radio_button.dart';
@@ -24,91 +23,88 @@ class ChangePaymentMethodScreen extends StatelessWidget {
                   return ListView(
                     padding: REdgeInsets.symmetric(horizontal: 16),
                     children: [
-                    hBox(10),
+                      hBox(10),
 
-                      ...List.generate(
-                        provider.list.length,
-                            (index) {
-                          final data = provider.list[index];
-                          final isSelected = provider.selectedIndex == index;
+                      ...List.generate(provider.list.length, (index) {
+                        final data = provider.list[index];
+                        final isSelected = provider.selectedIndex == index;
 
-                          return GestureDetector(
-                            onTap: () => provider.selectCard(index),
-                            child: Container(
-                              margin: EdgeInsets.only(bottom: 14),
-                              padding: EdgeInsets.all(16),
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(12),
-                                border: Border.all(
-                                  color: isSelected
-                                      ? AppColors.primary
-                                      : AppColors.containerBorder,
-                                ),
+                        return GestureDetector(
+                          onTap: () => provider.selectCard(index),
+                          child: Container(
+                            margin: EdgeInsets.only(bottom: 14),
+                            padding: EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(
                                 color: isSelected
-                                    ? AppColors.primary.withValues(alpha: .08)
-                                    : AppColors.white,
+                                    ? AppColors.primary
+                                    : AppColors.containerBorder,
                               ),
-                              child: Row(
-                                children: [
-                                  _leadingIcon(data.icon, isSelected),
-                                  SizedBox(width: 14),
-
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Row(
-                                          children: [
-                                            Text(
-                                              data.title,
-                                              style:
-                                              AppFontStyle.text_16_700(
-                                                  AppColors.black, fontFamily: AppFontFamily.semiBold),
-                                            ),
-
-                                            if (data.masked.isNotEmpty) ...[
-                                              SizedBox(width: 4),
-                                              Text(
-                                                data.masked,
-                                                style:
-                                                AppFontStyle.text_14_500(
-                                                    AppColors.darkText),
-                                              ),
-                                            ],
-
-                                            if (data.label != null) ...[
-                                              SizedBox(width: 6),
-                                              Container(
-                                                padding:
-                                                EdgeInsets.symmetric(
-                                                    horizontal: 1,
-                                                ),
-                                                child: Text(
-                                                  data.label!,
-                                                  style:
-                                                  AppFontStyle.text_13_400(
-                                                      AppColors.primary),
-                                                ),
-                                              ),
-                                            ],
-                                          ],
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-
-                                  CustomRadioButton(
-                                    value: isSelected,
-                                    onChanged: (_) =>
-                                        provider.selectCard(index),
-                                  ),
-                                ],
-                              ),
+                              color: isSelected
+                                  ? AppColors.primary.withValues(alpha: .08)
+                                  : AppColors.white,
                             ),
-                          );
-                        },
-                      ),
+                            child: Row(
+                              children: [
+                                _leadingIcon(data.icon, isSelected),
+                                SizedBox(width: 14),
 
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          Text(
+                                            data.title,
+                                            style: AppFontStyle.text_16_700(
+                                              AppColors.black,
+                                              fontFamily:
+                                                  AppFontFamily.semiBold,
+                                            ),
+                                          ),
+
+                                          if (data.masked.isNotEmpty) ...[
+                                            SizedBox(width: 4),
+                                            Text(
+                                              data.masked,
+                                              style: AppFontStyle.text_14_500(
+                                                AppColors.darkText,
+                                              ),
+                                            ),
+                                          ],
+
+                                          if (data.label != null) ...[
+                                            SizedBox(width: 6),
+                                            Container(
+                                              padding: EdgeInsets.symmetric(
+                                                horizontal: 1,
+                                              ),
+                                              child: Text(
+                                                data.label!,
+                                                style: AppFontStyle.text_13_400(
+                                                  AppColors.primary,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+
+                                CustomRadioButton(
+                                  value: isSelected,
+                                  onChanged: (_) => provider.selectCard(index),
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      }),
 
                       CustomButton(
                         onPressed: () {},
@@ -117,10 +113,10 @@ class ChangePaymentMethodScreen extends StatelessWidget {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Icon(Icons.add, size: 20, color:AppColors.primary),
+                            Icon(Icons.add, size: 20, color: AppColors.primary),
                             wBox(1),
                             Text(
-                              'Add New Service',
+                              'Add New Card',
                               style: AppFontStyle.text_14_600(
                                 AppColors.primary,
                                 fontFamily: AppFontFamily.bold,
@@ -142,17 +138,16 @@ class ChangePaymentMethodScreen extends StatelessWidget {
               child: CustomButton(
                 text: "Continue",
                 onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => CheckoutScreen(),
-                    ),
-                  );
+                  Navigator.pop(context);
+                  // Navigator.push(
+                  //   context,
+                  //   MaterialPageRoute(builder: (_) => CheckoutScreen()),
+                  // );
                 },
                 height: 50,
                 borderRadius: BorderRadius.circular(60),
               ),
-            )
+            ),
           ],
         ),
       ),
@@ -170,5 +165,4 @@ class ChangePaymentMethodScreen extends StatelessWidget {
       ),
     );
   }
-
 }

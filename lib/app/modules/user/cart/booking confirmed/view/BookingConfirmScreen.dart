@@ -360,7 +360,14 @@ class _BookingConfirmScreenState extends State<BookingConfirmScreen> {
             isOutlined: true,
             color: AppColors.lightGrey2,
             borderRadius: BorderRadius.circular(60),
-            onPressed: () {},
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => NavigationTabScreen(initialIndex: 0),
+                ),
+              );
+            },
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [

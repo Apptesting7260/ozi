@@ -1,4 +1,3 @@
-
 import '../../../../../core/appExports/app_export.dart';
 import '../provider/filter_provider.dart';
 
@@ -32,7 +31,7 @@ class _FiltersContent extends StatelessWidget {
           color: provider.canApply
               ? AppColors.primary
               : AppColors.primary.withValues(alpha: 0.35),
-          onPressed: () {}
+          onPressed: () {},
         ),
       ),
       body: SafeArea(
@@ -68,7 +67,6 @@ class _FiltersContent extends StatelessWidget {
                 ],
               ),
 
-
               hBox(24),
 
               /// CATEGORIES
@@ -82,14 +80,17 @@ class _FiltersContent extends StatelessWidget {
                 spacing: 10,
                 runSpacing: 10,
                 children: provider.allCategories.map((category) {
-                  final selected =
-                  provider.selectedCategories.contains(category);
+                  final selected = provider.selectedCategories.contains(
+                    category,
+                  );
 
                   return GestureDetector(
                     onTap: () => provider.toggleCategory(category),
                     child: Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 14, vertical: 10),
+                        horizontal: 14,
+                        vertical: 10,
+                      ),
                       decoration: BoxDecoration(
                         color: selected
                             ? AppColors.primary
@@ -104,9 +105,7 @@ class _FiltersContent extends StatelessWidget {
                       child: Text(
                         category,
                         style: AppFontStyle.text_12_500(
-                          selected
-                              ? AppColors.white
-                              : AppColors.darkText,
+                          selected ? AppColors.white : AppColors.darkText,
                         ),
                       ),
                     ),
@@ -152,11 +151,13 @@ class _FiltersContent extends StatelessWidget {
           ),
         ),
         TextButton(
-          onPressed: () =>
-              context.read<FilterProvider>().clearAll(),
+          onPressed: () => context.read<FilterProvider>().clearAll(),
           child: Text(
             "Clear All",
-            style: AppFontStyle.text_14_500(AppColors.primary, fontFamily: AppFontFamily.medium),
+            style: AppFontStyle.text_14_500(
+              AppColors.primary,
+              fontFamily: AppFontFamily.medium,
+            ),
           ),
         ),
       ],
@@ -174,9 +175,7 @@ class _FiltersContent extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
         decoration: BoxDecoration(
-          color: selected
-              ? AppColors.primary
-              : AppColors.fieldBgColor,
+          color: selected ? AppColors.primary : AppColors.fieldBgColor,
           borderRadius: BorderRadius.circular(30),
           // border: Border.all(
           //   color: selected
@@ -193,5 +192,4 @@ class _FiltersContent extends StatelessWidget {
       ),
     );
   }
-
 }

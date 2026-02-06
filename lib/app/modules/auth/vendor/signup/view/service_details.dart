@@ -15,7 +15,7 @@ class ServiceDetailsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
       create: (_) => ServiceDetailsProvider(service),
-      child:  _ServiceDetailsContent(service),
+      child: _ServiceDetailsContent(service),
     );
   }
 }
@@ -46,7 +46,8 @@ class _ServiceDetailsContentState extends State<_ServiceDetailsContent> {
   }
 
   bool _validateImage(ServiceDetailsProvider provider) {
-    if (provider.pickedImage == null&&provider.serviceForEdit?.serviceImage==null){
+    if (provider.pickedImage == null &&
+        provider.serviceForEdit?.serviceImage == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text("Please upload service image"),
@@ -69,10 +70,12 @@ class _ServiceDetailsContentState extends State<_ServiceDetailsContent> {
           children: [
             VendorCustomAppBar(
               title: "Service Details",
-              columnChild: widget.service==null? Text(
-                "Step 2 of 6",
-                style: AppFontStyle.text_12_400(AppColors.grey),
-              ):Text(''),
+              columnChild: widget.service == null
+                  ? Text(
+                      "Step 2 of 6",
+                      style: AppFontStyle.text_12_400(AppColors.grey),
+                    )
+                  : Text(''),
             ),
             Expanded(
               child: Form(
@@ -102,7 +105,9 @@ class _ServiceDetailsContentState extends State<_ServiceDetailsContent> {
                                       : BorderStyle.none,
                                 ),
                               ),
-                              child: provider.pickedImage == null && provider.serviceForEdit==null
+                              child:
+                                  provider.pickedImage == null &&
+                                      provider.serviceForEdit == null
                                   ? Center(
                                       child: CustomImage(
                                         path: ImageConstants.uploadImage,
@@ -114,7 +119,9 @@ class _ServiceDetailsContentState extends State<_ServiceDetailsContent> {
                                   : ClipRRect(
                                       borderRadius: BorderRadius.circular(14),
                                       child: CustomImage(
-                                        path:provider.pickedImage==null?'${AppUrls.imageBaseUrl}${provider.serviceForEdit?.serviceImage??''}':provider.pickedImage?.path??'',
+                                        path: provider.pickedImage == null
+                                            ? '${AppUrls.imageBaseUrl}${provider.serviceForEdit?.serviceImage ?? ''}'
+                                            : provider.pickedImage?.path ?? '',
                                         fit: BoxFit.cover,
                                       ),
                                     ),
@@ -320,7 +327,33 @@ class _ServiceDetailsContentState extends State<_ServiceDetailsContent> {
                           ),
                         ],
                       ),
+                      hBox(20),
 
+                      /// ================= DURATION =================
+                      Text(
+                        "Status",
+                        style: AppFontStyle.text_14_500(AppColors.darkText),
+                      ),
+                      hBox(8),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: CustomDropDown(
+                              items: const ["Active", "Inactive"],
+                              selectedValue: provider.status,
+                              hintText: "Select Status",
+                              onChanged: (value) {
+                                provider.status = value;
+                              },
+                              validator: (value) {
+                                if (value == null) return "Select status";
+                                return null;
+                              },
+                              borderRadius: 60,
+                            ),
+                          ),
+                        ],
+                      ),
                       hBox(28),
 
                       /// ================= CONTINUE BUTTON =================
