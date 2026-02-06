@@ -22,7 +22,7 @@ class RoleProvider extends ChangeNotifier {
   Future<ChooseRoleModel?> chooseRole({required String userId}) async {
     print("in Choose Role 1");
     if (selectedRole == null) {
-      errorMessage = "Please select a role";
+      errorMessage = "lect a role";
       notifyListeners();
       return null;
     }
@@ -42,18 +42,17 @@ class RoleProvider extends ChangeNotifier {
         "user_id": userId,
         "user_role": selectedRole,
       }, AppUrls.chooseRole);
-        print("in Choose Role 6");
+      print("in Choose Role 6");
 
       isLoading = false;
       notifyListeners();
-        print("in Choose Role 7");
- 
-      return ChooseRoleModel.fromJson(response); 
-       
-    } catch (e) { 
-      isLoading = false; 
-      errorMessage = e.toString(); 
-      notifyListeners(); 
+      print("in Choose Role 7");
+
+      return ChooseRoleModel.fromJson(response);
+    } catch (e) {
+      isLoading = false;
+      errorMessage = e.toString();
+      notifyListeners();
       return null;
     }
   }

@@ -343,7 +343,7 @@ class _ServiceDetailsContentState extends State<_ServiceDetailsContent> {
                               selectedValue: provider.status,
                               hintText: "Select Status",
                               onChanged: (value) {
-                                provider.status = value;
+                                provider.status = value!;
                               },
                               validator: (value) {
                                 if (value == null) return "Select status";
