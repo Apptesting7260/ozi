@@ -24,7 +24,7 @@ class ServiceDetailsProvider extends ChangeNotifier {
   TextEditingController serviceName = TextEditingController();
   TextEditingController description = TextEditingController();
   TextEditingController priceAmount = TextEditingController();
-  String? status;
+  String status = 'Active';
 
   void setImage(File file) {
     pickedImage = file;
@@ -127,7 +127,7 @@ class ServiceDetailsProvider extends ChangeNotifier {
       "duration_type": durationUnit ?? '',
       "service_price": priceAmount.text,
       "description": description.text,
-      "status": status ?? "inactive",
+      "status": status.toLowerCase(),
     };
     Map<String, dynamic> files = {};
     if (pickedImage != null) {
