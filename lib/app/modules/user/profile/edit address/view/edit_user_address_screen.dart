@@ -11,8 +11,7 @@ class EditUserAddressScreen extends StatefulWidget {
   const EditUserAddressScreen({super.key});
 
   @override
-  State<EditUserAddressScreen> createState() =>
-      _EditUserAddressScreenState();
+  State<EditUserAddressScreen> createState() => _EditUserAddressScreenState();
 }
 
 class _EditUserAddressScreenState extends State<EditUserAddressScreen> {
@@ -31,9 +30,7 @@ class _EditUserAddressScreenState extends State<EditUserAddressScreen> {
     final provider = context.watch<EditUserAddressProvider>();
 
     if (!provider.initialized) {
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      );
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
     return Scaffold(
@@ -91,21 +88,21 @@ class _EditUserAddressScreenState extends State<EditUserAddressScreen> {
                         "Home",
                         ImageConstants.home2,
                         provider.selectedType == 0,
-                            () => provider.updateType(0),
+                        () => provider.updateType(0),
                       ),
                       const SizedBox(width: 12),
                       _type(
                         "Work",
                         ImageConstants.work,
                         provider.selectedType == 1,
-                            () => provider.updateType(1),
+                        () => provider.updateType(1),
                       ),
                       const SizedBox(width: 12),
                       _type(
                         "Other",
                         ImageConstants.location,
                         provider.selectedType == 2,
-                            () => provider.updateType(2),
+                        () => provider.updateType(2),
                       ),
                     ],
                   ),
@@ -117,16 +114,20 @@ class _EditUserAddressScreenState extends State<EditUserAddressScreen> {
                     onPressed: provider.isLoading
                         ? null
                         : () async {
-                      final success = await provider.updateAddress(context);
+                            final success = await provider.updateAddress(
+                              context,
+                            );
 
-                      if (success && context.mounted) {
-                        // Refresh the saved addresses list
-                        context.read<SavedAddressProvider>().fetchUserAddresses();
+                            if (success && context.mounted) {
+                              // Refresh the saved addresses list
+                              context
+                                  .read<SavedAddressProvider>()
+                                  .fetchUserAddresses();
 
-                        // Navigate back
-                        Navigator.pop(context);
-                      }
-                    },
+                              // Navigate back
+                              Navigator.pop(context);
+                            }
+                          },
                   ),
 
                   hBox(20),
@@ -139,12 +140,7 @@ class _EditUserAddressScreenState extends State<EditUserAddressScreen> {
     );
   }
 
-  Widget _type(
-      String title,
-      String icon,
-      bool selected,
-      VoidCallback onTap,
-      ) {
+  Widget _type(String title, String icon, bool selected, VoidCallback onTap) {
     return Expanded(
       child: GestureDetector(
         onTap: onTap,
@@ -153,9 +149,7 @@ class _EditUserAddressScreenState extends State<EditUserAddressScreen> {
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(40),
             border: Border.all(
-              color: selected
-                  ? AppColors.primary
-                  : AppColors.containerBorder,
+              color: selected ? AppColors.primary : AppColors.containerBorder,
             ),
             color: selected
                 ? AppColors.primary.withValues(alpha: 0.08)

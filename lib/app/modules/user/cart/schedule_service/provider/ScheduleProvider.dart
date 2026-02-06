@@ -196,7 +196,10 @@ class ScheduleProvider extends ChangeNotifier {
       debugPrint("BOOK SERVICE RESPONSE => $response");
 
       if (response['status'] == true) {
-        Get.showToast('Booking Placed Sucessfully', type: ToastType.success);
+        Get.showToast(
+          response['message'] ?? 'Booking Placed Sucessfully',
+          type: ToastType.success,
+        );
         notifyListeners();
 
         BookingconfirmerdModel bookingModel = BookingconfirmerdModel.fromJson(
@@ -213,12 +216,18 @@ class ScheduleProvider extends ChangeNotifier {
         // Navigator.pop(navigatorKey.currentContext!);
         return true;
       } else {
-        Get.showToast('Booking Placed Failed', type: ToastType.error);
+        Get.showToast(
+          e.toString() ?? 'Booking Placed Failed',
+          type: ToastType.error,
+        );
         throw Exception(response['message'] ?? "Booking failed");
       }
     } catch (e) {
       debugPrint("BOOK SERVICE ERROR => $e");
-      Get.showToast('Booking Placed Failed', type: ToastType.error);
+      Get.showToast(
+        e.toString() ?? 'Booking Placed Failed',
+        type: ToastType.error,
+      );
       return false;
     } finally {
       _isBookingLoading = false;

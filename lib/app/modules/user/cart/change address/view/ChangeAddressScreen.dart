@@ -1,3 +1,4 @@
+import 'package:ozi/app/modules/user/cart/checkout/view/CheckoutScreen.dart';
 import 'package:ozi/app/modules/user/profile/add%20new%20address/view/add_address_screen.dart';
 import 'package:ozi/app/modules/vendor/profile/add%20new%20address/view/AddAddressScreen.dart';
 import 'package:ozi/app/routes/app_routes.dart';
@@ -128,6 +129,21 @@ class _ChangeAddressScreenState extends State<ChangeAddressScreen> {
                                     },
                                     borderRadius: BorderRadius.circular(30),
                                   ),
+                                  Spacer(),
+                                  Padding(
+                                    padding: REdgeInsets.all(16),
+                                    child: CustomButton(
+                                      text: "Continue",
+                                      onPressed: () {
+                                        // Navigator.push(
+                                        //   context,
+                                        //   MaterialPageRoute(builder: (_) => CheckoutScreen()),
+                                        // );
+                                      },
+                                      height: 50,
+                                      borderRadius: BorderRadius.circular(60),
+                                    ),
+                                  ),
                                 ],
                               ),
                             ),
@@ -155,10 +171,6 @@ class _ChangeAddressScreenState extends State<ChangeAddressScreen> {
                                   ),
                                   onTap: () {
                                     provider.selectAddress(index);
-                                    Navigator.pop(
-                                      context,
-                                      provider.selectedIndex,
-                                    );
                                   },
                                   // onEdit: () {
                                   //   // Set the address to edit
@@ -200,6 +212,18 @@ class _ChangeAddressScreenState extends State<ChangeAddressScreen> {
                           ),
                   ),
                 ),
+                if (provider.addresses.isNotEmpty && !provider.isLoading)
+                  Padding(
+                    padding: REdgeInsets.all(16),
+                    child: CustomButton(
+                      text: "Continue",
+                      onPressed: () {
+                        Navigator.pop(context, provider.selectedIndex);
+                      },
+                      height: 50,
+                      borderRadius: BorderRadius.circular(60),
+                    ),
+                  ),
               ],
             );
           },

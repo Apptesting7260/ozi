@@ -19,8 +19,6 @@ class VendorHomeScreen extends StatefulWidget {
 }
 
 class _VendorHomeScreenState extends State<VendorHomeScreen> {
-
-
   @override
   void initState() {
     super.initState();
@@ -34,100 +32,108 @@ class _VendorHomeScreenState extends State<VendorHomeScreen> {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (_) =>VendorHomeProvider(),
-      child: Consumer<VendorHomeProvider>(builder: (context, value, child) {
-        return  Scaffold(
-          backgroundColor: AppColors.white,
-          body: SafeArea(
-            child: switch (value.homeModel.status) {
-              ApiStatus.loading =>
-              const Center(child: CircularProgressIndicator()),
+      create: (_) => VendorHomeProvider(),
+      child: Consumer<VendorHomeProvider>(
+        builder: (context, value, child) {
+          return Scaffold(
+            backgroundColor: AppColors.white,
+            body: SafeArea(
+              child: switch (value.homeModel.status) {
+                ApiStatus.loading => const Center(
+                  child: CircularProgressIndicator(),
+                ),
 
-              ApiStatus.completed =>
-                  SingleChildScrollView(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        SafeArea(child:
-                        SizedBox(height: 10, ),
-                        ),
+                ApiStatus.completed => SingleChildScrollView(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      SafeArea(child: SizedBox(height: 10)),
 
-                        /// ---------------- HEADER ----------------
-                        _header(context),
+                      /// ---------------- HEADER ----------------
+                      _header(context),
 
-                        hBox(20),
+                      hBox(20),
 
-                        /// ---------------- ONLINE STATUS ----------------
-                        _onlineStatus(),
+                      /// ---------------- ONLINE STATUS ----------------
+                      _onlineStatus(),
 
-                        hBox(20),
+                      hBox(20),
 
-                        /// ---------------- STATS ----------------
-                        _statsGrid(),
+                      /// ---------------- STATS ----------------
+                      _statsGrid(),
 
-                        hBox(24),
+                      hBox(24),
 
-                        /// ---------------- NEW REQUESTS ----------------
-                        _sectionHeader(
-                          context: context,
-                          title: "New Requests",
-                        ),
+                      /// ---------------- NEW REQUESTS ----------------
+                      _sectionHeader(context: context, title: "New Requests"),
 
-                        hBox(12),
-                        value.homeModel.data?.requests==null || value.homeModel.data?.requests?.length==0?
-                            SizedBox(
-                              height: MediaQuery.of(context).size.height*0.2,
+                      hBox(12),
+                      value.homeModel.data?.requests == null ||
+                              value.homeModel.data?.requests?.length == 0
+                          ? SizedBox(
+                              height: MediaQuery.of(context).size.height * 0.2,
                               child: Center(
                                 child: Text(
                                   "No new requests available",
-                                  style: AppFontStyle.text_16_500(AppColors.grey),
+                                  style: AppFontStyle.text_16_500(
+                                    AppColors.grey,
+                                  ),
                                 ),
                               ),
                             )
-                            :
-                        ListView.builder(
-                          itemCount: value.homeModel.data?.requests?.length??0,
-                          physics: NeverScrollableScrollPhysics(),
-                          shrinkWrap: true,
-                          itemBuilder: (context, index) {
-                            VendorHomeRequests request = value.homeModel.data!.requests![index];
-                          return RequestCard(
-                            onAccept: () {
-                              value.acceptOrRejectRequest('accept',request.bookingId??'');
-                            },
-                            onReject: () {
-                              value.acceptOrRejectRequest('reject',request.bookingId??'');
-                            },
-                            request: request
-                          );
+                          : ListView.builder(
+                              itemCount:
+                                  value.homeModel.data?.requests?.length ?? 0,
+                              physics: NeverScrollableScrollPhysics(),
+                              shrinkWrap: true,
+                              itemBuilder: (context, index) {
+                                VendorHomeRequests request =
+                                    value.homeModel.data!.requests![index];
+                                return RequestCard(
+                                  onAccept: () {
+                                    value.acceptOrRejectRequest(
+                                      'accept',
+                                      request.bookingId ?? '',
+                                    );
+                                  },
+                                  onReject: () {
+                                    value.acceptOrRejectRequest(
+                                      'reject',
+                                      request.bookingId ?? '',
+                                    );
+                                  },
+                                  request: request,
+                                );
 
-                            // _requestCard(
-                            //   statusColor: AppColors.purple,
-                            //   request:request
-                            // );
-                        },),
+                                // _requestCard(
+                                //   statusColor: AppColors.purple,
+                                //   request:request
+                                // );
+                              },
+                            ),
 
-                        hBox(20),
-                      ],
-                    ),
+                      hBox(20),
+                    ],
                   ),
+                ),
 
-              ApiStatus.error =>
-              const Center(child: Text('Something went wrong')),
+                ApiStatus.error => const Center(
+                  child: Text('Something went wrong'),
+                ),
 
-              _ =>
-              const SizedBox.shrink(),
-            },
-          ),
-        );
-      },),
+                _ => const SizedBox.shrink(),
+              },
+            ),
+          );
+        },
+      ),
     );
   }
 
   Widget _header(BuildContext context) {
     return Consumer<VendorHomeProvider>(
-      builder: (context,provider,_) {
+      builder: (context, provider, _) {
         return Row(
           children: [
             CircleAvatar(
@@ -148,7 +154,7 @@ class _VendorHomeScreenState extends State<VendorHomeScreen> {
                     style: AppFontStyle.text_12_400(AppColors.grey),
                   ),
                   Text(
-                    provider.homeModel.data?.profile?.name??'',
+                    provider.homeModel.data?.profile?.name ?? '',
                     style: AppFontStyle.text_16_600(
                       AppColors.darkText,
                       fontFamily: AppFontFamily.semiBold,
@@ -158,7 +164,15 @@ class _VendorHomeScreenState extends State<VendorHomeScreen> {
               ),
             ),
 
-
+            GestureDetector(
+              onTap: () {},
+              child: Image.asset(
+                "assets/images/msgimg.png",
+                height: 40,
+                width: 40,
+              ),
+            ),
+            wBox(10),
             InkWell(
               borderRadius: BorderRadius.circular(40),
               onTap: () {
@@ -188,7 +202,7 @@ class _VendorHomeScreenState extends State<VendorHomeScreen> {
             ),
           ],
         );
-      }
+      },
     );
   }
 
@@ -205,7 +219,6 @@ class _VendorHomeScreenState extends State<VendorHomeScreen> {
       return 'Good Night';
     }
   }
-
 
   Widget _onlineStatus() {
     return Consumer<VendorHomeProvider>(
@@ -224,7 +237,9 @@ class _VendorHomeScreenState extends State<VendorHomeScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      (provider.homeModel.data?.vendorStatus?.isOnline??false) ? "You're Online" : "You're Offline",
+                      (provider.homeModel.data?.vendorStatus?.isOnline ?? false)
+                          ? "You're Online"
+                          : "You're Offline",
                       style: AppFontStyle.text_14_600(
                         AppColors.darkText,
                         fontFamily: AppFontFamily.semiBold,
@@ -232,7 +247,7 @@ class _VendorHomeScreenState extends State<VendorHomeScreen> {
                     ),
                     hBox(4),
                     Text(
-                      (provider.homeModel.data?.vendorStatus?.isOnline??false)
+                      (provider.homeModel.data?.vendorStatus?.isOnline ?? false)
                           ? "Ready to receive bookings"
                           : "You are not receiving bookings",
                       style: AppFontStyle.text_12_400(AppColors.grey),
@@ -243,8 +258,9 @@ class _VendorHomeScreenState extends State<VendorHomeScreen> {
 
               /// ✅ SWITCH (NOW WORKS)
               CustomToggleSwitch(
-                value:  (provider.homeModel.data?.vendorStatus?.isOnline??false),
-                onChanged: (bool value){
+                value:
+                    (provider.homeModel.data?.vendorStatus?.isOnline ?? false),
+                onChanged: (bool value) {
                   provider.toggleOnline();
                 },
               ),
@@ -257,7 +273,7 @@ class _VendorHomeScreenState extends State<VendorHomeScreen> {
 
   Widget _statsGrid() {
     return Consumer<VendorHomeProvider>(
-      builder: (context,provider,_) {
+      builder: (context, provider, _) {
         return GridView(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
@@ -265,32 +281,33 @@ class _VendorHomeScreenState extends State<VendorHomeScreen> {
             crossAxisCount: 2,
             mainAxisSpacing: 14,
             crossAxisSpacing: 14,
-            childAspectRatio: 1.4,  // Changed from 1.3 to 1.4
+            childAspectRatio: 1.4, // Changed from 1.3 to 1.4
           ),
           children: [
             _statTile(
               icon: Icons.attach_money,
-              title: "\$${provider.homeModel.data?.dashboard?.todayEarnings??'0'}",
+              title:
+                  "\$${provider.homeModel.data?.dashboard?.todayEarnings ?? '0'}",
               subtitle: "Today's Earning",
             ),
             _statTile(
               icon: Icons.calendar_today,
-              title: provider.homeModel.data?.dashboard?.activeBookings??'0',
+              title: provider.homeModel.data?.dashboard?.activeBookings ?? '0',
               subtitle: "Active Bookings",
             ),
             _statTile(
               icon: Icons.account_balance_wallet,
-              title: "\$${provider.homeModel.data?.dashboard?.wallet??'0'}",
+              title: "\$${provider.homeModel.data?.dashboard?.wallet ?? '0'}",
               subtitle: "Wallet",
             ),
             _statTile(
               icon: Icons.work_outline,
-              title: provider.homeModel.data?.dashboard?.totalJobs??'0',
+              title: provider.homeModel.data?.dashboard?.totalJobs ?? '0',
               subtitle: "Total Jobs",
             ),
           ],
         );
-      }
+      },
     );
   }
 
@@ -305,40 +322,41 @@ class _VendorHomeScreenState extends State<VendorHomeScreen> {
         color: AppColors.white,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: .05),
-            blurRadius: 10,
-          ),
+          BoxShadow(color: Colors.black.withValues(alpha: .05), blurRadius: 10),
         ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,  // Added this
+        mainAxisSize: MainAxisSize.min, // Added this
         children: [
           Container(
-            padding: const EdgeInsets.all(8),  // Reduced from 10
+            padding: const EdgeInsets.all(8), // Reduced from 10
             decoration: BoxDecoration(
               color: AppColors.primary.withValues(alpha: .12),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: Icon(icon, color: AppColors.primary, size: 18),  // Reduced from 20
+            child: Icon(
+              icon,
+              color: AppColors.primary,
+              size: 18,
+            ), // Reduced from 20
           ),
-          hBox(8),  // Reduced from 12
+          hBox(8), // Reduced from 12
           Text(
             title,
             style: AppFontStyle.text_18_600(
               AppColors.darkText,
               fontFamily: AppFontFamily.bold,
             ),
-            maxLines: 1,  // Added this
-            overflow: TextOverflow.ellipsis,  // Added this
+            maxLines: 1, // Added this
+            overflow: TextOverflow.ellipsis, // Added this
           ),
-          hBox(2),  // Reduced from 4
+          hBox(2), // Reduced from 4
           Text(
             subtitle,
             style: AppFontStyle.text_12_400(AppColors.grey),
-            maxLines: 1,  // Added this
-            overflow: TextOverflow.ellipsis,  // Added this
+            maxLines: 1, // Added this
+            overflow: TextOverflow.ellipsis, // Added this
           ),
         ],
       ),
@@ -364,9 +382,7 @@ class _VendorHomeScreenState extends State<VendorHomeScreen> {
           onPressed: () {
             Navigator.push(
               context,
-              MaterialPageRoute(
-                builder: (_) => const NewRequestsScreen(),
-              ),
+              MaterialPageRoute(builder: (_) => const NewRequestsScreen()),
             );
           },
           child: Row(
@@ -377,11 +393,7 @@ class _VendorHomeScreenState extends State<VendorHomeScreen> {
                 style: AppFontStyle.text_14_500(AppColors.primary),
               ),
               const SizedBox(width: 4),
-              Icon(
-                Icons.arrow_forward_ios,
-                size: 14,
-                color: AppColors.primary,
-              ),
+              Icon(Icons.arrow_forward_ios, size: 14, color: AppColors.primary),
             ],
           ),
         ),

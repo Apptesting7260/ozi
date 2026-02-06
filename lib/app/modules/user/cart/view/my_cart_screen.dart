@@ -385,7 +385,8 @@ class CartScreenContent extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  '\$${(cart.total / 1).toStringAsFixed(2)}',
+                  '\$${cart.total.toString()}',
+                  // '\$${(cart.total / 1).toStringAsFixed(2)}',
                   style: AppFontStyle.text_24_700(
                     AppColors.primary,
                     fontFamily: AppFontFamily.bold,

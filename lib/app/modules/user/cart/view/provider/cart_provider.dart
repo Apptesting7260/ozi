@@ -36,19 +36,23 @@ class CartProvider with ChangeNotifier {
       final CartItemsModel response = await _repository.getCartItemsApi();
 
       if (response.status == true && response.data != null) {
-        // ✅ Items
+        // Items
         _items = response.data!.items ?? [];
 
-        // ✅ Summary
+        //  Summary
         final summary = response.data!.summary;
         _subtotal = summary?.subtotal ?? 0;
         _serviceFee = summary?.serviceFee ?? 0;
         _total = summary?.total ?? 0;
+
+        //  Applied Coupon from API
+        _appliedCouponCode = summary?.appliedCuppon;
       } else {
         _items = [];
         _subtotal = 0;
         _serviceFee = 0;
         _total = 0;
+        _appliedCouponCode = null;
         _errorMessage = response.message ?? 'Failed to load cart';
       }
 
@@ -60,6 +64,7 @@ class CartProvider with ChangeNotifier {
       _subtotal = 0;
       _serviceFee = 0;
       _total = 0;
+      _appliedCouponCode = null;
       _errorMessage = e.toString();
       notifyListeners();
 

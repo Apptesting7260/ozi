@@ -232,9 +232,9 @@ class NetworkApiServices extends BaseApiServices {
   }
 
   dynamic returnResponse(Response response, String url) {
-    if (response.data['status'] == false) {
+    if (response.data?['status'] == false) {
       throw FetchDataException(
-        response.data['message'] ?? 'Error ${response.statusCode}',
+        response.data?['message'] ?? 'Error ${response.statusCode}',
       );
     } else if (response.statusCode == 200 || response.statusCode == 201) {
       return response.data;
@@ -243,7 +243,7 @@ class NetworkApiServices extends BaseApiServices {
       throw UnauthenticatedException();
     } else {
       throw FetchDataException(
-        response.data['message'] ?? 'Error ${response.statusCode}',
+        response.data?['message'] ?? 'Error ${response.statusCode}',
       );
     }
   }

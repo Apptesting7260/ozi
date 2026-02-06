@@ -20,18 +20,30 @@ class EditUserAddressProvider extends ChangeNotifier {
   int? _addressId;
 
   void init(Data? address) {
-    if (_initialized) return;
+    print(
+      "Init called with address ID: ${address?.id}, already initialized: $_initialized",
+    );
+
+    // If already initialized with the same address, skip
+    if (_initialized && _addressId == address?.id) {
+      print("Skipping init - same address");
+      return;
+    }
+
+    if (_initialized) {
+      print("Re-initializing with different address");
+      disposeControllers();
+    }
 
     _addressId = address?.id;
+    print("Setting _addressId to: $_addressId");
 
-    streetController =
-        TextEditingController(text: address?.streetAddress ?? '');
-    apartmentController =
-        TextEditingController(text: address?.apartment ?? '');
-    cityController =
-        TextEditingController(text: address?.city ?? '');
-    zipController =
-        TextEditingController(text: address?.zipCode ?? '');
+    streetController = TextEditingController(
+      text: address?.streetAddress ?? '',
+    );
+    apartmentController = TextEditingController(text: address?.apartment ?? '');
+    cityController = TextEditingController(text: address?.city ?? '');
+    zipController = TextEditingController(text: address?.zipCode ?? '');
 
     selectedType = _getTypeIndex(address?.addressType);
 
@@ -67,6 +79,7 @@ class EditUserAddressProvider extends ChangeNotifier {
   }
 
   Future<bool> updateAddress(BuildContext context) async {
+    print("Address If : $_addressId");
     if (_addressId == null) {
       _showSnackBar(context, "Address ID not found", Colors.red);
       return false;
@@ -130,12 +143,9 @@ class EditUserAddressProvider extends ChangeNotifier {
 
   void _showSnackBar(BuildContext context, String message, Color color) {
     if (context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(message),
-          backgroundColor: color,
-        ),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(message), backgroundColor: color));
     }
   }
 

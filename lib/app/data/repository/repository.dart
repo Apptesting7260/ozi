@@ -305,11 +305,13 @@ class Repository {
   // **************************  Remove Cart Item Api **************************//
   Future<dynamic> removeCartItemApi(int cartId) async {
     try {
-      final url = '${AppUrls.deleteCartItem}?cart_id=$cartId';
+      final url = AppUrls.deleteCartItem;
+      final data = {'cart_id': cartId};
 
       dev.log('Remove Cart Item API URL: $url');
+      dev.log('Remove Cart Item Data: $data');
 
-      dynamic response = await _apiService.postApi({}, url);
+      dynamic response = await _apiService.postApi(data, url);
 
       dev.log('Remove Cart Item Raw Response: $response');
 
@@ -323,11 +325,13 @@ class Repository {
   //********************************* increaseCartQuantity Api ********************************//
   Future<IncreaseCartQuantityModel> increaseCartItemApi(int cartId) async {
     try {
-      final url = '${AppUrls.increaseCartQuantity}?cart_id=$cartId';
+      final url = AppUrls.increaseCartQuantity;
+      final data = {'cart_id': cartId};
 
       dev.log('Increase Cart Item API URL: $url');
+      dev.log('Increase Cart Item Data: $data');
 
-      dynamic response = await _apiService.postApi({}, url);
+      dynamic response = await _apiService.postApi(data, url);
 
       dev.log('Increase Cart Item Raw Response: $response');
 
@@ -341,11 +345,13 @@ class Repository {
   //********************************* decreaseCartQuantity Api ********************************//
   Future<DecreaseCartQuantityModel> decreaseCartItemApi(int cartId) async {
     try {
-      final url = '${AppUrls.decreaseCartQuantity}?cart_id=$cartId';
+      final url = AppUrls.decreaseCartQuantity;
+      final data = {'cart_id': cartId};
 
       dev.log('Decrease Cart Item API URL: $url');
+      dev.log('Decrease Cart Item Data: $data');
 
-      dynamic response = await _apiService.postApi({}, url);
+      dynamic response = await _apiService.postApi(data, url);
 
       dev.log('Decrease Cart Item Raw Response: $response');
 
@@ -492,7 +498,7 @@ class Repository {
       dev.log("Request Data: $data");
 
       // Use PUT method and append addressId to URL
-      final response = await _apiService.putApi(
+      final response = await _apiService.postApi(
         data,
         "${AppUrls.updateUserAddress}/$addressId",
       );
@@ -594,18 +600,40 @@ class Repository {
   }
 
   // **************************  Update Notification Api **************************//
-  Future<dynamic> updateNotificationApi(int status) async {
+  Future<dynamic> updateNotificationApi(
+    int notistatus,
+    int emailnotiStatus,
+  ) async {
     try {
-      final url = '${AppUrls.updateNotificationUrl}notification=$status';
+      final url =
+          '${AppUrls.updateNotificationUrl}notification=$notistatus&email_notification=$emailnotiStatus';
       print('API Request URL: $url');
 
       dynamic response = await _apiService.postApi({
-        "notification": status,
+        "notification": notistatus,
+        "email_notification": emailnotiStatus,
       }, url);
       print('API Response: $response');
       return response;
     } catch (e) {
       print('updateNotificationApi Error: $e');
+      rethrow;
+    }
+  }
+
+  // **************************  Update Email Notification Api **************************//
+  Future<dynamic> updateEmailNotificationApi(int status) async {
+    try {
+      final url = '${AppUrls.updateNotificationUrl}email_notification=$status';
+      print('API Request URL: $url');
+
+      dynamic response = await _apiService.postApi({
+        "email_notification": status,
+      }, url);
+      print('API Response: $response');
+      return response;
+    } catch (e) {
+      print('updateEmailNotificationApi Error: $e');
       rethrow;
     }
   }

@@ -61,24 +61,36 @@ class Settingprovider with ChangeNotifier {
     }
   }
 
-  Future<void> updateNotificationApi(BuildContext context, bool value) async {
+  Future<void> updateNotificationApi(
+    BuildContext context, {
+    bool? pushValue,
+    bool? emailValue,
+  }) async {
     try {
-      int status = value ? 1 : 0;
+      // Use provided value or fallback to current state from model
+      bool currentPush = _settingsModel?.data?.isNotificationOn ?? false;
+      bool currentEmail = _settingsModel?.data?.emailnotification ?? false;
 
-      final response = await _repository.updateNotificationApi(status);
+      bool newPush = pushValue ?? currentPush;
+      bool newEmail = emailValue ?? currentEmail;
+
+      int status = newPush ? 1 : 0;
+      int emailstatus = newEmail ? 1 : 0;
+
+      final response = await _repository.updateNotificationApi(
+        status,
+        emailstatus,
+      );
 
       if (response != null && response['status'] == true) {
         // Update local model
         if (_settingsModel?.data != null) {
-          _settingsModel!.data!.isNotificationOn = value;
+          _settingsModel!.data!.isNotificationOn = newPush;
+          _settingsModel!.data!.emailnotification = newEmail;
           notifyListeners();
         }
         if (context.mounted) {
           Get.showToast("${response['message']}", type: ToastType.success);
-          // successToast(
-          //   context,
-          //   response['message'] ?? "Notification updated successfully",
-          // );
         }
       } else {
         if (context.mounted) {
