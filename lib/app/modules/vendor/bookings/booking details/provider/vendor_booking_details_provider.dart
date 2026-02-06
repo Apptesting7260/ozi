@@ -48,14 +48,14 @@ class VendorBookingDetailsProvider extends ChangeNotifier {
   Future<void> getAllBookings(String bookingId)async {
 
     print('getting categories');
-    try {
+    // try {
       setHomeModel(ApiResponse.loading());
       final response = await _apiService.getApi(AppUrls.vendorMyBookingsDetails.replaceAll("{bookingid}", bookingId));
       setHomeModel(ApiResponse.completed(BookingDetailModel.fromJson(response)));
-    } catch (e) {
-      Get.showToast(e.toString(), type: ToastType.error);
-      setHomeModel(ApiResponse.error('Internal Server Error'));
-    }
+    // } catch (e) {
+    //   Get.showToast(e.toString(), type: ToastType.error);
+    //   setHomeModel(ApiResponse.error('Internal Server Error'));
+    // }
   }
 
   bool _otpVerifyLoading = false;

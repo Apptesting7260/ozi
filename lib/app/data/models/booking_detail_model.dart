@@ -173,7 +173,7 @@ class Items {
     serviceItemTotal = json['service_item_total']?.toString();
     createdAt = json['created_at']?.toString();
     updatedAt = json['updated_at']?.toString();
-    image = json['service']['service_image']?.toString();
+    image = json['service']?['service_image']?.toString();
   }
 
   Map<String, dynamic> toJson() {
