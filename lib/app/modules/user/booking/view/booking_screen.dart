@@ -172,7 +172,6 @@ class MyBookingsScreen extends StatelessWidget {
         date = booking.serviceDate ?? "";
       }
     }
-
     String time = "";
     if (booking.serviceTime != null) {
       time =
@@ -416,6 +415,7 @@ class MyBookingsScreen extends StatelessWidget {
             provider.allBookings[index],
             tabIndex,
             provider,
+            index,
           ),
         ],
       ),
@@ -441,7 +441,24 @@ class MyBookingsScreen extends StatelessWidget {
     Data booking,
     int tabIndex,
     BookingProvider provider,
+    int index,
   ) {
+    // if (booking.vendor?.isdeleted == true) {
+    //   return Container(
+    //     width: double.infinity,
+    //     height: 46,
+    //     decoration: BoxDecoration(
+    //       color: AppColors.lightGrey2,
+    //       borderRadius: BorderRadius.circular(30),
+    //     ),
+    //     alignment: Alignment.center,
+    //     child: Text(
+    //       "Vendor is no longer available",
+    //       style: AppFontStyle.text_14_500(AppColors.red),
+    //     ),
+    //   );
+    // }
+
     String status = _resolveStatus(booking);
     int effectiveTabIndex = _getEffectiveTabIndex(tabIndex, status);
 
@@ -475,6 +492,38 @@ class MyBookingsScreen extends StatelessWidget {
     bool isPending = status.toLowerCase().contains('pending');
 
     if (effectiveTabIndex == 2 || effectiveTabIndex == 3 || isPending) {
+      if (booking.vendor?.isdeleted == true) {
+        return Container(
+          width: double.infinity,
+          height: 46,
+          decoration: BoxDecoration(
+            color: AppColors.lightGrey2,
+            borderRadius: BorderRadius.circular(30),
+          ),
+          alignment: Alignment.center,
+          child: Text(
+            "Vendor is no longer available",
+            style: AppFontStyle.text_14_500(AppColors.red),
+          ),
+        );
+      }
+
+      if (booking.firstService?.service?.serviceDeleted == true) {
+        return Container(
+          width: double.infinity,
+          height: 46,
+          decoration: BoxDecoration(
+            color: AppColors.lightGrey2,
+            borderRadius: BorderRadius.circular(30),
+          ),
+          alignment: Alignment.center,
+          child: Text(
+            "Service is no longer available",
+            style: AppFontStyle.text_14_500(AppColors.red),
+          ),
+        );
+      }
+
       return Row(
         children: [
           Expanded(

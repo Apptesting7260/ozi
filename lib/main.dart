@@ -17,8 +17,12 @@ import 'app/modules/user/cart/view/cupponprovider.dart';
 import 'app/modules/user/cart/view/provider/cart_provider.dart';
 import 'app/data/repository/repository.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ]);
 
   if (WebViewPlatform.instance == null) {
     if (Platform.isAndroid) {
