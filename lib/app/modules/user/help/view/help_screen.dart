@@ -360,10 +360,15 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
             subtitle: provider.helpModel?.actions?.emailUs ?? "",
             buttonText: "Send Email",
             onTap: () {
-              // if (provider.helpModel?.data?[0].emailUs != null) {
-              //   Get.dialCall(provider.helpModel!.data![0].emailUs!.toString());
-              // }
-              // Implement email functionality if needed
+              final email = provider.helpModel?.actions?.emailUs?.trim();
+              if (email != null && email.isNotEmpty) {
+                Get.sendEmail(email);
+              } else {
+                Get.showToast(
+                  "Email address not available",
+                  type: ToastType.error,
+                );
+              }
             },
           ),
 

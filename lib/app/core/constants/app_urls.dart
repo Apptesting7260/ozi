@@ -53,6 +53,7 @@ class AppUrls {
   static const String acceptRejectBooking = "$baseUrl/vendor-Booking-Action";
   static const String vendorUpdateLocation = "$baseUrl/vendor-update-location";
   static const String vendorAllBookings = "$baseUrl/vendor-home-all-bookings";
+  static const String vendorServiceDetails = "$baseUrl/vendor-service-detail";
 
   static const String vendorMyBookings =
       "$baseUrl/my-bookings?page={page}&limit=10";
@@ -65,10 +66,8 @@ class AppUrls {
 
   static const String deleteServiceVendor =
       "$baseUrl/delete-vendor-service/{serviceid}";
-  static const String getAvailabilityVendor =
-      "$baseUrl/my-availability";
-  static const String getDocumentsVendor =
-      "$baseUrl/my-availability";
+  static const String getAvailabilityVendor = "$baseUrl/my-availability";
+  static const String getDocumentsVendor = "$baseUrl/my-availability";
 
   //-------------------------------Socket Events---------------------
   static String goOnlineEvent = "go_online";

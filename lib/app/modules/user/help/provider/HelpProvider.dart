@@ -44,6 +44,10 @@ class HelpUserProvider extends ChangeNotifier {
         _helpModel = result;
       }
     } catch (e) {
+      Get.showToast(
+        e.toString() ?? 'Something went wrong',
+        type: ToastType.error,
+      );
       debugPrint("Error fetching help data: $e");
     } finally {
       _isLoading = false;
@@ -81,6 +85,10 @@ class HelpUserProvider extends ChangeNotifier {
         // onError(response['message'] ?? "Failed to send message");
       }
     } catch (e) {
+      Get.showToast(
+        e.toString() ?? 'Something went wrong',
+        type: ToastType.error,
+      );
       debugPrint("Error sending support message: $e");
       // onError("An error occurred. Please try again.");
     } finally {

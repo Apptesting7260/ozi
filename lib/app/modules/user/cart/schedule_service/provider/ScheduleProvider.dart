@@ -131,6 +131,10 @@ class ScheduleProvider extends ChangeNotifier {
 
       notifyListeners();
     } catch (e) {
+      Get.showToast(
+        e.toString() ?? 'Something went wrong',
+        type: ToastType.error,
+      );
       print('Error scheduling service: $e');
     }
   }

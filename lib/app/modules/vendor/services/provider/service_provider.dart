@@ -4,6 +4,8 @@ import '../../../../core/utils/get_utils.dart';
 import '../../../../data/models/all_services_model_vendor.dart';
 import '../../../../data/network/network_api_services.dart';
 import '../../../../data/response/api_response.dart';
+import '../../../../data/models/vendorservicedetailmodel.dart';
+import '../../../../data/repository/repository.dart';
 
 // class MyServiceModel {
 //   final String id;
@@ -86,21 +88,23 @@ class VendorServicesProvider extends ChangeNotifier {
     }
   }
 
-
   bool _deleteServiceLoading = false;
   bool get deleteServiceLoading => _deleteServiceLoading;
-  updateDeleteServiceLoading(bool value){
+  updateDeleteServiceLoading(bool value) {
     _deleteServiceLoading = value;
     notifyListeners();
   }
 
-  Future<void> deleteService(String serviceId)async {
+  Future<void> deleteService(String serviceId) async {
     try {
-      if(_deleteServiceLoading) return;
+      if (_deleteServiceLoading) return;
       updateDeleteServiceLoading(true);
-      final response = await _apiService.deleteApi({},AppUrls.deleteServiceVendor.replaceAll("{serviceid}", serviceId));
+      final response = await _apiService.deleteApi(
+        {},
+        AppUrls.deleteServiceVendor.replaceAll("{serviceid}", serviceId),
+      );
       print(response);
-      _homeModel.data?.data?.removeWhere((e)=>e.id==serviceId);
+      _homeModel.data?.data?.removeWhere((e) => e.id == serviceId);
       notifyListeners();
       updateDeleteServiceLoading(false);
     } catch (e) {
@@ -109,6 +113,31 @@ class VendorServicesProvider extends ChangeNotifier {
     }
   }
 
+  bool _detailsLoading = false;
+  bool get detailsLoading => _detailsLoading;
 
+  vendorServiceDetailModel? _serviceDetails;
+  vendorServiceDetailModel? get serviceDetails => _serviceDetails;
 
+  final Repository _repository = Repository();
+
+  Future<void> getServiceDetails(String serviceId) async {
+    _detailsLoading = true;
+    _serviceDetails = null;
+    notifyListeners();
+
+    try {
+      final response = await _repository.getservicedetailApi(serviceId);
+      if (response.status == true) {
+        _serviceDetails = response;
+      } else {
+        Get.showToast("Failed to fetch details", type: ToastType.error);
+      }
+    } catch (e) {
+      Get.showToast(e.toString(), type: ToastType.error);
+    } finally {
+      _detailsLoading = false;
+      notifyListeners();
+    }
+  }
 }

@@ -1,6 +1,5 @@
 import '../../core/appExports/app_export.dart';
 
-
 class CustomDropDown extends StatefulWidget {
   final List<String> items;
   final String? selectedValue;
@@ -15,6 +14,7 @@ class CustomDropDown extends StatefulWidget {
   final FormFieldValidator<String>? validator;
   final String? label;
   final bool readOnly;
+  final bool isEnable;
 
   const CustomDropDown({
     super.key,
@@ -32,6 +32,7 @@ class CustomDropDown extends StatefulWidget {
     required double borderRadius,
     this.backGroundColor,
     this.readOnly = false,
+    this.isEnable = true,
   });
 
   @override
@@ -85,13 +86,16 @@ class _CustomDropDownState extends State<CustomDropDown> {
             ),
           ),
         IgnorePointer(
-          ignoring: widget.readOnly,
+          ignoring: widget.readOnly || !widget.isEnable,
           child: DropdownButtonFormField2<String>(
             decoration: InputDecoration(
               filled: true,
               errorStyle: AppFontStyle.text_12_400(Colors.red),
               fillColor: widget.backGroundColor ?? AppColors.fieldBgColor,
-              contentPadding: REdgeInsets.symmetric(horizontal: 5, vertical: 14),
+              contentPadding: REdgeInsets.symmetric(
+                horizontal: 5,
+                vertical: 14,
+              ),
               border: Get.defaultBorder(60.r),
               enabledBorder: Get.defaultBorder(60.r),
               focusedBorder: Get.focusedBorder(60.r),
@@ -115,14 +119,14 @@ class _CustomDropDownState extends State<CustomDropDown> {
               );
             }).toList(),
             value: selectedItem,
-            onChanged: widget.readOnly
+            onChanged: (widget.readOnly || !widget.isEnable)
                 ? null
                 : (String? value) {
-              setState(() {
-                selectedItem = value;
-              });
-              widget.onChanged(value);
-            },
+                    setState(() {
+                      selectedItem = value;
+                    });
+                    widget.onChanged(value);
+                  },
             iconStyleData: IconStyleData(
               icon: Padding(
                 padding: REdgeInsets.only(right: 10.0),
@@ -156,8 +160,6 @@ class _CustomDropDownState extends State<CustomDropDown> {
   }
 }
 
-
-
 class CustomDropDownT<T> extends StatefulWidget {
   final List<T> items;
   final T? selectedValue;
@@ -172,6 +174,7 @@ class CustomDropDownT<T> extends StatefulWidget {
   final FormFieldValidator<T>? validator;
   final String? label;
   final bool readOnly;
+  final bool isEnable;
 
   const CustomDropDownT({
     super.key,
@@ -189,6 +192,7 @@ class CustomDropDownT<T> extends StatefulWidget {
     required double borderRadius,
     this.backGroundColor,
     this.readOnly = false,
+    this.isEnable = true,
   });
 
   @override
@@ -239,17 +243,20 @@ class _CustomDropDownStateT<T> extends State<CustomDropDownT<T>> {
             ),
           ),
         IgnorePointer(
-          ignoring: widget.readOnly,
+          ignoring: widget.readOnly || !widget.isEnable,
           child: DropdownButtonFormField2<T>(
             decoration: InputDecoration(
-                filled: true,
-                errorStyle: AppFontStyle.text_12_400(Colors.red),
-                fillColor: widget.backGroundColor ?? AppColors.fieldBgColor,
-                contentPadding: REdgeInsets.symmetric(horizontal: 5, vertical: 14),
-                border: Get.defaultBorder(60.r),
-                enabledBorder: Get.defaultBorder(60.r),
-                focusedBorder: Get.focusedBorder(60.r),
-                errorBorder: Get.errorBorder(60.r),
+              filled: true,
+              errorStyle: AppFontStyle.text_12_400(Colors.red),
+              fillColor: widget.backGroundColor ?? AppColors.fieldBgColor,
+              contentPadding: REdgeInsets.symmetric(
+                horizontal: 5,
+                vertical: 14,
+              ),
+              border: Get.defaultBorder(60.r),
+              enabledBorder: Get.defaultBorder(60.r),
+              focusedBorder: Get.focusedBorder(60.r),
+              errorBorder: Get.errorBorder(60.r),
             ),
             isDense: true,
             autovalidateMode: AutovalidateMode.onUserInteraction,
@@ -269,14 +276,14 @@ class _CustomDropDownStateT<T> extends State<CustomDropDownT<T>> {
               );
             }).toList(),
             value: selectedItem,
-            onChanged: widget.readOnly
+            onChanged: (widget.readOnly || !widget.isEnable)
                 ? null
                 : (T? value) {
-              setState(() {
-                selectedItem = value;
-              });
-              widget.onChanged(value);
-            },
+                    setState(() {
+                      selectedItem = value;
+                    });
+                    widget.onChanged(value);
+                  },
             iconStyleData: IconStyleData(
               icon: Padding(
                 padding: REdgeInsets.only(right: 10.0),

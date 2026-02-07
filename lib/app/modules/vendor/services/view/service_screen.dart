@@ -1,5 +1,3 @@
-
-
 import 'package:ozi/app/core/constants/app_urls.dart';
 
 import '../../../../core/appExports/app_export.dart';
@@ -56,117 +54,114 @@ class _MyServicesContent extends StatelessWidget {
                     ),
                   ),
                   wBox(10),
-        GestureDetector(
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) =>  FiltersScreen(),
-              ),
-            );
-          },
-          child: Container(
-            height: 44,
-            width: 44,
-            decoration: BoxDecoration(
-              color: AppColors.primary.withValues(alpha: 0.12),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(
-              Icons.tune,
-              color: AppColors.primary,
-            ),
-          ),
-        ),
-
-        ],
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => FiltersScreen()),
+                      );
+                    },
+                    child: Container(
+                      height: 44,
+                      width: 44,
+                      decoration: BoxDecoration(
+                        color: AppColors.primary.withValues(alpha: 0.12),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(Icons.tune, color: AppColors.primary),
+                    ),
+                  ),
+                ],
               ),
 
               hBox(16),
 
               /// ADD SERVICE
-            CustomButton(
-              height: 50,
-              isOutlined: true,
-              borderRadius: BorderRadius.circular(60),
-              onPressed: () async {
-               final result = await Navigator.push(context, MaterialPageRoute(builder: (context) => ServiceDetailsScreen(null),));
-               if(result==null||result!=null){
-                 provider.getAllBookings();
-               }
-                // Navigator.push(
-                //   context,
-                //   MaterialPageRoute(
-                //     builder: (_) => const VendorAddNewServiceScreen(),
-                //   ),
-                // );
-              },
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                   Icon(
-                    Icons.add,
-                    size: 20,
-                    color: AppColors.primary,
-                  ),
-                  wBox(8),
-                  Text(
-                    "Add New Service",
-                    style: AppFontStyle.text_14_600(
-                      AppColors.primary,
-                      fontFamily: AppFontFamily.semiBold,
+              CustomButton(
+                height: 50,
+                isOutlined: true,
+                borderRadius: BorderRadius.circular(60),
+                onPressed: () async {
+                  final result = await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ServiceDetailsScreen(null),
                     ),
-                  ),
-                ],
-              ),
-            ),
-
-
-            hBox(20),
-
-              switch (provider.homeModel.status) {
-                ApiStatus.loading =>
-                    Expanded(child: const Center(child: CircularProgressIndicator())),
-
-                ApiStatus.completed =>
-                    Expanded(
-                      child: (provider.homeModel.data?.data==null||provider.homeModel.data!.data!.isEmpty)
-                          ? Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              Icons.list_alt,
-                              size: 80,
-                              color: AppColors.grey.withValues(alpha: 0.3),
-                            ),
-                            hBox(16),
-                            Text(
-                              "No services available",
-                              style: AppFontStyle.text_16_400(AppColors.grey),
-                            ),
-                          ],
-                        ),
-                      )
-                          : ListView.separated(
-                        itemCount: provider.homeModel.data?.data?.length??0,
-                        separatorBuilder: (_, __) => hBox(14),
-                        itemBuilder: (_, index) {
-                          VendorGetAllServicesModelData? service = provider.homeModel.data?.data?[index];
-                          return _serviceCard(
-                            context: context,
-                            service: service,
-                            provider: provider,
-                          );
-                        },
+                  );
+                  if (result == null || result != null) {
+                    provider.getAllBookings();
+                  }
+                  // Navigator.push(
+                  //   context,
+                  //   MaterialPageRoute(
+                  //     builder: (_) => const VendorAddNewServiceScreen(),
+                  //   ),
+                  // );
+                },
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.add, size: 20, color: AppColors.primary),
+                    wBox(8),
+                    Text(
+                      "Add New Service",
+                      style: AppFontStyle.text_14_600(
+                        AppColors.primary,
+                        fontFamily: AppFontFamily.semiBold,
                       ),
                     ),
+                  ],
+                ),
+              ),
 
-                ApiStatus.error =>
-                    Expanded(child: const Center(child: Text('Something went wrong'))),
+              hBox(20),
 
-                _ =>
-                const SizedBox.shrink(),
+              switch (provider.homeModel.status) {
+                ApiStatus.loading => Expanded(
+                  child: const Center(child: CircularProgressIndicator()),
+                ),
+
+                ApiStatus.completed => Expanded(
+                  child:
+                      (provider.homeModel.data?.data == null ||
+                          provider.homeModel.data!.data!.isEmpty)
+                      ? Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.list_alt,
+                                size: 80,
+                                color: AppColors.grey.withValues(alpha: 0.3),
+                              ),
+                              hBox(16),
+                              Text(
+                                "No services available",
+                                style: AppFontStyle.text_16_400(AppColors.grey),
+                              ),
+                            ],
+                          ),
+                        )
+                      : ListView.separated(
+                          itemCount: provider.homeModel.data?.data?.length ?? 0,
+                          separatorBuilder: (_, __) => hBox(14),
+                          itemBuilder: (_, index) {
+                            VendorGetAllServicesModelData? service =
+                                provider.homeModel.data?.data?[index];
+                            return _serviceCard(
+                              context: context,
+                              service: service,
+                              provider: provider,
+                            );
+                          },
+                        ),
+                ),
+
+                ApiStatus.error => Expanded(
+                  child: const Center(child: Text('Something went wrong')),
+                ),
+
+                _ => const SizedBox.shrink(),
               },
             ],
           ),
@@ -183,16 +178,17 @@ class _MyServicesContent extends StatelessWidget {
   }) {
     return GestureDetector(
       onTap: () async {
+        // provider.getServiceDetails(service?.id ?? "");
         // Navigate to Service Details Screen
-        // final result = await Navigator.push(
-        //   context,
-        //   MaterialPageRoute(
-        //     builder: (context) => ServiceDetailsScreen(),
-        //   ),
-        // );
-        // if(result==null||result!=null){
-        //   provider.getAllBookings();
-        // }
+        final result = await Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ServiceDetailsScreen(service),
+          ),
+        );
+        if (result == null || result != null) {
+          provider.getAllBookings();
+        }
       },
       child: Container(
         padding: const EdgeInsets.all(12),
@@ -213,7 +209,8 @@ class _MyServicesContent extends StatelessWidget {
                 ClipRRect(
                   borderRadius: BorderRadius.circular(12),
                   child: CustomImage(
-                    path: '${AppUrls.imageBaseUrl}${service?.serviceImage??''}',
+                    path:
+                        '${AppUrls.imageBaseUrl}${service?.serviceImage ?? ''}',
                     height: 70,
                     width: 70,
                   ),
@@ -227,14 +224,14 @@ class _MyServicesContent extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        service?.serviceName??'',
+                        service?.serviceName ?? '',
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: AppFontStyle.text_14_600(AppColors.darkText),
                       ),
                       hBox(2),
                       Text(
-                        service?.category?.categoryName??'',
+                        service?.category?.categoryName ?? '',
                         style: AppFontStyle.text_12_400(AppColors.primary),
                       ),
                       hBox(4),
@@ -243,7 +240,7 @@ class _MyServicesContent extends StatelessWidget {
                           Icon(Icons.schedule, size: 14, color: AppColors.grey),
                           wBox(4),
                           Text(
-                            '${service?.durationValue??''} ${service?.durationType??''}',
+                            '${service?.durationValue ?? ''} ${service?.durationType ?? ''}',
                             style: AppFontStyle.text_12_400(AppColors.grey),
                           ),
                         ],
@@ -280,7 +277,7 @@ class _MyServicesContent extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  "\$${service.servicePrice??''}",
+                  "\$${service.servicePrice ?? ''}",
                   style: AppFontStyle.text_16_600(AppColors.primary),
                 ),
 
@@ -323,7 +320,12 @@ class _MyServicesContent extends StatelessWidget {
                       isOutlined: true,
                       borderRadius: BorderRadius.circular(30),
                       onPressed: () {
-                        Navigator.push(context, MaterialPageRoute(builder: (context) => ServiceDetailsScreen(service),));
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => ServiceDetailsScreen(service),
+                          ),
+                        );
                         // provider.editService(service);
                         // Navigate to edit screen
                         // Navigator.push(context, MaterialPageRoute(builder: (_) => EditServiceScreen(service: service)));
@@ -357,10 +359,10 @@ class _MyServicesContent extends StatelessWidget {
 
   /// Delete Confirmation Dialog
   void _showDeleteDialog(
-      BuildContext context,
-      VendorServicesProvider provider,
-      VendorGetAllServicesModelData service,
-      ) {
+    BuildContext context,
+    VendorServicesProvider provider,
+    VendorGetAllServicesModelData service,
+  ) {
     showDialog(
       context: context,
       builder: (BuildContext dialogContext) {
@@ -373,7 +375,7 @@ class _MyServicesContent extends StatelessWidget {
             style: AppFontStyle.text_18_600(AppColors.darkText),
           ),
           content: Text(
-            'Are you sure you want to delete "${service.serviceName??''}"? This action cannot be undone.',
+            'Are you sure you want to delete "${service.serviceName ?? ''}"? This action cannot be undone.',
             style: AppFontStyle.text_14_400(AppColors.grey),
           ),
           actions: [
@@ -386,8 +388,8 @@ class _MyServicesContent extends StatelessWidget {
             ),
             TextButton(
               onPressed: () async {
-                await provider.deleteService(service.id??'');
-                 Navigator.pop(dialogContext);
+                await provider.deleteService(service.id ?? '');
+                Navigator.pop(dialogContext);
                 // ScaffoldMessenger.of(context).showSnackBar(
                 //   SnackBar(
                 //     content: Text('${service.title} deleted successfully'),
