@@ -70,6 +70,10 @@ class HomeScreenProvider extends ChangeNotifier {
       }
       notifyListeners();
     } catch (e) {
+      Get.showToast(
+        e.toString() ?? 'Something went wrong',
+        type: ToastType.error,
+      );
       debugPrint("❌ Category API Error: $e");
     }
   }
@@ -156,6 +160,10 @@ class HomeScreenProvider extends ChangeNotifier {
       }
       return true; // success
     } catch (e) {
+      Get.showToast(
+        e.toString() ?? 'Something went wrong',
+        type: ToastType.error,
+      );
       print("Location error: $e");
       return false;
     }

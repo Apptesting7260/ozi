@@ -120,6 +120,10 @@ class BookingProvider extends ChangeNotifier {
       }
     } catch (e) {
       _errorMessage = e.toString();
+      Get.showToast(
+        e.toString() ?? 'Something went wrong',
+        type: ToastType.error,
+      );
     }
 
     _isLoading = false;
@@ -141,6 +145,10 @@ class BookingProvider extends ChangeNotifier {
         _detailsErrorMessage = 'Failed to load booking details';
       }
     } catch (e) {
+      Get.showToast(
+        e.toString() ?? 'Something went wrong',
+        type: ToastType.error,
+      );
       _detailsErrorMessage = e.toString();
     } finally {
       _isDetailsLoading = false;
@@ -498,7 +506,10 @@ class BookingProvider extends ChangeNotifier {
       }
     } catch (e) {
       dev.log('BookAgain Error: $e');
-      Get.showToast('Something went wrong', type: ToastType.error);
+      Get.showToast(
+        e.toString() ?? 'Something went wrong',
+        type: ToastType.error,
+      );
       return false;
     } finally {
       _isBookAgainLoading = false;

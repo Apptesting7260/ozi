@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:ozi/app/core/utils/get_utils.dart';
 import '../../../../../core/constants/image_constant.dart';
 import '../../../../../data/repository/repository.dart';
 import '../model/user_address_model.dart';
@@ -22,8 +23,10 @@ class SavedAddressProvider extends ChangeNotifier {
   Data? _editingAddress;
   Data? get editingAddress => _editingAddress;
 
-  Data? get defaultAddress =>
-      _addresses.firstWhere((addr) => addr.isDefault == 1, orElse: () => _addresses.isNotEmpty ? _addresses[0] : Data());
+  Data? get defaultAddress => _addresses.firstWhere(
+    (addr) => addr.isDefault == 1,
+    orElse: () => _addresses.isNotEmpty ? _addresses[0] : Data(),
+  );
 
   // Set address for editing
   void setEditingAddress(Data address) {
@@ -47,7 +50,9 @@ class SavedAddressProvider extends ChangeNotifier {
 
         // Set default selected index to the default address
         if (_addresses.isNotEmpty) {
-          int defaultIndex = _addresses.indexWhere((addr) => addr.isDefault == 1);
+          int defaultIndex = _addresses.indexWhere(
+            (addr) => addr.isDefault == 1,
+          );
           _selectedIndex = defaultIndex != -1 ? defaultIndex : 0;
         }
       } else {
@@ -59,6 +64,10 @@ class SavedAddressProvider extends ChangeNotifier {
     } catch (e) {
       _isLoading = false;
       _errorMessage = e.toString().replaceAll('Exception: ', '');
+      Get.showToast(
+        e.toString() ?? 'Something went wrong',
+        type: ToastType.error,
+      );
       notifyListeners();
       print('Error fetching addresses: $_errorMessage');
     }
@@ -135,16 +144,13 @@ class SavedAddressProvider extends ChangeNotifier {
       } else {
         throw Exception(response.message ?? "Failed to delete");
       }
-
     } catch (e) {
       print("Delete Address Error: $e");
 
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text("Failed to delete address"),
-            backgroundColor: Colors.red,
-          ),
+        Get.showToast(
+          e.toString() ?? 'Something went wrong',
+          type: ToastType.error,
         );
       }
     }

@@ -1,4 +1,5 @@
 import 'dart:developer' as dev;
+import 'package:ozi/app/data/models/vendorservicedetailmodel.dart';
 import 'package:ozi/app/modules/user/Reviews%20Section/model/reviewmodel.dart';
 import 'package:ozi/app/modules/user/booking/model/bookingdetailsmodel.dart'
     as details;
@@ -148,6 +149,21 @@ class Repository {
       return vendorDetailModel.fromJson(response);
     } catch (e) {
       dev.log('Error in vendorDetailsApi: $e');
+      throw Exception(e);
+    }
+  }
+
+  // ********************************** getServiceDetail Api ****************************//
+
+  Future<vendorServiceDetailModel> getservicedetailApi(
+    // Map<String, dynamic> data,
+    String serviceId,
+  ) async {
+    final url = "${AppUrls.vendorServiceDetails}?service_id=$serviceId";
+    try {
+      dynamic response = await _apiService.getApi(url);
+      return vendorServiceDetailModel.fromJson(response);
+    } catch (e) {
       throw Exception(e);
     }
   }

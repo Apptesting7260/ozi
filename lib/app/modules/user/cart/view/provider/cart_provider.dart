@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:ozi/app/core/utils/get_utils.dart';
 import '../../../../../data/repository/repository.dart';
 import '../model/cart_items_model.dart';
 import '../model/increase_cart_quantity_model.dart';
@@ -67,7 +68,10 @@ class CartProvider with ChangeNotifier {
       _appliedCouponCode = null;
       _errorMessage = e.toString();
       notifyListeners();
-
+      Get.showToast(
+        e.toString() ?? 'Something went wrong',
+        type: ToastType.error,
+      );
       print('Error fetching cart items: $e');
     }
   }
@@ -111,6 +115,10 @@ class CartProvider with ChangeNotifier {
         throw Exception(response.message ?? "Failed to update quantity");
       }
     } catch (e) {
+      Get.showToast(
+        e.toString() ?? 'Something went wrong',
+        type: ToastType.error,
+      );
       _errorMessage = "Failed to update quantity: $e";
       notifyListeners();
     }
@@ -161,6 +169,10 @@ class CartProvider with ChangeNotifier {
 
       _errorMessage = 'Failed to remove item: ${e.toString()}';
       notifyListeners();
+      Get.showToast(
+        e.toString() ?? 'Something went wrong',
+        type: ToastType.error,
+      );
       print('Error removing item: $e');
     }
   }

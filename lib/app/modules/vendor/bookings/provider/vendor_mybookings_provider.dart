@@ -43,53 +43,59 @@ import '../../../../data/response/api_response.dart';
 
 // ==================== PROVIDER: MY BOOKINGS ====================
 
-
 class VendorMybookingsProvider extends ChangeNotifier {
-
   final NetworkApiServices _apiService = NetworkApiServices();
 
-  VendorMybookingsProvider(){
+  VendorMybookingsProvider() {
     getAllBookings();
   }
 
   ApiResponse<AllBookingsModel> _homeModel = ApiResponse.loading();
   ApiResponse<AllBookingsModel> get homeModel => _homeModel;
 
-  setHomeModel(ApiResponse<AllBookingsModel> value){
+  setHomeModel(ApiResponse<AllBookingsModel> value) {
     _homeModel = value;
     notifyListeners();
   }
 
-
-  Future<void> getAllBookings()async {
-    if(_homeModel.data?.pagination!=null){
-      if(_homeModel.data!.pagination!.currentPage! >= _homeModel.data!.pagination!.totalPages!){
+  Future<void> getAllBookings() async {
+    if (_homeModel.data?.pagination != null) {
+      if (_homeModel.data!.pagination!.currentPage! >=
+          _homeModel.data!.pagination!.totalPages!) {
         return;
       }
-      _homeModel.data!.pagination!.currentPage = _homeModel.data!.pagination!.currentPage! + 1;
+      _homeModel.data!.pagination!.currentPage =
+          _homeModel.data!.pagination!.currentPage! + 1;
     }
     print('getting categories');
     try {
-      String apiUrl = AppUrls.vendorMyBookings.replaceAll('{page}', _homeModel.data?.pagination?.currentPage.toString()??'1');
-      if(selectedTab!=0){
+      String apiUrl = AppUrls.vendorMyBookings.replaceAll(
+        '{page}',
+        _homeModel.data?.pagination?.currentPage.toString() ?? '1',
+      );
+      if (selectedTab != 0) {
         apiUrl += '&status=${tabs[selectedTab].toLowerCase()}';
       }
       final response = await _apiService.getApi(apiUrl);
       print(response);
-      if(_homeModel.data?.pagination?.currentPage==1||_homeModel.data?.pagination?.currentPage==null){
-        setHomeModel(ApiResponse.completed(AllBookingsModel.fromJson(response)));
-      }else{
+      if (_homeModel.data?.pagination?.currentPage == 1 ||
+          _homeModel.data?.pagination?.currentPage == null) {
+        setHomeModel(
+          ApiResponse.completed(AllBookingsModel.fromJson(response)),
+        );
+      } else {
         AllBookingsModel data = AllBookingsModel.fromJson(response);
-        _homeModel.data?.data?.addAll(data.data??[]);
+        _homeModel.data?.data?.addAll(data.data ?? []);
         notifyListeners();
       }
-      _homeModel.data?.pagination = AllBookingsModel.fromJson(response).pagination;
+      _homeModel.data?.pagination = AllBookingsModel.fromJson(
+        response,
+      ).pagination;
     } catch (e) {
       Get.showToast(e.toString(), type: ToastType.error);
       setHomeModel(ApiResponse.error('Internal Server Error'));
     }
   }
-
 
   int selectedTab = 0;
   bool isLoading = false;

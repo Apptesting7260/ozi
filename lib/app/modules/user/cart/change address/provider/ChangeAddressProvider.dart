@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ozi/app/core/constants/image_constant.dart';
+import 'package:ozi/app/core/utils/get_utils.dart';
 import 'package:ozi/app/data/repository/repository.dart';
 import '../../../profile/save address/model/user_address_model.dart';
 
@@ -47,6 +48,10 @@ class ChangeAddressProvider extends ChangeNotifier {
         _selectedIndex = defaultIndex != -1 ? defaultIndex : 0;
       }
     } catch (e) {
+      Get.showToast(
+        e.toString() ?? 'Something went wrong',
+        type: ToastType.error,
+      );
       _errorMessage = e.toString();
       _addresses = [];
       _selectedIndex = -1;

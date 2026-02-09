@@ -6,9 +6,7 @@ import '../../../../../routes/app_routes.dart';
 import '../model/user_profile_model.dart';
 
 class ProfileProvider extends ChangeNotifier {
-
   final _repository = Repository();
-
 
   bool _isLoading = false;
   bool get isLoading => _isLoading;
@@ -50,7 +48,7 @@ class ProfileProvider extends ChangeNotifier {
           Navigator.pushNamedAndRemoveUntil(
             context,
             AppRoutes.splashScreen,
-                (route) => false,
+            (route) => false,
           );
         }
       } else {
@@ -59,10 +57,7 @@ class ProfileProvider extends ChangeNotifier {
 
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(_errorMessage),
-              backgroundColor: Colors.red,
-            ),
+            SnackBar(content: Text(_errorMessage), backgroundColor: Colors.red),
           );
         }
       }
@@ -72,17 +67,15 @@ class ProfileProvider extends ChangeNotifier {
       notifyListeners();
 
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(_errorMessage),
-            backgroundColor: Colors.red,
-          ),
+        Get.showToast(
+          e.toString() ?? 'Something went wrong',
+          type: ToastType.error,
         );
       }
     }
   }
 
-  Future<void> fetchUserProfile() async { 
+  Future<void> fetchUserProfile() async {
     _isProfileLoading = true;
     _errorMessage = '';
     notifyListeners();
@@ -103,6 +96,10 @@ class ProfileProvider extends ChangeNotifier {
     } catch (e) {
       _isProfileLoading = false;
       _errorMessage = e.toString().replaceAll('Exception: ', '');
+      Get.showToast(
+        e.toString() ?? 'Something went wrong',
+        type: ToastType.error,
+      );
       notifyListeners();
       print('Error fetching profile: $_errorMessage');
     }

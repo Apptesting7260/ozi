@@ -34,6 +34,10 @@ class CupponProvider extends ChangeNotifier {
         if (_selectedCoupon?.id == null) _selectedCoupon = null;
       }
     } catch (e) {
+      Get.showToast(
+        e.toString() ?? 'Something went wrong',
+        type: ToastType.error,
+      );
       _errorMessage = e.toString();
     } finally {
       _isLoading = false;
@@ -88,7 +92,10 @@ class CupponProvider extends ChangeNotifier {
         return false;
       }
     } catch (e) {
-      Get.showToast("Something went wrong", type: ToastType.error);
+      Get.showToast(
+        e.toString() ?? 'Something went wrong',
+        type: ToastType.error,
+      );
       return false;
     } finally {
       _isApplyLoading = false;

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:ozi/app/core/utils/get_utils.dart';
 import '../../../../data/repository/repository.dart';
 import '../model/reviewmodel.dart';
 
@@ -54,6 +55,10 @@ class ReviewsProvider extends ChangeNotifier {
       }
     } catch (e) {
       debugPrint('Error fetching reviews: $e');
+      Get.showToast(
+        e.toString() ?? 'Something went wrong',
+        type: ToastType.error,
+      );
     } finally {
       if (isLoadMore) {
         _isLoadMore = false;

@@ -251,7 +251,7 @@ class _BookingConfirmScreenState extends State<BookingConfirmScreen> {
           _detailsRow(
             imagePath: ImageConstants.calendor,
             label: "Date",
-            value: provider.bookingDate,
+            value: Get.getFormattedDate2(provider.bookingDate),
           ),
           SizedBox(height: 10),
 

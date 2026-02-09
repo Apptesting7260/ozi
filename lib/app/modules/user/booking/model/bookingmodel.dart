@@ -177,12 +177,16 @@ class Address {
 class Vendor {
   int? id;
   String? name;
+  bool? isdeleted;
 
-  Vendor({this.id, this.name});
+  Vendor({this.id, this.name, this.isdeleted});
 
   Vendor.fromJson(Map<String, dynamic> json) {
     id = json['id'] is int ? json['id'] : int.tryParse(json['id'].toString());
     name = json['name']?.toString();
+    isdeleted = json['is_deleted'] is bool
+        ? json['is_deleted']
+        : json['is_deleted']?.toString().toLowerCase() == 'false';
   }
 
   Map<String, dynamic> toJson() {
@@ -274,6 +278,7 @@ class Service {
   String? longitude;
   int? servicePrice;
   int? durationValue;
+  bool? serviceDeleted;
   String? durationType;
   String? status;
   String? createdAt;
@@ -292,6 +297,7 @@ class Service {
     this.longitude,
     this.servicePrice,
     this.durationValue,
+    this.serviceDeleted,
     this.durationType,
     this.status,
     this.createdAt,
@@ -321,6 +327,9 @@ class Service {
     durationValue = json['duration_value'] is int
         ? json['duration_value']
         : int.tryParse(json['duration_value'].toString());
+    serviceDeleted = json['is_service_deleted'] is bool
+        ? json['is_service_deleted']
+        : json['is_service_deleted']?.toString().toLowerCase() == 'false';
     durationType = json['duration_type']?.toString();
     status = json['status']?.toString();
     createdAt = json['created_at']?.toString();

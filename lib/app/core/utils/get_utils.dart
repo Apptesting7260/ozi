@@ -11,14 +11,12 @@ import '../../shared/theme/app_colors.dart';
 import '../../shared/theme/font_style.dart';
 // import 'package:awesome_snackbar_content/src/content_type.dart';
 
-
 class Get {
-
-  static width(){
+  static width() {
     return MediaQuery.of(navigatorKey.currentContext!).size.width;
   }
 
-  static height(){
+  static height() {
     return MediaQuery.of(navigatorKey.currentContext!).size.height;
   }
 
@@ -110,6 +108,7 @@ class Get {
       return "";
     }
   }
+
   static String getFormattedDate1(String dateTimeString) {
     try {
       final dateTime = DateTime.parse(dateTimeString).toLocal();
@@ -121,6 +120,7 @@ class Get {
       return "";
     }
   }
+
   static String getFormattedDate2(String dateTimeString) {
     try {
       final dateTime = DateTime.parse(dateTimeString).toLocal();
@@ -132,7 +132,6 @@ class Get {
       return "";
     }
   }
-
 
   static String getFormattedFullDate(String dateTimeString) {
     try {
@@ -168,6 +167,24 @@ class Get {
       }
     } catch (e) {
       consoleLog('Error launching dialer: $e', 'DialCall');
+    }
+  }
+
+  //************************************* Send Email *************************************//
+
+  static Future<void> sendEmail(String email) async {
+    final Uri emailUri = Uri.parse("mailto:$email");
+    try {
+      if (!await launchUrl(emailUri, mode: LaunchMode.externalApplication)) {
+        // Fallback: try without mode
+        if (!await launchUrl(emailUri)) {
+          showToast("Could not launch email client", type: ToastType.error);
+          consoleLog('Could not launch email client', 'SendEmail');
+        }
+      }
+    } catch (e) {
+      showToast("Error launching email client", type: ToastType.error);
+      consoleLog('Error launching email: $e', 'SendEmail');
     }
   }
 
@@ -355,107 +372,107 @@ class Get {
 
   //************************************* Share Receipt on Whatsapp *************************************//
 
-//   static Future<void> shareOnWhatsApp({
-//     required BuildContext context,
-//     required OrderConfirmData orderData,
-//     required PlaceOrderData placeOrderData,
-//     String supportPhone = '+918977636465',
-//   }) async {
-//     String formattedDateTime = getFormattedDate(
-//       orderData.scheduledDateTime ?? '',
-//     );
-//     String message =
-//         '''
-// 🎉 *Booking Confirmed* 🎉
-//
-// ━━━━━━━━━━━━━━━━━━━━
-// 📋 *ORDER DETAILS*
-// ━━━━━━━━━━━━━━━━━━━━
-//
-// 🆔 *Order ID:* ${orderData.orderId}
-// 📅 *Date & Time:* $formattedDateTime
-// 👤 *Customer:* ${orderData.customerDetails?.name ?? 'N/A'}
-// 📞 *Phone:* ${orderData.customerDetails?.mobile ?? 'N/A'}
-// 📍 *Address:* ${orderData.customerDetails?.address ?? 'N/A'}
-//
-// ━━━━━━━━━━━━━━━━━━━━
-// 🛍️ *SERVICES BOOKED*
-// ━━━━━━━━━━━━━━━━━━━━
-//
-// ${_formatServicesList(placeOrderData.items)}
-//
-// ━━━━━━━━━━━━━━━━━━━━
-// 💰 *BILLING DETAILS*
-// ━━━━━━━━━━━━━━━━━━━━
-//
-// Subtotal: ₹${_formatPrice(orderData.billingDetails?.totalAmount)}
-// ${orderData.billingDetails?.discount != null && orderData.billingDetails!.discount! > 0 ? 'Discount: -₹${_formatPrice(orderData.billingDetails?.discount)}\n' : ''}${orderData.billingDetails?.serviceCharge != null && orderData.billingDetails!.serviceCharge! > 0 ? 'Service Charge: ₹${_formatPrice(orderData.billingDetails?.serviceCharge)}\n' : ''}${orderData.billingDetails?.platformFee != null && orderData.billingDetails!.platformFee! > 0 ? 'Platform Fee: ₹${_formatPrice(orderData.billingDetails?.platformFee)}\n' : ''}${orderData.billingDetails?.loyaltyPoints != null && orderData.billingDetails!.loyaltyPoints! > 0 ? 'Loyalty Points: -₹${_formatPrice(orderData.billingDetails?.loyaltyPoints)}\n' : ''}
-// 💳 *Total Payable:* ₹${_formatPrice(orderData.billingDetails?.totalPayable)}
-//
-// ━━━━━━━━━━━━━━━━━━━━
-//
-// ${orderData.specialInstructions?.isNotEmpty ?? false ? '📝 *Special Instructions:*\n${orderData.specialInstructions}\n\n━━━━━━━━━━━━━━━━━━━━\n\n' : ''}${orderData.importantNotes?.isNotEmpty ?? false ? '⚠️ *Important Notes:*\n${orderData.importantNotes}\n\n━━━━━━━━━━━━━━━━━━━━\n\n' : ''}
-// Thank you for choosing BeautyGlad! 💖✨
-//
-// Need help? Contact us:
-// 📞 $supportPhone
-// 🌐 www.beautyglad.com
-//
-// _Your satisfaction is our priority!_ 🌟
-// ''';
-//
-//     var encodedMessage = Uri.encodeComponent(message);
-//     var androidUrl = "whatsapp://send?text=$encodedMessage";
-//     var iosUrl = "https://wa.me/?text=$encodedMessage";
-//
-//     try {
-//       Uri whatsappUri;
-//       if (Platform.isIOS) {
-//         whatsappUri = Uri.parse(iosUrl);
-//       } else {
-//         whatsappUri = Uri.parse(androidUrl);
-//       }
-//
-//       bool launched = await launchUrl(
-//         whatsappUri,
-//         mode: LaunchMode.externalApplication,
-//       );
-//
-//       if (!launched) {
-//         throw Exception('Could not launch WhatsApp');
-//       }
-//     } catch (e) {
-//       if (context.mounted) {
-//         ScaffoldMessenger.of(context).showSnackBar(
-//           SnackBar(
-//             content: Row(
-//               children: [
-//                 Icon(Icons.error_outline, color: Colors.white),
-//                 SizedBox(width: 12),
-//                 Expanded(
-//                   child: Text(
-//                     'WhatsApp is not installed on your device',
-//                     style: TextStyle(fontSize: 14),
-//                   ),
-//                 ),
-//               ],
-//             ),
-//             backgroundColor: Colors.red.shade600,
-//             behavior: SnackBarBehavior.floating,
-//             shape: RoundedRectangleBorder(
-//               borderRadius: BorderRadius.circular(12),
-//             ),
-//             duration: Duration(seconds: 3),
-//             action: SnackBarAction(
-//               label: 'OK',
-//               textColor: Colors.white,
-//               onPressed: () {},
-//             ),
-//           ),
-//         );
-//       }
-//     }
-//   }
+  //   static Future<void> shareOnWhatsApp({
+  //     required BuildContext context,
+  //     required OrderConfirmData orderData,
+  //     required PlaceOrderData placeOrderData,
+  //     String supportPhone = '+918977636465',
+  //   }) async {
+  //     String formattedDateTime = getFormattedDate(
+  //       orderData.scheduledDateTime ?? '',
+  //     );
+  //     String message =
+  //         '''
+  // 🎉 *Booking Confirmed* 🎉
+  //
+  // ━━━━━━━━━━━━━━━━━━━━
+  // 📋 *ORDER DETAILS*
+  // ━━━━━━━━━━━━━━━━━━━━
+  //
+  // 🆔 *Order ID:* ${orderData.orderId}
+  // 📅 *Date & Time:* $formattedDateTime
+  // 👤 *Customer:* ${orderData.customerDetails?.name ?? 'N/A'}
+  // 📞 *Phone:* ${orderData.customerDetails?.mobile ?? 'N/A'}
+  // 📍 *Address:* ${orderData.customerDetails?.address ?? 'N/A'}
+  //
+  // ━━━━━━━━━━━━━━━━━━━━
+  // 🛍️ *SERVICES BOOKED*
+  // ━━━━━━━━━━━━━━━━━━━━
+  //
+  // ${_formatServicesList(placeOrderData.items)}
+  //
+  // ━━━━━━━━━━━━━━━━━━━━
+  // 💰 *BILLING DETAILS*
+  // ━━━━━━━━━━━━━━━━━━━━
+  //
+  // Subtotal: ₹${_formatPrice(orderData.billingDetails?.totalAmount)}
+  // ${orderData.billingDetails?.discount != null && orderData.billingDetails!.discount! > 0 ? 'Discount: -₹${_formatPrice(orderData.billingDetails?.discount)}\n' : ''}${orderData.billingDetails?.serviceCharge != null && orderData.billingDetails!.serviceCharge! > 0 ? 'Service Charge: ₹${_formatPrice(orderData.billingDetails?.serviceCharge)}\n' : ''}${orderData.billingDetails?.platformFee != null && orderData.billingDetails!.platformFee! > 0 ? 'Platform Fee: ₹${_formatPrice(orderData.billingDetails?.platformFee)}\n' : ''}${orderData.billingDetails?.loyaltyPoints != null && orderData.billingDetails!.loyaltyPoints! > 0 ? 'Loyalty Points: -₹${_formatPrice(orderData.billingDetails?.loyaltyPoints)}\n' : ''}
+  // 💳 *Total Payable:* ₹${_formatPrice(orderData.billingDetails?.totalPayable)}
+  //
+  // ━━━━━━━━━━━━━━━━━━━━
+  //
+  // ${orderData.specialInstructions?.isNotEmpty ?? false ? '📝 *Special Instructions:*\n${orderData.specialInstructions}\n\n━━━━━━━━━━━━━━━━━━━━\n\n' : ''}${orderData.importantNotes?.isNotEmpty ?? false ? '⚠️ *Important Notes:*\n${orderData.importantNotes}\n\n━━━━━━━━━━━━━━━━━━━━\n\n' : ''}
+  // Thank you for choosing BeautyGlad! 💖✨
+  //
+  // Need help? Contact us:
+  // 📞 $supportPhone
+  // 🌐 www.beautyglad.com
+  //
+  // _Your satisfaction is our priority!_ 🌟
+  // ''';
+  //
+  //     var encodedMessage = Uri.encodeComponent(message);
+  //     var androidUrl = "whatsapp://send?text=$encodedMessage";
+  //     var iosUrl = "https://wa.me/?text=$encodedMessage";
+  //
+  //     try {
+  //       Uri whatsappUri;
+  //       if (Platform.isIOS) {
+  //         whatsappUri = Uri.parse(iosUrl);
+  //       } else {
+  //         whatsappUri = Uri.parse(androidUrl);
+  //       }
+  //
+  //       bool launched = await launchUrl(
+  //         whatsappUri,
+  //         mode: LaunchMode.externalApplication,
+  //       );
+  //
+  //       if (!launched) {
+  //         throw Exception('Could not launch WhatsApp');
+  //       }
+  //     } catch (e) {
+  //       if (context.mounted) {
+  //         ScaffoldMessenger.of(context).showSnackBar(
+  //           SnackBar(
+  //             content: Row(
+  //               children: [
+  //                 Icon(Icons.error_outline, color: Colors.white),
+  //                 SizedBox(width: 12),
+  //                 Expanded(
+  //                   child: Text(
+  //                     'WhatsApp is not installed on your device',
+  //                     style: TextStyle(fontSize: 14),
+  //                   ),
+  //                 ),
+  //               ],
+  //             ),
+  //             backgroundColor: Colors.red.shade600,
+  //             behavior: SnackBarBehavior.floating,
+  //             shape: RoundedRectangleBorder(
+  //               borderRadius: BorderRadius.circular(12),
+  //             ),
+  //             duration: Duration(seconds: 3),
+  //             action: SnackBarAction(
+  //               label: 'OK',
+  //               textColor: Colors.white,
+  //               onPressed: () {},
+  //             ),
+  //           ),
+  //         );
+  //       }
+  //     }
+  //   }
 
   static String _formatPrice(dynamic price) {
     if (price == null) return '0.00';
@@ -475,11 +492,10 @@ class Get {
   //   }).join('\n');
   // }
 
-
   static void showToast(
-      String msg, {
-        required ToastType type, // = ToastType.notice,
-      }) {
+    String msg, {
+    required ToastType type, // = ToastType.notice,
+  }) {
     final context = navigatorKey.currentContext!;
 
     // Map enum to title and ContentType
@@ -518,9 +534,7 @@ class Get {
         child: Row(
           children: [
             Icon(
-              type == ToastType.success
-                  ? Icons.check_circle
-                  : Icons.error,
+              type == ToastType.success ? Icons.check_circle : Icons.error,
               color: Colors.white,
             ),
             SizedBox(width: 12),
@@ -529,8 +543,17 @@ class Get {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(title, style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
-                  Text(msg.replaceAll("Exception: ", ''), style: TextStyle(color: Colors.white70)),
+                  Text(
+                    title,
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                  Text(
+                    msg.replaceAll("Exception: ", ''),
+                    style: TextStyle(color: Colors.white70),
+                  ),
                 ],
               ),
             ),
@@ -538,7 +561,6 @@ class Get {
         ),
       ),
     );
-
 
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
@@ -572,7 +594,6 @@ class Get {
   //       return ContentType.help;
   //   }
   // }
-
 }
 
 enum ToastType { success, error, warning, notice }

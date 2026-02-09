@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:ozi/app/core/utils/get_utils.dart';
 import '../../../../../data/repository/repository.dart';
 import '../model/add_new_address_model.dart';
 
@@ -63,10 +64,7 @@ class AddAddressProvider extends ChangeNotifier {
 
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(validationError),
-            backgroundColor: Colors.red,
-          ),
+          SnackBar(content: Text(validationError), backgroundColor: Colors.red),
         );
       }
       return false;
@@ -103,7 +101,9 @@ class AddAddressProvider extends ChangeNotifier {
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(addressModel.message ?? 'Address added successfully'),
+              content: Text(
+                addressModel.message ?? 'Address added successfully',
+              ),
               backgroundColor: Colors.green,
             ),
           );
@@ -120,7 +120,10 @@ class AddAddressProvider extends ChangeNotifier {
       _isLoading = false;
       _errorMessage = e.toString().replaceAll('Exception: ', '');
       notifyListeners();
-
+      Get.showToast(
+        e.toString() ?? 'Something went wrong',
+        type: ToastType.error,
+      );
       print('Error adding address: $_errorMessage');
 
       if (context.mounted) {

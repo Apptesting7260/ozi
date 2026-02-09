@@ -48,25 +48,26 @@ class VendorGetAllServicesModelData {
   Category? subcategory;
   bool isActive = true;
 
-  VendorGetAllServicesModelData(
-      {this.id,
-        this.vendorId,
-        this.serviceName,
-        this.serviceImage,
-        this.categoryId,
-        this.subcategoryId,
-        this.description,
-        this.latitude,
-        this.longitude,
-        this.servicePrice,
-        this.durationValue,
-        this.durationType,
-        this.status,
-        this.createdAt,
-        this.updatedAt,
-        this.deletedAt,
-        this.category,
-        this.subcategory});
+  VendorGetAllServicesModelData({
+    this.id,
+    this.vendorId,
+    this.serviceName,
+    this.serviceImage,
+    this.categoryId,
+    this.subcategoryId,
+    this.description,
+    this.latitude,
+    this.longitude,
+    this.servicePrice,
+    this.durationValue,
+    this.durationType,
+    this.status,
+    this.createdAt,
+    this.updatedAt,
+    this.deletedAt,
+    this.category,
+    this.subcategory,
+  });
 
   VendorGetAllServicesModelData.fromJson(Map<String, dynamic> json) {
     id = json['id']?.toString();

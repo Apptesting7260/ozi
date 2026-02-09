@@ -4,7 +4,6 @@ import '../../../../../data/repository/repository.dart';
 import '../../view/profile_provider/profile_provider.dart';
 
 class EditProfileProvider extends ChangeNotifier {
-
   bool _isUpdating = false;
   bool get isUpdating => _isUpdating;
 
@@ -23,6 +22,7 @@ class EditProfileProvider extends ChangeNotifier {
       notifyListeners();
     }
   }
+
   Future pickCamera() async {
     final img = await picker.pickImage(source: ImageSource.camera);
     if (img != null) {
@@ -30,6 +30,7 @@ class EditProfileProvider extends ChangeNotifier {
       notifyListeners();
     }
   }
+
   File? get selectedFile =>
       pickedImage != null ? File(pickedImage!.path) : null;
   void populateProfileData(dynamic userData) {
@@ -44,6 +45,7 @@ class EditProfileProvider extends ChangeNotifier {
       notifyListeners();
     }
   }
+
   // -------------------- UPDATE PROFILE --------------------
   Future<void> updateProfile(BuildContext context) async {
     try {
@@ -67,33 +69,36 @@ class EditProfileProvider extends ChangeNotifier {
 
       // VALIDATE RESPONSE PROPERLY
       if (response.status == true) {
-
         // Refresh profile data
-        final profileProvider =
-        Provider.of<ProfileProvider>(context, listen: false);
+        final profileProvider = Provider.of<ProfileProvider>(
+          context,
+          listen: false,
+        );
         await profileProvider.fetchUserProfile();
 
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(response.message ?? "Profile Updated")),
         );
 
-        Navigator.pop(context);   // <-- Navigate back to profile screen
-
+        Navigator.pop(context); // <-- Navigate back to profile screen
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Profile Update Failed")),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text("Profile Update Failed")));
       }
-
     } catch (e) {
       _isUpdating = false;
       notifyListeners();
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Error: $e")),
+      Get.showToast(
+        e.toString() ?? 'Something went wrong',
+        type: ToastType.error,
       );
+      // ScaffoldMessenger.of(context).showSnackBar(
+      //   SnackBar(content: Text("Error: $e")),
+      // );
     }
   }
+
   @override
   void dispose() {
     firstNameController.dispose();
