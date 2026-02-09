@@ -6,6 +6,10 @@ import 'package:ozi/app/data/repository/repository.dart';
 import 'package:ozi/app/modules/user/cart/schedule_service/Model/bookservicemodel.dart';
 import 'package:ozi/app/modules/user/cart/view/my_cart_screen.dart';
 import 'package:ozi/app/modules/user/navigation%20tab/provider/navigation_provider.dart';
+import '../../../../data/models/chat_models/check_conversion_model.dart';
+import '../../../../data/network/web_socket_connection_service.dart';
+import '../../../../data/storage/user_preference.dart';
+import '../../../../routes/app_routes.dart';
 import '../model/bookingmodel.dart';
 import '../model/bookingdetailsmodel.dart' as details;
 import 'dart:developer' as dev;
@@ -516,5 +520,56 @@ class BookingProvider extends ChangeNotifier {
       _bookAgainBookingId = null;
       notifyListeners();
     }
+  }
+
+
+
+  bool _sendLoading = false;
+  bool get sendLoading => _sendLoading;
+  updateSendLoading(bool value) {
+    _sendLoading = value;
+    notifyListeners();
+  }
+
+  Future<String?> getUserId() async {
+    String myUserId = await UserPreference.returnUserId() ?? '';
+    return myUserId;
+  }
+
+  Future<void> sendMessage(String receiverId) async {
+    if (sendLoading) return;
+    updateSendLoading(true);
+    SocketController socket = navigatorKey.currentContext!.read();
+    String? userId = await getUserId();
+    socket.sendMessage(AppUrls.checkConversationEvent, {
+      "senderId": userId ?? '',
+      "receiverId": receiverId,
+    });
+
+    socket.listenToEvent(AppUrls.checkConversationEvent, (p0) {
+      socket.off(AppUrls.checkConversationEvent);
+      if (p0 is String) {
+        final data = jsonDecode(p0);
+        // use data['key']
+        if (kDebugMode) {
+          print("data string is $data");
+        }
+      } else if (p0 is Map) {
+        final data = p0 as Map<String, dynamic>;
+        CheckConverstionModel conversion = CheckConverstionModel.fromJson(data);
+        if (conversion.status == true && conversion.data?.sId != null) {
+          Navigator.pushNamed(
+            navigatorKey.currentContext!,
+            AppRoutes.messageDetailsScreen,
+            arguments: {"conversion_id": conversion.data?.sId},
+          );
+        }
+
+        if (kDebugMode) {
+          print("data Map is $data");
+        }
+      }
+      updateSendLoading(false);
+    });
   }
 }

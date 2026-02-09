@@ -7,11 +7,13 @@ import 'package:webview_flutter/webview_flutter.dart';
 import 'package:webview_flutter_android/webview_flutter_android.dart';
 import 'package:webview_flutter_wkwebview/webview_flutter_wkwebview.dart';
 import 'app/core/appExports/app_export.dart';
+import 'app/data/network/web_socket_connection_service.dart';
 import 'app/modules/user/home/provider/HomeScreenProvider.dart';
 import 'app/modules/user/navigation tab/provider/navigation_provider.dart';
 import 'app/modules/user/profile/save address/provider/saved_address_provider.dart';
 import 'app/modules/user/profile/view/profile_provider/profile_provider.dart';
 import 'app/routes/app_routes.dart';
+import 'app/view/message/provider/message_provider.dart';
 import 'app/view/splash/provider/splash_provider.dart';
 import 'app/modules/user/cart/view/cupponprovider.dart';
 import 'app/modules/user/cart/view/provider/cart_provider.dart';
@@ -53,6 +55,8 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => AddAddressProvider()),
         ChangeNotifierProvider(create: (_) => EditUserAddressProvider()),
         ChangeNotifierProvider(create: (_) => CupponProvider()),
+        ChangeNotifierProvider(create: (_) => MessageProvider()),
+        ChangeNotifierProvider(create: (_) => SocketController()),
         ChangeNotifierProvider(
           create: (_) => CartProvider(repository: Repository()),
         ),
