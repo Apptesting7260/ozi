@@ -62,6 +62,8 @@ class ImageConstants {
   static String calendor = '$svgPath/calendor.svg';
   static String clock = '$svgPath/clock.svg';
   static String share = '$svgPath/share.svg';
+  static String backArrow = '$svgPath/back_arrow.svg';
+  static String sendIcon = '$svgPath/send_icon.svg';
 
   // ******************************************* Help Screen *****************************************************************//
 
