@@ -1,6 +1,9 @@
-import 'package:ozi/app/modules/vendor/wallet/withdraw/view/withdraw_screen.dart';
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../../../core/appExports/app_export.dart';
+import '../model/wallet_detail_model.dart';
 import '../provider/wallet_provider.dart';
+import '../withdraw/view/withdraw_screen.dart';
 import '../transaction_history/view/transaction_history_screen.dart';
 
 class VendorMyWalletScreen extends StatelessWidget {
@@ -9,7 +12,7 @@ class VendorMyWalletScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (_) => WalletProvider(),
+      create: (_) => WalletProvider()..fetchWalletDetail(),
       child: const _MyWalletContent(),
     );
   }
@@ -24,149 +27,192 @@ class _MyWalletContent extends StatelessWidget {
 
     return Scaffold(
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
+        child: provider.isLoading
+            ? const Center(child: CircularProgressIndicator())
+            : provider.hasError
+            ? Center(
+          child: Text(
+            "Something went wrong \n ${provider.error}",
+            style:
+            AppFontStyle.text_14_500(AppColors.darkText),
+          ),
+        )
+            : _buildContent(context, provider),
+      ),
+    );
+  }
 
-             Text("My Wallet" , style: AppFontStyle.text_24_600(AppColors.darkText, fontFamily: AppFontFamily.semiBold)),
+  Widget _buildContent(BuildContext context, WalletProvider provider) {
+    return RefreshIndicator(
+      onRefresh: () => provider.fetchWalletDetail(refresh: true),
+      child: SingleChildScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
 
-              hBox(20),
+            Text("My Wallet",
+                style: AppFontStyle.text_24_600(
+                    AppColors.darkText,
+                    fontFamily: AppFontFamily.semiBold)),
 
-              /// ================= BALANCE =================
-              Container(
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: AppColors.primary,
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Column(
-                          children: [
-                            Text(
-                              "Available Balance",
-                              style: AppFontStyle.text_14_400(AppColors.white),
-                            ),
-                            Text(
-                              "\$${provider.availableBalance.toStringAsFixed(2)}",
-                              style: AppFontStyle.text_26_600(
-                                AppColors.white,
-                                fontFamily: AppFontFamily.bold,
-                              ),
-                            ),
+            hBox(20),
 
-                          ],
-                        ),
-                        Spacer(),
-                        CustomImage(path: ImageConstants.wallet, color: AppColors.white, height: 25, width: 25,)
-                      ],
-                    ),
-
-                    hBox(16),
-
-                    CustomButton(
-                      height: 44,
-                      borderRadius: BorderRadius.circular(30),
-                      color: AppColors.white,
-                      onPressed: (){Navigator.push(context,
-                          MaterialPageRoute(builder: (_) => WithdrawScreen()));
-                      },
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
+            // ================= BALANCE =================
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: AppColors.primary,
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          CustomImage(
-                            path: ImageConstants.withdraw,
-                            height: 18,
-                            width: 18,
-                            color: AppColors.primary,
-                          ),
-
-                          const SizedBox(width: 8),
+                          Text("Available Balance",
+                              style: AppFontStyle.text_14_400(
+                                  AppColors.white)),
                           Text(
-                            "Withdraw",
-                            style: AppFontStyle.text_14_500(AppColors.primary),
+                            "\$${provider.availableBalance.toStringAsFixed(2)}",
+                            style: AppFontStyle.text_26_600(
+                                AppColors.white,
+                                fontFamily: AppFontFamily.bold),
                           ),
                         ],
                       ),
-                    ),
-
-                  ],
-                ),
-              ),
-
-              hBox(20),
-
-              /// ================= STATS =================
-              Row(
-                children: [
-                  Expanded(
-                    child: _statTile(
-                      title:
-                      "\$${provider.todayEarning.toStringAsFixed(2)}",
-                      subtitle: "Today's Earning",
-                    ),
+                      const Spacer(),
+                      CustomImage(
+                        path: ImageConstants.wallet,
+                        color: AppColors.white,
+                        height: 25,
+                        width: 25,
+                      )
+                    ],
                   ),
-                  wBox(12),
-                  Expanded(
-                    child: _statTile(
-                      title: "\$${provider.weeklyEarning}",
-                      subtitle: "This Week",
-                    ),
-                  ),
-                ],
-              ),
 
-              hBox(24),
+                  hBox(16),
 
-              /// ================= HEADER =================
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    "Recent Transactions",
-                    style: AppFontStyle.text_16_600(
-                      AppColors.darkText,
-                      fontFamily: AppFontFamily.semiBold,
-                    ),
-                  ),
-                  TextButton(
+                  CustomButton(
+                    height: 44,
+                    borderRadius: BorderRadius.circular(30),
+                    color: AppColors.white,
                     onPressed: () {
-                      Navigator.push(context, MaterialPageRoute(builder: (_) => TransactionHistoryScreen()));
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (_) => WithdrawScreen(availableBalance: provider.availableBalance.toString(),)),
+                      );
                     },
                     child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text(
-                          "View All",
-                          style:
-                          AppFontStyle.text_14_500(AppColors.primary),
+                        CustomImage(
+                          path: ImageConstants.withdraw,
+                          height: 18,
+                          width: 18,
+                          color: AppColors.primary,
                         ),
-                        wBox(5),
-                        CustomImage(path: ImageConstants.rightBack, color: AppColors.primary,)
+                        const SizedBox(width: 8),
+                        Text(
+                          "Withdraw",
+                          style: AppFontStyle.text_14_500(
+                              AppColors.primary),
+                        ),
                       ],
                     ),
                   ),
                 ],
               ),
+            ),
 
-              hBox(12),
+            hBox(20),
 
-              /// ================= LIST =================
-              ...provider.transactions.map(
-                    (tx) => _transactionTile(tx),
-              ),
-            ],
-          ),
+            // ================= STATS =================
+            Row(
+              children: [
+                Expanded(
+                  child: _statTile(
+                    title:
+                    "\$${provider.todayEarning.toStringAsFixed(2)}",
+                    subtitle: "Today's Earning",
+                  ),
+                ),
+                wBox(12),
+                Expanded(
+                  child: _statTile(
+                    title:
+                    "\$${provider.weeklyEarning.toStringAsFixed(2)}",
+                    subtitle: "This Week",
+                  ),
+                ),
+              ],
+            ),
+
+            hBox(24),
+
+            // ================= HEADER =================
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text("Recent Transactions",
+                    style: AppFontStyle.text_16_600(
+                        AppColors.darkText,
+                        fontFamily: AppFontFamily.semiBold)),
+                TextButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (_) =>
+                              TransactionHistoryScreen()),
+                    );
+                  },
+                  child: Row(
+                    children: [
+                      Text("View All",
+                          style: AppFontStyle.text_14_500(
+                              AppColors.primary)),
+                      wBox(5),
+                      CustomImage(
+                        path: ImageConstants.rightBack,
+                        color: AppColors.primary,
+                      )
+                    ],
+                  ),
+                ),
+              ],
+            ),
+
+            hBox(12),
+
+            // ================= TRANSACTIONS =================
+            if (provider.transactions.isEmpty)
+              Padding(
+                padding: const EdgeInsets.only(top: 20),
+                child: Center(
+                  child: Text(
+                    "No Transactions Found",
+                    style: AppFontStyle.text_14_400(
+                        AppColors.grey),
+                  ),
+                ),
+              )
+            else
+              ...provider.transactions
+                  .map((tx) => _transactionTile(tx))
+                  .toList(),
+          ],
         ),
       ),
     );
   }
 
-  /// ================= STAT TILE =================
+  // ================= STAT TILE =================
   Widget _statTile({
     required String title,
     required String subtitle,
@@ -179,25 +225,23 @@ class _MyWalletContent extends StatelessWidget {
       ),
       child: Column(
         children: [
-          Text(
-            title,
-            style: AppFontStyle.text_18_600(
-              AppColors.darkText,
-              fontFamily: AppFontFamily.bold,
-            ),
-          ),
+          Text(title,
+              style: AppFontStyle.text_18_600(
+                  AppColors.darkText,
+                  fontFamily: AppFontFamily.bold)),
           hBox(4),
-          Text(
-            subtitle,
-            style: AppFontStyle.text_12_400(AppColors.grey),
-          ),
+          Text(subtitle,
+              style:
+              AppFontStyle.text_12_400(AppColors.grey)),
         ],
       ),
     );
   }
 
-  /// ================= TRANSACTION TILE =================
-  Widget _transactionTile(WalletTransaction tx) {
+  // ================= TRANSACTION TILE =================
+  Widget _transactionTile(RecentTransactions tx) {
+    final bool isCredit = tx.type == "credit";
+
     return Container(
       padding: const EdgeInsets.all(14),
       margin: const EdgeInsets.only(bottom: 12),
@@ -218,54 +262,54 @@ class _MyWalletContent extends StatelessWidget {
             height: 40,
             width: 40,
             decoration: BoxDecoration(
-              color: tx.isCredit
+              color: isCredit
                   ? AppColors.primary.withValues(alpha: 0.20)
                   : Colors.red.withValues(alpha: 0.20),
               shape: BoxShape.circle,
             ),
             child: Center(
               child: CustomImage(
-                path: tx.isCredit
+                path: isCredit
                     ? ImageConstants.downwardArrow
                     : ImageConstants.upwardArrow,
                 height: 10,
                 width: 10,
-                color: tx.isCredit ? AppColors.primary : Colors.red,
+                color: isCredit
+                    ? AppColors.primary
+                    : Colors.red,
               ),
             ),
-
           ),
-
           wBox(12),
-
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(tx.title,
-                    style:
-                    AppFontStyle.text_14_600(AppColors.darkText)),
+                Text(tx.description ?? "",
+                    style: AppFontStyle.text_14_600(
+                        AppColors.darkText)),
                 hBox(2),
-                Text(tx.user,
-                    style:
-                    AppFontStyle.text_12_400(AppColors.grey)),
+                Text(tx.source ?? "",
+                    style: AppFontStyle.text_12_400(
+                        AppColors.grey)),
               ],
             ),
           ),
-
           Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Text(
-                "${tx.isCredit ? '+' : '-'}\$${tx.amount}",
+                "${isCredit ? '+' : '-'}\$${tx.amount ?? "0"}",
                 style: AppFontStyle.text_14_600(
-                  tx.isCredit ? AppColors.primary : Colors.red,
+                  isCredit
+                      ? AppColors.primary
+                      : Colors.red,
                 ),
               ),
               hBox(2),
-              Text(tx.time,
-                  style:
-                  AppFontStyle.text_11_400(AppColors.grey)),
+              Text(tx.createdAt ?? "",
+                  style: AppFontStyle.text_11_400(
+                      AppColors.grey)),
             ],
           ),
         ],

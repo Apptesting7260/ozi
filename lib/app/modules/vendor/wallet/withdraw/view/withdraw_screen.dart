@@ -4,21 +4,22 @@ import '../../../../../shared/widgets/custom_text_form_field.dart';
 import '../provider/withdraw_provider.dart';
 
 class WithdrawScreen extends StatelessWidget {
-  const WithdrawScreen({super.key});
+  String availableBalance;
+   WithdrawScreen({super.key , required this.availableBalance});
 
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
       create: (_) => WithdrawProvider(),
-      child: const _WithdrawContent(),
+      child:  _WithdrawContent(availableBalance: availableBalance,),
     );
   }
 }
 
 class _WithdrawContent extends StatelessWidget {
-  const _WithdrawContent();
+  String availableBalance;
+   _WithdrawContent({required this.availableBalance});
 
-  @override
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<WithdrawProvider>();
@@ -35,7 +36,6 @@ class _WithdrawContent extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   hBox(4),
-
                   Container(
                     width: double.infinity,
                     padding: const EdgeInsets.all(16),
@@ -52,7 +52,7 @@ class _WithdrawContent extends StatelessWidget {
                         ),
                         hBox(4),
                         Text(
-                          "\$${provider.balance.toStringAsFixed(2)}",
+                          "\$$availableBalance",
                           style:
                           AppFontStyle.text_22_600(AppColors.primary),
                         ),

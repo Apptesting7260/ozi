@@ -9,9 +9,9 @@ class CommonDrawerProvider with ChangeNotifier {
     notifyListeners();
   }
 }
-class CommonScreenArgs {
-  final String type;
-  final String url;
-  CommonScreenArgs({required this.type, required this.url});
-}
+// class CommonScreenArgs {
+//   final String type;
+//   final String url;
+//   CommonScreenArgs({required this.type, required this.url});
+// }
 

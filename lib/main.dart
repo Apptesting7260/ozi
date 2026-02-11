@@ -10,6 +10,7 @@ import 'app/core/appExports/app_export.dart';
 import 'app/data/network/web_socket_connection_service.dart';
 import 'app/modules/user/home/provider/HomeScreenProvider.dart';
 import 'app/modules/user/navigation tab/provider/navigation_provider.dart';
+import 'app/modules/user/profile/login details/provider/login_details_provider.dart';
 import 'app/modules/user/profile/save address/provider/saved_address_provider.dart';
 import 'app/modules/user/profile/view/profile_provider/profile_provider.dart';
 import 'app/routes/app_routes.dart';
@@ -60,6 +61,8 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(
           create: (_) => CartProvider(repository: Repository()),
         ),
+        ChangeNotifierProvider(create: (_) => LoginDetailsProvider(),),
+
       ],
       child: ScreenUtilInit(
         designSize: const Size(375, 812),
