@@ -51,22 +51,22 @@ class _VendorHomeScreenState extends State<VendorHomeScreen> {
                     children: [
                       SafeArea(child: SizedBox(height: 10)),
 
-                      /// ---------------- HEADER ----------------
+                      // ---------------- HEADER ----------------
                       _header(context),
 
                       hBox(20),
 
-                      /// ---------------- ONLINE STATUS ----------------
+                      // ---------------- ONLINE STATUS ----------------
                       _onlineStatus(),
 
                       hBox(20),
 
-                      /// ---------------- STATS ----------------
+                      // ---------------- STATS ----------------
                       _statsGrid(),
 
                       hBox(24),
 
-                      /// ---------------- NEW REQUESTS ----------------
+                      // ---------------- NEW REQUESTS ----------------
                       _sectionHeader(context: context, title: "New Requests"),
 
                       hBox(12),

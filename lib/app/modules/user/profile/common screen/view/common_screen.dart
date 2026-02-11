@@ -49,7 +49,7 @@ class _CommonScreenState extends State<CommonScreen> {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider.value(
-      value: _provider, // ✅ pass the instance
+      value: _provider,
       child: Consumer<CommonDrawerProvider>(
         builder: (context, provider, _) {
           return Scaffold(

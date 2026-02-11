@@ -50,12 +50,34 @@ class RequestCard extends StatelessWidget {
                 ),
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(36),
-                  child: CustomImage(
-                    path: "${AppUrls.imageBaseUrl}${request.customerImage??''}",
+                  child: Image.network(
+                    "${AppUrls.imageBaseUrl}${request.customerImage ?? ''}",
                     height: 36,
                     width: 36,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) {
+                      return Container(
+                        height: 36,
+                        width: 36,
+                        decoration: BoxDecoration(
+                          color: AppColors.lightGrey,
+                          shape: BoxShape.circle,
+                        ),
+                        child: Center(
+                          child: Text(
+                            request.customerName != null &&
+                                request.customerName!.isNotEmpty
+                                ? request.customerName![0].toUpperCase()
+                                : "?",
+                            style: AppFontStyle.text_14_600(AppColors.darkText),
+                          ),
+                        ),
+                      );
+                    },
                   ),
                 ),
+
+
               ),
 
               wBox(10),

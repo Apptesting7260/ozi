@@ -80,6 +80,10 @@ class ImageConstants {
   static String home2 = "$svgPath/home2.svg";
   static String appLogo = "$imagePath/appLogo.png";
   static String logout = '$svgPath/logout.svg';
+  static String lock = '$svgPath/lock.svg';
+  static String mobile = '$svgPath/mobile.svg';
+
+
 
   //******************************************* vendor screens  *******************************************************************************//
 

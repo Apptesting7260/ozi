@@ -12,6 +12,7 @@ import 'package:ozi/app/modules/user/home/service%20details/model/vendordetaiulm
 import 'package:ozi/app/modules/user/profile/setting/model/settingsmodel.dart';
 import 'package:ozi/app/modules/user/profile/view/model/logout_model.dart';
 import 'package:ozi/app/modules/vendor/profile/help/model/helpsupportmodel.dart';
+import 'package:ozi/app/modules/vendor/wallet/model/wallet_detail_model.dart';
 import 'package:ozi/app/view/user_role/choose_your_role/model/choose_role_model.dart';
 import '../../core/appExports/app_export.dart';
 import '../../core/constants/app_urls.dart';
@@ -21,6 +22,8 @@ import '../../modules/user/cart/view/model/increase_cart_quantity_model.dart';
 import '../../modules/user/home/service details/model/add_to_cart.dart';
 import '../../modules/user/profile/edit address/model/edit_address_model.dart';
 import '../../modules/user/profile/edit profile/model/update_profile_model.dart';
+import '../../modules/user/profile/login details/model/login_detail_model.dart';
+import '../../modules/user/profile/login details/model/logout_user_model.dart';
 import '../../modules/user/profile/save address/model/delete_address_model.dart';
 import '../../view/auth/login/model/login_model.dart';
 import '../../view/auth/verification_screen/model/verify_otp.dart';
@@ -583,6 +586,7 @@ class Repository {
   }
 
   // ********************************** ApplyorRemoveCuppon Api ********************************** //
+
   Future<dynamic> applyorRemoveCupponApi(String promoId) async {
     try {
       dev.log("applyorRemoveCupponApi URL: ${AppUrls.applyCoupoon}");
@@ -651,6 +655,60 @@ class Repository {
     } catch (e) {
       print('updateEmailNotificationApi Error: $e');
       rethrow;
+    }
+  }
+
+  // ********************************** Current User Login Details ********************************** //
+
+  Future<CurrentUserLoginModel> fetchCurrentUserLoginDetails() async {
+    try {
+      dev.log(
+        "fetchCurrentUserLoginDetails URL: ${AppUrls.getCurrentUserLoginDetails}",
+      );
+
+      final response = await _apiService.getApi(
+        AppUrls.getCurrentUserLoginDetails,
+      );
+
+      return CurrentUserLoginModel.fromJson(response);
+    } catch (e) {
+      dev.log("Error in fetchCurrentUserLoginDetails: $e");
+      throw Exception(e);
+    }
+  }
+
+
+  // ********************************** Current User logoutUserFromOtherDevice ********************************** //
+
+  Future<LogoutUsersModel> logoutUserFromOtherDevice(
+      String tokenId
+      ) async {
+    try {
+      dynamic response = await _apiService.postApi({
+        "token_id": tokenId,
+      }, AppUrls.logoutUserFromOtherDevice);
+      return LogoutUsersModel.fromJson(response);
+    } catch (e) {
+      throw Exception(e);
+    }
+  }
+
+  // ********************************** Current User WalletDetail ********************************** //
+
+  Future<WalletDetailModel> fetchWalletDetail() async {
+    try {
+      dev.log(
+        "fetchWalletDetail URL: ${AppUrls.getCurrentUserLoginDetails}",
+      );
+
+      final response = await _apiService.getApi(
+        AppUrls.getWalletDetail,
+      );
+
+      return WalletDetailModel.fromJson(response);
+    } catch (e) {
+      dev.log("Error in fetchWalletDetail: $e");
+      throw Exception(e);
     }
   }
 }

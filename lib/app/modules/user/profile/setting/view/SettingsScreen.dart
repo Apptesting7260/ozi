@@ -2,9 +2,12 @@ import 'package:ozi/app/modules/user/profile/setting/provider/settingprovider.da
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../../core/appExports/app_export.dart';
+import '../../../../../routes/app_routes.dart';
 import '../../../../../shared/widgets/custom_app_bar.dart';
 import '../../../../../shared/widgets/custom_toggle_switch.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../../../../vendor/profile/common screen/provider/comman_screen_provider.dart';
+import '../../common screen/provider/comman_screen_provider.dart';
 import '../../common screen/view/common_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -16,10 +19,10 @@ class SettingsScreen extends StatefulWidget {
 
 class _SettingsScreenState extends State<SettingsScreen> {
   bool notificationOn = true;
-  String termsUrl =
-      "https://www.iubenda.com/en/help/2859-terms-and-conditions-when-are-they-needed";
-  String privacyUrl =
-      "https://www.iubenda.com/en/help/2859-terms-and-conditions-when-are-they-needed";
+  // String termsUrl =
+  //     "https://www.iubenda.com/en/help/2859-terms-and-conditions-when-are-they-needed";
+  // String privacyUrl =
+  //     "https://www.iubenda.com/en/help/2859-terms-and-conditions-when-are-they-needed";
 
   Settingprovider provider = Settingprovider();
   @override
@@ -60,22 +63,29 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       ),
 
                       _settingsTile(
+                        icon: ImageConstants.lock,
+                        title: "Login Details",
+                        showArrow: true,
+                        onTap: () {
+                            Navigator.pushNamed(context, AppRoutes.loginDetails);
+                        },
+                      ),
+
+                      _settingsTile(
                         icon: ImageConstants.document,
                         title: "Terms & Conditions",
                         showArrow: true,
-                        onTap: () async {
-                          final url =
-                              provider.settingsData?.data?.termsUrl ?? "";
-                          print("Launching URL: $url");
-                          if (url.isNotEmpty) {
-                            final uri = Uri.parse(url);
-                            if (!await launchUrl(
-                              uri,
-                              mode: LaunchMode.externalApplication,
-                            )) {
-                              print("Could not launch $url");
-                            }
-                          }
+                        onTap: () {
+                          final url = provider.settingsData?.data?.termsUrl ?? "";
+
+                          Navigator.pushNamed(
+                            context,
+                            AppRoutes.commonScreen,
+                            arguments: CommonScreenArgs(
+                              type: "Terms & Conditions ",
+                              url: url,
+                            ),
+                          );
                         },
                       ),
 
@@ -84,18 +94,28 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         title: "Privacy Policy",
                         showArrow: true,
                         onTap: () async {
-                          final url =
-                              provider.settingsData?.data?.privacyUrl ?? "";
-                          print("Launching URL: $url");
-                          if (url.isNotEmpty) {
-                            final uri = Uri.parse(url);
-                            if (!await launchUrl(
-                              uri,
-                              mode: LaunchMode.externalApplication,
-                            )) {
-                              print("Could not launch $url");
-                            }
-                          }
+                          // final url =
+                          //     provider.settingsData?.data?.privacyUrl ?? "";
+                          // print("Launching URL: $url");
+                          // if (url.isNotEmpty) {
+                          //   final uri = Uri.parse(url);
+                          //   if (!await launchUrl(
+                          //     uri,
+                          //     mode: LaunchMode.externalApplication,
+                          //   )) {
+                          //     print("Could not launch $url");
+                          //   }
+                          // }
+                            final url = provider.settingsData?.data?.privacyUrl ?? "";
+
+                            Navigator.pushNamed(
+                              context,
+                              AppRoutes.commonScreen,
+                              arguments: CommonScreenArgs(
+                                type: "Privacy Policy",
+                                url: url,
+                              ),
+                            );
                         },
                       ),
 

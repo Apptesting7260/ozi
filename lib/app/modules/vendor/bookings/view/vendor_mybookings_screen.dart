@@ -177,8 +177,25 @@ class _BookingCard extends StatelessWidget {
                   ),
                   child:  CircleAvatar(
                     radius: 18,
-                    backgroundImage: NetworkImage('${AppUrls.imageBaseUrl}${booking.user?.proImg??''}'),
+                    backgroundColor: AppColors.lightGrey,
+                    backgroundImage: booking.user?.proImg != null &&
+                        booking.user!.proImg!.isNotEmpty
+                        ? NetworkImage(
+                      '${AppUrls.imageBaseUrl}${booking.user!.proImg!}',
+                    )
+                        : null,
+                    child: booking.user?.proImg == null ||
+                        booking.user!.proImg!.isEmpty
+                        ? Text(
+                      booking.user?.firstName != null &&
+                          booking.user!.firstName!.isNotEmpty
+                          ? booking.user!.firstName![0].toUpperCase()
+                          : "?",
+                      style: AppFontStyle.text_14_600(AppColors.darkText),
+                    )
+                        : null,
                   ),
+
                 ),
                  SizedBox(width: 10),
                 Expanded(
