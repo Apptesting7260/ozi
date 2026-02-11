@@ -834,6 +834,19 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
                     child: Icon(Icons.phone, color: AppColors.white, size: 20),
                   ),
                 ),
+              GestureDetector(
+                onTap: () {
+                  provider.sendMessage(vendor.id?.toString()??'');
+                },
+                child: Container(
+                  padding: EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: AppColors.primary,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(Icons.message, color: AppColors.white, size: 20),
+                ),
+              ),
             ],
           ),
         ),

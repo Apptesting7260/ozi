@@ -1,5 +1,6 @@
 
 import '../../../core/appExports/app_export.dart';
+import '../../../core/constants/app_urls.dart';
 import '../../../data/models/chat_models/conversion_list_model.dart';
 import '../../../data/response/api_status.dart';
 import '../../../routes/app_routes.dart';
@@ -40,7 +41,7 @@ class _MessageScreenState extends State<MessageScreen> {
           case ApiStatus.loading:
             return Scaffold(
               appBar: _messageAppBar(context),
-              body: CircularProgressIndicator(),
+              body: Center(child: CircularProgressIndicator()),
             );
           case ApiStatus.completed:
             return Scaffold(
@@ -55,7 +56,7 @@ class _MessageScreenState extends State<MessageScreen> {
                     physics: AlwaysScrollableScrollPhysics(),
                     child: SizedBox(
                         height: Get.height()*0.7,
-                        child: Text('No Data Found')),
+                        child: Center(child: Text('No Data Found'))),
                   )):
               RefreshIndicator(
                 onRefresh: () async{
@@ -110,7 +111,7 @@ class _MessageScreenState extends State<MessageScreen> {
                                   Stack(
                                     children: [
                                       CircularProfileImage(
-                                        imageUrl: isGroup? message?.groupImage??'':message?.receiver?.profile??'',
+                                        imageUrl: isGroup? ('${AppUrls.imageBaseUrl}${message?.groupImage??''}'):('${AppUrls.imageBaseUrl}${message?.receiver?.profile??''}'),
                                         borderColor: Colors.transparent,
                                         size: 60,
                                       ),
@@ -187,36 +188,36 @@ class _MessageScreenState extends State<MessageScreen> {
                   ],
                 ),
               ),
-              floatingActionButton: Theme(
-                data: Theme.of(context).copyWith(
-                  floatingActionButtonTheme: FloatingActionButtonThemeData(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(100),
-                    ),
-                  ),
-                ),
-                child: FloatingActionButton.extended(
-                  onPressed: () async {
-                    // List<GetAllUserSearchedDataData>? usersList = await Navigator.push(
-                    //   context,
-                    //   MaterialPageRoute(builder: (context) => Tagpeople1Screen(selectedUsersOld: [],
-                    //                                   isTagged: false,
-                    //
-                    //   )),
-                    // );
-                    // if (usersList != null&&usersList.isNotEmpty) {
-                    //   List<String> memebers = [];
-                    //   usersList.forEach((e){
-                    //     memebers.add(e.id??'');
-                    //   });
-                    //   Navigator.push(context, MaterialPageRoute(builder: (context) => CreateGroupScreen(members: memebers,),));
-                    // }
-                  },
-                  icon: Icon(Icons.add, color: AppColors.white, size: 24),
-                  label: Text("Create", style: AppFontStyle.text_18_500(AppColors.white)),
-                  backgroundColor: AppColors.yellow,
-                ),
-              ),
+              // floatingActionButton: Theme(
+              //   data: Theme.of(context).copyWith(
+              //     floatingActionButtonTheme: FloatingActionButtonThemeData(
+              //       shape: RoundedRectangleBorder(
+              //         borderRadius: BorderRadius.circular(100),
+              //       ),
+              //     ),
+              //   ),
+              //   child: FloatingActionButton.extended(
+              //     onPressed: () async {
+              //       // List<GetAllUserSearchedDataData>? usersList = await Navigator.push(
+              //       //   context,
+              //       //   MaterialPageRoute(builder: (context) => Tagpeople1Screen(selectedUsersOld: [],
+              //       //                                   isTagged: false,
+              //       //
+              //       //   )),
+              //       // );
+              //       // if (usersList != null&&usersList.isNotEmpty) {
+              //       //   List<String> memebers = [];
+              //       //   usersList.forEach((e){
+              //       //     memebers.add(e.id??'');
+              //       //   });
+              //       //   Navigator.push(context, MaterialPageRoute(builder: (context) => CreateGroupScreen(members: memebers,),));
+              //       // }
+              //     },
+              //     icon: Icon(Icons.add, color: AppColors.white, size: 24),
+              //     label: Text("Create", style: AppFontStyle.text_18_500(AppColors.white)),
+              //     backgroundColor: AppColors.yellow,
+              //   ),
+              // ),
             );
           default:
             return GestureDetector(
@@ -231,7 +232,15 @@ class _MessageScreenState extends State<MessageScreen> {
 
   AppBar _messageAppBar(BuildContext context) {
     return AppBar(
-      leading: null,
+      leadingWidth: 40,
+      leading: InkWell(
+        onTap: (){
+          Navigator.pop(context);
+        },
+        child:Padding(padding: EdgeInsetsGeometry.only(left: 20),
+          child: Icon(Icons.arrow_back_ios,color: Colors.black,),
+        ),
+      ),
       scrolledUnderElevation: 0,
       backgroundColor: AppColors.white,
       elevation: 0,

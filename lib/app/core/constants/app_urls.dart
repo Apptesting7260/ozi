@@ -1,7 +1,7 @@
 class AppUrls {
   static const String baseUrl = "https://nbturls.in/oziservice/api";
   static const String imageBaseUrl = "https://nbturls.in/oziservice/public/";
-  static const String baseUrlSocket = "https://nbturls.in/oziservice/public/";
+  static const String baseUrlSocket = "https://g9qrfgt3-8001.inc1.devtunnels.ms/";
 
   static const String login = "$baseUrl/send-otp";
   static const String verification = "$baseUrl/verify-otp";

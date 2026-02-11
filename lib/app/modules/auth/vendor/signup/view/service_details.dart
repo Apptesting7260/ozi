@@ -8,6 +8,7 @@ import '../../../../../shared/widgets/custom_text_form_field.dart';
 import '../provider/service details provider.dart';
 import '../widget/vendor_custom_appbar.dart';
 
+
 class ServiceDetailsScreen extends StatelessWidget {
   const ServiceDetailsScreen(this.service, {super.key});
   final VendorGetAllServicesModelData? service;
@@ -62,7 +63,6 @@ class _ServiceDetailsContentState extends State<_ServiceDetailsContent> {
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<ServiceDetailsProvider>();
-
     return Scaffold(
       body: SafeArea(
         child: Column(
@@ -72,9 +72,9 @@ class _ServiceDetailsContentState extends State<_ServiceDetailsContent> {
               title: "Service Details",
               columnChild: widget.service == null
                   ? Text(
-                      "Step 2 of 6",
-                      style: AppFontStyle.text_12_400(AppColors.grey),
-                    )
+                "Step 2 of 6",
+                style: AppFontStyle.text_12_400(AppColors.grey),
+              )
                   : Text(''),
             ),
             Expanded(
@@ -106,25 +106,25 @@ class _ServiceDetailsContentState extends State<_ServiceDetailsContent> {
                                 ),
                               ),
                               child:
-                                  provider.pickedImage == null &&
-                                      provider.serviceForEdit == null
+                              provider.pickedImage == null &&
+                                  provider.serviceForEdit == null
                                   ? Center(
-                                      child: CustomImage(
-                                        path: ImageConstants.uploadImage,
-                                        height: 20,
-                                        width: 20,
-                                        color: AppColors.lightGrey3,
-                                      ),
-                                    )
+                                child: CustomImage(
+                                  path: ImageConstants.uploadImage,
+                                  height: 20,
+                                  width: 20,
+                                  color: AppColors.lightGrey3,
+                                ),
+                              )
                                   : ClipRRect(
-                                      borderRadius: BorderRadius.circular(14),
-                                      child: CustomImage(
-                                        path: provider.pickedImage == null
-                                            ? '${AppUrls.imageBaseUrl}${provider.serviceForEdit?.serviceImage ?? ''}'
-                                            : provider.pickedImage?.path ?? '',
-                                        fit: BoxFit.cover,
-                                      ),
-                                    ),
+                                borderRadius: BorderRadius.circular(14),
+                                child: CustomImage(
+                                  path: provider.pickedImage == null
+                                      ? '${AppUrls.imageBaseUrl}${provider.serviceForEdit?.serviceImage ?? ''}'
+                                      : provider.pickedImage?.path ?? '',
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
                             ),
 
                             wBox(14),
@@ -152,33 +152,33 @@ class _ServiceDetailsContentState extends State<_ServiceDetailsContent> {
 
                                   hBox(10),
 
-                                  // CustomButton(
-                                  //   height: 35,
-                                  //   width: 150,
-                                  //   borderRadius: BorderRadius.circular(30),
-                                  //   onPressed: () => _pickImage(context),
-                                  //   child: Row(
-                                  //     mainAxisAlignment:
-                                  //         MainAxisAlignment.center,
-                                  //     children: [
-                                  //       CustomImage(
-                                  //         path: ImageConstants.uploadImage,
-                                  //         height: 16,
-                                  //         width: 16,
-                                  //         color: AppColors.white,
-                                  //       ),
-                                  //       wBox(5),
-                                  //       // Text(
-                                  //       //   provider.pickedImage == null
-                                  //       //       ? "Upload Image"
-                                  //       //       : "Change Image",
-                                  //       //   style: AppFontStyle.text_12_400(
-                                  //       //     AppColors.white,
-                                  //       //   ),
-                                  //       // ),
-                                  //     ],
-                                  //   ),
-                                  // ),
+                                  CustomButton(
+                                    height: 35,
+                                    width: 150,
+                                    borderRadius: BorderRadius.circular(30),
+                                    onPressed: () => _pickImage(context),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                      MainAxisAlignment.center,
+                                      children: [
+                                        CustomImage(
+                                          path: ImageConstants.uploadImage,
+                                          height: 16,
+                                          width: 16,
+                                          color: AppColors.white,
+                                        ),
+                                        wBox(5),
+                                        Text(
+                                          provider.pickedImage == null
+                                              ? "Upload Image"
+                                              : "Change Image",
+                                          style: AppFontStyle.text_12_400(
+                                            AppColors.white,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
                                 ],
                               ),
                             ),
@@ -191,7 +191,6 @@ class _ServiceDetailsContentState extends State<_ServiceDetailsContent> {
                       /// ================= SERVICE NAME =================
                       CustomTextFormField(
                         label: "Service Name",
-                        readOnly: true,
                         controller: provider.serviceName,
                         hintText: "e.g. Deep House Cleaning",
                         borderRadius: 60,
@@ -211,17 +210,12 @@ class _ServiceDetailsContentState extends State<_ServiceDetailsContent> {
                         label: "Category",
                         items: provider.categories?.data ?? [],
                         selectedValue: provider.category,
-                        isEnable: false,
-
                         hintText: "Select category",
-                        // onChanged: provider.setCategory,
+                        onChanged: provider.setCategory,
                         validator: (value) {
-                          if (value == null) return;
+                          if (value == null) return "Please select category";
+                          return null;
                         },
-                        onChanged: (value) {
-                          print(value);
-                        },
-
                         borderRadius: 60,
                       ),
 
@@ -233,13 +227,11 @@ class _ServiceDetailsContentState extends State<_ServiceDetailsContent> {
                         items: provider.category?.subcategories ?? [],
                         selectedValue: provider.subCategory,
                         hintText: "Select sub category",
-                        // onChanged: provider.setSubCategory,
-                        isEnable: false,
+                        onChanged: provider.setSubCategory,
                         validator: (value) {
-                          if (value == null) return;
-                        },
-                        onChanged: (value) {
-                          print(value);
+                          if (value == null)
+                            return "Please select sub category";
+                          return null;
                         },
                         borderRadius: 60,
                       ),
@@ -250,10 +242,8 @@ class _ServiceDetailsContentState extends State<_ServiceDetailsContent> {
                       CustomTextFormField(
                         controller: provider.description,
                         label: "Description",
-                        readOnly: true,
                         hintText: "Describe your service in detail...",
                         maxLines: 5,
-
                         minLines: 5,
                         borderRadius: 30,
                         // onChanged: provider.setDescription,
@@ -284,7 +274,6 @@ class _ServiceDetailsContentState extends State<_ServiceDetailsContent> {
                             width: 16,
                           ),
                         ),
-                        readOnly: true,
                         borderRadius: 60,
                         // onChanged: provider.setPrice,
                         validator: (value) {
@@ -314,18 +303,11 @@ class _ServiceDetailsContentState extends State<_ServiceDetailsContent> {
                               items: const ["1", "2", "3", "4"],
                               selectedValue: provider.durationValue,
                               hintText: "Select Duration",
+                              onChanged: provider.setDurationValue,
                               validator: (value) {
-                                if (value == null) return;
+                                if (value == null) return "Select duration";
+                                return null;
                               },
-                              readOnly: true,
-                              onChanged: (value) {
-                                print(value);
-                              },
-                              // onChanged: (provider.setDurationValue),
-                              // validator: (value) {
-                              //   if (value == null) return "Select duration";
-                              //   return null;
-                              // },
                               borderRadius: 60,
                             ),
                           ),
@@ -336,7 +318,6 @@ class _ServiceDetailsContentState extends State<_ServiceDetailsContent> {
                               selectedValue: provider.durationUnit,
                               hintText: "Duration Type",
                               onChanged: provider.setDurationUnit,
-                              readOnly: true,
                               validator: (value) {
                                 if (value == null) return "Select unit";
                                 return null;
@@ -358,14 +339,12 @@ class _ServiceDetailsContentState extends State<_ServiceDetailsContent> {
                         children: [
                           Expanded(
                             child: CustomDropDown(
-                              isEnable: false,
                               items: const ["Active", "Inactive"],
                               selectedValue: provider.status,
                               hintText: "Select Status",
                               onChanged: (value) {
                                 provider.status = value!;
                               },
-                              readOnly: true,
                               validator: (value) {
                                 if (value == null) return "Select status";
                                 return null;
@@ -384,15 +363,14 @@ class _ServiceDetailsContentState extends State<_ServiceDetailsContent> {
                         borderRadius: BorderRadius.circular(60),
                         isLoading: provider.addLoading,
                         onPressed: () {
-                          // final isFormValid =
-                          //     _formKey.currentState?.validate() ?? false;
-                          // final isImageValid = _validateImage(provider);
+                          final isFormValid =
+                              _formKey.currentState?.validate() ?? false;
+                          final isImageValid = _validateImage(provider);
 
-                          // if (!isFormValid || !isImageValid) return;
+                          if (!isFormValid || !isImageValid) return;
 
-                          // // Everything valid
-                          // provider.addNewService();
-                          Navigator.pop(context);
+                          // Everything valid
+                          provider.addNewService();
                         },
                       ),
                     ],
@@ -406,3 +384,5 @@ class _ServiceDetailsContentState extends State<_ServiceDetailsContent> {
     );
   }
 }
+
+
