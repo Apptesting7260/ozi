@@ -101,6 +101,7 @@ class Summary {
   int? subtotal;
   int? serviceFee;
   int? total;
+  int? discount;
   String? appliedCuppon;
 
   Summary({
@@ -108,6 +109,7 @@ class Summary {
     this.subtotal,
     this.serviceFee,
     this.total,
+    this.discount,
     this.appliedCuppon,
   });
 
@@ -116,6 +118,14 @@ class Summary {
     subtotal = int.tryParse(json['subtotal']?.toString() ?? "0");
     serviceFee = int.tryParse(json['service_fee']?.toString() ?? "0");
     total = int.tryParse(json['total']?.toString() ?? "0");
+    discount = int.tryParse(json['discount']?.toString() ?? "0");
+    // Fallback if discount is not directly provided
+    if (discount == 0 &&
+        subtotal != null &&
+        serviceFee != null &&
+        total != null) {
+      discount = (subtotal! + serviceFee!) - total!;
+    }
     appliedCuppon = json['applied_coupon']?.toString();
   }
 
@@ -125,6 +135,7 @@ class Summary {
     data['subtotal'] = subtotal;
     data['service_fee'] = serviceFee;
     data['total'] = total;
+    data['discount'] = discount;
     data['applied_coupon'] = appliedCuppon;
     return data;
   }

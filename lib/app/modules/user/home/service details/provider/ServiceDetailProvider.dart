@@ -76,9 +76,19 @@ class ServiceDetailProvider extends ChangeNotifier {
       setVendorDetailModel(ApiResponse.loading());
       final response = await _repository.vendorDetailsApi(vendorId);
       setVendorDetailModel(ApiResponse.completed(response));
+      // Sync quantities from response
+      if (response.data != null) {
+        for (var item in response.data!) {
+          if (item.quantity != null && item.quantity! > 0) {
+            _cartItems[item.id!] = item.quantity!;
+          }
+        }
+      }
+      Get.showToast(response.message ?? '', type: ToastType.success);
     } catch (e) {
-      Get.showToast(e.toString(), type: ToastType.error);
+      dev.log('Error in vendorDetailsApi: $e');
       setVendorDetailModel(ApiResponse.error(e.toString()));
+      Get.showToast(e.toString(), type: ToastType.error);
     }
   }
 
@@ -121,6 +131,12 @@ class ServiceDetailProvider extends ChangeNotifier {
 
       if (response.status == true) {
         _serviceProviders = response.data ?? [];
+        // Sync quantities from response
+        for (var item in _serviceProviders) {
+          if (item.quantity != null && item.quantity! > 0) {
+            _cartItems[item.id!] = item.quantity!;
+          }
+        }
         if (_serviceProviders.isEmpty) {
           _errorMessage = 'No services available';
         }
@@ -177,6 +193,7 @@ class ServiceDetailProvider extends ChangeNotifier {
 
         _isAddingToCart = false;
         notifyListeners();
+        Get.showToast(addToCartResponse.message ?? '', type: ToastType.success);
         return true;
       } else {
         throw Exception(addToCartResponse.message ?? 'Failed to add to cart');
@@ -186,6 +203,7 @@ class ServiceDetailProvider extends ChangeNotifier {
       dev.log('Error type: ${e.runtimeType}');
       _isAddingToCart = false;
       notifyListeners();
+      Get.showToast(e.toString(), type: ToastType.error);
       return false;
     }
   }
@@ -215,17 +233,8 @@ class ServiceDetailProvider extends ChangeNotifier {
         // Call the API
         final response = await _repository.addToCartApi(requestData);
 
-        Map<String, dynamic> jsonResponse;
-        if (response is Map<String, dynamic>) {
-          jsonResponse = requestData;
-        } else {
-          throw Exception('Invalid response format');
-        }
-
         // Parse the response
-        AddToCartModel addToCartResponse = AddToCartModel.fromJson(
-          jsonResponse,
-        );
+        AddToCartModel addToCartResponse = response;
 
         if (addToCartResponse.status == true) {
           _cartItems[serviceId] = newQuantity;
@@ -240,6 +249,7 @@ class ServiceDetailProvider extends ChangeNotifier {
         dev.log('Error incrementing quantity: $e');
         _isAddingToCart = false;
         notifyListeners();
+        Get.showToast(e.toString(), type: ToastType.error);
         return false;
       }
     }
@@ -268,16 +278,7 @@ class ServiceDetailProvider extends ChangeNotifier {
           // Call the API
           final response = await _repository.addToCartApi(requestData);
 
-          Map<String, dynamic> jsonResponse;
-          if (response is Map<String, dynamic>) {
-            jsonResponse = requestData;
-          } else {
-            throw Exception('Invalid response format');
-          }
-
-          AddToCartModel addToCartResponse = AddToCartModel.fromJson(
-            jsonResponse,
-          );
+          AddToCartModel addToCartResponse = response;
 
           if (addToCartResponse.status == true) {
             _cartItems[serviceId] = newQuantity;
@@ -302,6 +303,7 @@ class ServiceDetailProvider extends ChangeNotifier {
         dev.log('Error decrementing quantity: $e');
         _isAddingToCart = false;
         notifyListeners();
+        Get.showToast(e.toString(), type: ToastType.error);
         return false;
       }
     }

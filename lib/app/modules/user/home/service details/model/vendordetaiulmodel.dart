@@ -49,6 +49,7 @@ class Data {
   int? durationValue;
   String? durationType;
   String? status;
+  int? quantity;
   String? createdAt;
   String? updatedAt;
   String? deletedAt;
@@ -70,6 +71,7 @@ class Data {
     this.durationValue,
     this.durationType,
     this.status,
+    this.quantity,
     this.createdAt,
     this.updatedAt,
     this.deletedAt,
@@ -92,6 +94,7 @@ class Data {
     durationValue = json['duration_value'];
     durationType = json['duration_type'];
     status = json['status'];
+    quantity = json['quantity'];
     createdAt = json['created_at'];
     updatedAt = json['updated_at'];
     deletedAt = json['deleted_at'];

@@ -496,7 +496,8 @@ class Get {
     String msg, {
     required ToastType type, // = ToastType.notice,
   }) {
-    final context = navigatorKey.currentContext!;
+    final context = navigatorKey.currentContext;
+    if (context == null) return;
 
     // Map enum to title and ContentType
     final title = _getTitle(type);
@@ -562,9 +563,11 @@ class Get {
       ),
     );
 
-    ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(snackBar);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(snackBar);
+    });
   }
 
   static String _getTitle(ToastType type) {

@@ -1,4 +1,5 @@
 import 'package:ozi/app/modules/user/navigation%20tab/provider/navigation_provider.dart';
+import 'package:ozi/app/modules/vendor/home/notification/view/vendor_notifications_screen.dart';
 
 import '../../../../core/appExports/app_export.dart';
 import '../../../../core/constants/app_urls.dart';
@@ -146,14 +147,17 @@ class HomeScreenView extends StatelessWidget {
             wBox(12),
             GestureDetector(
               onTap: () {
-                context.read<NavigationProvider>().setIndex(4, context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const NotificationsScreen(),
+                  ),
+                );
               },
-              child: profileAvatarStatic(
-                imageUrl: ImagePathHelper.getFullImageUrl(
-                  context.watch<ProfileProvider>().profileImage,
-                  AppUrls.imageBaseUrl,
-                ),
-                size: 50,
+              child: Image.asset(
+                "assets/images/noti.png",
+                height: 46,
+                width: 46,
               ),
             ),
           ],
@@ -164,7 +168,7 @@ class HomeScreenView extends StatelessWidget {
 
   Widget _buildSearchBar(BuildContext context, HomeScreenProvider provider) {
     return CustomTextFormField(
-      onTap: () => provider.onSearchTap(context),
+      onChanged: (val) => provider.setSearchQuery(val),
       hintText: "Search...",
       prefix: Padding(
         padding: EdgeInsets.all(12.0),
@@ -203,7 +207,18 @@ class HomeScreenView extends StatelessWidget {
       );
     }
 
-    if (provider.serviceCategories.isEmpty) {
+    if (provider.filteredCategories.isEmpty) {
+      if (provider.searchQuery.isNotEmpty) {
+        return Center(
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Text(
+              "No results found for '${provider.searchQuery}'",
+              style: AppFontStyle.text_16_500(AppColors.grey),
+            ),
+          ),
+        );
+      }
       return Center(
         child: Padding(
           padding: const EdgeInsets.all(20),
@@ -224,9 +239,9 @@ class HomeScreenView extends StatelessWidget {
         mainAxisSpacing: 12,
         childAspectRatio: 1.3,
       ),
-      itemCount: provider.serviceCategories.length,
+      itemCount: provider.filteredCategories.length,
       itemBuilder: (context, index) {
-        final category = provider.serviceCategories[index];
+        final category = provider.filteredCategories[index];
         return _buildServiceCard(context, category, provider);
       },
     );

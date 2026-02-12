@@ -12,6 +12,7 @@ class CartProvider with ChangeNotifier {
   List<CartItem> _items = [];
   int _subtotal = 0;
   int _serviceFee = 0;
+  int _discount = 0;
   int _total = 0;
   bool _isLoading = false;
   String? _errorMessage;
@@ -23,6 +24,7 @@ class CartProvider with ChangeNotifier {
       _items.fold(0, (sum, item) => sum + (item.quantity ?? 0));
   int get subtotal => _subtotal;
   int get serviceFee => _serviceFee;
+  int get discount => _discount;
   int get total => _total;
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
@@ -44,6 +46,7 @@ class CartProvider with ChangeNotifier {
         final summary = response.data!.summary;
         _subtotal = summary?.subtotal ?? 0;
         _serviceFee = summary?.serviceFee ?? 0;
+        _discount = summary?.discount ?? 0;
         _total = summary?.total ?? 0;
 
         //  Applied Coupon from API
@@ -108,7 +111,7 @@ class CartProvider with ChangeNotifier {
           0,
           (sum, item) => sum + (item.serviceItemTotal ?? 0),
         );
-        _total = _subtotal + _serviceFee;
+        _total = _subtotal + _serviceFee - _discount;
 
         notifyListeners();
       } else {

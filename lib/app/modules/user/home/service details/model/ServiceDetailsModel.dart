@@ -48,6 +48,7 @@ class ServiceData {
   int? durationValue;
   String? durationType;
   String? status;
+  int? quantity;
   String? createdAt;
   String? updatedAt;
   Null deletedAt;
@@ -69,6 +70,7 @@ class ServiceData {
     this.durationValue,
     this.durationType,
     this.status,
+    this.quantity,
     this.createdAt,
     this.updatedAt,
     this.deletedAt,
@@ -91,6 +93,7 @@ class ServiceData {
     durationValue = json['duration_value'];
     durationType = json['duration_type'];
     status = json['status'];
+    quantity = json['quantity'];
     createdAt = json['created_at'];
     updatedAt = json['updated_at'];
     deletedAt = json['deleted_at'];
@@ -120,6 +123,7 @@ class ServiceData {
     data['duration_value'] = durationValue;
     data['duration_type'] = durationType;
     data['status'] = status;
+    data['quantity'] = quantity;
     data['created_at'] = createdAt;
     data['updated_at'] = updatedAt;
     data['deleted_at'] = deletedAt;
