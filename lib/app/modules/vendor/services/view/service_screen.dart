@@ -143,19 +143,22 @@ class _MyServicesContent extends StatelessWidget {
                             ],
                           ),
                         )
-                      : ListView.separated(
-                          itemCount: provider.homeModel.data?.data?.length ?? 0,
-                          separatorBuilder: (_, __) => hBox(14),
-                          itemBuilder: (_, index) {
-                            VendorGetAllServicesModelData? service =
-                                provider.homeModel.data?.data?[index];
-                            return _serviceCard(
-                              context: context,
-                              service: service,
-                              provider: provider,
-                            );
-                          },
-                        ),
+                      : RefreshIndicator(
+                        onRefresh: () => provider.getAllBookings(),
+                        child: ListView.separated(
+                            itemCount: provider.homeModel.data?.data?.length ?? 0,
+                            separatorBuilder: (_, __) => hBox(14),
+                            itemBuilder: (_, index) {
+                              VendorGetAllServicesModelData? service =
+                                  provider.homeModel.data?.data?[index];
+                              return _serviceCard(
+                                context: context,
+                                service: service,
+                                provider: provider,
+                              );
+                            },
+                          ),
+                      ),
                 ),
 
                 ApiStatus.error => Expanded(
@@ -184,7 +187,7 @@ class _MyServicesContent extends StatelessWidget {
         final result = await Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => ServiceCardDetailsScreen(),
+            builder: (context) => ServiceCardDetailsScreen(serviceId: service.id.toString(),),
           ),
         );
         if (result == null || result != null) {

@@ -1,6 +1,3 @@
-import 'package:flutter/cupertino.dart';
-import 'package:ozi/app/modules/vendor/navigation%20tab/view/vendor_navigation_tab_screen.dart';
-
 import '../../../../core/appExports/app_export.dart';
 import '../../../../core/constants/app_urls.dart';
 import '../../../../data/network/network_api_services.dart';
@@ -26,7 +23,7 @@ class CreateAccountProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> createAccount(String userId) async {
+  Future<void> createAccount(String userId , BuildContext context) async {
     // Validate form before API call
     if (!formKey.currentState!.validate()) {
       return;
@@ -45,13 +42,24 @@ class CreateAccountProvider with ChangeNotifier {
         AppUrls.completeRegistration,
       );
       updateLoading(false);
-      print(response);
+      if (kDebugMode) {
+        print(response);
+      }
       loginWithSaveTokenRedirection(
         response['data']['user_role']?.toString(),
         response['data']['api_token']?.toString(),
         userId
       );
     } catch (e) {
+      // ScaffoldMessenger.of(context).showSnackBar(
+      //   SnackBar(
+      //     content: Text(
+      //       "$e",
+      //     ),
+      //     backgroundColor: Colors.red,
+      //   ),
+      // );
+      Get.showToast(e.toString(), type: ToastType.warning);
       updateLoading(false);
     }
   }

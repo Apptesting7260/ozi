@@ -1,5 +1,4 @@
 import '../../../../core/appExports/app_export.dart';
-import '../../../../modules/user/navigation tab/view/navigation_tab_screen.dart';
 import '../../../../shared/widgets/custom_text_form_field.dart';
 import '../provider/create_account_provider.dart';
 
@@ -25,7 +24,7 @@ class CreateAccountScreen extends StatelessWidget {
                     children: [
                       hBox(30),
 
-                      /// Title
+                      // Title
                       Text(
                         "Create Account",
                         style: AppFontStyle.text_28_600(
@@ -134,7 +133,7 @@ class CreateAccountScreen extends StatelessWidget {
                             ? () {}
                             : () {
                           if (value.formKey.currentState?.validate() ?? false) {
-                            value.createAccount(userId);
+                            value.createAccount(userId, context);
                           }
                         },
                         text: "Create Account",

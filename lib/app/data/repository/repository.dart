@@ -25,6 +25,7 @@ import '../../modules/user/profile/edit profile/model/update_profile_model.dart'
 import '../../modules/user/profile/login details/model/login_detail_model.dart';
 import '../../modules/user/profile/login details/model/logout_user_model.dart';
 import '../../modules/user/profile/save address/model/delete_address_model.dart';
+import '../../modules/vendor/services/service_details/model/service_detail_model.dart';
 import '../../view/auth/login/model/login_model.dart';
 import '../../view/auth/verification_screen/model/verify_otp.dart';
 import '../network/network_api_services.dart';
@@ -708,6 +709,29 @@ class Repository {
       return WalletDetailModel.fromJson(response);
     } catch (e) {
       dev.log("Error in fetchWalletDetail: $e");
+      throw Exception(e);
+    }
+  }
+
+  // ********************************** Service Card detail ********************************** //
+
+  Future<ServiceCardDetailModel> fetchServiceDetail(
+  {
+    required String serviceId,
+}
+      ) async {
+    try {
+      dev.log(
+        "fetchWalletDetail URL: ${AppUrls.getCurrentUserLoginDetails}",
+      );
+
+      final response = await _apiService.getApi(
+        "${AppUrls.getServiceDetail}service_id=$serviceId",
+      );
+
+      return ServiceCardDetailModel.fromJson(response);
+    } catch (e) {
+      dev.log("Error in fetchServiceDetail: $e");
       throw Exception(e);
     }
   }
