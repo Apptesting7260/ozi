@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:ozi/app/core/appExports/app_export.dart';
 import '../../../../../shared/widgets/custom_app_bar.dart';
 import '../provider/login_details_provider.dart';
@@ -40,7 +41,7 @@ class _LoginDetailsScreenState extends State<LoginDetailsScreen> {
                   builder: (context, provider, child) {
 
                     if (provider.isLoading) {
-                      return const Center(child: CircularProgressIndicator());
+                      return const Center(child: CupertinoActivityIndicator());
                     }
 
                     if (provider.devices.isEmpty) {
@@ -64,7 +65,7 @@ class _LoginDetailsScreenState extends State<LoginDetailsScreen> {
                           location: "New York, US · Now",
                           isCurrent: device.isCurrentDevice ?? false,
                           onTap: () {
-                            if (!provider.isLogoutLoading) {
+                            if (!provider.isLogoutLoading(device.id.toString())) {
                               showDeleteDialog(context, () {
                                 Navigator.pop(context);
                                 provider.logoutFromDevice(device.id.toString());
@@ -72,6 +73,16 @@ class _LoginDetailsScreenState extends State<LoginDetailsScreen> {
                             }
                           },
                           provider: provider,
+                          child: provider.isLogoutLoading(device.id.toString())
+                              ? const SizedBox(
+                            height: 14,
+                            width: 14,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                              : const Text(
+                            "Log out",
+                            style: TextStyle(fontSize: 12, color: Colors.black87),
+                          ),
                         );
                       },
                     );
@@ -93,6 +104,7 @@ class _LoginDetailsScreenState extends State<LoginDetailsScreen> {
     required bool isCurrent,
     required VoidCallback onTap,
     required LoginDetailsProvider provider,
+    required Widget child,
   }) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 0, vertical: 6),
@@ -172,13 +184,14 @@ class _LoginDetailsScreenState extends State<LoginDetailsScreen> {
               ),
             ),
             onPressed: onTap,
-            child: provider.isLogoutLoading ? const CircularProgressIndicator() : const Text(
-              "Log out",
-              style: TextStyle(
-                fontSize: 12,
-                color: Colors.black87,
-              ),
-            ),
+            // child: provider.isLogoutLoading ? const CircularProgressIndicator() : const Text(
+            //   "Log out",
+            //   style: TextStyle(
+            //     fontSize: 12,
+            //     color: Colors.black87,
+            //   ),
+            // ),
+            child: child
           ),
         ],
       ),

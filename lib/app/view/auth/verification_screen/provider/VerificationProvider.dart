@@ -1,5 +1,7 @@
 import '../../../../core/appExports/app_export.dart';
 import '../../../../core/constants/app_urls.dart';
+import '../../../../core/device info/get_device_Info.dart';
+import '../../../../core/push notification/push_notification.dart';
 import '../../../../data/network/network_api_services.dart';
 import '../../../../data/storage/user_preference.dart';
 import '../../../../modules/auth/vendor/signup/view/identity_verification_screen.dart';
@@ -13,6 +15,8 @@ import '../model/verify_otp.dart';
 class VerificationProvider extends ChangeNotifier {
   final TextEditingController otpController = TextEditingController();
   final NetworkApiServices _apiService = NetworkApiServices();
+ // String? token = PushNotificationService.fcmToken;
+
 
   int resendTime = 55;
   Timer? timer;
@@ -34,6 +38,8 @@ class VerificationProvider extends ChangeNotifier {
   }
 
   Future<void> verifyOtpMethod(String phone) async {
+    final deviceInfo = await getDeviceInfo();
+
     if (otpController.text.length != 6) {
       errorMessage = "Please enter a valid 6-digit OTP";
       notifyListeners();
@@ -60,6 +66,9 @@ class VerificationProvider extends ChangeNotifier {
         "country_code": countryCode,
         "mobile": mobile,
         "otp": otpController.text,
+        "fcm_token":PushNotificationService.fcmToken ?? "",
+        "device_name": deviceInfo["device_name"] ?? "",
+        "device_type": deviceInfo["device_type"] ?? "",
       };
 
       // Use the verificationUser method

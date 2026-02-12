@@ -164,7 +164,7 @@ class _BookingCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            /// HEADER
+            // HEADER
             Row(
               children: [
                 Container(

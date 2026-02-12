@@ -41,6 +41,11 @@ dependencies:
   geolocator: ^14.0.2
   geocoding: ^4.0.0
   socket_io_client: ^3.1.4
+  firebase_core: ^4.0.0
+  firebase_messaging: ^16.0.0
+  flutter_local_notifications: ^19.4.0
+  another_flushbar: ^1.12.30
+  device_info_plus:
 
 dev_dependencies:
   flutter_test:

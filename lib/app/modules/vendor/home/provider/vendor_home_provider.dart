@@ -156,7 +156,7 @@ class VendorHomeProvider extends ChangeNotifier {
               TextButton(
                 onPressed: () {
                   print("Add pressed");
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => ServiceDetailsScreen(null),));
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => ServiceDetailsScreen(null,"Add Service"),));
                   // Navigator.of(context).pop();
                 },
                 child: Text("Add"),
