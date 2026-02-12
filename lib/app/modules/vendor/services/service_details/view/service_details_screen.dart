@@ -3,21 +3,26 @@ import 'package:ozi/app/modules/vendor/services/edit%20service/view/vendor_edits
 import '../provider/service_details_provider.dart';
 
 class ServiceCardDetailsScreen extends StatelessWidget {
-  const ServiceCardDetailsScreen({super.key});
+  final String serviceId;
+   ServiceCardDetailsScreen({super.key , required this.serviceId});
 
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (_) => ServiceDetailsProvider(),
-      child: const _ServiceDetailsContent(),
+      create: (_) => ServiceDetailsProvider()
+        ..loadCardService(serviceId),
+      child:  _ServiceDetailsContent(serviceId: serviceId,),
     );
   }
 }
 
-// ... rest of the screen code from the artifact
+
 
 class _ServiceDetailsContent extends StatelessWidget {
-  const _ServiceDetailsContent();
+  final String serviceId;
+  const _ServiceDetailsContent(
+      {super.key, required this.serviceId}
+      );
 
   @override
   Widget build(BuildContext context) {
@@ -79,162 +84,178 @@ class _ServiceDetailsContent extends StatelessWidget {
         ],
       ),
 
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // ============ SERVICE CARD ============
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Image
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(12),
-                    child: Image.network(
-                      provider.imageUrl,
-                      width: 110,
-                      height: 110,
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) {
-                        return Container(
-                          width: 80,
-                          height: 80,
-                          color: Colors.grey[200],
-                          child: const Icon(
-                            Icons.image,
-                            size: 40,
-                            color: Colors.grey,
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-
-                  // Details
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          maxLines: 3,
-                          provider.serviceName,
-                          style: AppFontStyle.text_16_600(
-                            AppColors.black,
-                            fontFamily: AppFontFamily.bold,
-                          ),
-                        ),
-                        const SizedBox(height: 6),
-                        Row(
-                          children: [
-                            const Icon(
-                              Icons.access_time,
-                              size: 14,
+      body:provider.isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : provider.hasError
+          ? Center(
+        child: Text(
+          "Something went wrong \n ${provider.error}",
+          style:
+          AppFontStyle.text_14_500(AppColors.darkText),
+        ),
+      ) : RefreshIndicator(
+        onRefresh: () => provider.loadCardService(serviceId),
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // ============ SERVICE CARD ============
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Image
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(12),
+                      child: Image.network(
+                        provider.serviceDetails?.serviceImage ?? "",
+                        width: 110,
+                        height: 110,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) {
+                          return Container(
+                            width: 80,
+                            height: 80,
+                            color: Colors.grey[200],
+                            child: const Icon(
+                              Icons.image,
+                              size: 40,
                               color: Colors.grey,
                             ),
-                            const SizedBox(width: 4),
-                            Text(
-                              provider.duration,
-                              style: AppFontStyle.text_12_400(AppColors.grey),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 8),
-                        Row(
-                          children: [
-                            Text(
-                              '\$${provider.price.toStringAsFixed(2)}',
-                              style: AppFontStyle.text_18_600(
-                                AppColors.primary,
-                                fontFamily: AppFontFamily.bold,
-                              ),
-                            ),
+                          );
+                        },
+                      ),
+                    ),
+                    const SizedBox(width: 12),
 
-                            Spacer(),
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 10,
-                                vertical: 4,
+                    // Details
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            maxLines: 3,
+                            provider.serviceName,
+                            style: AppFontStyle.text_16_600(
+                              AppColors.black,
+                              fontFamily: AppFontFamily.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 6),
+                          Row(
+                            children: [
+                              const Icon(
+                                Icons.access_time,
+                                size: 14,
+                                color: Colors.grey,
                               ),
-                              decoration: BoxDecoration(
-                                color: AppColors.primary.withValues(
-                                  alpha: 0.70,
+                              const SizedBox(width: 4),
+                              Text(
+                                provider.duration,
+                                style: AppFontStyle.text_12_400(AppColors.grey),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          Row(
+                            children: [
+                              Text(
+                                '\$${provider.price.toStringAsFixed(2)}',
+                                style: AppFontStyle.text_18_600(
+                                  AppColors.primary,
+                                  fontFamily: AppFontFamily.bold,
                                 ),
-                                borderRadius: BorderRadius.circular(12),
                               ),
-                              child: Text(
-                                provider.isActive ? 'Active' : 'Inactive',
-                                style: AppFontStyle.text_12_400(
-                                  AppColors.white,
+
+                              Spacer(),
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 10,
+                                  vertical: 4,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: AppColors.primary.withValues(
+                                    alpha: 0.70,
+                                  ),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Text(
+                                  provider.isActive ? 'Active' : 'Inactive',
+                                  style: AppFontStyle.text_12_400(
+                                    AppColors.white,
+                                  ),
                                 ),
                               ),
-                            ),
-                          ],
-                        ),
-                      ],
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                ],
-              ),
-
-              const SizedBox(height: 24),
-
-              // ============ ABOUT SERVICE ============
-              Text(
-                'About Service',
-                style: AppFontStyle.text_16_600(
-                  AppColors.black,
-                  fontFamily: AppFontFamily.bold,
+                  ],
                 ),
-              ),
 
-              const SizedBox(height: 8),
-              Text(
-                maxLines: 10,
-                provider.description,
-                style: AppFontStyle.text_14_400(AppColors.grey),
-              ),
+                const SizedBox(height: 24),
 
-              const SizedBox(height: 24),
+                // ============ ABOUT SERVICE ============
 
-              // ============ PERFORMANCE ============
-              Text(
-                'Performance',
-                style: AppFontStyle.text_16_600(
-                  AppColors.black,
-                  fontFamily: AppFontFamily.bold,
+                Text(
+                  'About Service',
+                  style: AppFontStyle.text_16_600(
+                    AppColors.black,
+                    fontFamily: AppFontFamily.bold,
+                  ),
                 ),
-              ),
 
-              hBox(12),
+                const SizedBox(height: 8),
+                Text(
+                  maxLines: 10,
+                  provider.description,
+                  style: AppFontStyle.text_14_400(AppColors.grey),
+                ),
 
-              Row(
-                children: [
-                  Expanded(
-                    child: _performanceTile(
-                      title: 'Today Bookings',
-                      value: provider.todayBookings.toString(),
-                    ),
+                const SizedBox(height: 24),
+
+                // ============ PERFORMANCE ============
+
+                Text(
+                  'Performance',
+                  style: AppFontStyle.text_16_600(
+                    AppColors.black,
+                    fontFamily: AppFontFamily.bold,
                   ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: _performanceTile(
-                      title: 'Total Bookings',
-                      value: provider.totalBookings.toString(),
-                    ),
-                  ),
-                ],
-              ),
+                ),
 
-              const SizedBox(height: 100),
-            ],
+                hBox(12),
+
+                Row(
+                  children: [
+                    Expanded(
+                      child: _performanceTile(
+                        title: 'Today Bookings',
+                        value: provider.todayBookings.toString(),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: _performanceTile(
+                        title: 'Total Bookings',
+                        value: provider.totalBookings.toString(),
+                      ),
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 100),
+              ],
+            ),
           ),
         ),
       ),
 
       // ============ BOTTOM BUTTONS ============
+
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Row(

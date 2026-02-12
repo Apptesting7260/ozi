@@ -579,8 +579,7 @@ class Get {
       case ToastType.warning:
         return 'Warning';
       case ToastType.notice:
-      default:
-        return 'Notice';
+      return 'Notice';
     }
   }
 

@@ -74,6 +74,7 @@ class AppUrls {
 
   static const String getCurrentUserLoginDetails = "$baseUrl/current-login-users";
   static const String getWalletDetail = "$baseUrl/my-wallet";
+  static const String getServiceDetail = "$baseUrl/vendor-service-detail?";
 
 
   //-------------------------------Socket Events---------------------
