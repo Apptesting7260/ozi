@@ -371,6 +371,25 @@ class CartScreenContent extends StatelessWidget {
                 ),
               ],
             ),
+            if (cart.discount > 0) ...[
+              hBox(12),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Discount',
+                    style: AppFontStyle.text_14_400(AppColors.grey),
+                  ),
+                  Text(
+                    '-\$${(cart.discount / 1).toStringAsFixed(2)}',
+                    style: AppFontStyle.text_14_600(
+                      AppColors.primary,
+                      fontFamily: AppFontFamily.semiBold,
+                    ),
+                  ),
+                ],
+              ),
+            ],
             hBox(10),
             Divider(),
             hBox(10),
@@ -386,7 +405,6 @@ class CartScreenContent extends StatelessWidget {
                 ),
                 Text(
                   '\$${cart.total.toString()}',
-                  // '\$${(cart.total / 1).toStringAsFixed(2)}',
                   style: AppFontStyle.text_24_700(
                     AppColors.primary,
                     fontFamily: AppFontFamily.bold,
