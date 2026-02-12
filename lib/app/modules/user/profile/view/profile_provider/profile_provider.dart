@@ -86,6 +86,7 @@ class ProfileProvider extends ChangeNotifier {
       dynamic response = await _repository.getProfileApi();
 
       _userProfile = UserProfileModel.fromJson(response);
+      UserPreference.saveUserId(_userProfile?.data?.id.toString()??'');
       _isProfileLoading = false;
       notifyListeners();
 

@@ -8,21 +8,24 @@ import '../../../../../shared/widgets/custom_text_form_field.dart';
 import '../provider/service details provider.dart';
 import '../widget/vendor_custom_appbar.dart';
 
+
 class ServiceDetailsScreen extends StatelessWidget {
-  const ServiceDetailsScreen(this.service, {super.key});
+   ServiceDetailsScreen(this.service,this.name, {super.key});
   final VendorGetAllServicesModelData? service;
+  String name ;
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
       create: (_) => ServiceDetailsProvider(service),
-      child: _ServiceDetailsContent(service),
+      child: _ServiceDetailsContent(service,name),
     );
   }
 }
 
 class _ServiceDetailsContent extends StatefulWidget {
-  const _ServiceDetailsContent(this.service);
+   _ServiceDetailsContent(this.service,this.name);
   final VendorGetAllServicesModelData? service;
+  String name ;
 
   @override
   State<_ServiceDetailsContent> createState() => _ServiceDetailsContentState();
@@ -62,19 +65,18 @@ class _ServiceDetailsContentState extends State<_ServiceDetailsContent> {
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<ServiceDetailsProvider>();
-
     return Scaffold(
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             VendorCustomAppBar(
-              title: "Service Details",
+              title: widget.name,
               columnChild: widget.service == null
                   ? Text(
-                      "Step 2 of 6",
-                      style: AppFontStyle.text_12_400(AppColors.grey),
-                    )
+                "",
+                style: AppFontStyle.text_12_400(AppColors.grey),
+              )
                   : Text(''),
             ),
             Expanded(
@@ -87,7 +89,7 @@ class _ServiceDetailsContentState extends State<_ServiceDetailsContent> {
                     children: [
                       hBox(2),
 
-                      /// ================= IMAGE UPLOAD =================
+                      // ================= IMAGE UPLOAD =================
                       GestureDetector(
                         onTap: () => _pickImage(context),
                         child: Row(
@@ -106,25 +108,25 @@ class _ServiceDetailsContentState extends State<_ServiceDetailsContent> {
                                 ),
                               ),
                               child:
-                                  provider.pickedImage == null &&
-                                      provider.serviceForEdit == null
+                              provider.pickedImage == null &&
+                                  provider.serviceForEdit == null
                                   ? Center(
-                                      child: CustomImage(
-                                        path: ImageConstants.uploadImage,
-                                        height: 20,
-                                        width: 20,
-                                        color: AppColors.lightGrey3,
-                                      ),
-                                    )
+                                child: CustomImage(
+                                  path: ImageConstants.uploadImage,
+                                  height: 20,
+                                  width: 20,
+                                  color: AppColors.lightGrey3,
+                                ),
+                              )
                                   : ClipRRect(
-                                      borderRadius: BorderRadius.circular(14),
-                                      child: CustomImage(
-                                        path: provider.pickedImage == null
-                                            ? '${AppUrls.imageBaseUrl}${provider.serviceForEdit?.serviceImage ?? ''}'
-                                            : provider.pickedImage?.path ?? '',
-                                        fit: BoxFit.cover,
-                                      ),
-                                    ),
+                                borderRadius: BorderRadius.circular(14),
+                                child: CustomImage(
+                                  path: provider.pickedImage == null
+                                      ? '${AppUrls.imageBaseUrl}${provider.serviceForEdit?.serviceImage ?? ''}'
+                                      : provider.pickedImage?.path ?? '',
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
                             ),
 
                             wBox(14),
@@ -152,33 +154,33 @@ class _ServiceDetailsContentState extends State<_ServiceDetailsContent> {
 
                                   hBox(10),
 
-                                  // CustomButton(
-                                  //   height: 35,
-                                  //   width: 150,
-                                  //   borderRadius: BorderRadius.circular(30),
-                                  //   onPressed: () => _pickImage(context),
-                                  //   child: Row(
-                                  //     mainAxisAlignment:
-                                  //         MainAxisAlignment.center,
-                                  //     children: [
-                                  //       CustomImage(
-                                  //         path: ImageConstants.uploadImage,
-                                  //         height: 16,
-                                  //         width: 16,
-                                  //         color: AppColors.white,
-                                  //       ),
-                                  //       wBox(5),
-                                  //       // Text(
-                                  //       //   provider.pickedImage == null
-                                  //       //       ? "Upload Image"
-                                  //       //       : "Change Image",
-                                  //       //   style: AppFontStyle.text_12_400(
-                                  //       //     AppColors.white,
-                                  //       //   ),
-                                  //       // ),
-                                  //     ],
-                                  //   ),
-                                  // ),
+                                  CustomButton(
+                                    height: 35,
+                                    width: 150,
+                                    borderRadius: BorderRadius.circular(30),
+                                    onPressed: () => _pickImage(context),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                      MainAxisAlignment.center,
+                                      children: [
+                                        CustomImage(
+                                          path: ImageConstants.uploadImage,
+                                          height: 16,
+                                          width: 16,
+                                          color: AppColors.white,
+                                        ),
+                                        wBox(5),
+                                        Text(
+                                          provider.pickedImage == null
+                                              ? "Upload Image"
+                                              : "Change Image",
+                                          style: AppFontStyle.text_12_400(
+                                            AppColors.white,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
                                 ],
                               ),
                             ),
@@ -188,10 +190,9 @@ class _ServiceDetailsContentState extends State<_ServiceDetailsContent> {
 
                       hBox(28),
 
-                      /// ================= SERVICE NAME =================
+                      // ================= SERVICE NAME =================
                       CustomTextFormField(
                         label: "Service Name",
-                        readOnly: true,
                         controller: provider.serviceName,
                         hintText: "e.g. Deep House Cleaning",
                         borderRadius: 60,
@@ -206,54 +207,46 @@ class _ServiceDetailsContentState extends State<_ServiceDetailsContent> {
 
                       hBox(20),
 
-                      /// ================= CATEGORY =================
+                      // ================= CATEGORY =================
                       CustomDropDownT<CategoryDropDownData>(
                         label: "Category",
                         items: provider.categories?.data ?? [],
                         selectedValue: provider.category,
-                        isEnable: false,
-
                         hintText: "Select category",
-                        // onChanged: provider.setCategory,
+                        onChanged: provider.setCategory,
                         validator: (value) {
-                          if (value == null) return;
+                          if (value == null) return "Please select category";
+                          return null;
                         },
-                        onChanged: (value) {
-                          print(value);
-                        },
-
                         borderRadius: 60,
                       ),
 
                       hBox(20),
 
-                      /// ================= SUBCATEGORY =================
+                      // ================= SUBCATEGORY =================
                       CustomDropDownT<Subcategories>(
                         label: "Sub Category",
                         items: provider.category?.subcategories ?? [],
                         selectedValue: provider.subCategory,
                         hintText: "Select sub category",
-                        // onChanged: provider.setSubCategory,
-                        isEnable: false,
+                        onChanged: provider.setSubCategory,
                         validator: (value) {
-                          if (value == null) return;
-                        },
-                        onChanged: (value) {
-                          print(value);
+                          if (value == null) {
+                            return "Please select sub category";
+                          }
+                          return null;
                         },
                         borderRadius: 60,
                       ),
 
                       hBox(20),
 
-                      /// ================= DESCRIPTION =================
+                      // ================= DESCRIPTION =================
                       CustomTextFormField(
                         controller: provider.description,
                         label: "Description",
-                        readOnly: true,
                         hintText: "Describe your service in detail...",
                         maxLines: 5,
-
                         minLines: 5,
                         borderRadius: 30,
                         // onChanged: provider.setDescription,
@@ -270,7 +263,7 @@ class _ServiceDetailsContentState extends State<_ServiceDetailsContent> {
 
                       hBox(20),
 
-                      /// ================= PRICE =================
+                      // ================= PRICE =================
                       CustomTextFormField(
                         controller: provider.priceAmount,
                         label: "Service Price",
@@ -284,22 +277,23 @@ class _ServiceDetailsContentState extends State<_ServiceDetailsContent> {
                             width: 16,
                           ),
                         ),
-                        readOnly: true,
                         borderRadius: 60,
                         // onChanged: provider.setPrice,
                         validator: (value) {
-                          if (value == null || value.isEmpty)
+                          if (value == null || value.isEmpty) {
                             return "Price is required";
+                          }
                           final price = double.tryParse(value);
-                          if (price == null || price <= 0)
+                          if (price == null || price <= 0) {
                             return "Enter valid price";
+                          }
                           return null;
                         },
                       ),
 
                       hBox(20),
 
-                      /// ================= DURATION =================
+                      // ================= DURATION =================
                       Text(
                         "Estimated Duration",
                         style: AppFontStyle.text_14_500(AppColors.darkText),
@@ -314,18 +308,11 @@ class _ServiceDetailsContentState extends State<_ServiceDetailsContent> {
                               items: const ["1", "2", "3", "4"],
                               selectedValue: provider.durationValue,
                               hintText: "Select Duration",
+                              onChanged: provider.setDurationValue,
                               validator: (value) {
-                                if (value == null) return;
+                                if (value == null) return "Select duration";
+                                return null;
                               },
-                              readOnly: true,
-                              onChanged: (value) {
-                                print(value);
-                              },
-                              // onChanged: (provider.setDurationValue),
-                              // validator: (value) {
-                              //   if (value == null) return "Select duration";
-                              //   return null;
-                              // },
                               borderRadius: 60,
                             ),
                           ),
@@ -336,7 +323,6 @@ class _ServiceDetailsContentState extends State<_ServiceDetailsContent> {
                               selectedValue: provider.durationUnit,
                               hintText: "Duration Type",
                               onChanged: provider.setDurationUnit,
-                              readOnly: true,
                               validator: (value) {
                                 if (value == null) return "Select unit";
                                 return null;
@@ -348,7 +334,7 @@ class _ServiceDetailsContentState extends State<_ServiceDetailsContent> {
                       ),
                       hBox(20),
 
-                      /// ================= DURATION =================
+                      // ================= DURATION =================
                       Text(
                         "Status",
                         style: AppFontStyle.text_14_500(AppColors.darkText),
@@ -358,14 +344,12 @@ class _ServiceDetailsContentState extends State<_ServiceDetailsContent> {
                         children: [
                           Expanded(
                             child: CustomDropDown(
-                              isEnable: false,
                               items: const ["Active", "Inactive"],
                               selectedValue: provider.status,
                               hintText: "Select Status",
                               onChanged: (value) {
                                 provider.status = value!;
                               },
-                              readOnly: true,
                               validator: (value) {
                                 if (value == null) return "Select status";
                                 return null;
@@ -377,22 +361,21 @@ class _ServiceDetailsContentState extends State<_ServiceDetailsContent> {
                       ),
                       hBox(28),
 
-                      /// ================= CONTINUE BUTTON =================
+                      // ================= CONTINUE BUTTON =================
                       CustomButton(
                         text: "Continue",
                         height: 54,
                         borderRadius: BorderRadius.circular(60),
                         isLoading: provider.addLoading,
                         onPressed: () {
-                          // final isFormValid =
-                          //     _formKey.currentState?.validate() ?? false;
-                          // final isImageValid = _validateImage(provider);
+                          final isFormValid =
+                              _formKey.currentState?.validate() ?? false;
+                          final isImageValid = _validateImage(provider);
 
-                          // if (!isFormValid || !isImageValid) return;
+                          if (!isFormValid || !isImageValid) return;
 
-                          // // Everything valid
-                          // provider.addNewService();
-                          Navigator.pop(context);
+                          // Everything valid
+                          provider.addNewService();
                         },
                       ),
                     ],
@@ -406,3 +389,5 @@ class _ServiceDetailsContentState extends State<_ServiceDetailsContent> {
     );
   }
 }
+
+

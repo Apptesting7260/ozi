@@ -6,6 +6,7 @@ import '../../../../core/appExports/app_export.dart';
 import '../../../../data/models/vendor_home_model.dart';
 import '../../../../data/response/api_status.dart';
 import '../../../../shared/widgets/custom_toggle_switch.dart';
+import '../../../../view/message/screens/message.dart';
 import '../../../user/profile/view/profile_provider/profile_provider.dart';
 import '../new requests/view/new_request_screen.dart';
 import '../notification/view/vendor_notifications_screen.dart';
@@ -50,22 +51,22 @@ class _VendorHomeScreenState extends State<VendorHomeScreen> {
                     children: [
                       SafeArea(child: SizedBox(height: 10)),
 
-                      /// ---------------- HEADER ----------------
+                      // ---------------- HEADER ----------------
                       _header(context),
 
                       hBox(20),
 
-                      /// ---------------- ONLINE STATUS ----------------
+                      // ---------------- ONLINE STATUS ----------------
                       _onlineStatus(),
 
                       hBox(20),
 
-                      /// ---------------- STATS ----------------
+                      // ---------------- STATS ----------------
                       _statsGrid(),
 
                       hBox(24),
 
-                      /// ---------------- NEW REQUESTS ----------------
+                      // ---------------- NEW REQUESTS ----------------
                       _sectionHeader(context: context, title: "New Requests"),
 
                       hBox(12),
@@ -165,7 +166,9 @@ class _VendorHomeScreenState extends State<VendorHomeScreen> {
             ),
 
             GestureDetector(
-              onTap: () {},
+              onTap: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context) => MessageScreen(),));
+              },
               child: Image.asset(
                 "assets/images/msgimg.png",
                 height: 40,

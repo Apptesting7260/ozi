@@ -1,7 +1,7 @@
 class AppUrls {
   static const String baseUrl = "https://nbturls.in/oziservice/api";
   static const String imageBaseUrl = "https://nbturls.in/oziservice/public/";
-  static const String baseUrlSocket = "https://nbturls.in/oziservice/public/";
+  static const String baseUrlSocket = "https://g9qrfgt3-8001.inc1.devtunnels.ms/";
 
   static const String login = "$baseUrl/send-otp";
   static const String verification = "$baseUrl/verify-otp";
@@ -9,6 +9,7 @@ class AppUrls {
   static const String completeRegistration = "$baseUrl/complete-registration";
   static const String getHomeCategories = "$baseUrl/get-categories-by-lat-long";
   static const String logout = "$baseUrl/logout";
+  static const String logoutUserFromOtherDevice = "$baseUrl/log-out-user";
   static const String getServiceDetailsApi = "$baseUrl/get-services";
   static const String addToCartApi = "$baseUrl/add-to-cart";
   static const String getCartItemsApi = "$baseUrl/get-user-cart-items";
@@ -68,6 +69,12 @@ class AppUrls {
       "$baseUrl/delete-vendor-service/{serviceid}";
   static const String getAvailabilityVendor = "$baseUrl/my-availability";
   static const String getDocumentsVendor = "$baseUrl/my-availability";
+
+
+
+  static const String getCurrentUserLoginDetails = "$baseUrl/current-login-users";
+  static const String getWalletDetail = "$baseUrl/my-wallet";
+
 
   //-------------------------------Socket Events---------------------
   static String goOnlineEvent = "go_online";

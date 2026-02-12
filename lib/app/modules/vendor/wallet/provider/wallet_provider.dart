@@ -1,86 +1,47 @@
-import '../../../../core/appExports/app_export.dart';
+import 'package:flutter/material.dart';
+
+import '../../../../data/repository/repository.dart';
+import '../model/wallet_detail_model.dart';
 
 class WalletProvider extends ChangeNotifier {
-  /// ================= STATE =================
-  double availableBalance = 0.0;
-  double todayEarning = 0.0;
-  double weeklyEarning = 0.0;
+  final Repository _repo = Repository();
 
-  bool isLoading = false;
+  bool _isLoading = false;
+  String? _error;
+  WalletDetailModel? _walletModel;
 
-  List<WalletTransaction> transactions = [];
+  bool get isLoading => _isLoading;
+  String? get error => _error;
+  bool get hasError => _error != null;
 
-  /// ================= INIT =================
-  WalletProvider() {
-    fetchWalletData();
-  }
+  double get availableBalance =>
+      double.tryParse(_walletModel?.data?.availableBalance ?? "0") ?? 0;
 
-  /// ================= API CALL (DUMMY NOW) =================
-  Future<void> fetchWalletData() async {
-    isLoading = true;
+  double get todayEarning =>
+      double.tryParse(_walletModel?.data?.todayEarning ?? "0") ?? 0;
+
+  double get weeklyEarning =>
+      double.tryParse(_walletModel?.data?.weekEarning ?? "0") ?? 0;
+
+
+  List<RecentTransactions> get transactions =>
+      _walletModel?.data?.recentTransactions ?? [];
+
+  Future<void> fetchWalletDetail({bool refresh = false}) async {
+    if (_isLoading && !refresh) return;
+
+    _isLoading = true;
+    _error = null;
     notifyListeners();
 
-    // 🔹 Replace this with API later
-    await Future.delayed(const Duration(seconds: 1));
+    try {
+      final response = await _repo.fetchWalletDetail();
+      _walletModel = response;
+    } catch (e) {
+      _error = e.toString();
+    }
 
-    availableBalance = 3420.00;
-    todayEarning = 248.50;
-    weeklyEarning = 5680;
-
-    transactions = [
-      WalletTransaction(
-        title: "Deep Cleaning",
-        user: "John Doe",
-        amount: 120,
-        isCredit: true,
-        time: "Today, 4:00 PM",
-      ),
-      WalletTransaction(
-        title: "Deep Cleaning",
-        user: "Mike Chen",
-        amount: 85,
-        isCredit: true,
-        time: "Yesterday, 6:30 PM",
-      ),
-      WalletTransaction(
-        title: "Withdrawal",
-        user: "Bank Transfer",
-        amount: 500,
-        isCredit: false,
-        time: "Dec 15, 6:30 PM",
-      ),
-      WalletTransaction(
-        title: "Plumbing Fix",
-        user: "Emma Wilson",
-        amount: 150,
-        isCredit: true,
-        time: "Dec 14, 6:30 PM",
-      ),
-    ];
-
-    isLoading = false;
+    _isLoading = false;
     notifyListeners();
   }
-
-  /// ================= ACTIONS =================
-  void withdraw() {
-    // call withdraw API later
-  }
-}
-
-/// ================= MODEL =================
-class WalletTransaction {
-  final String title;
-  final String user;
-  final double amount;
-  final bool isCredit;
-  final String time;
-
-  WalletTransaction({
-    required this.title,
-    required this.user,
-    required this.amount,
-    required this.isCredit,
-    required this.time,
-  });
 }

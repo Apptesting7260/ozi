@@ -7,6 +7,7 @@ import '../../../../shared/widgets/custom_text_form_field.dart';
 import '../../../auth/vendor/signup/view/service_details.dart';
 import '../filter/view/filters_screen.dart';
 import '../provider/service_provider.dart';
+import '../service_details/view/service_details_screen.dart';
 
 class VendorServicesScreen extends StatelessWidget {
   const VendorServicesScreen({super.key});
@@ -85,7 +86,7 @@ class _MyServicesContent extends StatelessWidget {
                   final result = await Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => ServiceDetailsScreen(null),
+                      builder: (context) => ServiceDetailsScreen(null,"Add New Service"),
                     ),
                   );
                   if (result == null || result != null) {
@@ -183,7 +184,7 @@ class _MyServicesContent extends StatelessWidget {
         final result = await Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => ServiceDetailsScreen(service),
+            builder: (context) => ServiceCardDetailsScreen(),
           ),
         );
         if (result == null || result != null) {
@@ -323,7 +324,7 @@ class _MyServicesContent extends StatelessWidget {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => ServiceDetailsScreen(service),
+                            builder: (context) => ServiceDetailsScreen(service,"Edit Service"),
                           ),
                         );
                         // provider.editService(service);

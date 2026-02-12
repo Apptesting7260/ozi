@@ -2,6 +2,7 @@
 
 
 
+import 'package:ozi/app/modules/user/profile/login%20details/view/login_details.dart';
 import 'package:ozi/app/modules/vendor/home/view/vendor_home_screen.dart';
 import 'package:ozi/app/modules/vendor/navigation%20tab/view/vendor_navigation_tab_screen.dart';
 import 'package:ozi/app/modules/vendor/profile/view/vendor_profile_screen.dart';
@@ -56,6 +57,7 @@ class AppRoutes {
   static const String settingsScreen = '/settingsScreen';
   static const String commonScreen = '/commonScreen';
   static const String helpSupportScreen = '/HelpSupportScreen';
+  static const String loginDetails = '/LoginDetailScreen';
 
 
 
@@ -84,6 +86,8 @@ class AppRoutes {
   static const String vendorCommonScreen = '/vendorCommonScreen';
   static const String vendorAddNewCardScreen = '/vendorAddNewCardScreen';
   static const String vendorAddNewAddressScreen = '/vendorAddNewAddressScreen';
+
+
 
   //******************************** Services screens *************************************//
   static const String vendorServicesScreen = '/vendorServicesScreen';
@@ -172,6 +176,9 @@ class AppRoutes {
       case commonScreen:
         final args = setting.arguments as CommonScreenArgs;
         return MaterialPageRoute(builder: (_) => CommonScreen(type: args.type, url: args.url,),);
+
+      case loginDetails:
+        return MaterialPageRoute(builder: (_) => LoginDetailsScreen());
 
 //vendor screen
 

@@ -171,54 +171,54 @@ class MessageProvider extends ChangeNotifier {
   }
 
   //this function for send message to vendor for first time
-  bool _sendLoading = false;
-  bool get sendLoading => _sendLoading;
-  updateSendLoading(bool value) {
-    _sendLoading = value;
-    notifyListeners();
-  }
-
-  Future<String?> getUserId() async {
-    String myUserId = await UserPreference.returnUserId() ?? '';
-    return myUserId;
-  }
-
-  Future<void> sendMessage(String receiverId) async {
-    if (sendLoading) return;
-    updateSendLoading(true);
-    SocketController socket = navigatorKey.currentContext!.read();
-    String? userId = await getUserId();
-    socket.sendMessage(AppUrls.checkConversationEvent, {
-      "senderId": userId ?? '',
-      "receiverId": receiverId,
-    });
-
-    socket.listenToEvent(AppUrls.checkConversationEvent, (p0) {
-      socket.off(AppUrls.checkConversationEvent);
-      if (p0 is String) {
-        final data = jsonDecode(p0);
-        // use data['key']
-        if (kDebugMode) {
-          print("data string is $data");
-        }
-      } else if (p0 is Map) {
-        final data = p0 as Map<String, dynamic>;
-        CheckConverstionModel conversion = CheckConverstionModel.fromJson(data);
-        if (conversion.status == true && conversion.data?.sId != null) {
-          Navigator.pushNamed(
-            navigatorKey.currentContext!,
-            AppRoutes.messageDetailsScreen,
-            arguments: {"conversion_id": conversion.data?.sId},
-          );
-        }
-
-        if (kDebugMode) {
-          print("data Map is $data");
-        }
-      }
-      updateSendLoading(false);
-    });
-  }
+  // bool _sendLoading = false;
+  // bool get sendLoading => _sendLoading;
+  // updateSendLoading(bool value) {
+  //   _sendLoading = value;
+  //   notifyListeners();
+  // }
+  //
+  // Future<String?> getUserId() async {
+  //   String myUserId = await UserPreference.returnUserId() ?? '';
+  //   return myUserId;
+  // }
+  //
+  // Future<void> sendMessage(String receiverId) async {
+  //   if (sendLoading) return;
+  //   updateSendLoading(true);
+  //   SocketController socket = navigatorKey.currentContext!.read();
+  //   String? userId = await getUserId();
+  //   socket.sendMessage(AppUrls.checkConversationEvent, {
+  //     "senderId": userId ?? '',
+  //     "receiverId": receiverId,
+  //   });
+  //
+  //   socket.listenToEvent(AppUrls.checkConversationEvent, (p0) {
+  //     socket.off(AppUrls.checkConversationEvent);
+  //     if (p0 is String) {
+  //       final data = jsonDecode(p0);
+  //       // use data['key']
+  //       if (kDebugMode) {
+  //         print("data string is $data");
+  //       }
+  //     } else if (p0 is Map) {
+  //       final data = p0 as Map<String, dynamic>;
+  //       CheckConverstionModel conversion = CheckConverstionModel.fromJson(data);
+  //       if (conversion.status == true && conversion.data?.sId != null) {
+  //         Navigator.pushNamed(
+  //           navigatorKey.currentContext!,
+  //           AppRoutes.messageDetailsScreen,
+  //           arguments: {"conversion_id": conversion.data?.sId},
+  //         );
+  //       }
+  //
+  //       if (kDebugMode) {
+  //         print("data Map is $data");
+  //       }
+  //     }
+  //     updateSendLoading(false);
+  //   });
+  // }
 }
 
 

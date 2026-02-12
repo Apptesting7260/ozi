@@ -6,6 +6,7 @@ import '../../../../core/constants/app_urls.dart';
 import '../../../../shared/widgets/custom_image_path_helper.dart';
 import '../../../../shared/widgets/custom_shimmer_box.dart';
 import '../../../../shared/widgets/custom_text_form_field.dart';
+import '../../../../view/message/screens/message.dart';
 import '../../profile/view/profile_provider/profile_provider.dart';
 import '../model/category_model.dart';
 import '../provider/HomeScreenProvider.dart';
@@ -134,7 +135,9 @@ class HomeScreenView extends StatelessWidget {
         Row(
           children: [
             GestureDetector(
-              onTap: () {},
+              onTap: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context) => MessageScreen(),));
+              },
               child: Image.asset(
                 "assets/images/msgimg.png",
                 height: 46,

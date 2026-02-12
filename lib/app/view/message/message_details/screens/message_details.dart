@@ -1,5 +1,8 @@
 
 
+import 'package:ozi/app/core/constants/app_urls.dart';
+import 'package:ozi/app/view/message/circular_profile_image.dart';
+
 import '../../../../core/appExports/app_export.dart';
 import '../../../../data/models/chat_models/message_list_model.dart';
 import '../../../../data/models/chat_models/page_status_model.dart';
@@ -212,19 +215,33 @@ class _MessageDetailsScreenState extends State<MessageDetailsScreen> {
                   backgroundColor: AppColors.white,
                   leadingWidth: 23,
                   leading: InkWell(
-                    onTap: () => Navigator.pop(context),
-                    child: Padding(
-                      padding: const EdgeInsets.only(left: 15),
-                      child: CustomImage(path: ImageConstants.downwardArrow),
+                    onTap: (){
+                      Navigator.pop(context);
+                    },
+                    child:Padding(padding: EdgeInsetsGeometry.only(left: 10),
+                    child: Icon(Icons.arrow_back_ios,color: Colors.black,),
                     ),
                   ),
+                  // leading: InkWell(
+                  //   onTap: () => Navigator.pop(context),
+                  //   child: Padding(
+                  //     padding: const EdgeInsets.only(left: 15),
+                  //     child: SizedBox(
+                  //         width: 5,
+                  //         height: 5,
+                  //         child: CustomImage(path: ImageConstants.backArrow)),
+                  //   ),
+                  // ),
                   title: Row(
                     children: [
-                      CustomImage(
-                        path: value.userData?.conversationImage ?? '',
-                        // borderColor: Colors.transparent,
-                        // size: 54,
-                      ),
+                      CircularProfileImage(
+                          size: 45,
+                          imageUrl: '${AppUrls.imageBaseUrl}${value.userData?.conversationImage ?? ''}'),
+                      // CustomImage(
+                      //   path: value.userData?.conversationImage ?? '',
+                      //   // borderColor: Colors.transparent,
+                      //   // size: 54,
+                      // ),
                       SizedBox(width: 10),
                       Expanded(
                         child: Text(
@@ -1058,7 +1075,7 @@ class _MessageDetailsScreenState extends State<MessageDetailsScreen> {
                             child: SizedBox(
                               width: 16,
                               height: 16,
-                              child: CustomImage(path: ImageConstants.share),
+                              child: CustomImage(path: ImageConstants.sendIcon),
                             ),
                           ),
                         ),
