@@ -30,6 +30,29 @@ class HomeScreenProvider extends ChangeNotifier {
   final List<Data> _serviceCategories = [];
   List<Data> get serviceCategories => _serviceCategories;
 
+  String _searchQuery = "";
+  String get searchQuery => _searchQuery;
+
+  void setSearchQuery(String query) {
+    _searchQuery = query;
+    notifyListeners();
+  }
+
+  List<Data> get filteredCategories {
+    if (_searchQuery.trim().isEmpty) {
+      return _serviceCategories;
+    }
+    return _serviceCategories
+        .where(
+          (element) =>
+              element.categoryName?.toLowerCase().contains(
+                _searchQuery.trim().toLowerCase(),
+              ) ??
+              false,
+        )
+        .toList();
+  }
+
   final Repository _repository = Repository();
 
   Future<void> loadOnce() async {
