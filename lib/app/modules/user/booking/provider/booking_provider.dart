@@ -217,10 +217,9 @@ class BookingProvider extends ChangeNotifier {
           "${response['message'] ?? "Booking cancelled successfully"}",
           type: ToastType.success,
         );
-        Navigator.pop(context); // Pop dialog only
+        Navigator.pop(context);
         setCancelling(false);
-        // Refresh bookings if needed
-        await refreshBookings(''); // Adjust status if your tabs have filters
+        await refreshBookings('');
         return true;
       } else {
         // API returned failure
@@ -521,8 +520,6 @@ class BookingProvider extends ChangeNotifier {
       notifyListeners();
     }
   }
-
-
 
   bool _sendLoading = false;
   bool get sendLoading => _sendLoading;

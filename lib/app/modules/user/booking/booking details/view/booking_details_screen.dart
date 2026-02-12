@@ -383,7 +383,6 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
                             size: 40.r,
                             color: AppColors.black,
                           ),
-
                     backgroundColor: AppColors.lightGrey,
                   ),
                   hBox(12),
@@ -834,9 +833,10 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
                     child: Icon(Icons.phone, color: AppColors.white, size: 20),
                   ),
                 ),
+              wBox(12),
               GestureDetector(
                 onTap: () {
-                  provider.sendMessage(vendor.id?.toString()??'');
+                  provider.sendMessage(vendor.id?.toString() ?? '');
                 },
                 child: Container(
                   padding: EdgeInsets.all(12),

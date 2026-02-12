@@ -57,30 +57,44 @@ class Data {
 
   Data.fromJson(Map<String, dynamic> json) {
     bookingId = json['booking_id'];
+    print('step1');
     bookingCode = json['booking_code'];
+    print('step2');
     status = json['status'];
+    print('step3');
     serviceDate = json['service_date'];
+    print('step4');
     serviceDay = json['service_day'];
+    print('step5');
     serviceTime = json['service_time'] != null
         ? new ServiceTime.fromJson(json['service_time'])
         : null;
+    print('step6');
     paymentMethod = json['payment_method'];
+    print('step7');
     subtotal = json['subtotal'];
+    print('step8');
     serviceFee = json['service_fee'];
+    print('step9');
     total = json['total'];
+    print('step10');
     serviceStartOtp = json['service_start_otp'];
+    print('step11');
     vendor = json['vendor'] != null
         ? new Vendor.fromJson(json['vendor'])
         : null;
+    print('step12');
     if (json['services'] != null) {
       services = <Services>[];
       json['services'].forEach((v) {
         services!.add(new Services.fromJson(v));
       });
     }
+    print('step13');
     address = json['address'] != null
         ? new Address.fromJson(json['address'])
         : null;
+    print('step14');
   }
 
   Map<String, dynamic> toJson() {
