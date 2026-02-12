@@ -1,10 +1,9 @@
 import 'package:ozi/app/core/appExports/app_export.dart';
 import 'package:ozi/app/modules/vendor/services/edit%20service/view/vendor_editservice_screen.dart';
-
 import '../provider/service_details_provider.dart';
 
-class ServiceDetailsScreen extends StatelessWidget {
-  const ServiceDetailsScreen({super.key});
+class ServiceCardDetailsScreen extends StatelessWidget {
+  const ServiceCardDetailsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -50,7 +49,7 @@ class _ServiceDetailsContent extends StatelessWidget {
           ),
         ),
 
-        /// 🔹 TITLE PADDING
+        // TITLE PADDING
         titleSpacing: 0,
         title: const Padding(
           padding: EdgeInsets.symmetric(horizontal: 8),
@@ -66,7 +65,7 @@ class _ServiceDetailsContent extends StatelessWidget {
 
         centerTitle: true,
 
-        /// 🔹 RIGHT PADDING CONTROL
+        // RIGHT PADDING CONTROL
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 12),
@@ -86,11 +85,11 @@ class _ServiceDetailsContent extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              /// ============ SERVICE CARD ============
+              // ============ SERVICE CARD ============
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  /// Image
+                  // Image
                   ClipRRect(
                     borderRadius: BorderRadius.circular(12),
                     child: Image.network(
@@ -103,14 +102,18 @@ class _ServiceDetailsContent extends StatelessWidget {
                           width: 80,
                           height: 80,
                           color: Colors.grey[200],
-                          child: const Icon(Icons.image, size: 40, color: Colors.grey),
+                          child: const Icon(
+                            Icons.image,
+                            size: 40,
+                            color: Colors.grey,
+                          ),
                         );
                       },
                     ),
                   ),
                   const SizedBox(width: 12),
 
-                  /// Details
+                  // Details
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -136,7 +139,6 @@ class _ServiceDetailsContent extends StatelessWidget {
                               provider.duration,
                               style: AppFontStyle.text_12_400(AppColors.grey),
                             ),
-
                           ],
                         ),
                         const SizedBox(height: 8),
@@ -157,14 +159,17 @@ class _ServiceDetailsContent extends StatelessWidget {
                                 vertical: 4,
                               ),
                               decoration: BoxDecoration(
-                                color: AppColors.primary.withValues(alpha: 0.70),
+                                color: AppColors.primary.withValues(
+                                  alpha: 0.70,
+                                ),
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               child: Text(
                                 provider.isActive ? 'Active' : 'Inactive',
-                                style: AppFontStyle.text_12_400(AppColors.white),
+                                style: AppFontStyle.text_12_400(
+                                  AppColors.white,
+                                ),
                               ),
-
                             ),
                           ],
                         ),
@@ -176,7 +181,7 @@ class _ServiceDetailsContent extends StatelessWidget {
 
               const SizedBox(height: 24),
 
-              /// ============ ABOUT SERVICE ============
+              // ============ ABOUT SERVICE ============
               Text(
                 'About Service',
                 style: AppFontStyle.text_16_600(
@@ -189,15 +194,12 @@ class _ServiceDetailsContent extends StatelessWidget {
               Text(
                 maxLines: 10,
                 provider.description,
-                style: AppFontStyle.text_14_400(
-                  AppColors.grey,
-                ),
+                style: AppFontStyle.text_14_400(AppColors.grey),
               ),
-
 
               const SizedBox(height: 24),
 
-              /// ============ PERFORMANCE ============
+              // ============ PERFORMANCE ============
               Text(
                 'Performance',
                 style: AppFontStyle.text_16_600(
@@ -232,16 +234,16 @@ class _ServiceDetailsContent extends StatelessWidget {
         ),
       ),
 
-      /// ============ BOTTOM BUTTONS ============
+      // ============ BOTTOM BUTTONS ============
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Row(
           children: [
-            /// Delete Button
+            // Delete Button
             Expanded(
               child: OutlinedButton.icon(
                 onPressed: () {
-                  showDeleteDialog(context, );
+                  showDeleteDialog(context);
                 },
                 style: OutlinedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 16),
@@ -250,20 +252,23 @@ class _ServiceDetailsContent extends StatelessWidget {
                     borderRadius: BorderRadius.circular(30),
                   ),
                 ),
-                icon: const Icon(Icons.delete_outline, color: Colors.red, size: 20),
+                icon: const Icon(
+                  Icons.delete_outline,
+                  color: Colors.red,
+                  size: 20,
+                ),
                 label: Text(
-        'Delete',
-        style: AppFontStyle.text_14_600(
-          Colors.red,
-          fontFamily: AppFontFamily.bold,
-        ),
-      ),
-
-    ),
+                  'Delete',
+                  style: AppFontStyle.text_14_600(
+                    Colors.red,
+                    fontFamily: AppFontFamily.bold,
+                  ),
+                ),
+              ),
             ),
             const SizedBox(width: 12),
 
-            /// Edit Button
+            // Edit Button
             Expanded(
               child: CustomButton(
                 height: 52,
@@ -274,14 +279,17 @@ class _ServiceDetailsContent extends StatelessWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (_) =>  VendorEditserviceScreen(),
+                      builder: (_) => VendorEditserviceScreen(),
                     ),
                   );
                 },
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                     CustomImage(path: ImageConstants.edit, color: AppColors.primary,),
+                    CustomImage(
+                      path: ImageConstants.edit,
+                      color: AppColors.primary,
+                    ),
                     wBox(8),
                     Text(
                       'Edit',
@@ -294,18 +302,14 @@ class _ServiceDetailsContent extends StatelessWidget {
                 ),
               ),
             ),
-
           ],
         ),
       ),
     );
   }
 
-  /// Performance Tile Widget
-  Widget _performanceTile({
-    required String title,
-    required String value,
-  }) {
+  // Performance Tile Widget
+  Widget _performanceTile({required String title, required String value}) {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 20),
       decoration: BoxDecoration(
@@ -323,17 +327,13 @@ class _ServiceDetailsContent extends StatelessWidget {
           ),
 
           const SizedBox(height: 4),
-          Text(
-            title,
-            style: AppFontStyle.text_13_400(AppColors.grey),
-          ),
-
+          Text(title, style: AppFontStyle.text_13_400(AppColors.grey)),
         ],
       ),
     );
   }
 
-  /// Options Menu (Three dots)
+  // Options Menu (Three dots)
   void _showOptionsMenu(BuildContext context, ServiceDetailsProvider provider) {
     showModalBottomSheet(
       context: context,
@@ -381,7 +381,7 @@ class _ServiceDetailsContent extends StatelessWidget {
     );
   }
 
-  /// Delete Confirmation Dialog
+  // Delete Confirmation Dialog
   Future<void> showDeleteDialog(BuildContext context) async {
     showDialog(
       context: context,
@@ -399,7 +399,6 @@ class _ServiceDetailsContent extends StatelessWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-
                 Text(
                   "Delete Service?",
                   style: AppFontStyle.text_20_600(
@@ -426,7 +425,10 @@ class _ServiceDetailsContent extends StatelessWidget {
                     CustomButton(
                       width: 140,
                       text: "Cancel",
-                      textStyle: AppFontStyle.text_14_500(AppColors.darkText, fontFamily: AppFontFamily.medium),
+                      textStyle: AppFontStyle.text_14_500(
+                        AppColors.darkText,
+                        fontFamily: AppFontFamily.medium,
+                      ),
                       color: AppColors.grey,
                       isOutlined: true,
                       borderRadius: BorderRadius.circular(30),
@@ -446,7 +448,6 @@ class _ServiceDetailsContent extends StatelessWidget {
                     ),
                   ],
                 ),
-
               ],
             ),
           ),

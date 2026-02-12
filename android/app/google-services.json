@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "102047141140",
+    "project_id": "oziservices-e95c8",
+    "storage_bucket": "oziservices-e95c8.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:102047141140:android:d56e1a016de4db9faa0601",
+        "android_client_info": {
+          "package_name": "com.services.ozi"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCeXAfJz5UlKGq_iPsf0ydOhO2Cud_6t1g"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

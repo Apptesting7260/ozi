@@ -10,20 +10,22 @@ import '../widget/vendor_custom_appbar.dart';
 
 
 class ServiceDetailsScreen extends StatelessWidget {
-  const ServiceDetailsScreen(this.service, {super.key});
+   ServiceDetailsScreen(this.service,this.name, {super.key});
   final VendorGetAllServicesModelData? service;
+  String name ;
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
       create: (_) => ServiceDetailsProvider(service),
-      child: _ServiceDetailsContent(service),
+      child: _ServiceDetailsContent(service,name),
     );
   }
 }
 
 class _ServiceDetailsContent extends StatefulWidget {
-  const _ServiceDetailsContent(this.service);
+   _ServiceDetailsContent(this.service,this.name);
   final VendorGetAllServicesModelData? service;
+  String name ;
 
   @override
   State<_ServiceDetailsContent> createState() => _ServiceDetailsContentState();
@@ -69,10 +71,10 @@ class _ServiceDetailsContentState extends State<_ServiceDetailsContent> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             VendorCustomAppBar(
-              title: "Service Details",
+              title: widget.name,
               columnChild: widget.service == null
                   ? Text(
-                "Step 2 of 6",
+                "",
                 style: AppFontStyle.text_12_400(AppColors.grey),
               )
                   : Text(''),
@@ -87,7 +89,7 @@ class _ServiceDetailsContentState extends State<_ServiceDetailsContent> {
                     children: [
                       hBox(2),
 
-                      /// ================= IMAGE UPLOAD =================
+                      // ================= IMAGE UPLOAD =================
                       GestureDetector(
                         onTap: () => _pickImage(context),
                         child: Row(
@@ -188,7 +190,7 @@ class _ServiceDetailsContentState extends State<_ServiceDetailsContent> {
 
                       hBox(28),
 
-                      /// ================= SERVICE NAME =================
+                      // ================= SERVICE NAME =================
                       CustomTextFormField(
                         label: "Service Name",
                         controller: provider.serviceName,
@@ -205,7 +207,7 @@ class _ServiceDetailsContentState extends State<_ServiceDetailsContent> {
 
                       hBox(20),
 
-                      /// ================= CATEGORY =================
+                      // ================= CATEGORY =================
                       CustomDropDownT<CategoryDropDownData>(
                         label: "Category",
                         items: provider.categories?.data ?? [],
@@ -221,7 +223,7 @@ class _ServiceDetailsContentState extends State<_ServiceDetailsContent> {
 
                       hBox(20),
 
-                      /// ================= SUBCATEGORY =================
+                      // ================= SUBCATEGORY =================
                       CustomDropDownT<Subcategories>(
                         label: "Sub Category",
                         items: provider.category?.subcategories ?? [],
@@ -229,8 +231,9 @@ class _ServiceDetailsContentState extends State<_ServiceDetailsContent> {
                         hintText: "Select sub category",
                         onChanged: provider.setSubCategory,
                         validator: (value) {
-                          if (value == null)
+                          if (value == null) {
                             return "Please select sub category";
+                          }
                           return null;
                         },
                         borderRadius: 60,
@@ -238,7 +241,7 @@ class _ServiceDetailsContentState extends State<_ServiceDetailsContent> {
 
                       hBox(20),
 
-                      /// ================= DESCRIPTION =================
+                      // ================= DESCRIPTION =================
                       CustomTextFormField(
                         controller: provider.description,
                         label: "Description",
@@ -260,7 +263,7 @@ class _ServiceDetailsContentState extends State<_ServiceDetailsContent> {
 
                       hBox(20),
 
-                      /// ================= PRICE =================
+                      // ================= PRICE =================
                       CustomTextFormField(
                         controller: provider.priceAmount,
                         label: "Service Price",
@@ -277,18 +280,20 @@ class _ServiceDetailsContentState extends State<_ServiceDetailsContent> {
                         borderRadius: 60,
                         // onChanged: provider.setPrice,
                         validator: (value) {
-                          if (value == null || value.isEmpty)
+                          if (value == null || value.isEmpty) {
                             return "Price is required";
+                          }
                           final price = double.tryParse(value);
-                          if (price == null || price <= 0)
+                          if (price == null || price <= 0) {
                             return "Enter valid price";
+                          }
                           return null;
                         },
                       ),
 
                       hBox(20),
 
-                      /// ================= DURATION =================
+                      // ================= DURATION =================
                       Text(
                         "Estimated Duration",
                         style: AppFontStyle.text_14_500(AppColors.darkText),
@@ -329,7 +334,7 @@ class _ServiceDetailsContentState extends State<_ServiceDetailsContent> {
                       ),
                       hBox(20),
 
-                      /// ================= DURATION =================
+                      // ================= DURATION =================
                       Text(
                         "Status",
                         style: AppFontStyle.text_14_500(AppColors.darkText),
@@ -356,7 +361,7 @@ class _ServiceDetailsContentState extends State<_ServiceDetailsContent> {
                       ),
                       hBox(28),
 
-                      /// ================= CONTINUE BUTTON =================
+                      // ================= CONTINUE BUTTON =================
                       CustomButton(
                         text: "Continue",
                         height: 54,
