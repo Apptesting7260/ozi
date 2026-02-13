@@ -51,5 +51,7 @@
       <string>tel</string>
       <string>mailto</string>
     </array>
+    <key>NSLocationWhenInUseUsageDescription</key>
+    <string>We use your location to show nearby services and accurate delivery options.</string>
 </dict>
 </plist>
