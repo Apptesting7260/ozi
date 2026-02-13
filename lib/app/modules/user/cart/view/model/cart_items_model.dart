@@ -58,6 +58,7 @@ class CartItem {
   String? serviceName;
   String? serviceImage;
   int? servicePrice;
+  String? activeStatus;
   int? quantity;
   int? serviceItemTotal;
   bool? isservicedeleted;
@@ -68,6 +69,7 @@ class CartItem {
     this.serviceName,
     this.serviceImage,
     this.servicePrice,
+    this.activeStatus,
     this.quantity,
     this.serviceItemTotal,
     this.isservicedeleted,
@@ -79,6 +81,7 @@ class CartItem {
     serviceName = json['service_name']?.toString();
     serviceImage = json['service_image']?.toString();
     servicePrice = int.tryParse(json['service_price']?.toString() ?? "0");
+    activeStatus = json['status']?.toString();
     quantity = json['quantity'];
     serviceItemTotal = int.tryParse(
       json['service_item_total']?.toString() ?? "0",

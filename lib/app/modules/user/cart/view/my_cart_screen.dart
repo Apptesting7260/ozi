@@ -246,7 +246,7 @@ class CartScreenContent extends StatelessWidget {
 
                 hBox(8),
 
-                item.isservicedeleted == true
+                item.isservicedeleted == true || item.activeStatus == 'inactive'
                     ? SizedBox.shrink()
                     : Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -327,7 +327,7 @@ class CartScreenContent extends StatelessWidget {
                       ),
 
                 hBox(12),
-                item.isservicedeleted == true
+                item.isservicedeleted == true || item.activeStatus == 'inactive'
                     ? Container(
                         padding: EdgeInsets.all(7),
                         decoration: BoxDecoration(
@@ -455,7 +455,9 @@ class CartScreenContent extends StatelessWidget {
           onPressed: () {
             // Check if there are any items that are marked as deleted/unavailable
             final bool hasUnavailableItems = cart.items.any(
-              (item) => item.isservicedeleted == true,
+              (item) =>
+                  item.isservicedeleted == true ||
+                  item.activeStatus == 'inactive',
             );
 
             if (hasUnavailableItems) {
