@@ -1,4 +1,5 @@
 import 'package:intl/intl.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../../core/appExports/app_export.dart';
 import '../../../../../shared/widgets/custom_app_bar.dart';
@@ -822,7 +823,7 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
               if (vendor.mobile != null)
                 GestureDetector(
                   onTap: () {
-                    // Implement call functionality if needed
+                    launchUrl(Uri.parse("tel:${vendor.mobile}"));
                   },
                   child: Container(
                     padding: EdgeInsets.all(12),
@@ -959,16 +960,16 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
           padding: EdgeInsets.all(16),
           child: Column(
             children: [
-              _summaryRow("Subtotal", "${data.subtotal ?? '0'}"),
+              _summaryRow("Subtotal", "\$${data.subtotal ?? '0'}"),
               hBox(12),
-              _summaryRow("Service Fee", "${data.serviceFee ?? '0'}"),
+              _summaryRow("Service Fee", "\$${data.serviceFee ?? '0'}"),
               hBox(16),
               Divider(
                 color: AppColors.black.withValues(alpha: 0.10),
                 thickness: 2,
               ),
               hBox(12),
-              _summaryRow("Total", "${data.total ?? '0'}", isTotal: true),
+              _summaryRow("Total", "\$${data.total ?? '0'}", isTotal: true),
               hBox(30),
 
               if (data.status?.toLowerCase() == "confirmed" ||

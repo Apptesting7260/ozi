@@ -34,10 +34,7 @@ class CupponProvider extends ChangeNotifier {
         if (_selectedCoupon?.id == null) _selectedCoupon = null;
       }
     } catch (e) {
-      Get.showToast(
-        e.toString() ?? 'Something went wrong',
-        type: ToastType.error,
-      );
+      Get.showToast(e.toString(), type: ToastType.error);
       _errorMessage = e.toString();
     } finally {
       _isLoading = false;
@@ -96,6 +93,38 @@ class CupponProvider extends ChangeNotifier {
         e.toString() ?? 'Something went wrong',
         type: ToastType.error,
       );
+      return false;
+    } finally {
+      _isApplyLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<bool> removeCoupon() async {
+    if (_selectedCoupon == null && _appliedCouponCode == null) return true;
+
+    _isApplyLoading = true;
+    notifyListeners();
+
+    try {
+      final String idToRemove =
+          _selectedCoupon?.id?.toString() ?? _appliedCouponCode!;
+      final response = await _repository.applyorRemoveCupponApi(idToRemove);
+
+      if (response != null && response['status'] == true) {
+        _selectedCoupon = null;
+        _appliedCouponCode = null;
+        Get.showToast("Coupon removed successfully", type: ToastType.success);
+        return true;
+      } else {
+        Get.showToast(
+          response?['message'] ?? "Failed to remove coupon",
+          type: ToastType.error,
+        );
+        return false;
+      }
+    } catch (e) {
+      Get.showToast(e.toString(), type: ToastType.error);
       return false;
     } finally {
       _isApplyLoading = false;
