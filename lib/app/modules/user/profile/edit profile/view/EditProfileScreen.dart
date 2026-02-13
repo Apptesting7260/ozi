@@ -142,14 +142,15 @@ class EditProfileScreen extends StatelessWidget {
               },
             ),
 
-            ListTile(
-              leading: Icon(Icons.camera_alt, color: AppColors.primary),
-              title: const Text("Camera"),
-              onTap: () {
-                Navigator.pop(context);
-                provider.pickCamera();
-              },
-            ),
+            // ListTile(
+            //   leading: Icon(Icons.camera_alt, color: AppColors.primary),
+            //   title: const Text("Camera"),
+            //   onTap: () {
+            //     Navigator.pop(context);
+            //     provider.pickCamera();
+            //   },
+            // ),
+            // ),
 
             hBox(10),
           ],
