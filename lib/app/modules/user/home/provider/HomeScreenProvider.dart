@@ -8,9 +8,7 @@ import '../services/view/CategoryDetailScreen.dart';
 
 class HomeScreenProvider extends ChangeNotifier {
   HomeScreenProvider() {
-    // fetchCategories();
-    getCurrentLocation();
-    print("lat long value lat=$lat, lng=$lng");
+    // Location and data will be handled by loadOnce() called from the View
   }
   String _selectedLocation = "Select Location";
   final String _userName = "Alex";
@@ -61,10 +59,13 @@ class HomeScreenProvider extends ChangeNotifier {
     _isLoading = true;
     notifyListeners();
 
-    await fetchCategories();
-
-    _isLoading = false;
-    _isLoaded = true;
+    bool success = await getCurrentLocation();
+    if (success) {
+      _isLoading = false;
+      _isLoaded = true;
+    }
+    // If not successful, we keep _isLoading = true to show shimmer
+    // as per user requirement.
     notifyListeners();
   }
 
@@ -72,21 +73,27 @@ class HomeScreenProvider extends ChangeNotifier {
     _isLoading = true;
     notifyListeners();
 
-    await fetchCategories();
-
-    _isLoading = false;
+    bool success = await getCurrentLocation();
+    if (success) {
+      _isLoading = false;
+      _isLoaded = true;
+    }
     notifyListeners();
   }
 
   Future<void> fetchCategories() async {
+    if (lat == null || lng == null || lat!.isEmpty || lng!.isEmpty) {
+      debugPrint("⚠️ Skipping Category API: Location not available");
+      return;
+    }
+
     try {
       final CategoryModel model = await _repository.homePageCategoryApi(
-        lat ?? "",
-        lng ?? "",
+        lat!,
+        lng!,
       );
 
       _serviceCategories.clear();
-      print("lat lonhg : $lat $lng");
       if (model.status == true &&
           model.data != null &&
           model.data!.isNotEmpty) {
@@ -94,10 +101,7 @@ class HomeScreenProvider extends ChangeNotifier {
       }
       notifyListeners();
     } catch (e) {
-      Get.showToast(
-        e.toString() ?? 'Something went wrong',
-        type: ToastType.error,
-      );
+      // Avoid showing errors if it's related to missing location or expected issues
       debugPrint("❌ Category API Error: $e");
     }
   }
@@ -124,10 +128,12 @@ class HomeScreenProvider extends ChangeNotifier {
       bool serviceEnabled;
       LocationPermission permission;
 
-      // GPS on
       serviceEnabled = await Geolocator.isLocationServiceEnabled();
       if (!serviceEnabled) {
-        print("Location denied. Please enable location services");
+        Get.showToast(
+          'Please enable location services',
+          type: ToastType.notice,
+        );
         return false;
       }
 
@@ -135,28 +141,29 @@ class HomeScreenProvider extends ChangeNotifier {
       if (permission == LocationPermission.denied) {
         permission = await Geolocator.requestPermission();
         if (permission == LocationPermission.denied) {
-          print("Location permission denied.");
+          Get.showToast(
+            'Location permission is required.',
+            type: ToastType.error,
+          );
           return false;
         }
       }
 
       if (permission == LocationPermission.deniedForever) {
-        print("Location permission denied");
+        Get.showToast(
+          'Location permission is required.',
+          type: ToastType.error,
+        );
         return false;
       }
 
       Position position = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high,
-        timeLimit: Duration(seconds: 10),
+        timeLimit: const Duration(seconds: 10),
       );
 
       lat = position.latitude.toStringAsFixed(6);
       lng = position.longitude.toStringAsFixed(6);
-
-      print("Latitude value: ${lat.toString()}");
-      print("Longitude value: ${lng.toString()}");
-
-      notifyListeners(); // Notify UI about location update
 
       await fetchCategories();
 
@@ -167,28 +174,16 @@ class HomeScreenProvider extends ChangeNotifier {
 
       if (placemarks.isNotEmpty) {
         Placemark place = placemarks.first;
-
         countryName = place.country;
         countryCode = place.isoCountryCode;
-
-        // Update selected location with a more readable address
         _selectedLocation = "${place.locality ?? ""}, ${place.country ?? ""}";
         if (_selectedLocation.startsWith(", ")) {
           _selectedLocation = _selectedLocation.substring(2);
         }
-
-        print("Country: $countryName");
-        print("Country Code: $countryCode");
-        print("Location Address: $_selectedLocation");
-        notifyListeners();
       }
-      return true; // success
+      return true;
     } catch (e) {
-      Get.showToast(
-        e.toString() ?? 'Something went wrong',
-        type: ToastType.error,
-      );
-      print("Location error: $e");
+      debugPrint("Location error: $e");
       return false;
     }
   }
