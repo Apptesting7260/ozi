@@ -14,12 +14,19 @@ class BookServiceModel {
     status = json['status'];
     vendorId = json['vendor_id'];
 
-    vendorAvailability = json['vendor_availability'] != null
-        ? VendorAvailability.fromJson(json['vendor_availability'])
+    vendorAvailability =
+        (json['vendor_availability'] != null &&
+            json['vendor_availability'] is Map)
+        ? VendorAvailability.fromJson(
+            json['vendor_availability'] as Map<String, dynamic>,
+          )
         : null;
 
-    defaultAddress = json['default_address'] != null
-        ? DefaultAddress.fromJson(json['default_address'])
+    defaultAddress =
+        (json['default_address'] != null && json['default_address'] is Map)
+        ? DefaultAddress.fromJson(
+            json['default_address'] as Map<String, dynamic>,
+          )
         : null;
   }
 
@@ -41,13 +48,15 @@ class VendorAvailability {
 
   VendorAvailability({this.days});
 
-  VendorAvailability.fromJson(Map<String, dynamic> json) {
+  VendorAvailability.fromJson(dynamic json) {
     days = {};
-    json.forEach((key, value) {
-      if (value is List) {
-        days![key] = value.map((e) => DaySlot.fromJson(e)).toList();
-      }
-    });
+    if (json is Map) {
+      json.forEach((key, value) {
+        if (value is List) {
+          days![key] = value.map((e) => DaySlot.fromJson(e)).toList();
+        }
+      });
+    }
   }
 
   Map<String, dynamic> toJson() {

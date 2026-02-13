@@ -60,6 +60,7 @@ class CartItem {
   int? servicePrice;
   int? quantity;
   int? serviceItemTotal;
+  bool? isservicedeleted;
 
   CartItem({
     this.cartId,
@@ -69,6 +70,7 @@ class CartItem {
     this.servicePrice,
     this.quantity,
     this.serviceItemTotal,
+    this.isservicedeleted,
   });
 
   CartItem.fromJson(Map<String, dynamic> json) {
@@ -81,6 +83,18 @@ class CartItem {
     serviceItemTotal = int.tryParse(
       json['service_item_total']?.toString() ?? "0",
     );
+    // Handle both boolean and various truthy values from API (like 1 or "true")
+    final deletedValue = json['is_service_deleted'];
+    if (deletedValue is bool) {
+      isservicedeleted = deletedValue;
+    } else if (deletedValue is num) {
+      isservicedeleted = deletedValue == 1;
+    } else if (deletedValue is String) {
+      isservicedeleted =
+          deletedValue.toLowerCase() == 'true' || deletedValue == '1';
+    } else {
+      isservicedeleted = false;
+    }
   }
 
   Map<String, dynamic> toJson() {

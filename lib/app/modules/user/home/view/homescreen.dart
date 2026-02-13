@@ -136,7 +136,10 @@ class HomeScreenView extends StatelessWidget {
           children: [
             GestureDetector(
               onTap: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => MessageScreen(),));
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => MessageScreen()),
+                );
               },
               child: Image.asset(
                 "assets/images/msgimg.png",

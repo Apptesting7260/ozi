@@ -169,21 +169,59 @@ class _CopponScreenState extends State<CopponScreen> {
                 style: AppFontStyle.text_16_700(AppColors.black),
               ),
               GestureDetector(
-                onTap: () => provider.selectCoupon(coupon),
-                child: Container(
-                  width: 20.w,
-                  height: 20.w,
-                  decoration: BoxDecoration(
-                    color: isSelected ? AppColors.primary : AppColors.white,
-                    border: Border.all(
-                      color: isSelected ? AppColors.primary : AppColors.grey,
-                    ),
-                    borderRadius: BorderRadius.circular(4.r),
-                  ),
-                  child: isSelected
-                      ? Icon(Icons.check, size: 14.w, color: AppColors.white)
-                      : null,
-                ),
+                onTap: () async {
+                  if (isSelected) {
+                    if (provider.appliedCouponCode == coupon.code) {
+                      bool success = await provider.removeCoupon();
+                      if (success && mounted) {
+                        // Also update the CartProvider on the previous screen
+                        final cartProvider = context.read<CartProvider>();
+                        cartProvider.setAppliedCoupon(null);
+                        cartProvider.fetchCartItems();
+                      }
+                    } else {
+                      provider.selectCoupon(null);
+                    }
+                  } else {
+                    provider.selectCoupon(coupon);
+                  }
+                },
+                child: isSelected
+                    ? Container(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 12.w,
+                          vertical: 6.h,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.red.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(20.r),
+                          border: Border.all(color: Colors.red),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.check_circle,
+                              size: 14.w,
+                              color: Colors.red,
+                            ),
+                            wBox(6),
+                            Text(
+                              "Remove Coupon",
+                              style: AppFontStyle.text_12_600(Colors.red),
+                            ),
+                          ],
+                        ),
+                      )
+                    : Container(
+                        width: 22.w,
+                        height: 22.w,
+                        decoration: BoxDecoration(
+                          color: AppColors.white,
+                          border: Border.all(color: AppColors.grey),
+                          borderRadius: BorderRadius.circular(4.r),
+                        ),
+                      ),
               ),
             ],
           ),

@@ -2,6 +2,7 @@ import 'dart:developer' as dev;
 import 'package:flutter/material.dart';
 import 'package:ozi/app/core/utils/get_utils.dart';
 import 'package:ozi/app/data/response/api_response.dart';
+import 'package:ozi/app/modules/user/cart/view/model/cart_items_model.dart';
 import 'package:ozi/app/modules/user/home/service%20details/model/vendordetaiulmodel.dart';
 import '../../../../../core/constants/app_urls.dart';
 import '../../../../../data/repository/repository.dart';
@@ -69,6 +70,7 @@ class ServiceDetailProvider extends ChangeNotifier {
 
   ServiceDetailProvider(this.service, this.categoryId) {
     _fetchServiceDetails();
+    fetchCartItems();
   }
 
   Future<void> vendorDetailsApi(String vendorId) async {
@@ -85,6 +87,7 @@ class ServiceDetailProvider extends ChangeNotifier {
         }
       }
       Get.showToast(response.message ?? '', type: ToastType.success);
+      await fetchCartItems();
     } catch (e) {
       dev.log('Error in vendorDetailsApi: $e');
       setVendorDetailModel(ApiResponse.error(e.toString()));
@@ -101,6 +104,50 @@ class ServiceDetailProvider extends ChangeNotifier {
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
   bool get isAddingToCart => _isAddingToCart;
+
+  // Cart summary fields
+  List<CartItem> _items = [];
+  int _subtotal = 0;
+  int _serviceFee = 0;
+  int _discount = 0;
+  int _total = 0;
+
+  List<CartItem> get items => _items;
+  int get subtotal => _subtotal;
+  int get serviceFee => _serviceFee;
+  int get discount => _discount;
+  int get total => _total;
+  int get cartCount =>
+      _items.fold(0, (sum, item) => sum + (item.quantity ?? 0));
+
+  Future<void> fetchCartItems() async {
+    try {
+      final CartItemsModel response = await _repository.getCartItemsApi();
+
+      if (response.status == true && response.data != null) {
+        _items = response.data!.items ?? [];
+        final summary = response.data!.summary;
+        _subtotal = summary?.subtotal ?? 0;
+        _serviceFee = summary?.serviceFee ?? 0;
+        _discount = summary?.discount ?? 0;
+        _total = summary?.total ?? 0;
+
+        // Sync _cartItems (Map) with fetched items
+        _cartItems.clear();
+        for (var item in _items) {
+          if (item.serviceId != null && item.quantity != null) {
+            final svcId = int.tryParse(item.serviceId!);
+            if (svcId != null) {
+              _cartItems[svcId] = item.quantity!;
+            }
+          }
+        }
+      }
+      notifyListeners();
+    } catch (e) {
+      dev.log('Error fetching cart items in ServiceDetailProvider: $e');
+    }
+  }
 
   final Map<int, int> _cartItems = {};
 
@@ -140,6 +187,8 @@ class ServiceDetailProvider extends ChangeNotifier {
         if (_serviceProviders.isEmpty) {
           _errorMessage = 'No services available';
         }
+        // Fetch cart items to populate _items and correct totals
+        await fetchCartItems();
       } else {
         _errorMessage = response.message ?? 'Failed to load services';
       }
@@ -154,6 +203,7 @@ class ServiceDetailProvider extends ChangeNotifier {
 
   Future<void> refresh() async {
     await _fetchServiceDetails();
+    await fetchCartItems();
   }
 
   bool isInCart(int serviceId) {
@@ -194,6 +244,7 @@ class ServiceDetailProvider extends ChangeNotifier {
         _isAddingToCart = false;
         notifyListeners();
         Get.showToast(addToCartResponse.message ?? '', type: ToastType.success);
+        await fetchCartItems();
         return true;
       } else {
         throw Exception(addToCartResponse.message ?? 'Failed to add to cart');
@@ -208,123 +259,251 @@ class ServiceDetailProvider extends ChangeNotifier {
     }
   }
 
-  Future<bool> incrementQuantity(int serviceId) async {
-    if (_cartItems.containsKey(serviceId)) {
-      try {
-        _isAddingToCart = true;
-        notifyListeners();
+  Future<void> incrementQuantity(int serviceId) async {
+    // Try to find the item in our fetched items list to get the cartId
+    var item = _items.firstWhere(
+      (element) =>
+          element.serviceId?.toString().trim() == serviceId.toString().trim(),
+      orElse: () => CartItem(),
+    );
 
-        final newQuantity = _cartItems[serviceId]! + 1;
-
-        // Find the service details
-        final serviceData = _serviceProviders.firstWhere(
-          (sp) => sp.id == serviceId,
-          orElse: () => ServiceData(),
-        );
-
-        // Prepare API data
-        Map<String, dynamic> requestData = {
-          'service_id': serviceId,
-          'quantity': newQuantity,
-        };
-
-        dev.log('Incrementing quantity - Request Data: $requestData');
-
-        // Call the API
-        final response = await _repository.addToCartApi(requestData);
-
-        // Parse the response
-        AddToCartModel addToCartResponse = response;
-
-        if (addToCartResponse.status == true) {
-          _cartItems[serviceId] = newQuantity;
-          dev.log('Incremented: Service ID $serviceId to $newQuantity');
-          _isAddingToCart = false;
-          notifyListeners();
-          return true;
-        } else {
-          throw Exception(addToCartResponse.message ?? 'Failed to update cart');
-        }
-      } catch (e) {
-        dev.log('Error incrementing quantity: $e');
-        _isAddingToCart = false;
-        notifyListeners();
-        Get.showToast(e.toString(), type: ToastType.error);
-        return false;
-      }
+    // If we don't have the cartId yet, try to refresh once
+    if (item.cartId == null) {
+      await fetchCartItems();
+      item = _items.firstWhere(
+        (element) =>
+            element.serviceId?.toString().trim() == serviceId.toString().trim(),
+        orElse: () => CartItem(),
+      );
     }
-    return false;
+
+    if (item.cartId != null) {
+      await updateQuantity(item.cartId!, 1);
+    } else {
+      // Fallback: if we still don't have a cartId but the UI thinks it's in cart,
+      // try adding to cart again (often acts as an increment on the backend)
+      await addToCart(serviceId);
+    }
   }
 
-  Future<bool> decrementQuantity(int serviceId) async {
-    if (_cartItems.containsKey(serviceId)) {
-      try {
-        _isAddingToCart = true;
-        notifyListeners();
+  Future<void> decrementQuantity(int serviceId) async {
+    var item = _items.firstWhere(
+      (element) =>
+          element.serviceId?.toString().trim() == serviceId.toString().trim(),
+      orElse: () => CartItem(),
+    );
 
-        final currentQuantity = _cartItems[serviceId]!;
-
-        if (currentQuantity > 1) {
-          final newQuantity = currentQuantity - 1;
-
-          // Prepare API data
-          Map<String, dynamic> requestData = {
-            'service_id': serviceId,
-            'quantity': newQuantity,
-          };
-
-          dev.log('Decrementing quantity - Request Data: $requestData');
-
-          // Call the API
-          final response = await _repository.addToCartApi(requestData);
-
-          AddToCartModel addToCartResponse = response;
-
-          if (addToCartResponse.status == true) {
-            _cartItems[serviceId] = newQuantity;
-            dev.log('Decremented: Service ID $serviceId to $newQuantity');
-            _isAddingToCart = false;
-            notifyListeners();
-            return true;
-          } else {
-            throw Exception(
-              addToCartResponse.message ?? 'Failed to update cart',
-            );
-          }
-        } else {
-          // Quantity is 1, so remove from cart
-          _cartItems.remove(serviceId);
-          dev.log('Removed from cart: Service ID $serviceId');
-          _isAddingToCart = false;
-          notifyListeners();
-          return true;
-        }
-      } catch (e) {
-        dev.log('Error decrementing quantity: $e');
-        _isAddingToCart = false;
-        notifyListeners();
-        Get.showToast(e.toString(), type: ToastType.error);
-        return false;
-      }
+    // If we don't have the cartId yet, try to refresh once
+    if (item.cartId == null) {
+      await fetchCartItems();
+      item = _items.firstWhere(
+        (element) =>
+            element.serviceId?.toString().trim() == serviceId.toString().trim(),
+        orElse: () => CartItem(),
+      );
     }
-    return false;
+
+    if (item.cartId != null) {
+      if ((item.quantity ?? 0) > 1) {
+        await updateQuantity(item.cartId!, -1);
+      } else {
+        await removeItem(item.cartId!);
+      }
+    } else {
+      dev.log('Cannot decrement: cartId not found for service $serviceId');
+      // If quantity is 1 according to _cartItems, we might need a different way to remove it
+      // but without cartId, removeItem is impossible.
+    }
   }
 
   double get totalAmount {
-    double total = 0;
-    _cartItems.forEach((serviceId, quantity) {
-      final service = _serviceProviders.firstWhere(
-        (sp) => sp.id == serviceId,
+    if (_items.isNotEmpty) {
+      double total = 0;
+      for (var item in _items) {
+        total += (item.serviceItemTotal ?? 0);
+      }
+      return total;
+    }
+
+    // Fallback if _items is empty: Calculate based on _cartItems and _serviceProviders/vendorServices
+    double estimatedTotal = 0;
+    _cartItems.forEach((svcId, qty) {
+      // Look for the price in our fetched service providers
+      final svc = _serviceProviders.firstWhere(
+        (s) => s.id == svcId,
         orElse: () => ServiceData(),
       );
-      total += (service.servicePrice ?? 0) * quantity;
+      if (svc.id != null) {
+        estimatedTotal += (svc.servicePrice ?? 0).toDouble() * qty;
+      } else {
+        // Also check filteredVendorServices (used in VendorDetailScreen)
+        final vendorSvc = filteredVendorServices.firstWhere(
+          (s) => s.id == svcId,
+          orElse: () => Data(),
+        );
+        if (vendorSvc.id != null) {
+          estimatedTotal += (vendorSvc.servicePrice ?? 0).toDouble() * qty;
+        }
+      }
     });
-    return total;
+    return estimatedTotal;
   }
 
   int get cartItemCount {
+    // Prefer the map for immediate UI feedback as it's populated during initial fetch
     return _cartItems.values.fold(0, (sum, qty) => sum + qty);
   }
 
   Map<int, int> get cartItems => Map.from(_cartItems);
+
+  Future<void> removeItem(int cartId) async {
+    final index = _items.indexWhere((item) => item.cartId == cartId);
+    if (index == -1) return;
+
+    // Store item for potential rollback
+    final removedItem = _items[index];
+    int? removedSvcId;
+    int? removedQty;
+
+    if (removedItem.serviceId != null) {
+      removedSvcId = int.tryParse(removedItem.serviceId!);
+      if (removedSvcId != null) {
+        removedQty = _cartItems[removedSvcId];
+      }
+    }
+
+    // Optimistically remove from UI
+    _items.removeAt(index);
+    if (removedSvcId != null) {
+      _cartItems.remove(removedSvcId);
+    }
+
+    // Recalculate totals optimistically
+    _subtotal = _items.fold(
+      0,
+      (sum, item) => sum + (item.serviceItemTotal ?? 0),
+    );
+    _total = _subtotal + _serviceFee;
+
+    notifyListeners();
+
+    try {
+      final response = await _repository.removeCartItemApi(cartId);
+
+      print('Remove Item Response: $response');
+
+      // Check if API call was successful
+      if (response != null && response['status'] == true) {
+        // Item successfully removed, UI already updated
+        print('Item removed successfully');
+      } else {
+        throw Exception(response?['message'] ?? 'Failed to remove item');
+      }
+    } catch (e) {
+      // Revert on error
+      _items.insert(index, removedItem);
+      if (removedSvcId != null && removedQty != null) {
+        _cartItems[removedSvcId] = removedQty;
+      }
+
+      // Recalculate totals after reverting
+      _subtotal = _items.fold(
+        0,
+        (sum, item) => sum + (item.serviceItemTotal ?? 0),
+      );
+      _total = _subtotal + _serviceFee;
+
+      _errorMessage = 'Failed to remove item: ${e.toString()}';
+      notifyListeners();
+      Get.showToast(
+        e.toString() ?? 'Something went wrong',
+        type: ToastType.error,
+      );
+      print('Error removing item: $e');
+    }
+  }
+
+  Future<void> updateQuantity(int cartId, int delta) async {
+    final index = _items.indexWhere((item) => item.cartId == cartId);
+    if (index == -1) return;
+
+    // Store state for potential rollback
+    final originalQty = _items[index].quantity ?? 0;
+    final int price = _items[index].servicePrice ?? 0;
+    final originalItemTotal = _items[index].serviceItemTotal ?? 0;
+    final originalSubtotal = _subtotal;
+    final originalTotal = _total;
+
+    final newQty = originalQty + delta;
+    if (newQty < 1) return; // Should have called removeItem instead
+
+    // Optimistically update
+    _items[index].quantity = newQty;
+    _items[index].serviceItemTotal = price * newQty;
+
+    // Sync _cartItems
+    int? svcId;
+    if (_items[index].serviceId != null) {
+      svcId = int.tryParse(_items[index].serviceId!);
+      if (svcId != null) {
+        _cartItems[svcId] = newQty;
+      }
+    }
+
+    // Recalculate totals
+    _subtotal = _items.fold(
+      0,
+      (sum, item) => sum + (item.serviceItemTotal ?? 0),
+    );
+    _total = _subtotal + _serviceFee - _discount;
+
+    notifyListeners();
+
+    try {
+      dynamic response;
+      if (delta > 0) {
+        response = await _repository.increaseCartItemApi(cartId);
+      } else {
+        response = await _repository.decreaseCartItemApi(cartId);
+      }
+
+      print("Update Quantity Response: $response");
+
+      if (response.status == true && response.data != null) {
+        final int confirmedQty = (response.data!.quantity ?? 1).toInt();
+        // Sync with server response if slightly different (though usually matches delta)
+        if (confirmedQty != newQty) {
+          _items[index].quantity = confirmedQty;
+          _items[index].serviceItemTotal = price * confirmedQty;
+          if (svcId != null) {
+            _cartItems[svcId] = confirmedQty;
+          }
+          _subtotal = _items.fold(
+            0,
+            (sum, item) => sum + (item.serviceItemTotal ?? 0),
+          );
+          _total = _subtotal + _serviceFee - _discount;
+          notifyListeners();
+        }
+      } else {
+        throw Exception(response.message ?? "Failed to update quantity");
+      }
+    } catch (e) {
+      // Revert on error
+      _items[index].quantity = originalQty;
+      _items[index].serviceItemTotal = originalItemTotal;
+      if (svcId != null) {
+        _cartItems[svcId] = originalQty;
+      }
+      _subtotal = originalSubtotal;
+      _total = originalTotal;
+
+      Get.showToast(
+        e.toString() ?? 'Something went wrong',
+        type: ToastType.error,
+      );
+      _errorMessage = "Failed to update quantity: $e";
+      notifyListeners();
+    }
+  }
 }

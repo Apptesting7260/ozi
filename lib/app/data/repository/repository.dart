@@ -538,6 +538,11 @@ class Repository {
       // Use PUT method and append addressId to URL
       final response = await _apiService.getApi(AppUrls.schedule_service);
 
+      if (response is List) {
+        if (response.isEmpty) return BookServiceModel();
+        return BookServiceModel.fromJson(response[0]);
+      }
+
       return BookServiceModel.fromJson(response);
     } catch (e) {
       dev.log("Error in scheduleServiceApi: $e");
@@ -558,6 +563,11 @@ class Repository {
       final response = await _apiService.getApi(
         "${AppUrls.reschedule_service}?booking_id=$bookingId",
       );
+
+      if (response is List) {
+        if (response.isEmpty) return BookServiceModel();
+        return BookServiceModel.fromJson(response[0]);
+      }
 
       return BookServiceModel.fromJson(response);
     } catch (e) {
@@ -678,12 +688,9 @@ class Repository {
     }
   }
 
-
   // ********************************** Current User logoutUserFromOtherDevice ********************************** //
 
-  Future<LogoutUsersModel> logoutUserFromOtherDevice(
-      String tokenId
-      ) async {
+  Future<LogoutUsersModel> logoutUserFromOtherDevice(String tokenId) async {
     try {
       dynamic response = await _apiService.postApi({
         "token_id": tokenId,
@@ -698,13 +705,9 @@ class Repository {
 
   Future<WalletDetailModel> fetchWalletDetail() async {
     try {
-      dev.log(
-        "fetchWalletDetail URL: ${AppUrls.getCurrentUserLoginDetails}",
-      );
+      dev.log("fetchWalletDetail URL: ${AppUrls.getCurrentUserLoginDetails}");
 
-      final response = await _apiService.getApi(
-        AppUrls.getWalletDetail,
-      );
+      final response = await _apiService.getApi(AppUrls.getWalletDetail);
 
       return WalletDetailModel.fromJson(response);
     } catch (e) {

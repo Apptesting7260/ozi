@@ -217,7 +217,6 @@ class ScheduleProvider extends ChangeNotifier {
                 BookingConfirmScreen(bookingModel: bookingModel),
           ),
         );
-        // Navigator.pop(navigatorKey.currentContext!);
         return true;
       } else {
         Get.showToast(

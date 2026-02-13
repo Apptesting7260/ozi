@@ -1,5 +1,6 @@
 import 'package:ozi/app/modules/user/Reviews%20Section/screens/allreviewsscreen.dart';
 import 'package:ozi/app/modules/user/home/model/category_model.dart';
+import 'package:ozi/app/modules/user/navigation%20tab/view/navigation_tab_screen.dart';
 import '../../../../../core/appExports/app_export.dart';
 import '../../../../../core/constants/app_urls.dart';
 import '../../../../../data/response/api_status.dart';
@@ -62,6 +63,10 @@ class VendorDetailView extends StatelessWidget {
                 ),
               ),
               Expanded(child: _buildBody(context, provider)),
+              if (!provider.isLoading && provider.cartItemCount > 0) ...[
+                Divider(color: AppColors.dividerColor),
+                _buildBottomBar(context, provider),
+              ],
             ],
           ),
         ),
@@ -352,7 +357,7 @@ class VendorDetailView extends StatelessWidget {
                         ),
                       ),
                       provider.isInCart(service.id ?? 0)
-                          ? _buildCounter(service.id ?? 0, provider)
+                          ? _buildCounter(service.id ?? 0, provider, context)
                           : CustomButton(
                               text: "Add",
                               width: 80.w,
@@ -363,9 +368,18 @@ class VendorDetailView extends StatelessWidget {
                                 Colors.white,
                                 fontFamily: AppFontFamily.bold,
                               ),
-                              onPressed: () {
+                              onPressed: () async {
                                 if (service.id != null) {
-                                  provider.addToCart(service.id!);
+                                  try {
+                                    await provider.addToCart(service.id!);
+                                  } catch (e) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text('Failed to add to cart'),
+                                        backgroundColor: Colors.red,
+                                      ),
+                                    );
+                                  }
                                 }
                               },
                             ),
@@ -387,7 +401,62 @@ class VendorDetailView extends StatelessWidget {
     );
   }
 
-  Widget _buildCounter(int serviceId, ServiceDetailProvider provider) {
+  Widget _buildBottomBar(BuildContext context, ServiceDetailProvider provider) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(color: Colors.white),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            '\$${provider.totalAmount.toStringAsFixed(2)}',
+            style: AppFontStyle.text_28_600(
+              AppColors.black,
+              fontFamily: AppFontFamily.bold,
+            ),
+          ),
+          CustomButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => NavigationTabScreen(initialIndex: 1),
+                ),
+              );
+            },
+            width: 150,
+            height: 50,
+            color: AppColors.primary,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                CustomImage(
+                  path: ImageConstants.cart,
+                  height: 20,
+                  width: 20,
+                  color: AppColors.white,
+                ),
+                wBox(8),
+                Text(
+                  'View Cart',
+                  style: AppFontStyle.text_14_600(
+                    Colors.white,
+                    fontFamily: AppFontFamily.semiBold,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCounter(
+    int serviceId,
+    ServiceDetailProvider provider,
+    BuildContext context,
+  ) {
     final quantity = provider.getQuantity(serviceId);
 
     return Container(
@@ -401,7 +470,18 @@ class VendorDetailView extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           GestureDetector(
-            onTap: () => provider.decrementQuantity(serviceId),
+            onTap: () async {
+              try {
+                await provider.decrementQuantity(serviceId);
+              } catch (e) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('Failed to update quantity'),
+                    backgroundColor: Colors.red,
+                  ),
+                );
+              }
+            },
             child: Padding(
               padding: EdgeInsets.all(4.0.w),
               child: Icon(Icons.remove, size: 16.w, color: AppColors.primary),
@@ -417,7 +497,18 @@ class VendorDetailView extends StatelessWidget {
           ),
           wBox(8.w),
           GestureDetector(
-            onTap: () => provider.incrementQuantity(serviceId),
+            onTap: () async {
+              try {
+                await provider.incrementQuantity(serviceId);
+              } catch (e) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('Failed to update quantity'),
+                    backgroundColor: Colors.red,
+                  ),
+                );
+              }
+            },
             child: Padding(
               padding: EdgeInsets.all(4.0.w),
               child: Icon(Icons.add, size: 16.w, color: AppColors.primary),

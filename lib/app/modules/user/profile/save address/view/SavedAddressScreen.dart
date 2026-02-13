@@ -35,134 +35,138 @@ class _SavedAddressScreenState extends State<SavedAddressScreen> {
               },
               child: provider.isLoading
                   ? ListView(
-                padding: const EdgeInsets.all(16),
-                children: [
-                  ...List.generate(
-                    3,
-                        (_) => Padding(
-                      padding: const EdgeInsets.only(bottom: 16),
-                      child: ShimmerBox(
-                        width: double.infinity,
-                        height: 90,
-                        radius: 14,
-                      ),
-                    ),
-                  ),
-                ],
-              )
+                      padding: const EdgeInsets.all(16),
+                      children: [
+                        ...List.generate(
+                          3,
+                          (_) => Padding(
+                            padding: const EdgeInsets.only(bottom: 16),
+                            child: ShimmerBox(
+                              width: double.infinity,
+                              height: 90,
+                              radius: 14,
+                            ),
+                          ),
+                        ),
+                      ],
+                    )
                   : provider.errorMessage.isNotEmpty &&
-                  provider.addresses.isEmpty
+                        provider.addresses.isEmpty
                   ? Center(
-                child: Padding(
-                  padding: const EdgeInsets.all(20),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.location_off_outlined,
-                          size: 60, color: AppColors.grey),
-                      SizedBox(height: 16),
-                      Text(
-                        provider.errorMessage,
-                        style: AppFontStyle.text_14_400(AppColors.grey),
-                        textAlign: TextAlign.center,
+                      child: Padding(
+                        padding: const EdgeInsets.all(20),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.location_off_outlined,
+                              size: 60,
+                              color: AppColors.grey,
+                            ),
+                            SizedBox(height: 16),
+                            Text(
+                              provider.errorMessage,
+                              style: AppFontStyle.text_14_400(AppColors.grey),
+                              textAlign: TextAlign.center,
+                            ),
+                            SizedBox(height: 16),
+                            CustomButton(
+                              text: "Retry",
+                              onPressed: () {
+                                provider.fetchUserAddresses();
+                              },
+                              borderRadius: BorderRadius.circular(30),
+                            ),
+                          ],
+                        ),
                       ),
-                      SizedBox(height: 16),
-                      CustomButton(
-                        text: "Retry",
-                        onPressed: () {
-                          provider.fetchUserAddresses();
-                        },
-                        borderRadius: BorderRadius.circular(30),
-                      ),
-                    ],
-                  ),
-                ),
-              )
+                    )
                   : provider.addresses.isEmpty
                   ? Center(
-                child: Padding(
-                  padding: const EdgeInsets.all(20),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.location_off_outlined,
-                          size: 60, color: AppColors.grey),
-                      SizedBox(height: 16),
-                      Text(
-                        'No saved addresses',
-                        style: AppFontStyle.text_16_600(
-                            AppColors.black),
-                      ),
-                      SizedBox(height: 8),
-                      Text(
-                        'Add your first address to get started',
-                        style: AppFontStyle.text_14_400(
-                            AppColors.grey),
-                        textAlign: TextAlign.center,
-                      ),
-                      SizedBox(height: 20),
-                      CustomButton(
-                        text: "+ Add New Address",
-                        onPressed: () => Navigator.pushNamed(
-                          context,
-                          AppRoutes.addAddressScreen,
+                      child: Padding(
+                        padding: const EdgeInsets.all(20),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.location_off_outlined,
+                              size: 60,
+                              color: AppColors.grey,
+                            ),
+                            SizedBox(height: 16),
+                            Text(
+                              'No saved addresses',
+                              style: AppFontStyle.text_16_600(AppColors.black),
+                            ),
+                            SizedBox(height: 8),
+                            Text(
+                              'Add your first address to get started',
+                              style: AppFontStyle.text_14_400(AppColors.grey),
+                              textAlign: TextAlign.center,
+                            ),
+                            SizedBox(height: 20),
+                            CustomButton(
+                              text: "+ Add New Address",
+                              onPressed: () => Navigator.pushNamed(
+                                context,
+                                AppRoutes.addAddressScreen,
+                              ),
+                              borderRadius: BorderRadius.circular(30),
+                            ),
+                          ],
                         ),
-                        borderRadius: BorderRadius.circular(30),
                       ),
-                    ],
-                  ),
-                ),
-              )
+                    )
                   : ListView(
-                padding: REdgeInsets.all(16),
-                children: [
-                  ...List.generate(
-                    provider.addresses.length,
-                        (index) {
-                      final address = provider.addresses[index];
-                      return _addressTile(
-                        provider: provider,
-                        index: index,
-                        selected: provider.selectedIndex == index,
-                        title: address.addressType ?? 'Other',
-                        tag: address.isDefault == 1 ? 'Default' : null,
-                        icon: provider.getIconForAddressType(
-                            address.addressType),
-                        address:
-                        provider.getFormattedAddress(address),
-                        onTap: () {
-                          provider.selectAddress(index);
-                        },
-                        onEdit: () {
-                          // Set the address to edit
-                          provider.setEditingAddress(address);
+                      padding: REdgeInsets.all(16),
+                      children: [
+                        ...List.generate(provider.addresses.length, (index) {
+                          final address = provider.addresses[index];
+                          return _addressTile(
+                            provider: provider,
+                            index: index,
+                            selected: provider.selectedIndex == index,
+                            title: address.addressType ?? 'Other',
+                            tag: address.isDefault == 1 ? 'Default' : null,
+                            isDelete: address.isDefault == 1 ? true : false,
+                            icon: provider.getIconForAddressType(
+                              address.addressType,
+                            ),
+                            address: provider.getFormattedAddress(address),
+                            onTap: () {
+                              provider.selectAddress(index);
+                            },
+                            onEdit: () {
+                              // Set the address to edit
+                              provider.setEditingAddress(address);
 
-                          // Navigate to edit screen
-                          Navigator.pushNamed(
+                              // Navigate to edit screen
+                              Navigator.pushNamed(
+                                context,
+                                AppRoutes.editAddressScreen,
+                              ).then((_) {
+                                // Refresh addresses when coming back
+                                provider.fetchUserAddresses();
+                              });
+                            },
+                            onDelete: () {
+                              provider.deleteAddress(index, context);
+                            },
+                          );
+                        }),
+                        SizedBox(height: 8),
+                        CustomButton(
+                          text: "+ Add New Address",
+                          isOutlined: true,
+                          onPressed: () => Navigator.pushNamed(
                             context,
-                            AppRoutes.editAddressScreen,
-                          ).then((_) {
-                            // Refresh addresses when coming back
-                            provider.fetchUserAddresses();
-                          });
-                        },
-                        onDelete: () {
-                          provider.deleteAddress(index, context);
-                        },
-                      );
-                    },
-                  ),
-                  SizedBox(height: 8),
-                  CustomButton(
-                    text: "+ Add New Address",
-                    isOutlined: true,
-                    onPressed: () => Navigator.pushNamed(
-                        context, AppRoutes.addAddressScreen),
-                    height: 56,
-                    borderRadius: BorderRadius.circular(60),
-                  ),
-                ],
-              ),
+                            AppRoutes.addAddressScreen,
+                          ),
+                          height: 56,
+                          borderRadius: BorderRadius.circular(60),
+                        ),
+                      ],
+                    ),
             ),
           ),
         ],
@@ -178,6 +182,7 @@ class _SavedAddressScreenState extends State<SavedAddressScreen> {
     required String address,
     required String icon,
     String? tag,
+    bool? isDelete,
     required VoidCallback onTap,
     required VoidCallback onEdit,
     required VoidCallback onDelete,
@@ -262,7 +267,9 @@ class _SavedAddressScreenState extends State<SavedAddressScreen> {
                 SizedBox(width: 16),
                 GestureDetector(
                   onTap: onDelete,
-                  child: CustomImage(path: ImageConstants.bin),
+                  child: isDelete != true
+                      ? CustomImage(path: ImageConstants.bin)
+                      : SizedBox(),
                 ),
               ],
             ),
