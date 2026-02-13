@@ -45,16 +45,16 @@ class CupponProvider extends ChangeNotifier {
   void selectCoupon(Data? coupon) {
     if (_selectedCoupon?.id == coupon?.id) {
       _selectedCoupon = null;
-      _appliedCouponCode = null;
     } else {
       _selectedCoupon = coupon;
-      _appliedCouponCode = coupon?.code;
     }
     notifyListeners();
   }
 
   void setAppliedCouponCode(String? code) {
     _appliedCouponCode = code;
+    // When the applied code is set from CartProvider,
+    // also set it as the selected one to show the tick
     if (_couponsModel?.data != null && code != null) {
       _selectedCoupon = _couponsModel!.data!.firstWhere(
         (coupon) => coupon.code == code,
@@ -76,6 +76,7 @@ class CupponProvider extends ChangeNotifier {
       final response = await _repository.applyorRemoveCupponApi(promoId);
 
       if (response != null && response['status'] == true) {
+        _appliedCouponCode = _selectedCoupon?.code;
         Get.showToast(
           response['message'] ?? "Coupon applied successfully",
           type: ToastType.success,
