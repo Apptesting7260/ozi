@@ -12,6 +12,9 @@ class ServiceDetailsProvider extends ChangeNotifier {
 
   ServiceDetailsProvider(VendorGetAllServicesModelData? service) {
     serviceForEdit = service;
+    if (service != null) {
+      status = service.status == 'active' ? 'Active' : 'Inactive';
+    }
     getCategoriesData(service);
   }
 

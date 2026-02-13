@@ -2,28 +2,43 @@ class VendorGetAllServicesModel {
   bool? status;
   String? message;
   List<VendorGetAllServicesModelData>? data;
+  Filters? filters;
+  Pagination? pagination;
 
-  VendorGetAllServicesModel({this.status, this.message, this.data});
+  VendorGetAllServicesModel({
+    this.status,
+    this.message,
+    this.data,
+    this.filters,
+    this.pagination,
+  });
 
   VendorGetAllServicesModel.fromJson(Map<String, dynamic> json) {
     status = json['status'];
     message = json['message']?.toString();
+
     if (json['data'] != null) {
-      data = <VendorGetAllServicesModelData>[];
-      json['data'].forEach((v) {
-        data!.add(new VendorGetAllServicesModelData.fromJson(v));
-      });
+      data = (json['data'] as List)
+          .map((e) => VendorGetAllServicesModelData.fromJson(e))
+          .toList();
     }
+
+    filters =
+    json['filters'] != null ? Filters.fromJson(json['filters']) : null;
+
+    pagination = json['pagination'] != null
+        ? Pagination.fromJson(json['pagination'])
+        : null;
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['status'] = this.status;
-    data['message'] = this.message;
-    if (this.data != null) {
-      data['data'] = this.data!.map((v) => v.toJson()).toList();
-    }
-    return data;
+    return {
+      'status': status,
+      'message': message,
+      'data': data?.map((e) => e.toJson()).toList(),
+      'filters': filters?.toJson(),
+      'pagination': pagination?.toJson(),
+    };
   }
 }
 
@@ -44,30 +59,10 @@ class VendorGetAllServicesModelData {
   String? createdAt;
   String? updatedAt;
   String? deletedAt;
-  Category? category;
-  Category? subcategory;
-  bool isActive = true;
+  ServiceCategory? category;
+  ServiceCategory? subcategory;
+  Vendor? vendor;
 
-  VendorGetAllServicesModelData({
-    this.id,
-    this.vendorId,
-    this.serviceName,
-    this.serviceImage,
-    this.categoryId,
-    this.subcategoryId,
-    this.description,
-    this.latitude,
-    this.longitude,
-    this.servicePrice,
-    this.durationValue,
-    this.durationType,
-    this.status,
-    this.createdAt,
-    this.updatedAt,
-    this.deletedAt,
-    this.category,
-    this.subcategory,
-  });
 
   VendorGetAllServicesModelData.fromJson(Map<String, dynamic> json) {
     id = json['id']?.toString();
@@ -86,57 +81,141 @@ class VendorGetAllServicesModelData {
     createdAt = json['created_at']?.toString();
     updatedAt = json['updated_at']?.toString();
     deletedAt = json['deleted_at']?.toString();
-    category = json['category'] != null
-        ? new Category.fromJson(json['category'])
-        : null;
+
+    category =
+    json['category'] != null ? ServiceCategory.fromJson(json['category']) : null;
+
     subcategory = json['subcategory'] != null
-        ? new Category.fromJson(json['subcategory'])
+        ? ServiceCategory.fromJson(json['subcategory'])
         : null;
+
+    vendor =
+    json['vendor'] != null ? Vendor.fromJson(json['vendor']) : null;
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['id'] = this.id;
-    data['vendor_id'] = this.vendorId;
-    data['service_name'] = this.serviceName;
-    data['service_image'] = this.serviceImage;
-    data['category_id'] = this.categoryId;
-    data['subcategory_id'] = this.subcategoryId;
-    data['description'] = this.description;
-    data['latitude'] = this.latitude;
-    data['longitude'] = this.longitude;
-    data['service_price'] = this.servicePrice;
-    data['duration_value'] = this.durationValue;
-    data['duration_type'] = this.durationType;
-    data['status'] = this.status;
-    data['created_at'] = this.createdAt;
-    data['updated_at'] = this.updatedAt;
-    data['deleted_at'] = this.deletedAt;
-    if (this.category != null) {
-      data['category'] = this.category!.toJson();
-    }
-    if (this.subcategory != null) {
-      data['subcategory'] = this.subcategory!.toJson();
-    }
-    return data;
+    return {
+      'id': id,
+      'vendor_id': vendorId,
+      'service_name': serviceName,
+      'service_image': serviceImage,
+      'category_id': categoryId,
+      'subcategory_id': subcategoryId,
+      'description': description,
+      'latitude': latitude,
+      'longitude': longitude,
+      'service_price': servicePrice,
+      'duration_value': durationValue,
+      'duration_type': durationType,
+      'status': status,
+      'created_at': createdAt,
+      'updated_at': updatedAt,
+      'deleted_at': deletedAt,
+      'category': category?.toJson(),
+      'subcategory': subcategory?.toJson(),
+      'vendor': vendor?.toJson(),
+    };
   }
 }
 
-class Category {
+class ServiceCategory {
   String? id;
   String? categoryName;
+  String? parentName;
 
-  Category({this.id, this.categoryName});
+  ServiceCategory({this.id, this.categoryName, this.parentName});
 
-  Category.fromJson(Map<String, dynamic> json) {
+  ServiceCategory.fromJson(Map<String, dynamic> json) {
     id = json['id']?.toString();
     categoryName = json['category_name']?.toString();
+    parentName = json['parent_name']?.toString();
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['id'] = this.id;
-    data['category_name'] = this.categoryName;
-    return data;
+    return {
+      'id': id,
+      'category_name': categoryName,
+      'parent_name': parentName,
+    };
   }
 }
+
+class Vendor {
+  String? id;
+  String? firstName;
+  String? lastName;
+  String? proImg;
+
+  Vendor({this.id, this.firstName, this.lastName, this.proImg});
+
+  Vendor.fromJson(Map<String, dynamic> json) {
+    id = json['id']?.toString();
+    firstName = json['first_name']?.toString();
+    lastName = json['last_name']?.toString();
+    proImg = json['pro_img']?.toString();
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'first_name': firstName,
+      'last_name': lastName,
+      'pro_img': proImg,
+    };
+  }
+}
+
+class Filters {
+  List<ServiceCategory>? categories;
+
+  Filters({this.categories});
+
+  Filters.fromJson(Map<String, dynamic> json) {
+    if (json['categories'] != null) {
+      categories = (json['categories'] as List)
+          .map((e) => ServiceCategory.fromJson(e))
+          .toList();
+    }
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'categories': categories?.map((e) => e.toJson()).toList(),
+    };
+  }
+}
+
+class Pagination {
+  int? currentPage;
+  int? perPage;
+  int? total;
+  int? lastPage;
+  bool? hasMore;
+
+  Pagination({
+    this.currentPage,
+    this.perPage,
+    this.total,
+    this.lastPage,
+    this.hasMore,
+  });
+
+  Pagination.fromJson(Map<String, dynamic> json) {
+    currentPage = json['current_page'];
+    perPage = json['per_page'];
+    total = json['total'];
+    lastPage = json['last_page'];
+    hasMore = json['has_more'];
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'current_page': currentPage,
+      'per_page': perPage,
+      'total': total,
+      'last_page': lastPage,
+      'has_more': hasMore,
+    };
+  }
+}
+
