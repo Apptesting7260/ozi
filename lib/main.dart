@@ -15,6 +15,7 @@ import 'app/modules/user/navigation tab/provider/navigation_provider.dart';
 import 'app/modules/user/profile/login details/provider/login_details_provider.dart';
 import 'app/modules/user/profile/save address/provider/saved_address_provider.dart';
 import 'app/modules/user/profile/view/profile_provider/profile_provider.dart';
+import 'app/modules/vendor/services/provider/service_provider.dart';
 import 'app/routes/app_routes.dart';
 import 'app/view/message/provider/message_provider.dart';
 import 'app/view/splash/provider/splash_provider.dart';
@@ -67,9 +68,8 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => CupponProvider()),
         ChangeNotifierProvider(create: (_) => MessageProvider()),
         ChangeNotifierProvider(create: (_) => SocketController()),
-        ChangeNotifierProvider(
-          create: (_) => CartProvider(repository: Repository()),
-        ),
+        ChangeNotifierProvider(create: (_) => VendorServicesProvider()),
+        ChangeNotifierProvider(create: (_) => CartProvider(repository: Repository()),),
         ChangeNotifierProvider(create: (_) => LoginDetailsProvider(),),
 
       ],

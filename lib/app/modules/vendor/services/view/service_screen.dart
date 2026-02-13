@@ -9,6 +9,7 @@ import '../filter/view/filters_screen.dart';
 import '../provider/service_provider.dart';
 import '../service_details/view/service_details_screen.dart';
 
+
 class VendorServicesScreen extends StatelessWidget {
   const VendorServicesScreen({super.key});
 
@@ -49,18 +50,51 @@ class _MyServicesContent extends StatelessWidget {
                 children: [
                   Expanded(
                     child: CustomTextFormField(
+                      controller: provider.controller,
                       hintText: "Search...",
                       prefix: Icon(Icons.search, color: AppColors.grey),
                       borderRadius: 40,
+                      onChanged: provider.onSearchChanged,
                     ),
+
                   ),
+
                   wBox(10),
+
                   GestureDetector(
-                    onTap: () {
-                      Navigator.push(
+                    onTap: () async {
+
+                      final categoryObjects =
+                          provider.homeModel.data?.filters?.categories ?? [];
+
+
+                      final result = await Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (_) => FiltersScreen()),
+                        MaterialPageRoute(
+                          builder: (_) => FiltersScreen(
+                            categories: categoryObjects,
+                          ),
+                        ),
                       );
+
+                      if (result != null) {
+                        String? status;
+                        String? categoryId;
+
+                        if (result["status"] == true) {
+                          status = "active";
+                        } else if (result["status"] == false) {
+                          status = "inactive";
+                        }
+
+                        categoryId = result["categoryId"];
+
+                        provider.getAllBookings(
+                          status: status,
+                          categoryId: categoryId,
+                        );
+                      }
+
                     },
                     child: Container(
                       height: 44,
@@ -72,12 +106,13 @@ class _MyServicesContent extends StatelessWidget {
                       child: Icon(Icons.tune, color: AppColors.primary),
                     ),
                   ),
+
                 ],
               ),
 
               hBox(16),
 
-              /// ADD SERVICE
+              // ADD SERVICE
               CustomButton(
                 height: 50,
                 isOutlined: true,
@@ -137,28 +172,32 @@ class _MyServicesContent extends StatelessWidget {
                               ),
                               hBox(16),
                               Text(
-                                "No services available",
+                                  "No services available",
                                 style: AppFontStyle.text_16_400(AppColors.grey),
                               ),
+
                             ],
                           ),
                         )
                       : RefreshIndicator(
                         onRefresh: () => provider.getAllBookings(),
-                        child: ListView.separated(
-                            itemCount: provider.homeModel.data?.data?.length ?? 0,
-                            separatorBuilder: (_, __) => hBox(14),
-                            itemBuilder: (_, index) {
-                              VendorGetAllServicesModelData? service =
-                                  provider.homeModel.data?.data?[index];
-                              return _serviceCard(
-                                context: context,
-                                service: service,
-                                provider: provider,
-                              );
-                            },
-                          ),
-                      ),
+                        child:ListView.separated(
+                          controller: provider.scrollController,
+                  itemCount: provider.homeModel.data?.data?.length ?? 0,
+                  separatorBuilder: (_, __) => hBox(14),
+                  itemBuilder: (_, index) {
+                    VendorGetAllServicesModelData? service =
+                    provider.homeModel.data?.data?[index];
+
+                    return _serviceCard(
+                      context: context,
+                      service: service,
+                      provider: provider,
+                    );
+                  },
+                ),
+
+              ),
                 ),
 
                 ApiStatus.error => Expanded(
@@ -222,7 +261,7 @@ class _MyServicesContent extends StatelessWidget {
 
                 wBox(12),
 
-                /// INFO
+                // INFO
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -260,15 +299,15 @@ class _MyServicesContent extends StatelessWidget {
                     vertical: 4,
                   ),
                   decoration: BoxDecoration(
-                    color: service!.isActive
+                    color: service!.status == "active"
                         ? AppColors.primary.withValues(alpha: 0.12)
                         : AppColors.lightGrey,
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Text(
-                    service.isActive ? "Active" : "Inactive",
+                    service.status == "active" ? "Active" : "Inactive",
                     style: AppFontStyle.text_11_500(
-                      service.isActive ? AppColors.primary : AppColors.grey,
+                      service.status == "active" ? AppColors.primary : AppColors.grey,
                     ),
                   ),
                 ),
@@ -287,7 +326,7 @@ class _MyServicesContent extends StatelessWidget {
 
                 Row(
                   children: [
-                    /// DELETE
+                    // DELETE
                     CustomButton(
                       height: 36,
                       width: 90,
@@ -323,13 +362,18 @@ class _MyServicesContent extends StatelessWidget {
                       width: 90,
                       isOutlined: true,
                       borderRadius: BorderRadius.circular(30),
-                      onPressed: () {
-                        Navigator.push(
+                      onPressed: () async {
+                       final result  = await Navigator.push(
                           context,
                           MaterialPageRoute(
                             builder: (context) => ServiceDetailsScreen(service,"Edit Service"),
                           ),
                         );
+
+                        if (result == null || result != null) {
+                          provider.getAllBookings();
+                        }
+
                         // provider.editService(service);
                         // Navigate to edit screen
                         // Navigator.push(context, MaterialPageRoute(builder: (_) => EditServiceScreen(service: service)));

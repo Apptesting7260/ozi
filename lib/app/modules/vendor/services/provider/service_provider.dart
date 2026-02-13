@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import '../../../../core/constants/app_urls.dart';
 import '../../../../core/utils/get_utils.dart';
@@ -61,10 +63,46 @@ class VendorServicesProvider extends ChangeNotifier {
   // }
 
   final NetworkApiServices _apiService = NetworkApiServices();
+  ScrollController scrollController = ScrollController();
+
+
+
+  Timer? _debounce;
+
+  int _currentPage = 1;
+  int _limit = 10;
+  bool _hasMore = true;
+  bool _isPaginationLoading = false;
+
+  String? _search;
+  String? _status;
+  String? _categoryId;
+  TextEditingController controller = TextEditingController();
+
+  bool get isPaginationLoading => _isPaginationLoading;
+
+  void onSearchChanged(String value) {
+    if (_debounce?.isActive ?? false) _debounce!.cancel();
+
+    _debounce = Timer(const Duration(milliseconds: 500), () {
+      getAllBookings();
+    });
+  }
+
 
   VendorServicesProvider() {
     getAllBookings();
+
+    scrollController.addListener(() {
+      if (scrollController.position.pixels >=
+          scrollController.position.maxScrollExtent - 200 &&
+          !_isPaginationLoading &&
+          _hasMore) {
+        getAllBookings(isLoadMore: true);
+      }
+    });
   }
+
 
   ApiResponse<VendorGetAllServicesModel> _homeModel = ApiResponse.loading();
   ApiResponse<VendorGetAllServicesModel> get homeModel => _homeModel;
@@ -74,19 +112,75 @@ class VendorServicesProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> getAllBookings() async {
+
+  // Get All Bookings
+
+  Future<void> getAllBookings({
+    bool isLoadMore = false,
+    String? status,
+    String? categoryId,
+  }) async {
     try {
-      setHomeModel(ApiResponse.loading());
-      final response = await _apiService.getApi(AppUrls.getAllServicesVendor);
-      print(response);
-      setHomeModel(
-        ApiResponse.completed(VendorGetAllServicesModel.fromJson(response)),
-      );
+      if (isLoadMore) {
+        if (!_hasMore || _isPaginationLoading) return;
+        _isPaginationLoading = true;
+        notifyListeners();
+      } else {
+        _currentPage = 1;
+        _hasMore = true;
+        setHomeModel(ApiResponse.loading());
+      }
+
+      // Save filters
+      _search = controller.text;
+      _status = status ?? _status;
+      _categoryId = categoryId ?? _categoryId;
+
+      Map<String, String> queryParams = {
+        "search": _search ?? "",
+        "page": _currentPage.toString(),
+        "limit": _limit.toString(),
+      };
+
+      if (_status != null && _status!.isNotEmpty) {
+        queryParams["status"] = _status!;
+      }
+
+      if (_categoryId != null && _categoryId!.isNotEmpty) {
+        queryParams["category_id"] = _categoryId!;
+      }
+
+      String queryString = queryParams.entries
+          .map((e) => "${e.key}=${e.value}")
+          .join("&");
+
+      String url = "${AppUrls.getAllServicesVendor}?$queryString";
+
+
+      final response = await _apiService.getApi(url);
+
+      VendorGetAllServicesModel model =
+      VendorGetAllServicesModel.fromJson(response);
+
+      if (isLoadMore) {
+        _homeModel.data?.data?.addAll(model.data ?? []);
+      } else {
+        _homeModel = ApiResponse.completed(model);
+      }
+
+      // Pagination handling
+      _hasMore = model.pagination?.hasMore ?? false;
+      _currentPage++;
+
+      _isPaginationLoading = false;
+      notifyListeners();
     } catch (e) {
+      _isPaginationLoading = false;
       Get.showToast(e.toString(), type: ToastType.error);
       setHomeModel(ApiResponse.error('Internal Server Error'));
     }
   }
+
 
   bool _deleteServiceLoading = false;
   bool get deleteServiceLoading => _deleteServiceLoading;
@@ -113,31 +207,31 @@ class VendorServicesProvider extends ChangeNotifier {
     }
   }
 
-  bool _detailsLoading = false;
-  bool get detailsLoading => _detailsLoading;
-
-  vendorServiceDetailModel? _serviceDetails;
-  vendorServiceDetailModel? get serviceDetails => _serviceDetails;
-
-  final Repository _repository = Repository();
-
-  Future<void> getServiceDetails(String serviceId) async {
-    _detailsLoading = true;
-    _serviceDetails = null;
-    notifyListeners();
-
-    try {
-      final response = await _repository.getservicedetailApi(serviceId);
-      if (response.status == true) {
-        _serviceDetails = response;
-      } else {
-        Get.showToast("Failed to fetch details", type: ToastType.error);
-      }
-    } catch (e) {
-      Get.showToast(e.toString(), type: ToastType.error);
-    } finally {
-      _detailsLoading = false;
-      notifyListeners();
-    }
-  }
+  // bool _detailsLoading = false;
+  // bool get detailsLoading => _detailsLoading;
+  //
+  // VendorGetAllServicesModel? _serviceDetails;
+  // VendorGetAllServicesModel? get serviceDetails => _serviceDetails;
+  //
+  // final Repository _repository = Repository();
+  //
+  // Future<void> getServiceDetails(String serviceId) async {
+  //   _detailsLoading = true;
+  //   _serviceDetails = null;
+  //   notifyListeners();
+  //
+  //   try {
+  //     final response = await _repository.getservicedetailApi(serviceId);
+  //     if (response.status == true) {
+  //       _serviceDetails = response;
+  //     } else {
+  //       Get.showToast("Failed to fetch details", type: ToastType.error);
+  //     }
+  //   } catch (e) {
+  //     Get.showToast(e.toString(), type: ToastType.error);
+  //   } finally {
+  //     _detailsLoading = false;
+  //     notifyListeners();
+  //   }
+  // }
 }

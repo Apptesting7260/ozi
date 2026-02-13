@@ -1,10 +1,12 @@
 import 'package:ozi/app/core/appExports/app_export.dart';
 import 'package:ozi/app/modules/vendor/services/edit%20service/view/vendor_editservice_screen.dart';
+import '../../../../../core/constants/app_urls.dart';
+import '../../provider/service_provider.dart';
 import '../provider/service_details_provider.dart';
 
 class ServiceCardDetailsScreen extends StatelessWidget {
   final String serviceId;
-   ServiceCardDetailsScreen({super.key , required this.serviceId});
+   const ServiceCardDetailsScreen({super.key , required this.serviceId});
 
   @override
   Widget build(BuildContext context) {
@@ -21,12 +23,12 @@ class ServiceCardDetailsScreen extends StatelessWidget {
 class _ServiceDetailsContent extends StatelessWidget {
   final String serviceId;
   const _ServiceDetailsContent(
-      {super.key, required this.serviceId}
-      );
+      {required this.serviceId});
 
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<ServiceDetailsProvider>();
+    final vendorProvider = context.watch<VendorServicesProvider>();
 
     return Scaffold(
       appBar: AppBar(
@@ -110,7 +112,8 @@ class _ServiceDetailsContent extends StatelessWidget {
                     ClipRRect(
                       borderRadius: BorderRadius.circular(12),
                       child: Image.network(
-                        provider.serviceDetails?.serviceImage ?? "",
+                       // provider.serviceDetails?.serviceImage ?? "",
+                        '${AppUrls.imageBaseUrl}${provider.serviceDetails?.serviceImage ?? ''}',
                         width: 110,
                         height: 110,
                         fit: BoxFit.cover,
@@ -264,7 +267,7 @@ class _ServiceDetailsContent extends StatelessWidget {
             Expanded(
               child: OutlinedButton.icon(
                 onPressed: () {
-                  showDeleteDialog(context);
+                  showDeleteDialog(provider, vendorProvider, context);
                 },
                 style: OutlinedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 16),
@@ -403,7 +406,10 @@ class _ServiceDetailsContent extends StatelessWidget {
   }
 
   // Delete Confirmation Dialog
-  Future<void> showDeleteDialog(BuildContext context) async {
+  Future<void> showDeleteDialog(
+      ServiceDetailsProvider provider,
+      VendorServicesProvider vendorProvider,
+      BuildContext context) async {
     showDialog(
       context: context,
       barrierDismissible: true,
@@ -444,7 +450,7 @@ class _ServiceDetailsContent extends StatelessWidget {
 
                   children: [
                     CustomButton(
-                      width: 140,
+                      width: 130,
                       text: "Cancel",
                       textStyle: AppFontStyle.text_14_500(
                         AppColors.darkText,
@@ -459,12 +465,17 @@ class _ServiceDetailsContent extends StatelessWidget {
                     ),
                     wBox(10),
                     CustomButton(
-                      width: 140,
+                      width: 130,
                       text: "Delete",
                       color: AppColors.red,
                       borderRadius: BorderRadius.circular(30),
-                      onPressed: () {
+                      onPressed: () async{
+
+                        await vendorProvider.deleteService(
+                            provider.serviceDetails?.id ?? "" );
                         Navigator.pop(context);
+                        Navigator.pushNamed(context, "/vendorServicesScreen");
+                        print("Service Deleted Id From Detail ${provider.serviceDetails?.id}");
                       },
                     ),
                   ],

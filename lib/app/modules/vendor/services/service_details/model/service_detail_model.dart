@@ -20,6 +20,7 @@ class ServiceCardDetailModel {
 }
 
 class Data {
+  String? id;
   String? serviceName;
   String? serviceImage;
   String? description;
@@ -31,7 +32,9 @@ class Data {
   TodayBookingCount? todayBookingCount;
 
   Data(
-      {this.serviceName,
+      {
+        this.id,
+        this.serviceName,
         this.serviceImage,
         this.description,
         this.servicePrice,
@@ -42,6 +45,7 @@ class Data {
         this.todayBookingCount});
 
   Data.fromJson(Map<String, dynamic> json) {
+    id = json['id']?.toString();
     serviceName = json['service_name'];
     serviceImage = json['service_image'];
     description = json['description'];
@@ -59,6 +63,7 @@ class Data {
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = new Map<String, dynamic>();
+    data['id'] = id;
     data['service_name'] = this.serviceName;
     data['service_image'] = this.serviceImage;
     data['description'] = this.description;

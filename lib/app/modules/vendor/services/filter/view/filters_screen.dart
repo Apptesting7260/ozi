@@ -1,20 +1,29 @@
+import 'package:ozi/app/data/models/all_services_model_vendor.dart';
+
 import '../../../../../core/appExports/app_export.dart';
 import '../provider/filter_provider.dart';
 
 class FiltersScreen extends StatelessWidget {
-  const FiltersScreen({super.key});
+  final List<ServiceCategory> categories;
+
+  const FiltersScreen({
+    super.key,
+    required this.categories,
+  });
 
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (_) => FilterProvider(),
-      child: const _FiltersContent(),
+      create: (_) => FilterProvider(categories),
+      child: _FiltersContent(categories: categories),
     );
   }
 }
 
 class _FiltersContent extends StatelessWidget {
-  const _FiltersContent();
+  final List<ServiceCategory> categories;
+
+  const _FiltersContent({required this.categories});
 
   @override
   Widget build(BuildContext context) {
@@ -31,7 +40,17 @@ class _FiltersContent extends StatelessWidget {
           color: provider.canApply
               ? AppColors.primary
               : AppColors.primary.withValues(alpha: 0.35),
-          onPressed: () {},
+          onPressed: provider.canApply
+              ? () {
+            Navigator.pop(context, {
+              "status": provider.active,
+              "categoryId": provider.selectedCategories.isNotEmpty
+                  ? provider.selectedCategories.first.id
+                  : null,
+            });
+            print("Filter Id Selected = ${provider.selectedCategories.first.id}");
+          }
+              : null,
         ),
       ),
       body: SafeArea(
@@ -41,7 +60,6 @@ class _FiltersContent extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _header(context),
-
               hBox(24),
 
               /// SORT BY
@@ -76,16 +94,29 @@ class _FiltersContent extends StatelessWidget {
               ),
               hBox(12),
 
-              Wrap(
+              provider.isLoading
+                  ? const Center(
+                child: Padding(
+                  padding: EdgeInsets.all(20),
+                  child: CircularProgressIndicator(),
+                ),
+              )
+                  : provider.allCategories.isEmpty
+                  ? const Padding(
+                padding: EdgeInsets.all(12),
+                child: Text("No categories found"),
+              )
+                  : Wrap(
                 spacing: 10,
                 runSpacing: 10,
-                children: provider.allCategories.map((category) {
-                  final selected = provider.selectedCategories.contains(
-                    category,
-                  );
+                children:
+                provider.allCategories.map((category) {
+                  final selected =
+                  provider.selectedCategories.contains(category);
 
                   return GestureDetector(
-                    onTap: () => provider.toggleCategory(category),
+                    onTap: () =>
+                        provider.toggleCategory(category),
                     child: Container(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 14,
@@ -103,9 +134,11 @@ class _FiltersContent extends StatelessWidget {
                         ),
                       ),
                       child: Text(
-                        category,
+                        category.categoryName ?? "",
                         style: AppFontStyle.text_12_500(
-                          selected ? AppColors.white : AppColors.darkText,
+                          selected
+                              ? AppColors.white
+                              : AppColors.darkText,
                         ),
                       ),
                     ),
@@ -173,15 +206,13 @@ class _FiltersContent extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+        padding:
+        const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
         decoration: BoxDecoration(
-          color: selected ? AppColors.primary : AppColors.fieldBgColor,
+          color: selected
+              ? AppColors.primary
+              : AppColors.fieldBgColor,
           borderRadius: BorderRadius.circular(30),
-          // border: Border.all(
-          //   color: selected
-          //       ? AppColors.primary
-          //       : AppColors.grey.withOpacity(0.3),
-          // ),
         ),
         child: Text(
           title,
