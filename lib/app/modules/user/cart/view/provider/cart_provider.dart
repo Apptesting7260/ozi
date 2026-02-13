@@ -86,7 +86,7 @@ class CartProvider with ChangeNotifier {
     try {
       dynamic response;
 
-      // 🔼 Increase API
+      //  Increase API
       if (delta > 0) {
         response = await _repository.increaseCartItemApi(cartId);
       }

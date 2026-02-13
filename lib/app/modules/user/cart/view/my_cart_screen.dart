@@ -211,7 +211,7 @@ class CartScreenContent extends StatelessWidget {
 
           Expanded(
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -246,76 +246,106 @@ class CartScreenContent extends StatelessWidget {
 
                 hBox(8),
 
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      '\$${(item.servicePrice! / 1).toStringAsFixed(2)}',
-                      style: AppFontStyle.text_16_600(
-                        AppColors.primary,
-                        fontFamily: AppFontFamily.bold,
-                      ),
-                    ),
-
-                    Consumer<CartProvider>(
-                      builder: (context, cart, child) {
-                        return Container(
-                          decoration: BoxDecoration(
-                            border: Border.all(color: AppColors.primary),
-                            borderRadius: BorderRadius.circular(24),
-                          ),
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 4,
-                            vertical: 4,
-                          ),
-                          child: SizedBox(
-                            width: MediaQuery.of(context).size.width * 0.18,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                InkWell(
-                                  onTap: () {
-                                    if (item.quantity! <= 1) {
-                                      cart.removeItem(item.cartId!);
-                                    } else {
-                                      cart.updateQuantity(item.cartId!, -1);
-                                    }
-                                  },
-                                  child: Icon(
-                                    Icons.remove,
-                                    size: 16,
-                                    color: AppColors.primary,
-                                  ),
-                                ),
-                                Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 12,
-                                  ),
-                                  child: Text(
-                                    '${item.quantity}',
-                                    style: AppFontStyle.text_14_500(
-                                      AppColors.primary,
-                                      fontFamily: AppFontFamily.medium,
-                                    ),
-                                  ),
-                                ),
-                                InkWell(
-                                  onTap: () =>
-                                      cart.updateQuantity(item.cartId!, 1),
-                                  child: Icon(
-                                    Icons.add,
-                                    size: 16,
-                                    color: AppColors.primary,
-                                  ),
-                                ),
-                              ],
+                item.isservicedeleted == true
+                    ? SizedBox.shrink()
+                    : Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            '\$${(item.servicePrice! / 1).toStringAsFixed(2)}',
+                            style: AppFontStyle.text_16_600(
+                              AppColors.primary,
+                              fontFamily: AppFontFamily.bold,
                             ),
                           ),
-                        );
-                      },
-                    ),
-                  ],
-                ),
+
+                          Consumer<CartProvider>(
+                            builder: (context, cart, child) {
+                              return Container(
+                                decoration: BoxDecoration(
+                                  border: Border.all(color: AppColors.primary),
+                                  borderRadius: BorderRadius.circular(24),
+                                ),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 4,
+                                  vertical: 4,
+                                ),
+                                child: SizedBox(
+                                  width:
+                                      MediaQuery.of(context).size.width * 0.18,
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      InkWell(
+                                        onTap: () {
+                                          if (item.quantity! <= 1) {
+                                            cart.removeItem(item.cartId!);
+                                          } else {
+                                            cart.updateQuantity(
+                                              item.cartId!,
+                                              -1,
+                                            );
+                                          }
+                                        },
+                                        child: Icon(
+                                          Icons.remove,
+                                          size: 16,
+                                          color: AppColors.primary,
+                                        ),
+                                      ),
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 12,
+                                        ),
+                                        child: Text(
+                                          '${item.quantity}',
+                                          style: AppFontStyle.text_14_500(
+                                            AppColors.primary,
+                                            fontFamily: AppFontFamily.medium,
+                                          ),
+                                        ),
+                                      ),
+                                      InkWell(
+                                        onTap: () => cart.updateQuantity(
+                                          item.cartId!,
+                                          1,
+                                        ),
+                                        child: Icon(
+                                          Icons.add,
+                                          size: 16,
+                                          color: AppColors.primary,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                        ],
+                      ),
+
+                hBox(12),
+                item.isservicedeleted == true
+                    ? Container(
+                        padding: EdgeInsets.all(7),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(12),
+                          color: const Color.fromARGB(255, 247, 206, 206),
+                        ),
+                        child: Text(
+                          "This service is not available",
+                          style: TextStyle(
+                            fontFamily: 'Mona Sans',
+                            fontSize: 15,
+                            fontWeight: FontWeight.w400,
+                            color: Colors.red,
+                          ),
+                        ),
+                      )
+                    : SizedBox.shrink(),
+                // Spacer(),
               ],
             ),
           ),
@@ -422,19 +452,35 @@ class CartScreenContent extends StatelessWidget {
     return Consumer<CartProvider>(
       builder: (context, cart, child) {
         return CustomButton(
-          onPressed: cart.items.isEmpty
-              ? () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => ScheduleServiceScreen()),
-                  );
-                }
-              : () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => ScheduleServiceScreen()),
-                  );
-                },
+          onPressed: () {
+            // Check if there are any items that are marked as deleted/unavailable
+            final bool hasUnavailableItems = cart.items.any(
+              (item) => item.isservicedeleted == true,
+            );
+
+            if (hasUnavailableItems) {
+              // Show toast message to the user
+              errorToast(
+                context,
+                'Please remove the unavailable service from your cart.',
+              );
+              // Get.showToast(
+              //   "Please remove the unavailable service from your cart",
+              //   type: ToastType.error,
+              // );
+              return; // Stop execution, don't navigate
+            }
+
+            // If everything is valid, proceed to schedule
+            if (cart.items.isNotEmpty) {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => ScheduleServiceScreen()),
+              );
+            } else {
+              errorToast(context, 'Your cart is empty');
+            }
+          },
           text: 'Continue to Book · \$${(cart.total / 1).toStringAsFixed(2)}',
         );
       },

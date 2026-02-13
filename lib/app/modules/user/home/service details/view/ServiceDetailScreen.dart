@@ -272,7 +272,11 @@ class ServiceDetailView extends StatelessWidget {
                         ),
                       ),
                       provider.isInCart(serviceData.id ?? 0)
-                          ? _buildCounter(serviceData.id ?? 0, provider)
+                          ? _buildCounter(
+                              serviceData.id ?? 0,
+                              provider,
+                              context,
+                            )
                           : _buildAddButton(
                               serviceData.id ?? 0,
                               provider,
@@ -333,9 +337,9 @@ class ServiceDetailView extends StatelessWidget {
   }
 
   Widget _buildAddButton(
-    int serviceId,
-    ServiceDetailProvider provider,
-    BuildContext context,
+    final int serviceId,
+    final ServiceDetailProvider provider,
+    final BuildContext context,
   ) {
     return CustomButton(
       width: 80,
@@ -362,7 +366,11 @@ class ServiceDetailView extends StatelessWidget {
     );
   }
 
-  Widget _buildCounter(int serviceId, ServiceDetailProvider provider) {
+  Widget _buildCounter(
+    final int serviceId,
+    final ServiceDetailProvider provider,
+    final BuildContext context,
+  ) {
     final quantity = provider.getQuantity(serviceId);
 
     return Container(
@@ -376,7 +384,18 @@ class ServiceDetailView extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           GestureDetector(
-            onTap: () => provider.decrementQuantity(serviceId),
+            onTap: () async {
+              try {
+                await provider.decrementQuantity(serviceId);
+              } catch (e) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('Failed to update quantity'),
+                    backgroundColor: Colors.red,
+                  ),
+                );
+              }
+            },
             child: Padding(
               padding: const EdgeInsets.all(4.0),
               child: Icon(Icons.remove, size: 16, color: AppColors.primary),
@@ -392,7 +411,18 @@ class ServiceDetailView extends StatelessWidget {
           ),
           wBox(8),
           GestureDetector(
-            onTap: () => provider.incrementQuantity(serviceId),
+            onTap: () async {
+              try {
+                await provider.incrementQuantity(serviceId);
+              } catch (e) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('Failed to update quantity'),
+                    backgroundColor: Colors.red,
+                  ),
+                );
+              }
+            },
             child: Padding(
               padding: const EdgeInsets.all(4.0),
               child: Icon(Icons.add, size: 16, color: AppColors.primary),

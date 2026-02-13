@@ -8,6 +8,7 @@ import '../services/view/CategoryDetailScreen.dart';
 
 class HomeScreenProvider extends ChangeNotifier {
   HomeScreenProvider() {
+    // fetchCategories();
     getCurrentLocation();
     print("lat long value lat=$lat, lng=$lng");
   }
