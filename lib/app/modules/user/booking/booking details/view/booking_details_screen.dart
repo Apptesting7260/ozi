@@ -681,7 +681,10 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
                   style: AppFontStyle.text_14_600(AppColors.black),
                 ),
                 hBox(4),
-                Text(price, style: AppFontStyle.text_14_600(AppColors.primary)),
+                Text(
+                  "\$$price",
+                  style: AppFontStyle.text_14_600(AppColors.primary),
+                ),
               ],
             ),
           ),
@@ -874,7 +877,13 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
               : "N/A",
         ),
         hBox(12),
-        _detailRow(Icons.access_time, "Time", data.serviceTime ?? "N/A"),
+        _detailRow(
+          Icons.access_time,
+          "Time",
+          (data.serviceTime ?? "N/A")
+              .replaceAll("from ", "")
+              .replaceAll(" to ", "-"),
+        ),
         hBox(12),
         _detailRow(
           Icons.location_on_outlined,
