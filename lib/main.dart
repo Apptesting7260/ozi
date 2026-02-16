@@ -39,6 +39,7 @@ void main() async {
     }
   }
   ChuckerFlutter.showOnRelease = false;
+  ChuckerFlutter.isDebugMode = false;
 
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,

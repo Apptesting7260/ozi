@@ -69,9 +69,10 @@ class VendorServicesProvider extends ChangeNotifier {
 
   Timer? _debounce;
 
-  int _currentPage = 1;
+
+
+
   int _limit = 10;
-  bool _hasMore = true;
   bool _isPaginationLoading = false;
 
   String? _search;
@@ -94,13 +95,16 @@ class VendorServicesProvider extends ChangeNotifier {
     getAllBookings();
 
     scrollController.addListener(() {
+      final pagination = _homeModel.data?.pagination;
+
       if (scrollController.position.pixels >=
           scrollController.position.maxScrollExtent - 200 &&
           !_isPaginationLoading &&
-          _hasMore) {
+          pagination?.hasMore == true) {
         getAllBookings(isLoadMore: true);
       }
     });
+
   }
 
 
@@ -122,12 +126,10 @@ class VendorServicesProvider extends ChangeNotifier {
   }) async {
     try {
       if (isLoadMore) {
-        if (!_hasMore || _isPaginationLoading) return;
+        if (_isPaginationLoading) return;
         _isPaginationLoading = true;
         notifyListeners();
       } else {
-        _currentPage = 1;
-        _hasMore = true;
         setHomeModel(ApiResponse.loading());
       }
 
@@ -136,10 +138,19 @@ class VendorServicesProvider extends ChangeNotifier {
       _status = status ?? _status;
       _categoryId = categoryId ?? _categoryId;
 
+      int pageToLoad = 1;
+
+      if (isLoadMore) {
+        pageToLoad =
+        _homeModel.data?.pagination?.currentPage != null
+            ? (_homeModel.data!.pagination!.currentPage! + 1)
+            : 1;
+      }
+
       Map<String, String> queryParams = {
         "search": _search ?? "",
-        "page": _currentPage.toString(),
-        "limit": _limit.toString(),
+        "page": pageToLoad.toString(),
+        "limit": "10",
       };
 
       if (_status != null && _status!.isNotEmpty) {
@@ -150,12 +161,10 @@ class VendorServicesProvider extends ChangeNotifier {
         queryParams["category_id"] = _categoryId!;
       }
 
-      String queryString = queryParams.entries
-          .map((e) => "${e.key}=${e.value}")
-          .join("&");
+      String queryString =
+      queryParams.entries.map((e) => "${e.key}=${e.value}").join("&");
 
       String url = "${AppUrls.getAllServicesVendor}?$queryString";
-
 
       final response = await _apiService.getApi(url);
 
@@ -164,22 +173,20 @@ class VendorServicesProvider extends ChangeNotifier {
 
       if (isLoadMore) {
         _homeModel.data?.data?.addAll(model.data ?? []);
+        _homeModel.data?.pagination = model.pagination;
       } else {
         _homeModel = ApiResponse.completed(model);
       }
-
-      // Pagination handling
-      _hasMore = model.pagination?.hasMore ?? false;
-      _currentPage++;
 
       _isPaginationLoading = false;
       notifyListeners();
     } catch (e) {
       _isPaginationLoading = false;
-      Get.showToast(e.toString(), type: ToastType.error);
-      setHomeModel(ApiResponse.error('Internal Server Error'));
+      notifyListeners();
+      setHomeModel(ApiResponse.error("Internal Server Error"));
     }
   }
+
 
 
   bool _deleteServiceLoading = false;

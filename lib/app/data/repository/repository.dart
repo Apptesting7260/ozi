@@ -11,6 +11,7 @@ import 'package:ozi/app/modules/user/home/service%20details/model/ServiceDetails
 import 'package:ozi/app/modules/user/home/service%20details/model/vendordetaiulmodel.dart';
 import 'package:ozi/app/modules/user/profile/setting/model/settingsmodel.dart';
 import 'package:ozi/app/modules/user/profile/view/model/logout_model.dart';
+import 'package:ozi/app/modules/vendor/home/notification/model/get_notification_model.dart';
 import 'package:ozi/app/modules/vendor/profile/help/model/helpsupportmodel.dart';
 import 'package:ozi/app/modules/vendor/wallet/model/wallet_detail_model.dart';
 import 'package:ozi/app/view/user_role/choose_your_role/model/choose_role_model.dart';
@@ -735,6 +736,23 @@ class Repository {
       return ServiceCardDetailModel.fromJson(response);
     } catch (e) {
       dev.log("Error in fetchServiceDetail: $e");
+      throw Exception(e);
+    }
+  }
+
+  Future<GetNotificationModel> fetchNotifications() async {
+    try {
+      dev.log(
+        "fetchNotifications URL: ${AppUrls.getNotications}",
+      );
+
+      final response = await _apiService.getApi(
+        AppUrls.getNotications,
+      );
+
+      return GetNotificationModel.fromJson(response);
+    } catch (e) {
+      dev.log("Error in fetchNotifications: $e");
       throw Exception(e);
     }
   }
