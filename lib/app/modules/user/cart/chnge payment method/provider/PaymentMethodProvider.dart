@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import '../../../../../core/constants/image_constant.dart';
 
-
 class PaymentModel {
   final String title;
   final String masked;
@@ -20,23 +19,23 @@ class PaymentModel {
 class PaymentMethodProvider extends ChangeNotifier {
   int selectedIndex = 0;
 
+  PaymentMethodProvider({String? initialTitle}) {
+    if (initialTitle != null) {
+      final index = list.indexWhere((element) => element.title == initialTitle);
+      if (index != -1) {
+        selectedIndex = index;
+      }
+    }
+  }
+
   List<PaymentModel> list = [
-    PaymentModel(
-      title: "Visa",
-      masked: "•••• 4242",
-      icon: ImageConstants.card,
-      label: "Default",
-    ),
-    PaymentModel(
-      title: "Mastercard",
-      masked: "•••• 8888",
-      icon: ImageConstants.card,
-    ),
     PaymentModel(
       title: "Cash",
       masked: "",
       icon: ImageConstants.cash,
+      label: "Default",
     ),
+    PaymentModel(title: " Pay Online", masked: "", icon: ImageConstants.card),
   ];
 
   void selectCard(int index) {

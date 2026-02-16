@@ -47,6 +47,8 @@ dependencies:
   another_flushbar: ^1.12.30
   device_info_plus:
   flutter_stripe: ^12.2.0
+  screenshot: ^3.0.0
+  path_provider: ^2.1.5
 
 dev_dependencies:
   flutter_test:

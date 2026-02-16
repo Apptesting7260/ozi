@@ -4,6 +4,7 @@ import '../../../../../core/appExports/app_export.dart';
 import '../../../../../shared/widgets/custom_app_bar.dart';
 import '../../../../../shared/widgets/custom_date_picker.dart';
 import '../../change address/view/ChangeAddressScreen.dart';
+import '../../chnge payment method/provider/PaymentMethodProvider.dart';
 import '../../chnge payment method/view/ChangePaymentMethodScreen.dart';
 import '../provider/ScheduleProvider.dart';
 
@@ -327,13 +328,20 @@ class _ScheduleServiceScreenContent extends StatelessWidget {
                         ),
                       ),
                       TextButton(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => ChangePaymentMethodScreen(),
-                            ),
-                          );
+                        onPressed: () async {
+                          final selectedMethod =
+                              await Navigator.push<PaymentModel>(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => ChangePaymentMethodScreen(
+                                    selectedMethodTitle:
+                                        provider.selectedPaymentMethod?.title,
+                                  ),
+                                ),
+                              );
+                          if (selectedMethod != null) {
+                            provider.setPaymentMethod(selectedMethod);
+                          }
                         },
                         child: Text(
                           'Change method >',
@@ -361,7 +369,9 @@ class _ScheduleServiceScreenContent extends StatelessWidget {
                             borderRadius: BorderRadius.circular(30),
                           ),
                           child: CustomImage(
-                            path: ImageConstants.card,
+                            path:
+                                provider.selectedPaymentMethod?.icon ??
+                                ImageConstants.card,
                             color: AppColors.black,
                           ),
                         ),
@@ -371,17 +381,25 @@ class _ScheduleServiceScreenContent extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'Credit Card',
+                                provider.selectedPaymentMethod?.title ?? 'Cash',
                                 style: AppFontStyle.text_14_600(
                                   AppColors.black,
                                   fontFamily: AppFontFamily.semiBold,
                                 ),
                               ),
-                              SizedBox(height: 4),
-                              Text(
-                                '•••• •••• •••• 4242',
-                                style: AppFontStyle.text_14_400(AppColors.grey),
-                              ),
+                              if (provider
+                                      .selectedPaymentMethod
+                                      ?.masked
+                                      .isNotEmpty ??
+                                  false) ...[
+                                SizedBox(height: 4),
+                                Text(
+                                  provider.selectedPaymentMethod!.masked,
+                                  style: AppFontStyle.text_14_400(
+                                    AppColors.grey,
+                                  ),
+                                ),
+                              ],
                             ],
                           ),
                         ),
@@ -449,10 +467,17 @@ class _ScheduleServiceScreenContent extends StatelessWidget {
                               context: context,
                               addressId:
                                   addressProvider.selectedAddress?.id ?? 0,
-                              paymentMethod: 'cash',
+                              paymentMethod:
+                                  provider.selectedPaymentMethod?.title
+                                      .trim()
+                                      .toLowerCase()
+                                      .replaceAll(' ', '_') ??
+                                  'cash',
                             );
                           },
-                    text: 'Continue to Payment',
+                    text: provider.selectedPaymentMethod?.title == 'Cash'
+                        ? "Continue"
+                        : 'Continue to Payment',
                   ),
                 ],
               ),
