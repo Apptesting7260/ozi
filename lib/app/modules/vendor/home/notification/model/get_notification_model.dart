@@ -97,7 +97,7 @@ class NotificationItem {
         title: json["title"],
         message: json["message"],
         time: json["created_at"],
-        isRead: json["is_read"] ?? false,
+        isRead: json["is_read"] == true || json["is_read"] == 1,
         type: json["type"],
       );
 
