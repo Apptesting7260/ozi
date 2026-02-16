@@ -1,13 +1,11 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import '../../../../core/constants/app_urls.dart';
 import '../../../../core/utils/get_utils.dart';
 import '../../../../data/models/all_services_model_vendor.dart';
 import '../../../../data/network/network_api_services.dart';
 import '../../../../data/response/api_response.dart';
-import '../../../../data/models/vendorservicedetailmodel.dart';
-import '../../../../data/repository/repository.dart';
+
 
 // class MyServiceModel {
 //   final String id;
@@ -71,8 +69,9 @@ class VendorServicesProvider extends ChangeNotifier {
 
 
 
+  bool? selectedStatus;
+  String? selectedCategoryId;
 
-  int _limit = 10;
   bool _isPaginationLoading = false;
 
   String? _search;
@@ -125,6 +124,7 @@ class VendorServicesProvider extends ChangeNotifier {
     String? categoryId,
   }) async {
     try {
+      //  Handle Loading States
       if (isLoadMore) {
         if (_isPaginationLoading) return;
         _isPaginationLoading = true;
@@ -133,20 +133,17 @@ class VendorServicesProvider extends ChangeNotifier {
         setHomeModel(ApiResponse.loading());
       }
 
-      // Save filters
+      //  Save Search + Filters
       _search = controller.text;
-      _status = status ?? _status;
-      _categoryId = categoryId ?? _categoryId;
+      _status = status;
+      _categoryId = categoryId;
 
-      int pageToLoad = 1;
+      //  Safe Pagination Logic
+      int pageToLoad = isLoadMore
+          ? (_homeModel.data?.pagination?.currentPage ?? 0) + 1
+          : 1;
 
-      if (isLoadMore) {
-        pageToLoad =
-        _homeModel.data?.pagination?.currentPage != null
-            ? (_homeModel.data!.pagination!.currentPage! + 1)
-            : 1;
-      }
-
+      //  Query Parameters
       Map<String, String> queryParams = {
         "search": _search ?? "",
         "page": pageToLoad.toString(),
@@ -166,11 +163,22 @@ class VendorServicesProvider extends ChangeNotifier {
 
       String url = "${AppUrls.getAllServicesVendor}?$queryString";
 
+      selectedStatus = status == "active"
+          ? true
+          : status == "inactive"
+          ? false
+          : null;
+
+      selectedCategoryId = categoryId;
+
+
+      //  API Call
       final response = await _apiService.getApi(url);
 
       VendorGetAllServicesModel model =
       VendorGetAllServicesModel.fromJson(response);
 
+      //  Handle Pagination vs Fresh Load
       if (isLoadMore) {
         _homeModel.data?.data?.addAll(model.data ?? []);
         _homeModel.data?.pagination = model.pagination;
@@ -186,6 +194,7 @@ class VendorServicesProvider extends ChangeNotifier {
       setHomeModel(ApiResponse.error("Internal Server Error"));
     }
   }
+
 
 
 

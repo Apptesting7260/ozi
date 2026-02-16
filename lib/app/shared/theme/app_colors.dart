@@ -44,4 +44,7 @@ class AppColors{
   
   static Color cardShadow =const Color.fromRGBO(15, 23, 41, 0.1);
 
+  static Color unReadNotification =const Color.fromRGBO(238, 249, 245, 1); //rgba(238, 249, 245, 1)
+  static Color readNotification =const Color.fromRGBO(245, 245, 245, 1);
+
 }

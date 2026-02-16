@@ -1,20 +1,29 @@
 import 'package:ozi/app/data/models/all_services_model_vendor.dart';
-
 import '../../../../../core/appExports/app_export.dart';
 import '../provider/filter_provider.dart';
 
 class FiltersScreen extends StatelessWidget {
   final List<ServiceCategory> categories;
+  final bool? initialStatus;
+  final String? initialCategoryId;
 
   const FiltersScreen({
     super.key,
     required this.categories,
+    this.initialStatus,
+    this.initialCategoryId,
   });
+
 
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (_) => FilterProvider(categories),
+      create: (_) => FilterProvider(
+        categories,
+        initialStatus: initialStatus,
+        initialCategoryId: initialCategoryId,
+      ),
+
       child: _FiltersContent(categories: categories),
     );
   }
@@ -42,14 +51,18 @@ class _FiltersContent extends StatelessWidget {
               : AppColors.primary.withValues(alpha: 0.35),
           onPressed: provider.canApply
               ? () {
-            Navigator.pop(context, {
-              "status": provider.active,
-              "categoryId": provider.selectedCategories.isNotEmpty
-                  ? provider.selectedCategories.first.id
-                  : null,
-            });
-            print("Filter Id Selected = ${provider.selectedCategories.first.id}");
-          }
+                  Navigator.pop(context, {
+                    "status": provider.active,
+                    "categoryId": provider.selectedCategories.isNotEmpty
+                        ? provider.selectedCategories.first.id
+                        : null,
+                  });
+                  if (kDebugMode) {
+                    print(
+                      "Filter Id Selected = ${provider.selectedCategories.first.id}",
+                    );
+                  }
+                }
               : null,
         ),
       ),
@@ -62,7 +75,7 @@ class _FiltersContent extends StatelessWidget {
               _header(context),
               hBox(24),
 
-              /// SORT BY
+              // SORT BY
               Text(
                 "Sort By",
                 style: AppFontStyle.text_14_600(AppColors.darkText),
@@ -87,7 +100,7 @@ class _FiltersContent extends StatelessWidget {
 
               hBox(24),
 
-              /// CATEGORIES
+              // CATEGORIES
               Text(
                 "Categories",
                 style: AppFontStyle.text_14_600(AppColors.darkText),
@@ -96,55 +109,52 @@ class _FiltersContent extends StatelessWidget {
 
               provider.isLoading
                   ? const Center(
-                child: Padding(
-                  padding: EdgeInsets.all(20),
-                  child: CircularProgressIndicator(),
-                ),
-              )
+                      child: Padding(
+                        padding: EdgeInsets.all(20),
+                        child: CircularProgressIndicator(),
+                      ),
+                    )
                   : provider.allCategories.isEmpty
                   ? const Padding(
-                padding: EdgeInsets.all(12),
-                child: Text("No categories found"),
-              )
+                      padding: EdgeInsets.all(12),
+                      child: Text("No categories found"),
+                    )
                   : Wrap(
-                spacing: 10,
-                runSpacing: 10,
-                children:
-                provider.allCategories.map((category) {
-                  final selected =
-                  provider.selectedCategories.contains(category);
+                      spacing: 10,
+                      runSpacing: 10,
+                      children: provider.allCategories.map((category) {
+                        final selected = provider.selectedCategories.contains(
+                          category,
+                        );
 
-                  return GestureDetector(
-                    onTap: () =>
-                        provider.toggleCategory(category),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 14,
-                        vertical: 10,
-                      ),
-                      decoration: BoxDecoration(
-                        color: selected
-                            ? AppColors.primary
-                            : AppColors.fieldBgColor,
-                        borderRadius: BorderRadius.circular(30),
-                        border: Border.all(
-                          color: selected
-                              ? AppColors.primary
-                              : AppColors.grey.withValues(alpha: 0.3),
-                        ),
-                      ),
-                      child: Text(
-                        category.categoryName ?? "",
-                        style: AppFontStyle.text_12_500(
-                          selected
-                              ? AppColors.white
-                              : AppColors.darkText,
-                        ),
-                      ),
+                        return GestureDetector(
+                          onTap: () => provider.toggleCategory(category),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 14,
+                              vertical: 10,
+                            ),
+                            decoration: BoxDecoration(
+                              color: selected
+                                  ? AppColors.primary
+                                  : AppColors.fieldBgColor,
+                              borderRadius: BorderRadius.circular(30),
+                              border: Border.all(
+                                color: selected
+                                    ? AppColors.primary
+                                    : AppColors.grey.withValues(alpha: 0.3),
+                              ),
+                            ),
+                            child: Text(
+                              category.categoryName ?? "",
+                              style: AppFontStyle.text_12_500(
+                                selected ? AppColors.white : AppColors.darkText,
+                              ),
+                            ),
+                          ),
+                        );
+                      }).toList(),
                     ),
-                  );
-                }).toList(),
-              ),
             ],
           ),
         ),
@@ -152,7 +162,7 @@ class _FiltersContent extends StatelessWidget {
     );
   }
 
-  /// ---------------- HEADER ----------------
+  // ---------------- HEADER ----------------
   Widget _header(BuildContext context) {
     return Row(
       children: [
@@ -184,7 +194,12 @@ class _FiltersContent extends StatelessWidget {
           ),
         ),
         TextButton(
-          onPressed: () => context.read<FilterProvider>().clearAll(),
+          onPressed: () {
+            final provider = context.read<FilterProvider>();
+            provider.clearAll();
+
+            Navigator.pop(context, {"status": null, "categoryId": null});
+          },
           child: Text(
             "Clear All",
             style: AppFontStyle.text_14_500(
@@ -197,7 +212,7 @@ class _FiltersContent extends StatelessWidget {
     );
   }
 
-  /// ---------------- SORT CHIP ----------------
+  // ---------------- SORT CHIP ----------------
   Widget _sortChip({
     required String title,
     required bool selected,
@@ -206,12 +221,9 @@ class _FiltersContent extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding:
-        const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
         decoration: BoxDecoration(
-          color: selected
-              ? AppColors.primary
-              : AppColors.fieldBgColor,
+          color: selected ? AppColors.primary : AppColors.fieldBgColor,
           borderRadius: BorderRadius.circular(30),
         ),
         child: Text(

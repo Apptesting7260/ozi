@@ -73,7 +73,10 @@ class _MyServicesContent extends StatelessWidget {
                         MaterialPageRoute(
                           builder: (_) => FiltersScreen(
                             categories: categoryObjects,
+                            initialStatus: provider.selectedStatus,
+                            initialCategoryId: provider.selectedCategoryId,
                           ),
+
                         ),
                       );
 
@@ -163,7 +166,7 @@ class _MyServicesContent extends StatelessWidget {
                     builder: (context) {
 
                       final list = provider.homeModel.data?.data ?? [];
-                      final pagination = provider.homeModel.data?.pagination;
+                  //    final pagination = provider.homeModel.data?.pagination;
 
                       if (list.isEmpty) {
                         return Center(

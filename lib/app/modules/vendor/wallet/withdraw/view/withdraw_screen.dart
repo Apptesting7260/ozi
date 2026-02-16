@@ -71,7 +71,8 @@ class _WithdrawContent extends StatelessWidget {
                   hBox(8),
 
                   CustomTextFormField(
-                    hintText: "Min Amount \$50",
+                    controller: provider.controller,
+                    hintText: "Min Amount \$20",
                     prefix: Text(
                       "    \$",
                       style:
@@ -127,8 +128,13 @@ class _WithdrawContent extends StatelessWidget {
                     color: provider.canContinue
                         ? AppColors.primary
                         : AppColors.primary
-                        .withValues(alpha: 0.70),
-                    onPressed: () {},
+                        . withValues( alpha: 0.70 ),
+                    onPressed: () async{
+                      await provider.withDrawMoney(amount: provider.controller.text ?? "");
+                      if (kDebugMode) {
+                        print(provider.controller.text);
+                      }
+                    },
                   ),
 
                   hBox(20),

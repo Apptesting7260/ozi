@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:ozi/app/data/repository/repository.dart';
 import 'package:ozi/app/modules/auth/vendor/signup/view/service_details.dart';
 import 'package:ozi/app/modules/user/home/service%20details/view/ServiceDetailScreen.dart';
 
@@ -10,6 +11,8 @@ import '../../../../data/response/api_response.dart';
 import '../../../../data/storage/user_preference.dart';
 import 'package:geolocator/geolocator.dart';
 
+import '../model/readNotification_model.dart';
+
 class VendorHomeProvider extends ChangeNotifier {
   final NetworkApiServices _apiService = NetworkApiServices();
 
@@ -20,6 +23,7 @@ class VendorHomeProvider extends ChangeNotifier {
 
   ApiResponse<VendorHomeModel> _homeModel = ApiResponse.loading();
   ApiResponse<VendorHomeModel> get homeModel => _homeModel;
+
 
   setHomeModel(ApiResponse<VendorHomeModel> value){
     _homeModel = value;
@@ -246,6 +250,11 @@ class VendorHomeProvider extends ChangeNotifier {
 
     return await Geolocator.getCurrentPosition();
   }
+
+
+
+
+
 
 }
 

@@ -11,6 +11,7 @@ import 'package:ozi/app/modules/user/home/service%20details/model/ServiceDetails
 import 'package:ozi/app/modules/user/home/service%20details/model/vendordetaiulmodel.dart';
 import 'package:ozi/app/modules/user/profile/setting/model/settingsmodel.dart';
 import 'package:ozi/app/modules/user/profile/view/model/logout_model.dart';
+import 'package:ozi/app/modules/vendor/home/model/readNotification_model.dart';
 import 'package:ozi/app/modules/vendor/home/notification/model/get_notification_model.dart';
 import 'package:ozi/app/modules/vendor/profile/help/model/helpsupportmodel.dart';
 import 'package:ozi/app/modules/vendor/wallet/model/wallet_detail_model.dart';
@@ -740,7 +741,11 @@ class Repository {
     }
   }
 
-  Future<GetNotificationModel> fetchNotifications() async {
+  Future<GetNotificationModel> fetchNotifications(
+  {
+    required int page,
+}
+      ) async {
     try {
       dev.log(
         "fetchNotifications URL: ${AppUrls.getNotications}",
@@ -756,4 +761,47 @@ class Repository {
       throw Exception(e);
     }
   }
+
+  Future<ReadnotificationModel> readAllNotifications() async {
+    try {
+      dev.log(
+        "readAllNotifications URL: ${AppUrls.readAllNotificationsApi}",
+      );
+
+      final response = await _apiService.postApi(
+        {},
+        AppUrls.readAllNotificationsApi,
+      );
+
+      return ReadnotificationModel.fromJson(response);
+    } catch (e) {
+      dev.log("Error in readAllNotifications: $e");
+      throw Exception(e);
+    }
+  }
+
+  Future<void> withDrawMoney(
+      {
+        required String amount,
+      }
+      ) async {
+    try {
+      dev.log(
+        "withDrawMoney URL: ${AppUrls.withDrawMoney}",
+      );
+
+      final response = await _apiService.postApi(
+        {
+          "amount": amount,
+        },
+        AppUrls.withDrawMoney,
+      );
+
+      return response;
+    } catch (e) {
+      dev.log("Error in readAllNotifications: $e");
+      throw Exception(e);
+    }
+  }
+
 }
