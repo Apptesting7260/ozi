@@ -153,15 +153,20 @@ class _MyServicesContent extends StatelessWidget {
               hBox(20),
 
               switch (provider.homeModel.status) {
-                ApiStatus.loading => Expanded(
-                  child: const Center(child: CircularProgressIndicator()),
+
+                ApiStatus.loading => const Expanded(
+                  child: Center(child: CircularProgressIndicator()),
                 ),
 
                 ApiStatus.completed => Expanded(
-                  child:
-                      (provider.homeModel.data?.data == null ||
-                          provider.homeModel.data!.data!.isEmpty)
-                      ? Center(
+                  child: Builder(
+                    builder: (context) {
+
+                      final list = provider.homeModel.data?.data ?? [];
+                      final pagination = provider.homeModel.data?.pagination;
+
+                      if (list.isEmpty) {
+                        return Center(
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
@@ -172,40 +177,56 @@ class _MyServicesContent extends StatelessWidget {
                               ),
                               hBox(16),
                               Text(
-                                  "No services available",
+                                "No services available",
                                 style: AppFontStyle.text_16_400(AppColors.grey),
                               ),
-
                             ],
                           ),
-                        )
-                      : RefreshIndicator(
+                        );
+                      }
+
+                      return RefreshIndicator(
                         onRefresh: () => provider.getAllBookings(),
-                        child:ListView.separated(
+                        child: ListView.separated(
                           controller: provider.scrollController,
-                  itemCount: provider.homeModel.data?.data?.length ?? 0,
-                  separatorBuilder: (_, __) => hBox(14),
-                  itemBuilder: (_, index) {
-                    VendorGetAllServicesModelData? service =
-                    provider.homeModel.data?.data?[index];
 
-                    return _serviceCard(
-                      context: context,
-                      service: service,
-                      provider: provider,
-                    );
-                  },
+                          itemCount: list.length +
+                              (provider.isPaginationLoading ? 1 : 0),
+
+                          separatorBuilder: (_, __) => hBox(14),
+
+                          itemBuilder: (_, index) {
+
+                            if (index == list.length) {
+                              return const Padding(
+                                padding: EdgeInsets.symmetric(vertical: 16),
+                                child: Center(
+                                  child: CircularProgressIndicator(),
+                                ),
+                              );
+                            }
+
+                            final service = list[index];
+
+                            return _serviceCard(
+                              context: context,
+                              service: service,
+                              provider: provider,
+                            );
+                          },
+                        ),
+                      );
+                    },
+                  ),
                 ),
 
-              ),
-                ),
-
-                ApiStatus.error => Expanded(
-                  child: const Center(child: Text('Something went wrong')),
+                ApiStatus.error => const Expanded(
+                  child: Center(child: Text('Something went wrong')),
                 ),
 
                 _ => const SizedBox.shrink(),
-              },
+              }
+
             ],
           ),
         ),
@@ -221,8 +242,6 @@ class _MyServicesContent extends StatelessWidget {
   }) {
     return GestureDetector(
       onTap: () async {
-        // provider.getServiceDetails(service?.id ?? "");
-        // Navigate to Service Details Screen
         final result = await Navigator.push(
           context,
           MaterialPageRoute(
@@ -240,7 +259,7 @@ class _MyServicesContent extends StatelessWidget {
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.20),
+              color: AppColors.cardShadow,
               blurRadius: 10,
             ),
           ],
@@ -253,7 +272,7 @@ class _MyServicesContent extends StatelessWidget {
                   borderRadius: BorderRadius.circular(12),
                   child: CustomImage(
                     path:
-                        '${AppUrls.imageBaseUrl}${service?.serviceImage ?? ''}',
+                    '${AppUrls.imageBaseUrl}${service?.serviceImage ?? ''}',
                     height: 70,
                     width: 70,
                   ),
@@ -363,7 +382,7 @@ class _MyServicesContent extends StatelessWidget {
                       isOutlined: true,
                       borderRadius: BorderRadius.circular(30),
                       onPressed: () async {
-                       final result  = await Navigator.push(
+                        final result  = await Navigator.push(
                           context,
                           MaterialPageRoute(
                             builder: (context) => ServiceDetailsScreen(service,"Edit Service"),
@@ -407,10 +426,10 @@ class _MyServicesContent extends StatelessWidget {
 
   /// Delete Confirmation Dialog
   void _showDeleteDialog(
-    BuildContext context,
-    VendorServicesProvider provider,
-    VendorGetAllServicesModelData service,
-  ) {
+      BuildContext context,
+      VendorServicesProvider provider,
+      VendorGetAllServicesModelData service,
+      ) {
     showDialog(
       context: context,
       builder: (BuildContext dialogContext) {

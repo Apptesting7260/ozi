@@ -41,6 +41,8 @@ class AppUrls {
 
   static const String vendorServiceUrl = "$baseUrl/get-vendor-services-users";
   static const String rescheduleservicePostApiUrl = "$baseUrl/reschedule-booking";
+  static const String getNotications = "$baseUrl/notifications";
+
   // Vendor APIs
   static const String getAllCategories = "$baseUrl/get-all-categories";
   static const String saveCategoryForVendor = "$baseUrl/vendor-categories";

@@ -97,6 +97,26 @@ class Get {
     return isInputStringValid;
   }
 
+  static String formatTime(String? dateTime) {
+    if (dateTime == null) return "";
+
+    final date = DateTime.parse(dateTime).toLocal();
+    final now = DateTime.now();
+
+    final difference = now.difference(date);
+
+    if (difference.inMinutes < 1) {
+      return "Just now";
+    } else if (difference.inMinutes < 60) {
+      return "${difference.inMinutes} min ago";
+    } else if (difference.inHours < 24) {
+      return "${difference.inHours} hrs ago";
+    } else {
+      return "${date.day}/${date.month}/${date.year}";
+    }
+  }
+
+
   static String getFormattedDate(String dateTimeString) {
     try {
       final dateTime = DateTime.parse(dateTimeString).toLocal();

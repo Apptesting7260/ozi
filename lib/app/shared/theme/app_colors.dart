@@ -1,5 +1,3 @@
-
-
 import '../../core/appExports/app_export.dart';
 
 class AppColors{
@@ -39,10 +37,11 @@ class AppColors{
   static Color orange = Color(0xFFF59F0A);
   static Color lightOrange = Color(0xFFFEF3DF);
 
-
   static Color lightPrimary = Color(0xFFB2E4D1);
   static Color lightPrimary2 = Color(0xFFE7F7F1);
   static Color blueShade= Color(0xFFF0F0FF);
   static Color greyShade= Color(0xFFEDEDED);
+  
+  static Color cardShadow =const Color.fromRGBO(15, 23, 41, 0.1);
 
 }
