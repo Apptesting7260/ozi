@@ -175,7 +175,7 @@ class MyBookingsScreen extends StatelessWidget {
     String time = "";
     if (booking.serviceTime != null) {
       time =
-          "${booking.serviceTime?.from ?? ""} - ${booking.serviceTime?.to ?? ""}";
+          "${booking.serviceTime?.from ?? ""}-${booking.serviceTime?.to ?? ""}";
     }
 
     String address = "";
