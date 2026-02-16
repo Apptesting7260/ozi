@@ -99,13 +99,54 @@ class VendorBookingDetailsScreen extends StatelessWidget {
                               ),
 
                                 hBox(20),
-                                _paymentMethod(),
+                                _paymentMethod(provider.homeModel.data?.data?.paymentMethod ?? ""),
                                 hBox(20),
                                 _paymentSummary(
                                   serviceFee:provider.homeModel.data?.data?.serviceFee??'' ,
                                   subTotal: provider.homeModel.data?.data?.subtotal??'',
                                   total: provider.homeModel.data?.data?.total??''
                                 ),
+
+                                hBox(10),
+
+                                if (provider.homeModel.data?.data?.status == 'ongoing' &&
+                                    provider.homeModel.data?.data?.paymentMethod == 'cash') ...[
+
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                                    margin: const EdgeInsets.only(top: 8),
+                                    decoration: BoxDecoration(
+                                      color: Colors.orange.shade50,
+                                      borderRadius: BorderRadius.circular(12),
+                                      border: Border.all(color: Colors.orange.shade200),
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        Checkbox(
+                                          value: provider.isCashCollected,
+                                          activeColor: Colors.orange,
+                                          onChanged: (value) {
+                                         provider.setCashCollected(value ?? false);
+                                          },
+                                        ),
+                                        const SizedBox(width: 8),
+                                        const Expanded(
+                                          child: Text(
+                                            "Please collect the payment from the customer.",
+                                            style: TextStyle(
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.w500,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+
+
+                                hBox(10),
+
                                 if(provider.homeModel.data?.data?.status=='confirmed'&&provider.isOpenOtpBox)...[
                                   hBox(20),
                                   Text(
@@ -171,14 +212,46 @@ class VendorBookingDetailsScreen extends StatelessWidget {
                                       // );
                                     }),
 
-                                if(provider.homeModel.data?.data?.status=='ongoing')
+                                // if(provider.homeModel.data?.data?.status=='ongoing')
+                                //   CustomButton(
+                                //       isLoading: provider.completeJobLoading,
+                                //       text: 'Complete Job',
+                                //       onPressed: (){
+                                //         provider.completeTheJob(bookingId);
+                                //       }
+                                //   ),
+
+                                if (provider.homeModel.data?.data?.status == 'ongoing')
                                   CustomButton(
-                                      isLoading: provider.completeJobLoading,
-                                      text: 'Complete Job',
-                                      onPressed: (){
-                                        provider.completeTheJob(bookingId);
+                                    isLoading: provider.completeJobLoading,
+                                    text: 'Complete Job',
+                                    onPressed: () {
+
+                                      final data = provider.homeModel.data?.data;
+                                      final isCashPayment = data?.paymentMethod == 'cash';
+                                      final isCollected = provider.isCashCollected;
+
+                                      if (isCashPayment && !isCollected) {
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                          const SnackBar(
+
+                                            showCloseIcon: true,
+                                            closeIconColor: Colors.white,
+                                            content: Text(
+                                              "Please confirm that you have collected the cash payment before completing the job.",
+                                            ),
+                                            backgroundColor: Colors.redAccent,
+                                          ),
+                                        );
+                                        return;
                                       }
+
+
+                                      // Proceed to complete job
+                                      provider.completeTheJob(bookingId);
+                                    },
                                   ),
+
 
                                 if (tabIndex == 2)
                                   hBox(100)
@@ -656,7 +729,7 @@ class VendorBookingDetailsScreen extends StatelessWidget {
     );
   }
 
-  Widget _paymentMethod() {
+  Widget _paymentMethod(String paymentMethod) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -667,7 +740,7 @@ class VendorBookingDetailsScreen extends StatelessWidget {
         hBox(12),
         Container(
           padding: EdgeInsets.all(14),
-          // decoration: BoxDecoration(
+          //   decoration: BoxDecoration(
           //   borderRadius: BorderRadius.circular(12),
           //   border: Border.all(color: AppColors.containerBorder),
           //   color: AppColors.white,
@@ -680,15 +753,17 @@ class VendorBookingDetailsScreen extends StatelessWidget {
                 //   color: AppColors.lightGrey,
                 //   borderRadius: BorderRadius.circular(8),
                 // ),
-                child: Icon(
+
+                child:paymentMethod == "pay_online" ?  Icon(
                   Icons.credit_card,
                   color: AppColors.primary,
                   size: 24,
-                ),
+                ) : SvgPicture.asset(ImageConstants.cash),
               ),
               wBox(12),
+
               Text(
-                "Visa •••• 4242",
+                paymentMethod == "pay_online" ? "Visa •••• 4242" : "Cash",
                 style: AppFontStyle.text_14_600(AppColors.black),
               ),
             ],
@@ -716,9 +791,9 @@ class VendorBookingDetailsScreen extends StatelessWidget {
           // ),
           child: Column(
             children: [
-              _summaryRow("Subtotal", "\$${subTotal}"),
+              _summaryRow("Subtotal", "\$$subTotal"),
               hBox(12),
-              _summaryRow("Service Fee", "\$${serviceFee}"),
+              _summaryRow("Service Fee", "\$$serviceFee"),
               hBox(16),
               Divider(color: AppColors.black.withValues(alpha: 0.10), thickness: 2,),
               hBox(12),

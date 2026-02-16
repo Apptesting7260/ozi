@@ -1,3 +1,7 @@
+import 'dart:io';
+import 'package:screenshot/screenshot.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:path_provider/path_provider.dart';
 import '../../../../../core/appExports/app_export.dart';
 import '../../../navigation tab/view/navigation_tab_screen.dart';
 import '../../schedule_service/Model/bookingcompletemodel.dart';
@@ -12,73 +16,118 @@ class BookingConfirmScreen extends StatefulWidget {
 }
 
 class _BookingConfirmScreenState extends State<BookingConfirmScreen> {
+  final ScreenshotController screenshotController = ScreenshotController();
+  bool _isSharing = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // Screenshot will be captured on-demand when sharing
+  }
+
+  Future<void> _shareScreenshot() async {
+    if (_isSharing) return; // Prevent multiple clicks
+
+    setState(() {
+      _isSharing = true;
+    });
+
+    try {
+      // Capture fresh screenshot for sharing
+      final image = await screenshotController.capture();
+
+      if (image != null) {
+        final directory = await getTemporaryDirectory();
+        final imagePath = await File(
+          '${directory.path}/booking_confirmation_${DateTime.now().millisecondsSinceEpoch}.png',
+        ).create();
+        await imagePath.writeAsBytes(image);
+
+        await Share.shareXFiles(
+          [XFile(imagePath.path)],
+          text:
+              'My Booking Confirmation - ID: ${widget.bookingModel?.data?.bookingCode ?? ""}',
+        );
+      }
+    } catch (e) {
+      debugPrint("Share Error: $e");
+      if (mounted) {
+        Get.showToast("Failed to share screenshot", type: ToastType.error);
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isSharing = false;
+        });
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
       create: (_) =>
           BookingConfirmProvider(bookingconfirmerdModel: widget.bookingModel),
-      child: Scaffold(
-        backgroundColor: AppColors.white,
-        body: SafeArea(
-          child: Column(
-            children: [
-              Expanded(
-                child: Consumer<BookingConfirmProvider>(
-                  builder: (context, provider, _) {
-                    return SingleChildScrollView(
-                      padding: REdgeInsets.symmetric(horizontal: 16),
-                      child: Column(
-                        children: [
-                          hBox(10),
-
-                          _successIcon(),
-
-                          hBox(14),
-
-                          Text(
-                            "Booking Confirmed!",
-                            style: AppFontStyle.text_20_700(
-                              AppColors.black,
-                              fontFamily: AppFontFamily.bold,
-                            ),
-                            textAlign: TextAlign.center,
+      child: PopScope(
+        canPop: false,
+        onPopInvokedWithResult: (didPop, result) {
+          if (didPop) return;
+        },
+        child: Scaffold(
+          backgroundColor: AppColors.white,
+          body: SafeArea(
+            child: Consumer<BookingConfirmProvider>(
+              builder: (context, provider, _) {
+                return SingleChildScrollView(
+                  padding: REdgeInsets.symmetric(horizontal: 16),
+                  child: Column(
+                    children: [
+                      hBox(10),
+                      Screenshot(
+                        controller: screenshotController,
+                        child: Container(
+                          color: AppColors.white,
+                          padding: REdgeInsets.symmetric(horizontal: 16),
+                          child: Column(
+                            children: [
+                              _successIcon(),
+                              hBox(14),
+                              Text(
+                                "Booking Confirmed!",
+                                style: AppFontStyle.text_20_700(
+                                  AppColors.black,
+                                  fontFamily: AppFontFamily.bold,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                              hBox(6),
+                              Text(
+                                "Your service has been booked successfully",
+                                style: AppFontStyle.text_14_400(
+                                  AppColors.darkText,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                              hBox(20),
+                              _bookingID(provider),
+                              hBox(20),
+                              _otpCard(provider),
+                              hBox(20),
+                              _detailsCard(provider),
+                              hBox(20),
+                            ],
                           ),
-
-                          hBox(6),
-
-                          Text(
-                            "Your service has been booked successfully",
-                            style: AppFontStyle.text_14_400(AppColors.darkText),
-                            textAlign: TextAlign.center,
-                          ),
-
-                          hBox(20),
-
-                          _bookingID(provider),
-
-                          hBox(20),
-
-                          _otpCard(provider),
-
-                          hBox(20),
-
-                          _detailsCard(provider),
-
-                          hBox(20),
-                          _viewBookingsButton(context),
-
-                          SizedBox(height: 16),
-
-                          _bottomActions(),
-
-                          SizedBox(height: 16),
-                        ],
+                        ),
                       ),
-                    );
-                  },
-                ),
-              ),
-            ],
+                      _viewBookingsButton(context),
+                      SizedBox(height: 16),
+                      _bottomActions(),
+                      SizedBox(height: 16),
+                    ],
+                  ),
+                );
+              },
+            ),
           ),
         ),
       ),
@@ -389,14 +438,34 @@ class _BookingConfirmScreenState extends State<BookingConfirmScreen> {
           child: CustomButton(
             isOutlined: true,
             color: AppColors.lightGrey2,
-            onPressed: () {},
+            onPressed: _isSharing
+                ? null
+                : () {
+                    _shareScreenshot();
+                  },
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                CustomImage(path: ImageConstants.share, height: 20, width: 20),
+                if (_isSharing)
+                  SizedBox(
+                    height: 20,
+                    width: 20,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      valueColor: AlwaysStoppedAnimation<Color>(
+                        AppColors.primary,
+                      ),
+                    ),
+                  )
+                else
+                  CustomImage(
+                    path: ImageConstants.share,
+                    height: 20,
+                    width: 20,
+                  ),
                 wBox(8),
                 Text(
-                  "Share",
+                  _isSharing ? "Sharing..." : "Share",
                   style: AppFontStyle.text_14_500(
                     AppColors.black,
                     fontFamily: AppFontFamily.medium,

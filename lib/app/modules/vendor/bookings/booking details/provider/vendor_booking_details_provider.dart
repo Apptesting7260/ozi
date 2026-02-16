@@ -115,6 +115,14 @@ class VendorBookingDetailsProvider extends ChangeNotifier {
   }
 
 
+  bool isCashCollected = false;
+
+  void setCashCollected(bool value) {
+    isCashCollected = value;
+    notifyListeners();
+  }
+
+
 
   // // Call customer
   // Future<void> callCustomer() async {

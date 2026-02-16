@@ -323,7 +323,7 @@ class BookingProvider extends ChangeNotifier {
       }
     }
 
-    return "${formatTime(slot.from!)} - ${formatTime(slot.to!)}";
+    return "${formatTime(slot.from!)}-${formatTime(slot.to!)}";
   }
 
   void selectRescheduleDate(DateTime date) {

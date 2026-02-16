@@ -681,7 +681,10 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
                   style: AppFontStyle.text_14_600(AppColors.black),
                 ),
                 hBox(4),
-                Text(price, style: AppFontStyle.text_14_600(AppColors.primary)),
+                Text(
+                  "\$$price",
+                  style: AppFontStyle.text_14_600(AppColors.primary),
+                ),
               ],
             ),
           ),
@@ -874,7 +877,13 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
               : "N/A",
         ),
         hBox(12),
-        _detailRow(Icons.access_time, "Time", data.serviceTime ?? "N/A"),
+        _detailRow(
+          Icons.access_time,
+          "Time",
+          data.serviceTime != null
+              ? "${data.serviceTime!.from ?? 'N/A'} - ${data.serviceTime!.to ?? 'N/A'}"
+              : "N/A",
+        ),
         hBox(12),
         _detailRow(
           Icons.location_on_outlined,
@@ -936,7 +945,9 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
               wBox(12),
               Text(
                 data.paymentMethod != null
-                    ? Get.capitalizeFirstLetter(data.paymentMethod!)
+                    ? Get.capitalizeFirstLetter(
+                        data.paymentMethod!.replaceAll('_', ' '),
+                      )
                     : "Not specified",
                 style: AppFontStyle.text_14_600(AppColors.black),
               ),
@@ -963,6 +974,10 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
               _summaryRow("Subtotal", "\$${data.subtotal ?? '0'}"),
               hBox(12),
               _summaryRow("Service Fee", "\$${data.serviceFee ?? '0'}"),
+              data.discountAmount != null ? hBox(16) : SizedBox.shrink(),
+              if (data.discountAmount != null &&
+                  double.parse(data.discountAmount!) > 0)
+                _summaryRow("Discount", "-\$${data.discountAmount}"),
               hBox(16),
               Divider(
                 color: AppColors.black.withValues(alpha: 0.10),

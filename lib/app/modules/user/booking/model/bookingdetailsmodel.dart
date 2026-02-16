@@ -28,9 +28,10 @@ class Data {
   String? paymentMethod;
   String? serviceDate;
   String? serviceDay;
-  String? serviceTime;
+  ServiceTime? serviceTime;
   String? subtotal;
   String? serviceFee;
+  String? discountAmount;
   String? total;
   String? status;
   String? serviceStartOtp;
@@ -56,6 +57,7 @@ class Data {
     this.serviceFee,
     this.total,
     this.status,
+    this.discountAmount,
     this.serviceStartOtp,
     this.isOtpVerified,
     this.vendorActionAt,
@@ -81,11 +83,14 @@ class Data {
     paymentMethod = json['payment_method']?.toString();
     serviceDate = json['service_date']?.toString();
     serviceDay = json['service_day']?.toString();
-    serviceTime = json['service_time']?.toString();
+    serviceTime = json['service_time'] != null
+        ? ServiceTime.fromJson(json['service_time'])
+        : null;
     subtotal = json['subtotal']?.toString();
     serviceFee = json['service_fee']?.toString();
     total = json['total']?.toString();
     status = json['status']?.toString();
+    discountAmount = json['discount_amount']?.toString();
     serviceStartOtp = json['service_start_otp']?.toString();
     isOtpVerified = json['is_otp_verified'] is bool
         ? json['is_otp_verified']
@@ -117,7 +122,9 @@ class Data {
     data['payment_method'] = this.paymentMethod;
     data['service_date'] = this.serviceDate;
     data['service_day'] = this.serviceDay;
-    data['service_time'] = this.serviceTime;
+    if (this.serviceTime != null) {
+      data['service_time'] = this.serviceTime!.toJson();
+    }
     data['subtotal'] = this.subtotal;
     data['service_fee'] = this.serviceFee;
     data['total'] = this.total;
@@ -430,6 +437,25 @@ class Address {
     data['created_at'] = this.createdAt;
     data['updated_at'] = this.updatedAt;
     data['full_address'] = this.fullAddress;
+    return data;
+  }
+}
+
+class ServiceTime {
+  String? from;
+  String? to;
+
+  ServiceTime({this.from, this.to});
+
+  ServiceTime.fromJson(Map<String, dynamic> json) {
+    from = json['from'];
+    to = json['to'];
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    data['from'] = this.from;
+    data['to'] = this.to;
     return data;
   }
 }

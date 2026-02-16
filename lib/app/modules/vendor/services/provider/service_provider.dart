@@ -1,13 +1,11 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import '../../../../core/constants/app_urls.dart';
 import '../../../../core/utils/get_utils.dart';
 import '../../../../data/models/all_services_model_vendor.dart';
 import '../../../../data/network/network_api_services.dart';
 import '../../../../data/response/api_response.dart';
-import '../../../../data/models/vendorservicedetailmodel.dart';
-import '../../../../data/repository/repository.dart';
+
 
 // class MyServiceModel {
 //   final String id;
@@ -69,9 +67,11 @@ class VendorServicesProvider extends ChangeNotifier {
 
   Timer? _debounce;
 
-  int _currentPage = 1;
-  int _limit = 10;
-  bool _hasMore = true;
+
+
+  bool? selectedStatus;
+  String? selectedCategoryId;
+
   bool _isPaginationLoading = false;
 
   String? _search;
@@ -94,13 +94,16 @@ class VendorServicesProvider extends ChangeNotifier {
     getAllBookings();
 
     scrollController.addListener(() {
+      final pagination = _homeModel.data?.pagination;
+
       if (scrollController.position.pixels >=
           scrollController.position.maxScrollExtent - 200 &&
           !_isPaginationLoading &&
-          _hasMore) {
+          pagination?.hasMore == true) {
         getAllBookings(isLoadMore: true);
       }
     });
+
   }
 
 
@@ -121,25 +124,30 @@ class VendorServicesProvider extends ChangeNotifier {
     String? categoryId,
   }) async {
     try {
+      //  Handle Loading States
       if (isLoadMore) {
-        if (!_hasMore || _isPaginationLoading) return;
+        if (_isPaginationLoading) return;
         _isPaginationLoading = true;
         notifyListeners();
       } else {
-        _currentPage = 1;
-        _hasMore = true;
         setHomeModel(ApiResponse.loading());
       }
 
-      // Save filters
+      //  Save Search + Filters
       _search = controller.text;
-      _status = status ?? _status;
-      _categoryId = categoryId ?? _categoryId;
+      _status = status;
+      _categoryId = categoryId;
 
+      //  Safe Pagination Logic
+      int pageToLoad = isLoadMore
+          ? (_homeModel.data?.pagination?.currentPage ?? 0) + 1
+          : 1;
+
+      //  Query Parameters
       Map<String, String> queryParams = {
         "search": _search ?? "",
-        "page": _currentPage.toString(),
-        "limit": _limit.toString(),
+        "page": pageToLoad.toString(),
+        "limit": "10",
       };
 
       if (_status != null && _status!.isNotEmpty) {
@@ -150,36 +158,44 @@ class VendorServicesProvider extends ChangeNotifier {
         queryParams["category_id"] = _categoryId!;
       }
 
-      String queryString = queryParams.entries
-          .map((e) => "${e.key}=${e.value}")
-          .join("&");
+      String queryString =
+      queryParams.entries.map((e) => "${e.key}=${e.value}").join("&");
 
       String url = "${AppUrls.getAllServicesVendor}?$queryString";
 
+      selectedStatus = status == "active"
+          ? true
+          : status == "inactive"
+          ? false
+          : null;
 
+      selectedCategoryId = categoryId;
+
+
+      //  API Call
       final response = await _apiService.getApi(url);
 
       VendorGetAllServicesModel model =
       VendorGetAllServicesModel.fromJson(response);
 
+      //  Handle Pagination vs Fresh Load
       if (isLoadMore) {
         _homeModel.data?.data?.addAll(model.data ?? []);
+        _homeModel.data?.pagination = model.pagination;
       } else {
         _homeModel = ApiResponse.completed(model);
       }
-
-      // Pagination handling
-      _hasMore = model.pagination?.hasMore ?? false;
-      _currentPage++;
 
       _isPaginationLoading = false;
       notifyListeners();
     } catch (e) {
       _isPaginationLoading = false;
-      Get.showToast(e.toString(), type: ToastType.error);
-      setHomeModel(ApiResponse.error('Internal Server Error'));
+      notifyListeners();
+      setHomeModel(ApiResponse.error("Internal Server Error"));
     }
   }
+
+
 
 
   bool _deleteServiceLoading = false;

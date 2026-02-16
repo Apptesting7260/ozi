@@ -1,7 +1,7 @@
 class AppUrls {
   static const String baseUrl = "https://nbturls.in/oziservice/api";
   static const String imageBaseUrl = "https://nbturls.in/oziservice/public/";
-  static const String baseUrlSocket = "https://g9qrfgt3-8001.inc1.devtunnels.ms/";
+  static const String baseUrlSocket = "http://13.126.91.229:8001/";
 
   static const String login = "$baseUrl/send-otp";
   static const String verification = "$baseUrl/verify-otp";
@@ -41,6 +41,11 @@ class AppUrls {
 
   static const String vendorServiceUrl = "$baseUrl/get-vendor-services-users";
   static const String rescheduleservicePostApiUrl = "$baseUrl/reschedule-booking";
+  static const String getNotications = "$baseUrl/notifications";
+  static const String readAllNotificationsApi = "$baseUrl/notifications/mark-all-read";
+  static const String withDrawMoney = "$baseUrl/wallet-withdraw-amount";
+
+
   // Vendor APIs
   static const String getAllCategories = "$baseUrl/get-all-categories";
   static const String saveCategoryForVendor = "$baseUrl/vendor-categories";

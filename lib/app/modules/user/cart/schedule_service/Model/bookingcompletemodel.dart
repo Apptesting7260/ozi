@@ -24,6 +24,8 @@ class BookingconfirmerdModel {
 
 class Data {
   int? bookingId;
+  bool? paymentRequired;
+  String? clientSecret;
   String? bookingCode;
   String? status;
   String? serviceDate;
@@ -40,6 +42,8 @@ class Data {
 
   Data({
     this.bookingId,
+    this.paymentRequired,
+    this.clientSecret,
     this.bookingCode,
     this.status,
     this.serviceDate,
@@ -58,12 +62,16 @@ class Data {
   Data.fromJson(Map<String, dynamic> json) {
     bookingId = json['booking_id'];
     print('step1');
-    bookingCode = json['booking_code'];
+    paymentRequired = json['payment_required'];
     print('step2');
-    status = json['status'];
+    clientSecret = json['client_secret']?.toString();
     print('step3');
-    serviceDate = json['service_date'];
+    bookingCode = json['booking_code'];
     print('step4');
+    status = json['status'];
+    print('step5');
+    serviceDate = json['service_date'];
+    print('step6');
     serviceDay = json['service_day'];
     print('step5');
     serviceTime = json['service_time'] != null

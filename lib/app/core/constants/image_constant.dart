@@ -47,10 +47,12 @@ class ImageConstants {
   static String notification = "$svgPath/notification.svg";
 
   //*******************************************Service Category *****************************************************************//
+
   static String smallFlowerDecoration = "$imagePath/smallFlowerDecoration.png";
   static String bigFlowerDecoration = "$imagePath/bigFlowerDecoration.png";
 
   //*******************************************My Cart  Screen *****************************************************************//
+
   static String bin = "$svgPath/bin.svg";
   static String coupon = "$svgPath/coupon.svg";
   static String error = "$svgPath/error.svg";

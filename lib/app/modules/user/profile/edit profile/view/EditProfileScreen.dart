@@ -14,49 +14,52 @@ class EditProfileScreen extends StatelessWidget {
     final profileProvider = context.read<ProfileProvider>();
     profileProvider.fetchUserProfile();
   }
+
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<EditProfileProvider>();
 
     return Scaffold(
-          body: Column(
-            children: [
-              const CustomAppBar(title: "Edit Profile"),
+      body: Column(
+        children: [
+          const CustomAppBar(title: "Edit Profile"),
 
-              Expanded(
-                child: SingleChildScrollView(
-                  padding: EdgeInsets.symmetric(horizontal: 16),
-                  child: Column(
-                    children: [
-                      hBox(10),
+          Expanded(
+            child: SingleChildScrollView(
+              padding: EdgeInsets.symmetric(horizontal: 16),
+              child: Column(
+                children: [
+                  hBox(10),
 
-                      /// PROFILE SECTION
-                      _profileSection(provider, context),
+                  /// PROFILE SECTION
+                  _profileSection(provider, context),
 
-                      hBox(30),
+                  hBox(30),
 
-                      /// FIELDS
-                      _inputFields(provider),
+                  /// FIELDS
+                  _inputFields(provider),
 
-                      hBox(30),
+                  hBox(30),
 
-                      CustomButton(
-                        borderRadius: BorderRadius.circular(60),
-                        text: provider.isUpdating ? "Updating..." : "Update Profile",
-                        onPressed: provider.isUpdating ? null :
-                             () => provider.updateProfile(context),
-                        height: 54,
-                      ),
-
-
-                      hBox(30),
-                    ],
+                  CustomButton(
+                    borderRadius: BorderRadius.circular(60),
+                    text: provider.isUpdating
+                        ? "Updating..."
+                        : "Update Profile",
+                    onPressed: provider.isUpdating
+                        ? null
+                        : () => provider.updateProfile(context),
+                    height: 54,
                   ),
-                ),
+
+                  hBox(30),
+                ],
               ),
-            ],
+            ),
           ),
-        );
+        ],
+      ),
+    );
   }
 
   // ─────────────────── PROFILE SECTION ───────────────────
@@ -78,16 +81,16 @@ class EditProfileScreen extends StatelessWidget {
               child: ClipOval(
                 child: provider.pickedImage != null
                     ? Image.file(
-                  File(provider.pickedImage!.path),
-                  fit: BoxFit.cover,
-                )
+                        File(provider.pickedImage!.path),
+                        fit: BoxFit.cover,
+                      )
                     : CustomImage(
-                  path: ImagePathHelper.getFullImageUrl(
-                    provider.networkImage,
-                    AppUrls.imageBaseUrl,
-                  ),
-                  fit: BoxFit.cover,
-                ),
+                        path: ImagePathHelper.getFullImageUrl(
+                          provider.networkImage,
+                          AppUrls.imageBaseUrl,
+                        ),
+                        fit: BoxFit.cover,
+                      ),
               ),
             ),
 
@@ -119,7 +122,6 @@ class EditProfileScreen extends StatelessWidget {
       ],
     );
   }
-
 
   void _showPicker(BuildContext context) {
     final provider = Provider.of<EditProfileProvider>(context, listen: false);
