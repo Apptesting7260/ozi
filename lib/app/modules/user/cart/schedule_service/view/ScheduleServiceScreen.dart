@@ -250,7 +250,9 @@ class _ScheduleServiceScreenContent extends StatelessWidget {
                           }
                         },
                         child: Text(
-                          'Change Address >',
+                          addressProvider.selectedAddress == null
+                              ? 'Add Address >'
+                              : 'Change Address >',
                           style: AppFontStyle.text_14_500(
                             AppColors.primary,
                             fontFamily: AppFontFamily.medium,
