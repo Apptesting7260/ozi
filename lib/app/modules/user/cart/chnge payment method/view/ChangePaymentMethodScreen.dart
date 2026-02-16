@@ -1,26 +1,26 @@
 import '../../../../../core/appExports/app_export.dart';
 import '../../../../../shared/widgets/custom_app_bar.dart';
 import '../../../../../shared/widgets/custom_radio_button.dart';
-import '../../checkout/view/CheckoutScreen.dart';
 import '../provider/PaymentMethodProvider.dart';
 
 class ChangePaymentMethodScreen extends StatelessWidget {
-  const ChangePaymentMethodScreen({super.key});
+  final String? selectedMethodTitle;
+  const ChangePaymentMethodScreen({super.key, this.selectedMethodTitle});
 
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (_) => PaymentMethodProvider(),
+      create: (_) => PaymentMethodProvider(initialTitle: selectedMethodTitle),
       child: Scaffold(
         backgroundColor: AppColors.white,
-        body: Column(
-          children: [
-            CustomAppBar(title: "Change Method"),
+        body: Consumer<PaymentMethodProvider>(
+          builder: (context, provider, _) {
+            return Column(
+              children: [
+                CustomAppBar(title: "Change Method"),
 
-            Expanded(
-              child: Consumer<PaymentMethodProvider>(
-                builder: (context, provider, _) {
-                  return ListView(
+                Expanded(
+                  child: ListView(
                     padding: REdgeInsets.symmetric(horizontal: 16),
                     children: [
                       hBox(10),
@@ -105,50 +105,28 @@ class ChangePaymentMethodScreen extends StatelessWidget {
                           ),
                         );
                       }),
-
-                      CustomButton(
-                        onPressed: () {},
-                        isOutlined: true,
-                        color: AppColors.primary,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(Icons.add, size: 20, color: AppColors.primary),
-                            wBox(1),
-                            Text(
-                              'Add New Card',
-                              style: AppFontStyle.text_14_600(
-                                AppColors.primary,
-                                fontFamily: AppFontFamily.bold,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-
                       SizedBox(height: 50),
                     ],
-                  );
-                },
-              ),
-            ),
+                  ),
+                ),
 
-            Padding(
-              padding: REdgeInsets.all(16),
-              child: CustomButton(
-                text: "Continue",
-                onPressed: () {
-                  Navigator.pop(context);
-                  // Navigator.push(
-                  //   context,
-                  //   MaterialPageRoute(builder: (_) => CheckoutScreen()),
-                  // );
-                },
-                height: 50,
-                borderRadius: BorderRadius.circular(60),
-              ),
-            ),
-          ],
+                Padding(
+                  padding: REdgeInsets.all(16),
+                  child: CustomButton(
+                    text: "Continue",
+                    onPressed: () {
+                      Navigator.pop(
+                        context,
+                        provider.list[provider.selectedIndex],
+                      );
+                    },
+                    height: 50,
+                    borderRadius: BorderRadius.circular(60),
+                  ),
+                ),
+              ],
+            );
+          },
         ),
       ),
     );

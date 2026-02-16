@@ -1,12 +1,22 @@
+import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:ozi/app/core/appExports/app_export.dart';
 import 'package:ozi/app/data/repository/repository.dart';
 import 'package:ozi/app/modules/user/cart/booking%20confirmed/view/BookingConfirmScreen.dart';
 import 'package:ozi/app/modules/user/cart/schedule_service/Model/bookservicemodel.dart';
 import 'package:ozi/app/data/response/api_response.dart';
+import '../../chnge payment method/provider/PaymentMethodProvider.dart';
 import '../Model/bookingcompletemodel.dart';
 
 class ScheduleProvider extends ChangeNotifier {
   final Repository _repository = Repository();
+
+  PaymentModel? _selectedPaymentMethod;
+  PaymentModel? get selectedPaymentMethod => _selectedPaymentMethod;
+
+  void setPaymentMethod(PaymentModel method) {
+    _selectedPaymentMethod = method;
+    notifyListeners();
+  }
 
   DateTime _selectedDate = DateTime(
     DateTime.now().year,
@@ -197,40 +207,72 @@ class ScheduleProvider extends ChangeNotifier {
 
       final response = await _repository.completescheduleServiceApi(data);
 
-      debugPrint("BOOK SERVICE RESPONSE => $response");
-
+      BookingconfirmerdModel bookingModel = BookingconfirmerdModel.fromJson(
+        response,
+      );
       if (response['status'] == true) {
-        Get.showToast(
-          response['message'] ?? 'Booking Placed Sucessfully',
-          type: ToastType.success,
-        );
-        notifyListeners();
+        if (paymentMethod == 'pay_online') {
+          try {
+            await Stripe.instance.initPaymentSheet(
+              paymentSheetParameters: SetupPaymentSheetParameters(
+                paymentIntentClientSecret:
+                    bookingModel.data?.clientSecret ?? "",
+                merchantDisplayName: "Ozi App",
+              ),
+            );
+            await Stripe.instance.presentPaymentSheet();
 
-        BookingconfirmerdModel bookingModel = BookingconfirmerdModel.fromJson(
-          response,
-        );
+            Get.showToast(
+              response['message'] ?? 'Booking Placed Sucessfully',
+              type: ToastType.success,
+            );
+            notifyListeners();
 
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) =>
-                BookingConfirmScreen(bookingModel: bookingModel),
-          ),
-        );
-        return true;
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) =>
+                    BookingConfirmScreen(bookingModel: bookingModel),
+              ),
+            );
+            return true;
+          } catch (e) {
+            if (e is StripeException && e.error.code == FailureCode.Canceled) {
+              debugPrint("Payment Canceled");
+            } else {
+              debugPrint("Stripe error: $e");
+              Get.showToast(e.toString(), type: ToastType.error);
+            }
+            return false;
+          }
+        } else if (paymentMethod == 'cash') {
+          Get.showToast(
+            response['message'] ?? 'Booking Placed Sucessfully',
+            type: ToastType.success,
+          );
+          notifyListeners();
+
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) =>
+                  BookingConfirmScreen(bookingModel: bookingModel),
+            ),
+          );
+          return true;
+        }
       } else {
         Get.showToast(
-          e.toString() ?? 'Booking Placed Failed',
+          response['message'] ?? 'Booking Placed Failed',
           type: ToastType.error,
         );
-        throw Exception(response['message'] ?? "Booking failed");
+        return false;
       }
-    } catch (e) {
-      debugPrint("BOOK SERVICE ERROR => $e");
-      Get.showToast(
-        e.toString() ?? 'Booking Placed Failed',
-        type: ToastType.error,
-      );
+
+      return false;
+    } catch (error) {
+      debugPrint("BOOK SERVICE ERROR => $error");
+      Get.showToast(error.toString(), type: ToastType.error);
       return false;
     } finally {
       _isBookingLoading = false;

@@ -1,5 +1,6 @@
 import 'package:chucker_flutter/chucker_flutter.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:ozi/app/modules/user/profile/add%20new%20address/provider/add_address_provider.dart';
 import 'package:ozi/app/modules/user/profile/edit%20address/provider/edit_user_address_provider.dart';
 import 'package:ozi/app/modules/vendor/navigation%20tab/provider/navigation_provider.dart';
@@ -26,6 +27,7 @@ import 'firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
@@ -41,12 +43,11 @@ void main() async {
   ChuckerFlutter.showOnRelease = false;
   ChuckerFlutter.isDebugMode = false;
 
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   PushNotificationService.firebaseNotification();
 
-
+  Stripe.publishableKey =
+      'pk_test_51T1KB9DSmK2YlVb0zz4kEhEobZjMs9aQKpL9pQJQT79Ja4HsVM9QFW9XPirqeIDOAMsBC3vtFtPlXPDmFaH1tmGy00IQqXiz82';
   runApp(const MyApp());
 }
 
@@ -70,9 +71,10 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => MessageProvider()),
         ChangeNotifierProvider(create: (_) => SocketController()),
         ChangeNotifierProvider(create: (_) => VendorServicesProvider()),
-        ChangeNotifierProvider(create: (_) => CartProvider(repository: Repository()),),
-        ChangeNotifierProvider(create: (_) => LoginDetailsProvider(),),
-
+        ChangeNotifierProvider(
+          create: (_) => CartProvider(repository: Repository()),
+        ),
+        ChangeNotifierProvider(create: (_) => LoginDetailsProvider()),
       ],
       child: ScreenUtilInit(
         designSize: const Size(375, 812),
