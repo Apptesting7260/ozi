@@ -945,7 +945,9 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
               wBox(12),
               Text(
                 data.paymentMethod != null
-                    ? Get.capitalizeFirstLetter(data.paymentMethod!)
+                    ? Get.capitalizeFirstLetter(
+                        data.paymentMethod!.replaceAll('_', ' '),
+                      )
                     : "Not specified",
                 style: AppFontStyle.text_14_600(AppColors.black),
               ),
