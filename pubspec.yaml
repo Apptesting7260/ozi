@@ -46,6 +46,7 @@ dependencies:
   flutter_local_notifications: ^19.4.0
   another_flushbar: ^1.12.30
   device_info_plus:
+  flutter_stripe: ^12.2.0
 
 dev_dependencies:
   flutter_test:

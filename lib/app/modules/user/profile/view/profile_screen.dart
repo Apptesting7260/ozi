@@ -1,5 +1,4 @@
-
-
+import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:ozi/app/modules/auth/vendor/signup/view/set_availability.dart';
 import 'package:ozi/app/modules/user/profile/view/profile_provider/profile_provider.dart';
 import '../../../../core/appExports/app_export.dart';
@@ -18,6 +17,7 @@ class ProfileScreen extends StatelessWidget {
     return const ProfileScreenView();
   }
 }
+
 class ProfileScreenView extends StatelessWidget {
   const ProfileScreenView({super.key});
   @override
@@ -44,193 +44,240 @@ class ProfileScreenView extends StatelessWidget {
               Expanded(
                 child: profileProvider.isProfileLoading
                     ? Center(
-                  child: CircularProgressIndicator(
-                    color: AppColors.primary,
-                  ),
-                )
+                        child: CircularProgressIndicator(
+                          color: AppColors.primary,
+                        ),
+                      )
                     : profileProvider.errorMessage.isNotEmpty &&
-                    profileProvider.userProfile == null
+                          profileProvider.userProfile == null
                     ? Center(
-                  child: Padding(
-                    padding: const EdgeInsets.all(10),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.error_outline,
-                          size: 60,
-                          color: AppColors.grey,
+                        child: Padding(
+                          padding: const EdgeInsets.all(10),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.error_outline,
+                                size: 60,
+                                color: AppColors.grey,
+                              ),
+                              hBox(16),
+                              Text(
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                                profileProvider.errorMessage,
+                                style: AppFontStyle.text_14_400(AppColors.grey),
+                                textAlign: TextAlign.center,
+                              ),
+                              hBox(16),
+                              CustomButton(
+                                text: "Retry",
+                                onPressed: () {
+                                  profileProvider.fetchUserProfile();
+                                },
+                                borderRadius: BorderRadius.circular(30),
+                              ),
+                            ],
+                          ),
                         ),
-                        hBox(16),
-                        Text(
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          profileProvider.errorMessage,
-                          style: AppFontStyle.text_14_400(AppColors.grey),
-                          textAlign: TextAlign.center,
-                        ),
-                        hBox(16),
-                        CustomButton(
-                          text: "Retry",
-                          onPressed: () {
-                            profileProvider.fetchUserProfile();
-                          },
-                          borderRadius: BorderRadius.circular(30),
-                        ),
-                      ],
-                    ),
-                  ),
-                )
+                      )
                     : SingleChildScrollView(
-                  padding: REdgeInsets.symmetric(horizontal: 16),
-                  child: Column(
-                    children: [
-                      hBox(10),
-                      Container(
-                        width: double.infinity,
-                        padding:
-                         EdgeInsets.symmetric(vertical: 20),
-                        decoration: BoxDecoration(
-                          color: AppColors.primary
-                              .withValues(alpha: 0.20),
-                          borderRadius: BorderRadius.circular(16),
-                        ),
+                        padding: REdgeInsets.symmetric(horizontal: 16),
                         child: Column(
                           children: [
-                            profileAvatarStatic(
-                              imageUrl: profileProvider.profileImage.isNotEmpty
-                                  ? profileProvider.profileImage
-                                  : "",
-                              size: 90,
-                            ),
-                            hBox(14),
-                            Text(
-                              profileProvider.fullName.isNotEmpty
-                                  ? profileProvider.fullName
-                                  : "User",
-                              style: AppFontStyle.text_18_600(
-                                AppColors.black,
-                                fontFamily: AppFontFamily.bold,
+                            hBox(10),
+                            Container(
+                              width: double.infinity,
+                              padding: EdgeInsets.symmetric(vertical: 20),
+                              decoration: BoxDecoration(
+                                color: AppColors.primary.withValues(
+                                  alpha: 0.20,
+                                ),
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                              child: Column(
+                                children: [
+                                  profileAvatarStatic(
+                                    imageUrl:
+                                        profileProvider.profileImage.isNotEmpty
+                                        ? profileProvider.profileImage
+                                        : "",
+                                    size: 90,
+                                  ),
+                                  hBox(14),
+                                  Text(
+                                    profileProvider.fullName.isNotEmpty
+                                        ? profileProvider.fullName
+                                        : "User",
+                                    style: AppFontStyle.text_18_600(
+                                      AppColors.black,
+                                      fontFamily: AppFontFamily.bold,
+                                    ),
+                                  ),
+                                  hBox(2),
+                                  Text(
+                                    profileProvider.phoneNumber.isNotEmpty
+                                        ? profileProvider.phoneNumber
+                                        : "No phone number",
+                                    style: AppFontStyle.text_14_400(
+                                      AppColors.grey,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
-                            hBox(2),
-                            Text(
-                              profileProvider.phoneNumber.isNotEmpty
-                                  ? profileProvider.phoneNumber
-                                  : "No phone number",
-                              style: AppFontStyle.text_14_400(
-                                  AppColors.grey),
+                            hBox(26),
+                            _profileTile(
+                              icon: ImageConstants.profile,
+                              title: "Edit Profile",
+                              onTap: () => Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) {
+                                    final userData = context
+                                        .read<ProfileProvider>()
+                                        .userData;
+
+                                    return ChangeNotifierProvider(
+                                      create: (_) =>
+                                          EditProfileProvider()
+                                            ..populateProfileData(userData),
+                                      child: EditProfileScreen(),
+                                    );
+                                  },
+                                ),
+                              ),
                             ),
+                            if (profileProvider.userProfile?.data?.userRole ==
+                                'vendor')
+                              _profileTile(
+                                icon: ImageConstants.calendor,
+                                title: "Availability",
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          SetAvailabilityScreen(true),
+                                    ),
+                                  );
+                                },
+                              ),
+
+                            if (profileProvider.userProfile?.data?.userRole ==
+                                'vendor')
+                              _profileTile(
+                                icon: ImageConstants.document,
+                                title: "Documents",
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          IdentityVerificationScreen(
+                                            isFromProfile: true,
+                                          ),
+                                    ),
+                                  );
+                                },
+                              ),
+
+                            if (profileProvider.userProfile?.data?.userRole ==
+                                'vendor')
+                              _profileTile(
+                                icon: ImageConstants.help,
+                                title: "Help & Support",
+                                onTap: () => Navigator.pushNamed(
+                                  context,
+                                  AppRoutes.helpSupportScreen,
+                                ),
+                              ),
+                            if (profileProvider.userProfile?.data?.userRole ==
+                                'user')
+                              _profileTile(
+                                icon: ImageConstants.location,
+                                title: "Saved Addresses",
+                                onTap: () => Navigator.pushNamed(
+                                  context,
+                                  AppRoutes.savedAddressScreen,
+                                ),
+                              ),
+                            if (profileProvider.userProfile?.data?.userRole ==
+                                'user')
+                              _profileTile(
+                                icon: ImageConstants.card,
+                                title: "Payment Methods",
+                                onTap: () => Navigator.pushNamed(
+                                  context,
+                                  AppRoutes.paymentMethodsScreen,
+                                ),
+                              ),
+                            _profileTile(
+                              icon: ImageConstants.setting,
+                              title: "Settings",
+                              onTap: () => Navigator.pushNamed(
+                                context,
+                                AppRoutes.settingsScreen,
+                              ),
+                            ),
+                            hBox(10),
+                            CustomButton(
+                              borderRadius: BorderRadius.circular(30),
+                              color: AppColors.primary.withValues(alpha: 0.30),
+                              // onPressed: () async {
+                              //   try {
+                              //     await Stripe.instance.initPaymentSheet(
+                              //       paymentSheetParameters:
+                              //           SetupPaymentSheetParameters(
+                              //             paymentIntentClientSecret:
+                              //                 "dummy_secret_test",
+                              //             merchantDisplayName: "Test App",
+                              //           ),
+                              //     );
+                              //     await Stripe.instance.presentPaymentSheet();
+                              //   } catch (e) {
+                              //     print("Stripe error: $e");
+                              //   }
+                              // },
+                              onPressed: () {
+                                if (!profileProvider.isLoading) {
+                                  showDeleteDialog(context, profileProvider);
+                                }
+                              },
+                              child: profileProvider.isLoading
+                                  ? SizedBox(
+                                      height: 22,
+                                      width: 22,
+                                      child: CircularProgressIndicator(
+                                        color: AppColors.primary,
+                                        strokeWidth: 2,
+                                      ),
+                                    )
+                                  : Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        CustomImage(
+                                          path: ImageConstants.logout,
+                                          color: AppColors.primary,
+                                          height: 22,
+                                          width: 22,
+                                        ),
+                                        wBox(8),
+                                        Text(
+                                          "Logout",
+                                          style: AppFontStyle.text_16_600(
+                                            AppColors.primary,
+                                            fontFamily: AppFontFamily.semiBold,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                            ),
+                            hBox(30),
                           ],
                         ),
                       ),
-                      hBox(26),
-                      _profileTile(
-                        icon: ImageConstants.profile,
-                        title: "Edit Profile",
-                        onTap: () => Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) {
-                              final userData = context.read<ProfileProvider>().userData;
-
-                              return ChangeNotifierProvider(
-                                create: (_) => EditProfileProvider()..populateProfileData(userData),
-                                child: EditProfileScreen(),
-                              );
-                            },
-                          ),
-                        ),
-                      ),
-                       if(profileProvider.userProfile?.data?.userRole=='vendor')
-                      _profileTile(
-                        icon: ImageConstants.calendor,
-                        title: "Availability",
-                        onTap: () {
-                          Navigator.push(context, MaterialPageRoute(builder: (context) => SetAvailabilityScreen(true),));
-                        },
-                      ),
-
-                      if(profileProvider.userProfile?.data?.userRole=='vendor')
-                      _profileTile(
-                        icon: ImageConstants.document,
-                        title: "Documents",
-                        onTap: () {
-                          Navigator.push(context, MaterialPageRoute(builder: (context) => IdentityVerificationScreen(isFromProfile: true,),));
-                        },
-                      ),
-
-                      if(profileProvider.userProfile?.data?.userRole=='vendor')
-                      _profileTile(
-                        icon: ImageConstants.help,
-                        title: "Help & Support",
-                        onTap: () => Navigator.pushNamed(context, AppRoutes.helpSupportScreen),
-                      ),
-                      if(profileProvider.userProfile?.data?.userRole=='user')
-                      _profileTile(
-                        icon: ImageConstants.location,
-                        title: "Saved Addresses",
-                        onTap: () => Navigator.pushNamed(
-                            context, AppRoutes.savedAddressScreen),
-                      ),
-                      if(profileProvider.userProfile?.data?.userRole=='user')
-                      _profileTile(
-                        icon: ImageConstants.card,
-                        title: "Payment Methods",
-                        onTap: () => Navigator.pushNamed(
-                            context, AppRoutes.paymentMethodsScreen),
-                      ),
-                      _profileTile(
-                        icon: ImageConstants.setting,
-                        title: "Settings",
-                        onTap: () => Navigator.pushNamed(
-                            context, AppRoutes.settingsScreen),
-                      ),
-                      hBox(10),
-                      CustomButton(
-                        borderRadius: BorderRadius.circular(30),
-                        color:
-                        AppColors.primary.withValues(alpha: 0.30),
-                        onPressed: () {
-                          if (!profileProvider.isLoading) {
-                            showDeleteDialog(context, profileProvider);
-                          }
-                        },
-                        child: profileProvider.isLoading
-                            ? SizedBox(
-                          height: 22,
-                          width: 22,
-                          child: CircularProgressIndicator(
-                            color: AppColors.primary,
-                            strokeWidth: 2,
-                          ),
-                        )
-                            : Row(
-                          mainAxisAlignment:
-                          MainAxisAlignment.center,
-                          children: [
-                            CustomImage(
-                              path: ImageConstants.logout,
-                              color: AppColors.primary,
-                              height: 22,
-                              width: 22,
-                            ),
-                            wBox(8),
-                            Text(
-                              "Logout",
-                              style: AppFontStyle.text_16_600(
-                                AppColors.primary,
-                                fontFamily:
-                                AppFontFamily.semiBold,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      hBox(30),
-                    ],
-                  ),
-                ),
               ),
             ],
           ),
@@ -239,10 +286,7 @@ class ProfileScreenView extends StatelessWidget {
     );
   }
 
-  Widget profileAvatarStatic({
-    required String imageUrl,
-    double size = 95,
-  }) {
+  Widget profileAvatarStatic({required String imageUrl, double size = 95}) {
     return Container(
       alignment: Alignment.center,
       child: Container(
@@ -250,14 +294,14 @@ class ProfileScreenView extends StatelessWidget {
         width: size,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          border: Border.all(
-            color: AppColors.primary,
-            width: 3,
-          ),
+          border: Border.all(color: AppColors.primary, width: 3),
         ),
         child: ClipOval(
           child: CustomImage(
-            path: ImagePathHelper.getFullImageUrl(imageUrl, AppUrls.imageBaseUrl),
+            path: ImagePathHelper.getFullImageUrl(
+              imageUrl,
+              AppUrls.imageBaseUrl,
+            ),
             fit: BoxFit.cover,
             // errorWidget: Icon(
             //   Icons.person,
@@ -311,7 +355,7 @@ class ProfileScreenView extends StatelessWidget {
               color: AppColors.grey,
               height: 16,
               width: 6,
-            )
+            ),
           ],
         ),
       ),
@@ -319,7 +363,9 @@ class ProfileScreenView extends StatelessWidget {
   }
 
   Future<void> showDeleteDialog(
-      BuildContext context, ProfileProvider provider) async {
+    BuildContext context,
+    ProfileProvider provider,
+  ) async {
     showDialog(
       context: context,
       barrierDismissible: true,
@@ -373,5 +419,4 @@ class ProfileScreenView extends StatelessWidget {
       },
     );
   }
-
 }
