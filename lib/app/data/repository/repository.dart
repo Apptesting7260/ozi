@@ -780,15 +780,11 @@ class Repository {
     }
   }
 
-  Future<void> withDrawMoney(
-      {
-        required String amount,
-      }
-      ) async {
+  Future<bool> withDrawMoney({
+    required String amount,
+  }) async {
     try {
-      dev.log(
-        "withDrawMoney URL: ${AppUrls.withDrawMoney}",
-      );
+      dev.log("withDrawMoney URL: ${AppUrls.withDrawMoney}");
 
       final response = await _apiService.postApi(
         {
@@ -797,11 +793,19 @@ class Repository {
         AppUrls.withDrawMoney,
       );
 
-      return response;
+      dev.log("Withdraw response: $response");
+
+      //  Adjust according to your API structure
+      if (response != null && response["status"] == true) {
+        return true;
+      } else {
+        return false;
+      }
     } catch (e) {
-      dev.log("Error in readAllNotifications: $e");
-      throw Exception(e);
+      dev.log("Error in withDrawMoney: $e");
+      return false;
     }
   }
+
 
 }

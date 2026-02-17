@@ -1,24 +1,30 @@
 import 'package:ozi/app/shared/widgets/custom_app_bar.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
 import '../../../../core/appExports/app_export.dart';
-import '../../../user_role/choose_your_role/view/choose_role.dart';
 import '../provider/VerificationProvider.dart';
 
 class VerificationScreen extends StatelessWidget {
   final String phone;
+  final String verificationId;
 
-  const VerificationScreen({super.key, required this.phone});
+  const VerificationScreen({
+    super.key,
+    required this.phone,
+    required this.verificationId,
+  });
+
 
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
       create: (_) {
-        final provider = VerificationProvider();
+        final provider = VerificationProvider(verificationId);
         provider.startTimer();
         return provider;
       },
       child: VerificationContent(phone: phone),
     );
+
   }
 }
 
@@ -106,6 +112,11 @@ class VerificationContent extends StatelessWidget {
                     onPressed: () {
                       if (provider.isLoading) return;
                       provider.verifyOtpMethod(phone);
+
+                      if (kDebugMode) {
+                        print("Error After send Otp : ${provider.errorMessage}");
+                      }
+
                       //     .then((success) {
                       //   if (success && context.mounted) {
                       //     Navigator.pushReplacement(

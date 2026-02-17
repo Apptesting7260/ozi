@@ -1,6 +1,7 @@
 import '../../../../../core/appExports/app_export.dart';
 import '../../../../../shared/widgets/custom_app_bar.dart';
 import '../../../../../shared/widgets/custom_text_form_field.dart';
+import '../../view/wallet_screen.dart';
 import '../provider/withdraw_provider.dart';
 
 class WithdrawScreen extends StatelessWidget {
@@ -123,18 +124,37 @@ class _WithdrawContent extends StatelessWidget {
 
                   CustomButton(
                     height: 54,
-                    text: "Continue",
+                    text: provider.isLoading ? "Processing..." : "Continue",
                     borderRadius: BorderRadius.circular(60),
                     color: provider.canContinue
                         ? AppColors.primary
                         : AppColors.primary
                         . withValues( alpha: 0.70 ),
-                    onPressed: () async{
-                      await provider.withDrawMoney(amount: provider.controller.text ?? "");
-                      if (kDebugMode) {
-                        print(provider.controller.text);
+                    onPressed: provider.canContinue && !provider.isLoading
+                        ? () async {
+                      final success = await provider.withDrawMoney(
+                        amount: provider.controller.text,
+                      );
+
+                      if (success == true) {
+                        // ScaffoldMessenger.of(context).showSnackBar(
+                        //   const SnackBar(content: Text("Withdrawal Successful")),
+                        // );
+                        Get.showToast("Withdrawal Successful", type: ToastType.success);
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (_) => const VendorMyWalletScreen()),
+                        );
+                      } else {
+                        // ScaffoldMessenger.of(context).showSnackBar(
+                        //   const SnackBar(content: Text("Withdrawal Failed")),
+                        // );
+                        Get.showToast("Withdrawal Failed", type: ToastType.error);
                       }
-                    },
+                    }
+                        : null,
+
                   ),
 
                   hBox(20),

@@ -1,3 +1,6 @@
+import 'dart:async';
+
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -226,13 +229,13 @@ class LoginProvider extends ChangeNotifier {
     return config?['length'] ?? 10; // Default to 10 if not found
   }
 
-  /// Get country name for a country code
+  // Get country name for a country code
   String getCountryName(String countryCode) {
     final config = countryPhoneConfig[countryCode];
     return config?['name'] ?? 'Unknown';
   }
 
-  /// Validate phone number based on country code
+  // Validate phone number based on country code
   String? validatePhoneNumber(String phoneNumber, String countryCode) {
     if (phoneNumber.trim().isEmpty) {
       return 'Please enter phone number';
@@ -264,140 +267,185 @@ class LoginProvider extends ChangeNotifier {
     return null; // Valid
   }
 
-  Future<bool> sendOtp({
-    required String phoneNumber,
-    required String countryCode,
-  }) async {
-    final cleanCountryCode = countryCode.replaceAll('+', '');
+  // Future<bool> sendOtp({
+  //   required String phoneNumber,
+  //   required String countryCode,
+  // }) async {
+  //   final cleanCountryCode = countryCode.replaceAll('+', '');
+  //
+  //   final validationError = validatePhoneNumber(phoneNumber, cleanCountryCode);
+  //   if (validationError != null) {
+  //     _errorMessage = validationError;
+  //     notifyListeners();
+  //     return false;
+  //   }
+  //
+  //   _isLoading = true;
+  //   _errorMessage = null;
+  //   notifyListeners();
+  //
+  //   try {
+  //     final url = Uri.parse(AppUrls.login);
+  //
+  //     final cleanPhone = phoneNumber.replaceAll(RegExp(r'[^\d]'), '');
+  //
+  //     final requestBody = {
+  //       'mobile': cleanPhone,
+  //       'country_code': '+$cleanCountryCode',
+  //     };
+  //
+  //     print('🔵 Sending OTP request to: $url');
+  //     print('📤 Request body: ${json.encode(requestBody)}');
+  //
+  //     final response = await http.post(
+  //       url,
+  //       headers: {
+  //         'Content-Type': 'application/json',
+  //         'Accept': 'application/json',
+  //         'User-Agent': 'OziService-App',
+  //       },
+  //       body: json.encode(requestBody),
+  //     ).timeout(
+  //       Duration(seconds: 30),
+  //       onTimeout: () {
+  //         throw Exception('Request timeout. Please check your internet connection.');
+  //       },
+  //     );
+  //
+  //     print('📥 Response status code: ${response.statusCode}');
+  //     print('📥 Response body: ${response.body}');
+  //     print('📥 Response headers: ${response.headers}');
+  //
+  //     if (response.statusCode == 200 || response.statusCode == 201) {
+  //       try {
+  //         final responseData = json.decode(response.body);
+  //         _loginResponse = LoginModel.fromJson(responseData);
+  //
+  //         _isLoading = false;
+  //
+  //         if (_loginResponse?.status == true) {
+  //           print('✅ OTP sent successfully');
+  //           notifyListeners();
+  //           return true;
+  //         } else {
+  //           _errorMessage = _loginResponse?.message ?? 'Failed to send OTP';
+  //           print('❌ API returned false status: $_errorMessage');
+  //           notifyListeners();
+  //           return false;
+  //         }
+  //       } catch (e) {
+  //         _isLoading = false;
+  //         _errorMessage = 'Invalid response format from server';
+  //         print('❌ JSON parsing error: $e');
+  //         notifyListeners();
+  //         return false;
+  //       }
+  //     } else if (response.statusCode == 302) {
+  //       _isLoading = false;
+  //       _errorMessage = 'Server configuration issue. Please contact support.';
+  //       print('❌ 302 Redirect detected. Location: ${response.headers['location']}');
+  //       notifyListeners();
+  //       return false;
+  //     } else if (response.statusCode == 400) {
+  //       _isLoading = false;
+  //       try {
+  //         final responseData = json.decode(response.body);
+  //         _errorMessage = responseData['message'] ?? 'Invalid phone number or country code';
+  //       } catch (e) {
+  //         _errorMessage = 'Invalid request';
+  //       }
+  //       print('❌ Bad request: $_errorMessage');
+  //       notifyListeners();
+  //       return false;
+  //     } else if (response.statusCode == 422) {
+  //       _isLoading = false;
+  //       try {
+  //         final responseData = json.decode(response.body);
+  //         _errorMessage = responseData['message'] ?? 'Validation error';
+  //       } catch (e) {
+  //         _errorMessage = 'Validation error';
+  //       }
+  //       print('❌ Validation error: $_errorMessage');
+  //       notifyListeners();
+  //       return false;
+  //     } else if (response.statusCode == 500) {
+  //       _isLoading = false;
+  //       _errorMessage = 'Server error. Please try again later.';
+  //       print('❌ 500 Server error');
+  //       notifyListeners();
+  //       return false;
+  //     } else {
+  //       _isLoading = false;
+  //       _errorMessage = 'Error ${response.statusCode}: ${response.reasonPhrase}';
+  //       print('❌ Unexpected status code: ${response.statusCode}');
+  //       notifyListeners();
+  //       return false;
+  //     }
+  //   } on http.ClientException catch (e) {
+  //     _isLoading = false;
+  //     _errorMessage = 'Network error. Please check your internet connection.';
+  //     print('❌ ClientException: $e');
+  //     notifyListeners();
+  //     return false;
+  //   } on FormatException catch (e) {
+  //     _isLoading = false;
+  //     _errorMessage = 'Invalid response from server';
+  //     print('❌ FormatException: $e');
+  //     notifyListeners();
+  //     return false;
+  //   } catch (e) {
+  //     _isLoading = false;
+  //     _errorMessage = 'Something went wrong. Please try again.';
+  //     print('❌ General Exception: $e');
+  //     notifyListeners();
+  //     return false;
+  //   }
+  // }
 
-    final validationError = validatePhoneNumber(phoneNumber, cleanCountryCode);
-    if (validationError != null) {
-      _errorMessage = validationError;
-      notifyListeners();
-      return false;
-    }
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+
+  String verificationId = '';
+  String? errorMessageFirebase;
+
+  Future<bool> sendOtp(String phone) async {
+    Completer<bool> completer = Completer();
 
     _isLoading = true;
-    _errorMessage = null;
+    errorMessageFirebase = null;
     notifyListeners();
 
-    try {
-      final url = Uri.parse(AppUrls.login);
+    await _auth.verifyPhoneNumber(
+      phoneNumber: phone,
 
-      final cleanPhone = phoneNumber.replaceAll(RegExp(r'[^\d]'), '');
+      verificationCompleted: (PhoneAuthCredential credential) async {
+        await _auth.signInWithCredential(credential);
+      },
 
-      final requestBody = {
-        'mobile': cleanPhone,
-        'country_code': '+$cleanCountryCode',
-      };
-
-      print('🔵 Sending OTP request to: $url');
-      print('📤 Request body: ${json.encode(requestBody)}');
-
-      final response = await http.post(
-        url,
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-          'User-Agent': 'OziService-App',
-        },
-        body: json.encode(requestBody),
-      ).timeout(
-        Duration(seconds: 30),
-        onTimeout: () {
-          throw Exception('Request timeout. Please check your internet connection.');
-        },
-      );
-
-      print('📥 Response status code: ${response.statusCode}');
-      print('📥 Response body: ${response.body}');
-      print('📥 Response headers: ${response.headers}');
-
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        try {
-          final responseData = json.decode(response.body);
-          _loginResponse = LoginModel.fromJson(responseData);
-
-          _isLoading = false;
-
-          if (_loginResponse?.status == true) {
-            print('✅ OTP sent successfully');
-            notifyListeners();
-            return true;
-          } else {
-            _errorMessage = _loginResponse?.message ?? 'Failed to send OTP';
-            print('❌ API returned false status: $_errorMessage');
-            notifyListeners();
-            return false;
-          }
-        } catch (e) {
-          _isLoading = false;
-          _errorMessage = 'Invalid response format from server';
-          print('❌ JSON parsing error: $e');
-          notifyListeners();
-          return false;
-        }
-      } else if (response.statusCode == 302) {
+      verificationFailed: (FirebaseAuthException e) {
         _isLoading = false;
-        _errorMessage = 'Server configuration issue. Please contact support.';
-        print('❌ 302 Redirect detected. Location: ${response.headers['location']}');
+        errorMessageFirebase = e.message;
         notifyListeners();
-        return false;
-      } else if (response.statusCode == 400) {
+        completer.complete(false);
+      },
+
+      codeSent: (String verId, int? resendToken) {
+        verificationId = verId;   // save globally
         _isLoading = false;
-        try {
-          final responseData = json.decode(response.body);
-          _errorMessage = responseData['message'] ?? 'Invalid phone number or country code';
-        } catch (e) {
-          _errorMessage = 'Invalid request';
-        }
-        print('❌ Bad request: $_errorMessage');
         notifyListeners();
-        return false;
-      } else if (response.statusCode == 422) {
-        _isLoading = false;
-        try {
-          final responseData = json.decode(response.body);
-          _errorMessage = responseData['message'] ?? 'Validation error';
-        } catch (e) {
-          _errorMessage = 'Validation error';
-        }
-        print('❌ Validation error: $_errorMessage');
-        notifyListeners();
-        return false;
-      } else if (response.statusCode == 500) {
-        _isLoading = false;
-        _errorMessage = 'Server error. Please try again later.';
-        print('❌ 500 Server error');
-        notifyListeners();
-        return false;
-      } else {
-        _isLoading = false;
-        _errorMessage = 'Error ${response.statusCode}: ${response.reasonPhrase}';
-        print('❌ Unexpected status code: ${response.statusCode}');
-        notifyListeners();
-        return false;
-      }
-    } on http.ClientException catch (e) {
-      _isLoading = false;
-      _errorMessage = 'Network error. Please check your internet connection.';
-      print('❌ ClientException: $e');
-      notifyListeners();
-      return false;
-    } on FormatException catch (e) {
-      _isLoading = false;
-      _errorMessage = 'Invalid response from server';
-      print('❌ FormatException: $e');
-      notifyListeners();
-      return false;
-    } catch (e) {
-      _isLoading = false;
-      _errorMessage = 'Something went wrong. Please try again.';
-      print('❌ General Exception: $e');
-      notifyListeners();
-      return false;
-    }
+        completer.complete(true);
+      },
+
+      codeAutoRetrievalTimeout: (String verId) {
+        verificationId = verId;
+      },
+    );
+
+    return completer.future;
   }
+
+
+
+
 
   void clearError() {
     _errorMessage = null;

@@ -1,17 +1,10 @@
-import 'package:flutter/material.dart';
-import 'package:ozi/app/data/repository/repository.dart';
 import 'package:ozi/app/modules/auth/vendor/signup/view/service_details.dart';
-import 'package:ozi/app/modules/user/home/service%20details/view/ServiceDetailScreen.dart';
-
+import '../../../../core/appExports/app_export.dart';
 import '../../../../core/constants/app_urls.dart';
-import '../../../../core/utils/get_utils.dart';
 import '../../../../data/models/vendor_home_model.dart';
 import '../../../../data/network/network_api_services.dart';
 import '../../../../data/response/api_response.dart';
-import '../../../../data/storage/user_preference.dart';
 import 'package:geolocator/geolocator.dart';
-
-import '../model/readNotification_model.dart';
 
 class VendorHomeProvider extends ChangeNotifier {
   final NetworkApiServices _apiService = NetworkApiServices();
@@ -32,11 +25,15 @@ class VendorHomeProvider extends ChangeNotifier {
 
 
   Future<void> getHomeData()async {
-    print('getting categories');
+    if (kDebugMode) {
+      print('getting categories');
+    }
     setHomeModel(ApiResponse.loading());
     try {
       final response = await _apiService.getApi(AppUrls.vendorHome);
-      print(response);
+      if (kDebugMode) {
+        print(response);
+      }
       setHomeModel(ApiResponse.completed(VendorHomeModel.fromJson(response)));
       checkForUpdateLocationAndIsServiceAvailable();
     } catch (e) {
@@ -55,7 +52,9 @@ class VendorHomeProvider extends ChangeNotifier {
       final response = await _apiService.postApi({
         "is_online":(_homeModel.data?.vendorStatus?.isOnline??false)?0:1
       },AppUrls.changeOnlineStatusVendor);
-      print(response);
+      if (kDebugMode) {
+        print(response);
+      }
       if(response['status']==true){
         _homeModel.data?.vendorStatus?.isOnline = response['is_online'];
         notifyListeners();
@@ -113,7 +112,9 @@ class VendorHomeProvider extends ChangeNotifier {
         "booking_id" : bookingId,
         "action" : status
       },AppUrls.acceptRejectBooking);
-      print(response);
+      if (kDebugMode) {
+        print(response);
+      }
       _homeModel.data?.requests?.forEach((e){
         if(e.bookingId==bookingId){
           e.status = status;
@@ -159,7 +160,9 @@ class VendorHomeProvider extends ChangeNotifier {
             actions: <Widget>[
               TextButton(
                 onPressed: () {
-                  print("Add pressed");
+                  if (kDebugMode) {
+                    print("Add pressed");
+                  }
                   Navigator.push(context, MaterialPageRoute(builder: (context) => ServiceDetailsScreen(null,"Add Service"),));
                   // Navigator.of(context).pop();
                 },
@@ -167,7 +170,9 @@ class VendorHomeProvider extends ChangeNotifier {
               ),
               TextButton(
                 onPressed: () {
-                  print("Refresh pressed");
+                  if (kDebugMode) {
+                    print("Refresh pressed");
+                  }
                   Navigator.of(context).pop();
                   getHomeData();
                 },
@@ -212,7 +217,9 @@ class VendorHomeProvider extends ChangeNotifier {
                   try {
                     // Get current location
                     Position position = await _determinePosition();
-                    print('Lat: ${position.latitude}, Lng: ${position.longitude}');
+                    if (kDebugMode) {
+                      print('Lat: ${position.latitude}, Lng: ${position.longitude}');
+                    }
                     updateLocation(position);
                     Navigator.of(context).pop();
                   } catch (e) {

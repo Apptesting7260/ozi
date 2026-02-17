@@ -73,17 +73,17 @@ class _ServiceDetailsContent extends StatelessWidget {
         centerTitle: true,
 
         // RIGHT PADDING CONTROL
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 12),
-            child: IconButton(
-              icon: const Icon(Icons.more_vert, color: Colors.black),
-              onPressed: () {
-                _showOptionsMenu(context, provider);
-              },
-            ),
-          ),
-        ],
+        // actions: [
+        //   Padding(
+        //     padding: const EdgeInsets.only(right: 12),
+        //     child: IconButton(
+        //       icon: const Icon(Icons.more_vert, color: Colors.black),
+        //       onPressed: () {
+        //         _showOptionsMenu(context, provider);
+        //       },
+        //     ),
+        //   ),
+        // ],
       ),
 
       body:provider.isLoading

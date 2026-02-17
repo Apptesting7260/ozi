@@ -5,10 +5,10 @@ class WithdrawProvider extends ChangeNotifier {
   final Repository _repository = Repository();
   TextEditingController controller = TextEditingController();
 
-  double balance = 3420.00;
+//  double balance = 3420.00;
   double selectedAmount = 20;
 
-  final List<double> quickAmounts = [20, 30, 50, 100];
+  final List<double> quickAmounts = [30, 50, 100, 150];
 
   void selectAmount(double amount) {
     selectedAmount = amount;
@@ -21,9 +21,17 @@ class WithdrawProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+
+  WithdrawProvider() {
+    controller.addListener(() {
+      notifyListeners();
+    });
+  }
+
+
   bool get canContinue {
     final amount = double.tryParse(controller.text) ?? 0;
-    return amount >= 50;
+    return amount >= 30;
   }
 
 
@@ -31,10 +39,9 @@ class WithdrawProvider extends ChangeNotifier {
   bool _isLoading = false;
   bool get isLoading => _isLoading;
 
-  Future<void> withDrawMoney({
+  Future<bool> withDrawMoney({
     required String amount,
-  }
-      ) async {
+  }) async {
     try {
       _isLoading = true;
       notifyListeners();
@@ -42,9 +49,12 @@ class WithdrawProvider extends ChangeNotifier {
       final response = await _repository.withDrawMoney(amount: amount);
 
       return response;
+    } catch (e) {
+      return false;
     } finally {
       _isLoading = false;
       notifyListeners();
     }
   }
+
 }

@@ -141,10 +141,18 @@ class _VendorHomeScreenState extends State<VendorHomeScreen> {
           children: [
             CircleAvatar(
               radius: 22,
-              backgroundImage: NetworkImage(
-                '${AppUrls.imageBaseUrl}${provider.homeModel.data?.profile?.image}',
-              ),
+              backgroundImage: (provider.homeModel.data?.profile?.image != null &&
+                  provider.homeModel.data!.profile!.image!.isNotEmpty)
+                  ? NetworkImage(
+                '${AppUrls.imageBaseUrl}${provider.homeModel.data!.profile!.image}',
+              )
+                  : null,
+              child: (provider.homeModel.data?.profile?.image == null ||
+                  provider.homeModel.data!.profile!.image!.isEmpty)
+                  ? Icon(Icons.person, size: 22)
+                  : null,
             ),
+
 
             wBox(12),
 
