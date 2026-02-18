@@ -120,6 +120,7 @@ class Summary {
   int? total;
   int? discount;
   String? appliedCuppon;
+  String? cupponId;
 
   Summary({
     this.itemsCount,
@@ -128,6 +129,7 @@ class Summary {
     this.total,
     this.discount,
     this.appliedCuppon,
+    this.cupponId,
   });
 
   Summary.fromJson(Map<String, dynamic> json) {
@@ -144,6 +146,7 @@ class Summary {
       discount = (subtotal! + serviceFee!) - total!;
     }
     appliedCuppon = json['applied_coupon']?.toString();
+    cupponId = json['coupon_id']?.toString();
   }
 
   Map<String, dynamic> toJson() {
