@@ -173,6 +173,7 @@ class HomeScreenView extends StatelessWidget {
     return CustomTextFormField(
       onChanged: (val) => provider.setSearchQuery(val),
       hintText: "Search...",
+
       prefix: Padding(
         padding: EdgeInsets.all(12.0),
         child: CustomImage(path: ImageConstants.search, height: 20, width: 20),
@@ -191,6 +192,7 @@ class HomeScreenView extends StatelessWidget {
   }
 
   Widget _buildServiceGrid(BuildContext context, HomeScreenProvider provider) {
+    // Show shimmer when loading (including when requesting permission)
     if (provider.isLoading) {
       return GridView.builder(
         shrinkWrap: true,
@@ -206,6 +208,54 @@ class HomeScreenView extends StatelessWidget {
           width: double.infinity,
           height: double.infinity,
           radius: 12,
+        ),
+      );
+    }
+
+    // Check if location is null (only show this when not loading)
+    if (provider.lat == null || provider.lng == null) {
+      return Container(
+        padding: EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: AppColors.primary.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: AppColors.primary.withOpacity(0.3)),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.location_off_outlined,
+              size: 60,
+              color: AppColors.primary,
+            ),
+            hBox(16),
+            Text(
+              'Location Required',
+              style: AppFontStyle.text_18_600(
+                AppColors.black,
+                fontFamily: AppFontFamily.bold,
+              ),
+            ),
+            hBox(8),
+            Text(
+              'You can\'t view services without adding location. Please enable location permission to continue.',
+              textAlign: TextAlign.center,
+              style: AppFontStyle.text_14_400(AppColors.grey),
+            ),
+            hBox(20),
+            CustomButton(
+              onPressed: () => provider.requestLocationPermission(context),
+              text: 'Enable Location',
+              textStyle: AppFontStyle.text_14_600(
+                AppColors.white,
+                fontFamily: AppFontFamily.semiBold,
+              ),
+              width: double.infinity,
+              height: 48,
+              color: AppColors.primary,
+            ),
+          ],
         ),
       );
     }
@@ -295,8 +345,11 @@ class HomeScreenView extends StatelessWidget {
             Positioned(
               left: 12,
               bottom: 12,
+              right: 12,
               child: Text(
                 category.categoryName ?? "",
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
                 style: AppFontStyle.text_15_500(
                   AppColors.white,
                   fontFamily: AppFontFamily.semiBold,

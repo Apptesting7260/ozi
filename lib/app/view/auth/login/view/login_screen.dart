@@ -127,7 +127,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
                   Text(
                     maxLines: 2,
-                    "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
+                    "Please enter your mobile number to proceed.",
                     style: AppFontStyle.text_16_400(
                       AppColors.grey,
                       fontFamily: AppFontFamily.regular,
