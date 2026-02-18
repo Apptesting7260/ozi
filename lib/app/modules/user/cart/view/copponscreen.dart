@@ -50,6 +50,15 @@ class _CopponScreenState extends State<CopponScreen> {
                         )
                       else if (provider.errorMessage != null)
                         Center(child: Text(provider.errorMessage!))
+                      else if (provider.couponsModel!.data!.isEmpty)
+                        Expanded(
+                          child: Center(
+                            child: Text(
+                              "No coupons available",
+                              style: AppFontStyle.text_15_500(Colors.black),
+                            ),
+                          ),
+                        )
                       else
                         Expanded(
                           child: SingleChildScrollView(

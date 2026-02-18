@@ -1,3 +1,6 @@
+import 'package:ozi/app/core/device%20info/get_device_Info.dart';
+import 'package:ozi/app/core/push%20notification/push_notification.dart';
+
 import '../../../../core/appExports/app_export.dart';
 import '../../../../core/constants/app_urls.dart';
 import '../../../../data/network/network_api_services.dart';
@@ -24,6 +27,14 @@ class CreateAccountProvider with ChangeNotifier {
   bool _isEmailVerified = false;
   bool get isEmailVerified => _isEmailVerified;
 
+  bool _isloading = false;
+  bool get isloading => _isloading;
+
+  updateISLoading(bool value) {
+    _isloading = value;
+    notifyListeners();
+  }
+
   bool _otpLoading = false;
   bool get otpLoading => _otpLoading;
 
@@ -31,17 +42,18 @@ class CreateAccountProvider with ChangeNotifier {
     _isEmailValid = RegExp(
       r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
     ).hasMatch(val.trim());
+    _isEmailVerified = false; // Reset verification on change
     notifyListeners();
   }
 
   Future<dynamic> emailSendApi(Map<String, dynamic> data) async {
     try {
-      updateLoading(true);
+      updateISLoading(true);
       final response = await _repository.emailSendApi(data);
-      updateLoading(false);
+      updateISLoading(false);
       return response;
     } catch (e) {
-      updateLoading(false);
+      updateISLoading(false);
       rethrow;
     }
   }
@@ -59,6 +71,7 @@ class CreateAccountProvider with ChangeNotifier {
         _isEmailVerified = true;
       }
       notifyListeners();
+      Navigator.pop(navigatorKey.currentContext!);
       return response;
     } catch (e) {
       _otpLoading = false;
@@ -75,7 +88,12 @@ class CreateAccountProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  void updateUI() {
+    notifyListeners();
+  }
+
   Future<void> createAccount(String userId, BuildContext context) async {
+    final deviceInfo = await getDeviceInfo();
     // Validate form before API call
     if (!formKey.currentState!.validate()) {
       return;
@@ -89,6 +107,9 @@ class CreateAccountProvider with ChangeNotifier {
         "first_name": firstNameController.text.trim(),
         "last_name": lastNameController.text.trim(),
         "email": emailController.text.trim(),
+        "fcm_token": PushNotificationService.fcmToken ?? "",
+        "device_name": deviceInfo["device_name"] ?? "",
+        "device_type": deviceInfo["device_type"] ?? "",
       }, AppUrls.completeRegistration);
       updateLoading(false);
       if (kDebugMode) {

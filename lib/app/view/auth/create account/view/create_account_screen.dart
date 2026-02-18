@@ -55,6 +55,7 @@ class CreateAccountScreen extends StatelessWidget {
                         controller: value.firstNameController,
                         label: "First Name",
                         hintText: "Enter first name",
+                        onChanged: (val) => value.updateUI(),
                         prefix: Padding(
                           padding: const EdgeInsets.all(12),
                           child: CustomImage(
@@ -82,6 +83,7 @@ class CreateAccountScreen extends StatelessWidget {
                         controller: value.lastNameController,
                         label: "Last Name",
                         hintText: "Enter last name",
+                        onChanged: (val) => value.updateUI(),
                         prefix: Padding(
                           padding: const EdgeInsets.all(12),
                           child: CustomImage(
@@ -127,7 +129,7 @@ class CreateAccountScreen extends StatelessWidget {
                             onTap:
                                 (value.isEmailValid &&
                                     !value.isEmailVerified &&
-                                    !value.loading)
+                                    !value.isloading)
                                 ? () async {
                                     try {
                                       final response = await value
@@ -154,22 +156,33 @@ class CreateAccountScreen extends StatelessWidget {
                                     }
                                   }
                                 : null,
-                            child: Text(
-                              value.isEmailVerified ? "Verified" : "Verify",
-                              style: AppFontStyle.text_15_400(
-                                value.isEmailVerified
-                                    ? AppColors.green
-                                    : (value.isEmailValid
+                            child: value.isloading
+                                ? SizedBox(
+                                    height: 18,
+                                    width: 18,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      color: AppColors.primary,
+                                    ),
+                                  )
+                                : Text(
+                                    value.isEmailVerified
+                                        ? "Verified"
+                                        : "Verify",
+                                    style: AppFontStyle.text_14_400(
+                                      value.isEmailVerified
                                           ? AppColors.green
-                                          : AppColors.grey),
-                              ),
-                            ),
+                                          : (value.isEmailValid
+                                                ? AppColors.primary
+                                                : AppColors.grey),
+                                    ),
+                                  ),
                           ),
                         ),
                         borderRadius: 60,
                         validator: (val) {
                           if (val == null || val.trim().isEmpty) {
-                            return "Email address is required";
+                            return "Email is required";
                           }
                           if (!RegExp(
                             r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
@@ -184,14 +197,26 @@ class CreateAccountScreen extends StatelessWidget {
 
                       CustomButton(
                         isLoading: value.loading,
-                        onPressed: value.loading
-                            ? () {}
+                        onPressed:
+                            (value.loading ||
+                                !value.isEmailVerified ||
+                                value.firstNameController.text.trim().isEmpty ||
+                                value.lastNameController.text.trim().isEmpty)
+                            ? null
                             : () {
                                 if (value.formKey.currentState?.validate() ??
                                     false) {
                                   value.createAccount(userId, context);
                                 }
                               },
+                        color:
+                            (value.isEmailVerified &&
+                                value.firstNameController.text
+                                    .trim()
+                                    .isNotEmpty &&
+                                value.lastNameController.text.trim().isNotEmpty)
+                            ? AppColors.primary
+                            : AppColors.primary.withOpacity(0.5),
                         text: "Create Account",
                       ),
                     ],
