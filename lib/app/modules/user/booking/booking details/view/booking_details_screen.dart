@@ -823,10 +823,29 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
                   ],
                 ),
               ),
-              if (vendor.mobile != null)
+              if (provider.bookingDetails?.data?.status != "Rejected") ...[
+                if (vendor.mobile != null)
+                  GestureDetector(
+                    onTap: () {
+                      launchUrl(Uri.parse("tel:${vendor.mobile}"));
+                    },
+                    child: Container(
+                      padding: EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: AppColors.primary,
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        Icons.phone,
+                        color: AppColors.white,
+                        size: 20,
+                      ),
+                    ),
+                  ),
+                wBox(12),
                 GestureDetector(
                   onTap: () {
-                    launchUrl(Uri.parse("tel:${vendor.mobile}"));
+                    provider.sendMessage(vendor.id?.toString() ?? '');
                   },
                   child: Container(
                     padding: EdgeInsets.all(12),
@@ -834,23 +853,14 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
                       color: AppColors.primary,
                       shape: BoxShape.circle,
                     ),
-                    child: Icon(Icons.phone, color: AppColors.white, size: 20),
+                    child: Icon(
+                      Icons.message,
+                      color: AppColors.white,
+                      size: 20,
+                    ),
                   ),
                 ),
-              wBox(12),
-              GestureDetector(
-                onTap: () {
-                  provider.sendMessage(vendor.id?.toString() ?? '');
-                },
-                child: Container(
-                  padding: EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: AppColors.primary,
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(Icons.message, color: AppColors.white, size: 20),
-                ),
-              ),
+              ],
             ],
           ),
         ),

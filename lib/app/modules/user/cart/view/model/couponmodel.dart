@@ -30,6 +30,7 @@ class Data {
   String? type;
   String? value;
   String? minCartAmount;
+  String? minCartAmountMsg;
   String? maxDiscount;
   String? usageLimit;
   String? usedCount;
@@ -44,6 +45,7 @@ class Data {
     this.type,
     this.value,
     this.minCartAmount,
+    this.minCartAmountMsg,
     this.maxDiscount,
     this.usageLimit,
     this.usedCount,
@@ -59,6 +61,7 @@ class Data {
     type = json['type']?.toString();
     value = json['value']?.toString();
     minCartAmount = json['min_cart_amount']?.toString();
+    minCartAmountMsg = json['min_cart_amount_message']?.toString();
     maxDiscount = json['max_discount']?.toString();
     usageLimit = json['usage_limit']?.toString();
     usedCount = json['used_count']?.toString();

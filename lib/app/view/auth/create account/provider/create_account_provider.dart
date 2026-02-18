@@ -71,7 +71,7 @@ class CreateAccountProvider with ChangeNotifier {
         _isEmailVerified = true;
       }
       notifyListeners();
-      Navigator.pop(navigatorKey.currentContext!);
+      // Navigator.pop(navigatorKey.currentContext!);
       return response;
     } catch (e) {
       _otpLoading = false;
