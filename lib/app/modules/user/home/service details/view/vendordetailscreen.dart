@@ -286,6 +286,69 @@ class VendorDetailView extends StatelessWidget {
     );
   }
 
+  void _showErrorDialog(BuildContext context, String message) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: Colors.white,
+          surfaceTintColor: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          title: Row(
+            children: [
+              Icon(Icons.error_outline, color: Colors.red),
+              wBox(10),
+              Text(
+                "Error",
+                style: AppFontStyle.text_18_600(
+                  AppColors.black,
+                  fontFamily: AppFontFamily.semiBold,
+                ),
+              ),
+            ],
+          ),
+          content: Text(
+            message.replaceAll('Exception: ', ''),
+            style: AppFontStyle.text_14_400(AppColors.darkText),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text(
+                "Cancel",
+                style: AppFontStyle.text_14_600(
+                  AppColors.grey,
+                  fontFamily: AppFontFamily.semiBold,
+                ),
+              ),
+            ),
+            CustomButton(
+              width: 100,
+              height: 35,
+              text: "View Cart",
+              color: AppColors.primary,
+              textStyle: AppFontStyle.text_12_600(
+                Colors.white,
+                fontFamily: AppFontFamily.semiBold,
+              ),
+              onPressed: () {
+                Navigator.pop(context); // Close dialog
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => NavigationTabScreen(initialIndex: 1),
+                  ),
+                );
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   Widget _buildServiceCard(
     BuildContext context,
     vdm.Data service,
@@ -374,12 +437,7 @@ class VendorDetailView extends StatelessWidget {
                                   try {
                                     await provider.addToCart(service.id!);
                                   } catch (e) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                        content: Text('Failed to add to cart'),
-                                        backgroundColor: Colors.red,
-                                      ),
-                                    );
+                                    _showErrorDialog(context, e.toString());
                                   }
                                 }
                               },
