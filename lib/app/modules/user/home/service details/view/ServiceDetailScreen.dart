@@ -6,6 +6,7 @@ import '../../../../../shared/widgets/custom_app_bar.dart';
 import '../provider/ServiceDetailProvider.dart';
 import '../model/ServiceDetailsModel.dart';
 import 'vendordetailscreen.dart';
+import '../../../../../shared/widgets/read_more_text.dart';
 
 class ServiceDetailScreen extends StatelessWidget {
   final Subcategories service;
@@ -187,7 +188,8 @@ class ServiceDetailView extends StatelessWidget {
                       Icon(Icons.star, size: 14, color: AppColors.orange),
                       wBox(4),
                       Text(
-                        '4.8', // Placeholder rating
+                        serviceData.reviewsCount.toString() ??
+                            "", // Placeholder rating
                         style: AppFontStyle.text_12_600(
                           AppColors.black,
                           fontFamily: AppFontFamily.bold,
@@ -291,11 +293,10 @@ class ServiceDetailView extends StatelessWidget {
         ),
         hBox(16),
         // Description
-        Text(
-          serviceData.description ?? '',
+        ReadMoreDescription(
+          text: serviceData.description ?? '',
           style: AppFontStyle.text_13_400(AppColors.lightGrey3),
-          maxLines: 3,
-          overflow: TextOverflow.ellipsis,
+          trimLines: 2,
         ),
       ],
     );

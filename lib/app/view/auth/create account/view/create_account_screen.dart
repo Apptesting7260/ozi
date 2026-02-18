@@ -1,4 +1,5 @@
 import '../../../../core/appExports/app_export.dart';
+import 'package:pin_code_fields/pin_code_fields.dart';
 import '../../../../shared/widgets/custom_text_form_field.dart';
 import '../provider/create_account_provider.dart';
 
@@ -16,7 +17,10 @@ class CreateAccountScreen extends StatelessWidget {
             backgroundColor: AppColors.white,
             body: SingleChildScrollView(
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 50),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 50,
+                ),
                 child: Form(
                   key: value.formKey,
                   child: Column(
@@ -112,13 +116,62 @@ class CreateAccountScreen extends StatelessWidget {
                             width: 20,
                           ),
                         ),
+                        onChanged: (val) {
+                          value.validateEmail(val);
+                        },
+                        suffix: Padding(
+                          padding: const EdgeInsets.all(12),
+                          child: GestureDetector(
+                            onTap:
+                                (value.isEmailValid &&
+                                    !value.isEmailVerified &&
+                                    !value.loading)
+                                ? () async {
+                                    try {
+                                      final response = await value
+                                          .emailSendApi({
+                                            "email": value.emailController.text
+                                                .trim(),
+                                            "user_id": userId,
+                                          });
+                                      if (response['status'] == true ||
+                                          response['status'] == 200) {
+                                        _showOtpDialog(context, value, userId);
+                                      } else {
+                                        Get.showToast(
+                                          response['message'] ??
+                                              "Something went wrong",
+                                          type: ToastType.warning,
+                                        );
+                                      }
+                                    } catch (e) {
+                                      Get.showToast(
+                                        e.toString(),
+                                        type: ToastType.error,
+                                      );
+                                    }
+                                  }
+                                : null,
+                            child: Text(
+                              value.isEmailVerified ? "Verified" : "Verify",
+                              style: AppFontStyle.text_15_400(
+                                value.isEmailVerified
+                                    ? AppColors.green
+                                    : (value.isEmailValid
+                                          ? AppColors.green
+                                          : AppColors.grey),
+                              ),
+                            ),
+                          ),
+                        ),
                         borderRadius: 40,
                         validator: (val) {
                           if (val == null || val.trim().isEmpty) {
                             return "Email address is required";
                           }
-                          if (!RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$')
-                              .hasMatch(val.trim())) {
+                          if (!RegExp(
+                            r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
+                          ).hasMatch(val.trim())) {
                             return "Please enter a valid email (e.g., abc@gmail.com)";
                           }
                           return null;
@@ -132,10 +185,11 @@ class CreateAccountScreen extends StatelessWidget {
                         onPressed: value.loading
                             ? () {}
                             : () {
-                          if (value.formKey.currentState?.validate() ?? false) {
-                            value.createAccount(userId, context);
-                          }
-                        },
+                                if (value.formKey.currentState?.validate() ??
+                                    false) {
+                                  value.createAccount(userId, context);
+                                }
+                              },
                         text: "Create Account",
                       ),
                     ],
@@ -146,6 +200,145 @@ class CreateAccountScreen extends StatelessWidget {
           );
         },
       ),
+    );
+  }
+
+  void _showOtpDialog(
+    BuildContext context,
+    CreateAccountProvider provider,
+    String userId,
+  ) {
+    String otpCode = "";
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              insetPadding: const EdgeInsets.symmetric(horizontal: 20),
+              contentPadding: const EdgeInsets.all(20),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
+              title: Text(
+                "OTP Verification",
+                textAlign: TextAlign.center,
+                style: AppFontStyle.text_20_600(AppColors.darkText),
+              ),
+              content: SizedBox(
+                width: Get.width(),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      "Enter the 4-digit OTP sent to your email.",
+                      textAlign: TextAlign.center,
+                      style: AppFontStyle.text_14_400(AppColors.grey),
+                    ),
+                    hBox(20),
+                    PinCodeTextField(
+                      appContext: context,
+                      length: 4,
+                      onChanged: (value) {
+                        otpCode = value;
+                      },
+                      keyboardType: TextInputType.number,
+                      pinTheme: PinTheme(
+                        shape: PinCodeFieldShape.box,
+                        borderRadius: BorderRadius.circular(12),
+                        fieldHeight: 55,
+                        fieldWidth: 50,
+                        activeFillColor: AppColors.white,
+                        inactiveFillColor: AppColors.white,
+                        selectedFillColor: AppColors.white,
+                        activeColor: AppColors.primary,
+                        inactiveColor: AppColors.borderColor,
+                        selectedColor: AppColors.primary,
+                        borderWidth: 1.5,
+                      ),
+                    ),
+                    hBox(30),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: OutlinedButton(
+                            onPressed: () => Navigator.pop(context),
+                            style: OutlinedButton.styleFrom(
+                              side: BorderSide(color: AppColors.red),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(30),
+                              ),
+                              padding: const EdgeInsets.symmetric(vertical: 12),
+                            ),
+                            child: Text(
+                              "Cancel",
+                              style: AppFontStyle.text_16_600(AppColors.red),
+                            ),
+                          ),
+                        ),
+                        wBox(12),
+                        Expanded(
+                          child: provider.otpLoading
+                              ? Center(
+                                  child: CircularProgressIndicator(
+                                    color: AppColors.primary,
+                                  ),
+                                )
+                              : CustomButton(
+                                  height: 50,
+                                  onPressed: () async {
+                                    if (otpCode.length == 4) {
+                                      try {
+                                        final response = await provider
+                                            .verifyEmailApi({
+                                              "email": provider
+                                                  .emailController
+                                                  .text
+                                                  .trim(),
+                                              "otp": otpCode,
+                                            });
+                                        if (response['status'] == true ||
+                                            response['status'] == 200) {
+                                          Navigator.pop(context);
+                                          Get.showToast(
+                                            "Email verified successfully",
+                                            type: ToastType.success,
+                                          );
+                                        } else {
+                                          Get.showToast(
+                                            response['message'] ??
+                                                "Invalid OTP",
+                                            type: ToastType.warning,
+                                          );
+                                        }
+                                      } catch (e) {
+                                        Get.showToast(
+                                          e.toString(),
+                                          type: ToastType.error,
+                                        );
+                                      }
+                                    } else {
+                                      Get.showToast(
+                                        "Please enter a 4-digit OTP",
+                                        type: ToastType.warning,
+                                      );
+                                    }
+                                  },
+                                  text: "Verify",
+                                ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
     );
   }
 }

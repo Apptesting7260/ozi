@@ -7,6 +7,7 @@ import '../../../../../data/response/api_status.dart';
 import '../../../../../shared/widgets/custom_app_bar.dart';
 import '../provider/ServiceDetailProvider.dart';
 import '../model/vendordetaiulmodel.dart' as vdm;
+import '../../../../../shared/widgets/read_more_text.dart';
 
 class VendorDetailScreen extends StatelessWidget {
   final String vendorId;
@@ -391,11 +392,10 @@ class VendorDetailView extends StatelessWidget {
           ],
         ),
         hBox(16.h),
-        Text(
-          service.description ?? "",
+        ReadMoreDescription(
+          text: service.description ?? "",
           style: AppFontStyle.text_14_400(AppColors.lightGrey3),
-          maxLines: 8,
-          overflow: TextOverflow.ellipsis,
+          trimLines: 2,
         ),
       ],
     );

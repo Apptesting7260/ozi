@@ -43,16 +43,16 @@ class Data {
   int? categoryId;
   int? subcategoryId;
   String? description;
-  String? latitude;
-  String? longitude;
-  int? servicePrice;
-  int? durationValue;
+  dynamic latitude;
+  dynamic longitude;
+  dynamic servicePrice;
+  dynamic durationValue;
   String? durationType;
   String? status;
-  int? quantity;
+  dynamic quantity;
   String? createdAt;
   String? updatedAt;
-  String? deletedAt;
+  dynamic deletedAt;
   Category? category;
   Category? subcategory;
   Vendor? vendor;
@@ -90,11 +90,17 @@ class Data {
     description = json['description'];
     latitude = json['latitude'];
     longitude = json['longitude'];
-    servicePrice = json['service_price'];
-    durationValue = json['duration_value'];
+    servicePrice =
+        num.tryParse(json['service_price']?.toString() ?? '')?.toDouble() ??
+        json['service_price'];
+    durationValue =
+        num.tryParse(json['duration_value']?.toString() ?? '')?.toInt() ??
+        json['duration_value'];
     durationType = json['duration_type'];
     status = json['status'];
-    quantity = json['quantity'];
+    quantity =
+        num.tryParse(json['quantity']?.toString() ?? '')?.toInt() ??
+        json['quantity'];
     createdAt = json['created_at'];
     updatedAt = json['updated_at'];
     deletedAt = json['deleted_at'];
@@ -176,8 +182,8 @@ class Vendor {
   String? firstName;
   String? lastName;
   String? proImg;
-  String? receivedReviewsAvgRating;
-  int? received_reviews_count;
+  dynamic receivedReviewsAvgRating;
+  dynamic received_reviews_count;
   Vendor({
     this.id,
     this.firstName,
@@ -194,7 +200,11 @@ class Vendor {
       lastName = json['last_name'];
       proImg = json['pro_img'];
       receivedReviewsAvgRating = json['received_reviews_avg_rating'];
-      received_reviews_count = json['received_reviews_count'];
+      received_reviews_count =
+          num.tryParse(
+            json['received_reviews_count']?.toString() ?? '',
+          )?.toInt() ??
+          json['received_reviews_count'];
     } else if (json is List && json.isNotEmpty) {
       final first = json.first;
       if (first is Map<String, dynamic>) {
@@ -203,7 +213,11 @@ class Vendor {
         lastName = first['last_name'];
         proImg = first['pro_img'];
         receivedReviewsAvgRating = first['received_reviews_avg_rating'];
-        received_reviews_count = first['received_reviews_count'];
+        received_reviews_count =
+            num.tryParse(
+              first['received_reviews_count']?.toString() ?? '',
+            )?.toInt() ??
+            first['received_reviews_count'];
       }
     }
   }
