@@ -26,13 +26,7 @@ class CupponProvider extends ChangeNotifier {
 
     try {
       _couponsModel = await _repository.getgetCouponsApi();
-      if (_appliedCouponCode != null && _couponsModel?.data != null) {
-        _selectedCoupon = _couponsModel!.data!.firstWhere(
-          (coupon) => coupon.code == _appliedCouponCode,
-          orElse: () => Data(),
-        );
-        if (_selectedCoupon?.id == null) _selectedCoupon = null;
-      }
+      // Removed automatic selection logic
     } catch (e) {
       Get.showToast(e.toString(), type: ToastType.error);
       _errorMessage = e.toString();
@@ -53,15 +47,11 @@ class CupponProvider extends ChangeNotifier {
 
   void setAppliedCouponCode(String? code) {
     _appliedCouponCode = code;
-    // When the applied code is set from CartProvider,
-    // also set it as the selected one to show the tick
-    if (_couponsModel?.data != null && code != null) {
-      _selectedCoupon = _couponsModel!.data!.firstWhere(
-        (coupon) => coupon.code == code,
-        orElse: () => Data(),
-      );
-      if (_selectedCoupon?.id == null) _selectedCoupon = null;
-    }
+    notifyListeners();
+  }
+
+  void clearSelection() {
+    _selectedCoupon = null;
     notifyListeners();
   }
 
@@ -94,38 +84,6 @@ class CupponProvider extends ChangeNotifier {
         e.toString() ?? 'Something went wrong',
         type: ToastType.error,
       );
-      return false;
-    } finally {
-      _isApplyLoading = false;
-      notifyListeners();
-    }
-  }
-
-  Future<bool> removeCoupon() async {
-    if (_selectedCoupon == null && _appliedCouponCode == null) return true;
-
-    _isApplyLoading = true;
-    notifyListeners();
-
-    try {
-      final String idToRemove =
-          _selectedCoupon?.id?.toString() ?? _appliedCouponCode!;
-      final response = await _repository.applyorRemoveCupponApi(idToRemove);
-
-      if (response != null && response['status'] == true) {
-        _selectedCoupon = null;
-        _appliedCouponCode = null;
-        Get.showToast("Coupon removed successfully", type: ToastType.success);
-        return true;
-      } else {
-        Get.showToast(
-          response?['message'] ?? "Failed to remove coupon",
-          type: ToastType.error,
-        );
-        return false;
-      }
-    } catch (e) {
-      Get.showToast(e.toString(), type: ToastType.error);
       return false;
     } finally {
       _isApplyLoading = false;

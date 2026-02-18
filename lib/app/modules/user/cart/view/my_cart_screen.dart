@@ -1,3 +1,4 @@
+import 'package:another_flushbar/flushbar.dart';
 import 'package:ozi/app/modules/user/cart/view/provider/cart_provider.dart';
 import 'package:ozi/app/modules/user/cart/view/copponscreen.dart';
 import 'package:ozi/app/shared/widgets/custom_image_path_helper.dart';
@@ -98,57 +99,99 @@ class CartScreenContent extends StatelessWidget {
   }
 
   Widget _buildCouponContainer(BuildContext context) {
-    final cart = Provider.of<CartProvider>(context, listen: false);
-
-    return GestureDetector(
-      onTap: () async {
-        final result = await Navigator.push(
-          context,
-          MaterialPageRoute(builder: (_) => const CopponScreen()),
-        );
-
-        if (result != null && result is model.Data) {
-          cart.setAppliedCoupon(result.code);
-          cart.fetchCartItems(); // Refresh cart to see updated prices if any
-        }
-      },
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: AppColors.borderColor),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.05),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: Row(
-          children: [
-            CustomImage(path: 'assets/images/Group.png', width: 24, height: 24),
-            wBox(12),
-            Expanded(
-              child: Consumer<CartProvider>(
-                builder: (context, cart, child) {
-                  return Text(
-                    cart.appliedCouponCode ?? 'Apply Coupon Code',
-                    style: AppFontStyle.text_16_500(
-                      cart.appliedCouponCode != null
-                          ? AppColors.primary
-                          : AppColors.darkText,
-                      fontFamily: AppFontFamily.medium,
-                    ),
-                  );
-                },
+    return Consumer<CartProvider>(
+      builder: (context, cart, child) {
+        final bool hasCoupon = cart.appliedCouponCode != null;
+        return Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: AppColors.borderColor),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.05),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
               ),
-            ),
-            Icon(Icons.arrow_forward_ios, size: 16, color: AppColors.grey),
-          ],
-        ),
-      ),
+            ],
+          ),
+          child: Row(
+            children: [
+              Expanded(
+                child: GestureDetector(
+                  onTap: () async {
+                    if (hasCoupon) {
+                      // Flushbar(
+                      //   message: 'Coupon already applied',
+                      //   duration: const Duration(seconds: 2),
+                      //   backgroundColor: AppColors.primary,
+                      // ).show(context);
+                      return;
+                    }
+                    final result = await Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const CopponScreen()),
+                    );
+
+                    if (result != null && result is model.Data) {
+                      cart.setAppliedCoupon(result.code);
+                      cart.fetchCartItems();
+                    }
+                  },
+                  behavior: HitTestBehavior.opaque,
+                  child: Row(
+                    children: [
+                      CustomImage(
+                        path: 'assets/images/Group.png',
+                        width: 24,
+                        height: 24,
+                      ),
+                      wBox(12),
+                      Expanded(
+                        child: Text(
+                          cart.appliedCouponCode ?? 'Apply Coupon Code',
+                          style: AppFontStyle.text_16_500(
+                            hasCoupon ? AppColors.primary : AppColors.darkText,
+                            fontFamily: AppFontFamily.medium,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              if (hasCoupon)
+                GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: () {
+                    print('Cancel icon tapped');
+                    cart.removeCoupon();
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: cart.isRemoveLoading
+                        ? SizedBox(
+                            height: 15,
+                            width: 15,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: AppColors.primary,
+                            ),
+                          )
+                        : Icon(
+                            Icons.cancel,
+                            size: 20,
+                            color: AppColors.primary,
+                          ),
+                  ),
+                )
+              else
+                Icon(Icons.arrow_forward_ios, size: 16, color: AppColors.grey),
+            ],
+          ),
+        );
+      },
     );
   }
 
@@ -435,9 +478,9 @@ class CartScreenContent extends StatelessWidget {
                 ),
                 Text(
                   '\$${cart.total.toString()}',
-                  style: AppFontStyle.text_24_700(
+                  style: AppFontStyle.text_22_600(
                     AppColors.primary,
-                    fontFamily: AppFontFamily.bold,
+                    // fontFamily: AppFontFamily.bold,
                   ),
                 ),
               ],

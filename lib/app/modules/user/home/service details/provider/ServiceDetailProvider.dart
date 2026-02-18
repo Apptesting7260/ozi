@@ -251,11 +251,10 @@ class ServiceDetailProvider extends ChangeNotifier {
       }
     } catch (e) {
       dev.log('Error adding to cart: $e');
-      dev.log('Error type: ${e.runtimeType}');
       _isAddingToCart = false;
       notifyListeners();
-      Get.showToast(e.toString(), type: ToastType.error);
-      return false;
+      // Rethrow to let the UI handle the error (e.g., showing a popup)
+      rethrow;
     }
   }
 

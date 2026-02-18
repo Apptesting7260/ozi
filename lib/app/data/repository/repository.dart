@@ -193,6 +193,44 @@ class Repository {
     }
   }
 
+  // **************************  email Send Api **************************//
+  Future<dynamic> emailSendApi(Map<String, dynamic> data) async {
+    try {
+      print('API Request URL: ${AppUrls.sendEmail}');
+      print('API Request Data: $data');
+
+      dynamic response = await _apiService.postApi(data, AppUrls.sendEmail);
+
+      print('API Response: $response');
+      print('API Response Type: ${response.runtimeType}');
+
+      // Return raw response, let the provider parse it
+      return response;
+    } catch (e) {
+      print('addToCartApi Error: $e');
+      rethrow;
+    }
+  }
+
+  // **************************  verifyEmail Api **************************//
+  Future<dynamic> verifyEmailApi(Map<String, dynamic> data) async {
+    try {
+      print('API Request URL: ${AppUrls.verifyEmail}');
+      print('API Request Data: $data');
+
+      dynamic response = await _apiService.postApi(data, AppUrls.verifyEmail);
+
+      print('API Response: $response');
+      print('API Response Type: ${response.runtimeType}');
+
+      // Return raw response, let the provider parse it
+      return response;
+    } catch (e) {
+      print('addToCartApi Error: $e');
+      rethrow;
+    }
+  }
+
   // **************************  cancelBooking Api **************************//
   Future<dynamic> cancelBookingApi(int bookingId) async {
     try {
@@ -720,15 +758,11 @@ class Repository {
 
   // ********************************** Service Card detail ********************************** //
 
-  Future<ServiceCardDetailModel> fetchServiceDetail(
-  {
+  Future<ServiceCardDetailModel> fetchServiceDetail({
     required String serviceId,
-}
-      ) async {
+  }) async {
     try {
-      dev.log(
-        "fetchWalletDetail URL: ${AppUrls.getCurrentUserLoginDetails}",
-      );
+      dev.log("fetchWalletDetail URL: ${AppUrls.getCurrentUserLoginDetails}");
 
       final response = await _apiService.getApi(
         "${AppUrls.getServiceDetail}service_id=$serviceId",
@@ -741,19 +775,11 @@ class Repository {
     }
   }
 
-  Future<GetNotificationModel> fetchNotifications(
-  {
-    required int page,
-}
-      ) async {
+  Future<GetNotificationModel> fetchNotifications({required int page}) async {
     try {
-      dev.log(
-        "fetchNotifications URL: ${AppUrls.getNotications}",
-      );
+      dev.log("fetchNotifications URL: ${AppUrls.getNotications}");
 
-      final response = await _apiService.getApi(
-        AppUrls.getNotications,
-      );
+      final response = await _apiService.getApi(AppUrls.getNotications);
 
       return GetNotificationModel.fromJson(response);
     } catch (e) {
@@ -764,9 +790,7 @@ class Repository {
 
   Future<ReadnotificationModel> readAllNotifications() async {
     try {
-      dev.log(
-        "readAllNotifications URL: ${AppUrls.readAllNotificationsApi}",
-      );
+      dev.log("readAllNotifications URL: ${AppUrls.readAllNotificationsApi}");
 
       final response = await _apiService.postApi(
         {},
@@ -786,12 +810,9 @@ class Repository {
     try {
       dev.log("withDrawMoney URL: ${AppUrls.withDrawMoney}");
 
-      final response = await _apiService.postApi(
-        {
-          "amount": amount,
-        },
-        AppUrls.withDrawMoney,
-      );
+      final response = await _apiService.postApi({
+        "amount": amount,
+      }, AppUrls.withDrawMoney);
 
       dev.log("Withdraw response: $response");
 

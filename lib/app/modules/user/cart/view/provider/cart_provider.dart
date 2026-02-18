@@ -17,6 +17,7 @@ class CartProvider with ChangeNotifier {
   bool _isLoading = false;
   String? _errorMessage;
   String? _appliedCouponCode;
+  String? _cupponCode;
 
   // Getters
   List<CartItem> get items => _items;
@@ -48,9 +49,9 @@ class CartProvider with ChangeNotifier {
         _serviceFee = summary?.serviceFee ?? 0;
         _discount = summary?.discount ?? 0;
         _total = summary?.total ?? 0;
-
         //  Applied Coupon from API
         _appliedCouponCode = summary?.appliedCuppon;
+        _cupponCode = summary?.cupponId;
       } else {
         _items = [];
         _subtotal = 0;
@@ -189,5 +190,48 @@ class CartProvider with ChangeNotifier {
   void setAppliedCoupon(String? code) {
     _appliedCouponCode = code;
     notifyListeners();
+  }
+
+  bool _isRemoveLoading = false;
+  bool get isRemoveLoading => _isRemoveLoading;
+  set isRemoveLoading(bool value) {
+    _isRemoveLoading = value;
+    notifyListeners();
+  }
+
+  Future<void> removeCoupon() async {
+    final String? codeToRemove = _cupponCode ?? _appliedCouponCode;
+    print(
+      'removeCoupon called, _cupponCode: $_cupponCode, _appliedCouponCode: $_appliedCouponCode',
+    );
+
+    if (codeToRemove == null) {
+      print('No coupon code or ID found to remove');
+      return;
+    }
+
+    _isRemoveLoading = true;
+    notifyListeners();
+
+    try {
+      final response = await _repository.applyorRemoveCupponApi(codeToRemove);
+
+      if (response != null && response['status'] == true) {
+        _appliedCouponCode = null;
+        _cupponCode = null;
+        await fetchCartItems();
+        Get.showToast("Coupon removed successfully", type: ToastType.success);
+      } else {
+        Get.showToast(
+          response?['message'] ?? 'Failed to remove coupon',
+          type: ToastType.error,
+        );
+      }
+    } catch (e) {
+      Get.showToast(e.toString(), type: ToastType.error);
+    } finally {
+      _isRemoveLoading = false;
+      notifyListeners();
+    }
   }
 }

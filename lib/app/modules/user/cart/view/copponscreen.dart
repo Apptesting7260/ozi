@@ -22,6 +22,7 @@ class _CopponScreenState extends State<CopponScreen> {
     super.initState();
     final cupponProvider = context.read<CupponProvider>();
     final cartProvider = context.read<CartProvider>();
+    cupponProvider.clearSelection();
     cupponProvider.setAppliedCouponCode(cartProvider.appliedCouponCode);
     cupponProvider.fetchCoupons();
   }
@@ -49,6 +50,15 @@ class _CopponScreenState extends State<CopponScreen> {
                         )
                       else if (provider.errorMessage != null)
                         Center(child: Text(provider.errorMessage!))
+                      else if (provider.couponsModel!.data!.isEmpty)
+                        Expanded(
+                          child: Center(
+                            child: Text(
+                              "No coupons available",
+                              style: AppFontStyle.text_15_500(Colors.black),
+                            ),
+                          ),
+                        )
                       else
                         Expanded(
                           child: SingleChildScrollView(
@@ -239,43 +249,25 @@ class _CopponScreenState extends State<CopponScreen> {
   }
 
   Widget _buildBottomApplyButton(CupponProvider provider) {
-    final bool isAlreadyApplied =
-        provider.selectedCoupon != null &&
-        provider.selectedCoupon?.code == provider.appliedCouponCode;
-
     return Padding(
       padding: EdgeInsets.all(20.w),
       child: CustomButton(
-        text: isAlreadyApplied ? "Remove Coupon" : "Apply",
+        text: "Apply",
         height: 52.h,
         isLoading: provider.isApplyLoading,
         color: provider.selectedCoupon != null
-            ? (isAlreadyApplied ? Colors.red : AppColors.primary)
+            ? AppColors.primary
             : AppColors.primary.withOpacity(0.3),
         onPressed: provider.selectedCoupon != null
             ? () async {
-                if (isAlreadyApplied) {
-                  // Handle removal
-                  bool success = await provider.removeCoupon();
-                  if (success) {
-                    final cartProvider = context.read<CartProvider>();
-                    cartProvider.setAppliedCoupon(null);
-                    cartProvider.fetchCartItems();
-                    // We don't pop here because user might want to select another one
-                  }
-                } else {
-                  // Handle apply
-                  bool success = await provider.applyCoupon(
-                    provider.selectedCoupon!.id.toString(),
-                  );
-                  if (success) {
-                    final cartProvider = context.read<CartProvider>();
-                    cartProvider.setAppliedCoupon(
-                      provider.selectedCoupon!.code,
-                    );
-                    cartProvider.fetchCartItems();
-                    Navigator.pop(context, provider.selectedCoupon);
-                  }
+                bool success = await provider.applyCoupon(
+                  provider.selectedCoupon!.id.toString(),
+                );
+                if (success) {
+                  final cartProvider = context.read<CartProvider>();
+                  cartProvider.setAppliedCoupon(provider.selectedCoupon!.code);
+                  cartProvider.fetchCartItems();
+                  Navigator.pop(context, provider.selectedCoupon);
                 }
               }
             : null,

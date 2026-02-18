@@ -39,13 +39,15 @@ class AppUrls {
   static const String getCoupons = "$baseUrl/get-coupons";
   static const String bookAgainUrl = "$baseUrl/book-again";
   static const String applyCoupoon = "$baseUrl/apply-remove-coupon";
-
   static const String vendorServiceUrl = "$baseUrl/get-vendor-services-users";
-  static const String rescheduleservicePostApiUrl = "$baseUrl/reschedule-booking";
+  static const String rescheduleservicePostApiUrl =
+      "$baseUrl/reschedule-booking";
   static const String getNotications = "$baseUrl/notifications";
-  static const String readAllNotificationsApi = "$baseUrl/notifications/mark-all-read";
+  static const String readAllNotificationsApi =
+      "$baseUrl/notifications/mark-all-read";
   static const String withDrawMoney = "$baseUrl/wallet-withdraw-amount";
-
+  static const String sendEmail = "$baseUrl/send-email-otp";
+  static const String verifyEmail = "$baseUrl/verify-email-otp";
 
   // Vendor APIs
   static const String getAllCategories = "$baseUrl/get-all-categories";
@@ -61,23 +63,24 @@ class AppUrls {
   static const String vendorAllBookings = "$baseUrl/vendor-home-all-bookings";
   static const String vendorServiceDetails = "$baseUrl/vendor-service-detail";
 
-  static const String vendorMyBookings = "$baseUrl/my-bookings?page={page}&limit=10";
-  static const String vendorMyBookingsDetails = "$baseUrl/booking-details/{bookingid}";
+  static const String vendorMyBookings =
+      "$baseUrl/my-bookings?page={page}&limit=10";
+  static const String vendorMyBookingsDetails =
+      "$baseUrl/booking-details/{bookingid}";
   static const String vendorOtpVerify = "$baseUrl/verify-service-otp";
   static const String completeJob = "$baseUrl/complete-booking-status";
 
   static const String getAllServicesVendor = "$baseUrl/get-vendor-services";
 
-  static const String deleteServiceVendor = "$baseUrl/delete-vendor-service/{serviceid}";
+  static const String deleteServiceVendor =
+      "$baseUrl/delete-vendor-service/{serviceid}";
   static const String getAvailabilityVendor = "$baseUrl/my-availability";
   static const String getDocumentsVendor = "$baseUrl/my-availability";
 
-
-
-  static const String getCurrentUserLoginDetails = "$baseUrl/current-login-users";
+  static const String getCurrentUserLoginDetails =
+      "$baseUrl/current-login-users";
   static const String getWalletDetail = "$baseUrl/my-wallet";
   static const String getServiceDetail = "$baseUrl/vendor-service-detail?";
-
 
   //-------------------------------Socket Events---------------------
   static String goOnlineEvent = "go_online";

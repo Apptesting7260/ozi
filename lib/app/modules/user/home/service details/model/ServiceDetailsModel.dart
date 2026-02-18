@@ -42,16 +42,17 @@ class ServiceData {
   int? categoryId;
   int? subcategoryId;
   String? description;
-  Null latitude;
-  Null longitude;
-  int? servicePrice;
-  int? durationValue;
+  dynamic latitude;
+  dynamic longitude;
+  dynamic servicePrice;
+  dynamic durationValue;
   String? durationType;
   String? status;
-  int? quantity;
+  dynamic quantity;
   String? createdAt;
   String? updatedAt;
-  Null deletedAt;
+  dynamic deletedAt;
+  dynamic reviewsCount;
   Category? category;
   Category? subcategory;
   Vendor? vendor;
@@ -74,6 +75,7 @@ class ServiceData {
     this.createdAt,
     this.updatedAt,
     this.deletedAt,
+    this.reviewsCount,
     this.category,
     this.subcategory,
     this.vendor,
@@ -89,14 +91,23 @@ class ServiceData {
     description = json['description'];
     latitude = json['latitude'];
     longitude = json['longitude'];
-    servicePrice = json['service_price'];
-    durationValue = json['duration_value'];
+    servicePrice =
+        num.tryParse(json['service_price']?.toString() ?? '')?.toDouble() ??
+        json['service_price'];
+    durationValue =
+        num.tryParse(json['duration_value']?.toString() ?? '')?.toInt() ??
+        json['duration_value'];
     durationType = json['duration_type'];
     status = json['status'];
-    quantity = json['quantity'];
+    quantity =
+        num.tryParse(json['quantity']?.toString() ?? '')?.toInt() ??
+        json['quantity'];
     createdAt = json['created_at'];
     updatedAt = json['updated_at'];
     deletedAt = json['deleted_at'];
+    reviewsCount =
+        num.tryParse(json['reviews_count']?.toString() ?? '')?.toInt() ??
+        json['reviews_count'];
     category = json['category'] != null
         ? new Category.fromJson(json['category'])
         : null;
