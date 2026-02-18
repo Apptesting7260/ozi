@@ -33,6 +33,8 @@ class _ServiceDetailsContent extends StatefulWidget {
 
 class _ServiceDetailsContentState extends State<_ServiceDetailsContent> {
   final _formKey = GlobalKey<FormState>();
+  final _imageKey = GlobalKey();
+
 
   Future<void> _pickImage(BuildContext context) async {
     final provider = Provider.of<ServiceDetailsProvider>(
@@ -48,19 +50,19 @@ class _ServiceDetailsContentState extends State<_ServiceDetailsContent> {
     }
   }
 
-  bool _validateImage(ServiceDetailsProvider provider) {
-    if (provider.pickedImage == null &&
-        provider.serviceForEdit?.serviceImage == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Please upload service image"),
-          backgroundColor: Colors.red,
-        ),
-      );
-      return false;
-    }
-    return true;
-  }
+  // bool _validateImage(ServiceDetailsProvider provider) {
+  //   if (provider.pickedImage == null &&
+  //       provider.serviceForEdit?.serviceImage == null) {
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       const SnackBar(
+  //         content: Text("Please upload service image"),
+  //         backgroundColor: Colors.red,
+  //       ),
+  //     );
+  //     return false;
+  //   }
+  //   return true;
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -90,103 +92,119 @@ class _ServiceDetailsContentState extends State<_ServiceDetailsContent> {
                       hBox(2),
 
                       // ================= IMAGE UPLOAD =================
-                      GestureDetector(
-                        onTap: () => _pickImage(context),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Container(
-                              height: 110,
-                              width: 110,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(14),
-                                border: Border.all(
-                                  color: AppColors.primary.withOpacity(0.4),
-                                  style: provider.pickedImage == null
-                                      ? BorderStyle.solid
-                                      : BorderStyle.none,
+                      Container(
+                        key: _imageKey,
+                        child: GestureDetector(
+                          onTap: () => _pickImage(context),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Container(
+                                height: 110,
+                                width: 110,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(14),
+                                  border: Border.all(
+                                    color: AppColors.primary.withOpacity(0.4),
+                                    style: provider.pickedImage == null
+                                        ? BorderStyle.solid
+                                        : BorderStyle.none,
+                                  ),
+                                ),
+                                child:
+                                provider.pickedImage == null &&
+                                    provider.serviceForEdit == null
+                                    ? Center(
+                                  child: CustomImage(
+                                    path: ImageConstants.uploadImage,
+                                    height: 20,
+                                    width: 20,
+                                    color: AppColors.lightGrey3,
+                                  ),
+                                )
+                                    : ClipRRect(
+                                  borderRadius: BorderRadius.circular(14),
+                                  child: CustomImage(
+                                    path: provider.pickedImage == null
+                                        ? '${AppUrls.imageBaseUrl}${provider.serviceForEdit?.serviceImage ?? ''}'
+                                        : provider.pickedImage?.path ?? '',
+                                    fit: BoxFit.cover,
+                                  ),
                                 ),
                               ),
-                              child:
-                              provider.pickedImage == null &&
-                                  provider.serviceForEdit == null
-                                  ? Center(
-                                child: CustomImage(
-                                  path: ImageConstants.uploadImage,
-                                  height: 20,
-                                  width: 20,
-                                  color: AppColors.lightGrey3,
-                                ),
-                              )
-                                  : ClipRRect(
-                                borderRadius: BorderRadius.circular(14),
-                                child: CustomImage(
-                                  path: provider.pickedImage == null
-                                      ? '${AppUrls.imageBaseUrl}${provider.serviceForEdit?.serviceImage ?? ''}'
-                                      : provider.pickedImage?.path ?? '',
-                                  fit: BoxFit.cover,
-                                ),
-                              ),
-                            ),
 
-                            wBox(14),
+                              wBox(14),
 
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    "Upload Service Image",
-                                    style: AppFontStyle.text_14_600(
-                                      AppColors.darkText,
-                                      fontFamily: AppFontFamily.semiBold,
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      "Upload Service Image",
+                                      style: AppFontStyle.text_14_600(
+                                        AppColors.darkText,
+                                        fontFamily: AppFontFamily.semiBold,
+                                      ),
                                     ),
-                                  ),
 
-                                  hBox(4),
+                                    hBox(4),
 
-                                  Text(
-                                    "PNG, JPG up to 5MB",
-                                    style: AppFontStyle.text_12_400(
-                                      AppColors.grey,
+                                    Text(
+                                      "PNG, JPG up to 5MB",
+                                      style: AppFontStyle.text_12_400(
+                                        AppColors.grey,
+                                      ),
                                     ),
-                                  ),
 
-                                  hBox(10),
+                                    hBox(10),
 
-                                  CustomButton(
-                                    height: 35,
-                                    width: 150,
-                                    borderRadius: BorderRadius.circular(30),
-                                    onPressed: () => _pickImage(context),
-                                    child: Row(
-                                      mainAxisAlignment:
-                                      MainAxisAlignment.center,
-                                      children: [
-                                        CustomImage(
-                                          path: ImageConstants.uploadImage,
-                                          height: 16,
-                                          width: 16,
-                                          color: AppColors.white,
-                                        ),
-                                        wBox(5),
-                                        Text(
-                                          provider.pickedImage == null
-                                              ? "Upload Image"
-                                              : "Change Image",
-                                          style: AppFontStyle.text_12_400(
-                                            AppColors.white,
+                                    CustomButton(
+                                      height: 35,
+                                      width: 150,
+                                      borderRadius: BorderRadius.circular(30),
+                                      onPressed: () => _pickImage(context),
+                                      child: Row(
+                                        mainAxisAlignment:
+                                        MainAxisAlignment.center,
+                                        children: [
+                                          CustomImage(
+                                            path: ImageConstants.uploadImage,
+                                            height: 16,
+                                            width: 16,
+                                            color: AppColors.white,
                                           ),
-                                        ),
-                                      ],
+                                          wBox(5),
+                                          Text(
+                                            provider.pickedImage == null
+                                                ? "Upload Image"
+                                                : "Change Image",
+                                            style: AppFontStyle.text_12_400(
+                                              AppColors.white,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
                                     ),
-                                  ),
-                                ],
+                                  ],
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ),
+
+                      if (provider.imageError != null)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 6),
+                          child: Text(
+                            provider.imageError!,
+                            style: const TextStyle(
+                              color: Colors.red,
+                              fontSize: 12,
+                            ),
+                          ),
+                        ),
+
 
                       hBox(28),
 
@@ -249,6 +267,8 @@ class _ServiceDetailsContentState extends State<_ServiceDetailsContent> {
                         maxLines: 5,
                         minLines: 5,
                         borderRadius: 30,
+                        textInputType: TextInputType.multiline,     // to add multiline
+                        textInputAction: TextInputAction.newline,
                         // onChanged: provider.setDescription,
                         validator: (value) {
                           if (value == null || value.trim().isEmpty) {
@@ -301,11 +321,27 @@ class _ServiceDetailsContentState extends State<_ServiceDetailsContent> {
 
                       hBox(8),
 
+
+                      //   CustomDropDownT<Subcategories>(
+                      //                         label: "Sub Category",
+                      //                         items: provider.category?.subcategories ?? [],
+                      //                         selectedValue: provider.subCategory,
+                      //                         hintText: "Select sub category",
+                      //                         onChanged: provider.setSubCategory,
+                      //                         validator: (value) {
+                      //                           if (value == null) {
+                      //                             return "Please select sub category";
+                      //                           }
+                      //                           return null;
+                      //                         },
+                      //                         borderRadius: 60,
+                      //                       ),
+
                       Row(
                         children: [
                           Expanded(
                             child: CustomDropDown(
-                              items: const ["1", "2", "3", "4"],
+                              items: provider.durationList,
                               selectedValue: provider.durationValue,
                               hintText: "Select Duration",
                               onChanged: provider.setDurationValue,
@@ -323,15 +359,16 @@ class _ServiceDetailsContentState extends State<_ServiceDetailsContent> {
                               selectedValue: provider.durationUnit,
                               hintText: "Duration Type",
                               onChanged: provider.setDurationUnit,
-                              validator: (value) {
-                                if (value == null) return "Select unit";
+                              borderRadius: 60, validator: (String? value) {
                                 return null;
-                              },
-                              borderRadius: 60,
+                                },
                             ),
                           ),
                         ],
                       ),
+
+
+
                       hBox(20),
 
                       // ================= DURATION =================
@@ -370,13 +407,24 @@ class _ServiceDetailsContentState extends State<_ServiceDetailsContent> {
                         onPressed: () {
                           final isFormValid =
                               _formKey.currentState?.validate() ?? false;
-                          final isImageValid = _validateImage(provider);
+
+                          final isImageValid = provider.validateImage();
+
+                          //  If image invalid → scroll to image
+                          if (!isImageValid) {
+                            Scrollable.ensureVisible(
+                              _imageKey.currentContext!,
+                              duration: const Duration(milliseconds: 300),
+                              curve: Curves.easeInOut,
+                            );
+                          }
 
                           if (!isFormValid || !isImageValid) return;
 
-                          // Everything valid
                           provider.addNewService();
                         },
+
+
                       ),
                     ],
                   ),

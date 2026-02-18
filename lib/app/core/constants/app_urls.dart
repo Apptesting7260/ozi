@@ -5,6 +5,7 @@ class AppUrls {
 
   static const String login = "$baseUrl/send-otp";
   static const String verification = "$baseUrl/verify-otp";
+  static const String verificationFirebase = "$baseUrl/verify-otp-firebase";
   static const String chooseRole = "$baseUrl/select-user-role";
   static const String completeRegistration = "$baseUrl/complete-registration";
   static const String getHomeCategories = "$baseUrl/get-categories-by-lat-long";

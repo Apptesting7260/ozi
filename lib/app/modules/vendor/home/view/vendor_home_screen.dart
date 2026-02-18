@@ -69,7 +69,7 @@ class _VendorHomeScreenState extends State<VendorHomeScreen> {
                       hBox(24),
 
                       // ---------------- NEW REQUESTS ----------------
-                      _sectionHeader(context: context, title: "New Requests"),
+                      _sectionHeader(context: context, title: "New Requests",newRequestLength:value.homeModel.data?.requests?.length ),
 
                       hBox(12),
                       value.homeModel.data?.requests == null ||
@@ -93,6 +93,21 @@ class _VendorHomeScreenState extends State<VendorHomeScreen> {
                               itemBuilder: (context, index) {
                                 VendorHomeRequests request =
                                     value.homeModel.data!.requests![index];
+                                // return RequestCard(
+                                //   onAccept: () {
+                                //     value.acceptOrRejectRequest(
+                                //       'accept',
+                                //       request.bookingId ?? '',
+                                //     );
+                                //   },
+                                //   onReject: () {
+                                //     value.acceptOrRejectRequest(
+                                //       'reject',
+                                //       request.bookingId ?? '',
+                                //     );
+                                //   },
+                                //   request: request,
+                                // );
                                 return RequestCard(
                                   onAccept: () {
                                     value.acceptOrRejectRequest(
@@ -101,13 +116,19 @@ class _VendorHomeScreenState extends State<VendorHomeScreen> {
                                     );
                                   },
                                   onReject: () {
-                                    value.acceptOrRejectRequest(
-                                      'reject',
-                                      request.bookingId ?? '',
+                                    _showRejectWarning(
+                                      context,
+                                          () {
+                                        value.acceptOrRejectRequest(
+                                          'reject',
+                                          request.bookingId ?? '',
+                                        );
+                                      },
                                     );
                                   },
                                   request: request,
                                 );
+
 
                                 // _requestCard(
                                 //   statusColor: AppColors.purple,
@@ -134,6 +155,42 @@ class _VendorHomeScreenState extends State<VendorHomeScreen> {
     );
   }
 
+  void _showRejectWarning(
+      BuildContext context,
+      VoidCallback onConfirm,
+      ) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text("Reject Request"),
+          content: const Text(
+            "Are you sure you want to reject this request?\nThis action cannot be undone.",
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context); // close dialog
+              },
+              child: const Text("Cancel"),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context); // close dialog
+                onConfirm(); // call reject API
+              },
+              child: const Text(
+                "Reject",
+                style: TextStyle(color: Colors.red),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+
   Widget _header(BuildContext context) {
     return Consumer<VendorHomeProvider>(
       builder: (context, provider, _) {
@@ -141,10 +198,18 @@ class _VendorHomeScreenState extends State<VendorHomeScreen> {
           children: [
             CircleAvatar(
               radius: 22,
-              backgroundImage: NetworkImage(
-                '${AppUrls.imageBaseUrl}${provider.homeModel.data?.profile?.image}',
-              ),
+              backgroundImage: (provider.homeModel.data?.profile?.image != null &&
+                  provider.homeModel.data!.profile!.image!.isNotEmpty)
+                  ? NetworkImage(
+                '${AppUrls.imageBaseUrl}${provider.homeModel.data!.profile!.image}',
+              )
+                  : null,
+              child: (provider.homeModel.data?.profile?.image == null ||
+                  provider.homeModel.data!.profile!.image!.isEmpty)
+                  ? Icon(Icons.person, size: 22)
+                  : null,
             ),
+
 
             wBox(12),
 
@@ -371,6 +436,7 @@ class _VendorHomeScreenState extends State<VendorHomeScreen> {
   Widget _sectionHeader({
     required BuildContext context,
     required String title,
+    required int? newRequestLength
   }) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -383,14 +449,14 @@ class _VendorHomeScreenState extends State<VendorHomeScreen> {
           ),
         ),
 
-        TextButton(
-          onPressed: () {
+        GestureDetector(
+          onTap:newRequestLength == 1 ? (){} :() {
             Navigator.push(
               context,
               MaterialPageRoute(builder: (_) => const NewRequestsScreen()),
             );
           },
-          child: Row(
+          child: newRequestLength == 1 ? SizedBox.shrink() : Row(
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(

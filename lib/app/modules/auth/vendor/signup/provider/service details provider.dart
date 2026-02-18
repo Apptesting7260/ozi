@@ -1,7 +1,5 @@
-import 'package:flutter/material.dart';
-import 'dart:io';
+import '../../../../../core/appExports/app_export.dart';
 import '../../../../../core/constants/app_urls.dart';
-import '../../../../../core/utils/get_utils.dart';
 import '../../../../../data/models/all_services_model_vendor.dart';
 import '../../../../../data/models/category_dropdown_model.dart';
 import '../../../../../data/network/network_api_services.dart';
@@ -18,12 +16,58 @@ class ServiceDetailsProvider extends ChangeNotifier {
     getCategoriesData(service);
   }
 
+  String? imageError;
+
+  bool validateImage() {
+    if (pickedImage == null &&
+        serviceForEdit?.serviceImage == null) {
+      imageError = "Please upload service image";
+      notifyListeners();
+      return false;
+    }
+
+    imageError = null;
+    notifyListeners();
+    return true;
+  }
+
+  // timer
+
+  String? durationUnit = "minutes";
+  String? durationValue = "10";
+
+  List<String> get durationList {
+    if (durationUnit == "hours") {
+      return List.generate(12, (index) => "${index + 1}");
+    } else {
+      return ["10", "20", "30", "40", "50", "60"];
+    }
+  }
+
+  void setDurationUnit(String? value) {
+    durationUnit = value;
+
+    if (value == "hours") {
+      durationValue = "1";
+    } else {
+      durationValue = "10";
+    }
+
+    notifyListeners();
+  }
+
+
+  void setDurationValue(String? value) {
+    durationValue = value;
+    notifyListeners();
+  }
+
+
+
   File? pickedImage;
 
   CategoryDropDownData? category;
   Subcategories? subCategory;
-  String? durationUnit;
-  String? durationValue;
   TextEditingController serviceName = TextEditingController();
   TextEditingController description = TextEditingController();
   TextEditingController priceAmount = TextEditingController();
@@ -45,15 +89,15 @@ class ServiceDetailsProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void setDurationUnit(String? val) {
-    durationUnit = val;
-    notifyListeners();
-  }
-
-  void setDurationValue(String? val) {
-    durationValue = val;
-    notifyListeners();
-  }
+  // void setDurationUnit(String? val) {
+  //   durationUnit = val;
+  //   notifyListeners();
+  // }
+  //
+  // void setDurationValue(String? val) {
+  //   durationValue = val;
+  //   notifyListeners();
+  // }
 
   // void setPrice(String? val) {
   //   priceAmount = val;
@@ -72,9 +116,7 @@ class ServiceDetailsProvider extends ChangeNotifier {
 
   bool get enableContinue =>
       pickedImage != null &&
-      serviceName != null &&
-      category != null &&
-      priceAmount != null;
+      category != null;
 
   //CategoryDropDown
 
@@ -89,7 +131,9 @@ class ServiceDetailsProvider extends ChangeNotifier {
     try {
       setCategory(null);
       final response = await _apiService.getApi(AppUrls.vendorGetCategoryData);
-      print(response);
+      if (kDebugMode) {
+        print(response);
+      }
       updateCategories(CategoryDropDown.fromJson(response));
       if (service != null) {
         serviceName.text = service.serviceName ?? '';
@@ -145,10 +189,13 @@ class ServiceDetailsProvider extends ChangeNotifier {
         data,
         files,
       );
-      print(response);
-      if (response['status'] == true) {
-        Navigator.pop(navigatorKey.currentContext!);
+      if (kDebugMode) {
+        print(response);
       }
+      if (response['status'] == true) {
+        Navigator.pop(navigatorKey.currentContext!, true);
+      }
+
       updateAddLoading(false);
     } catch (e) {
       updateAddLoading(false);

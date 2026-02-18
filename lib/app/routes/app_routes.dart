@@ -26,6 +26,7 @@ import '../modules/vendor/bookings/view/vendor_mybookings_screen.dart';
 import '../modules/vendor/profile/add new address/view/AddAddressScreen.dart';
 import '../modules/vendor/profile/add new card/view/AddNewCardScreen.dart';
 import '../modules/vendor/wallet/view/wallet_screen.dart';
+import '../modules/vendor/wallet/withdraw/view/withdraw_screen.dart';
 import '../view/auth/create account/view/create_account_screen.dart';
 import '../view/auth/login/view/login_screen.dart';
 import '../view/auth/verification_screen/view/verification_screen.dart';
@@ -117,7 +118,7 @@ class AppRoutes {
         return MaterialPageRoute(builder: (context) => LoginScreen());
 
       case otpVerification:
-        return MaterialPageRoute(builder: (context) => VerificationScreen(phone: '',));
+        return MaterialPageRoute(builder: (context) => VerificationScreen(phone: '', verificationId: '',));
       case messageDetailsScreen:
         final args = setting.arguments as Map<String, dynamic>;
         return MaterialPageRoute(
@@ -192,10 +193,12 @@ class AppRoutes {
         return MaterialPageRoute(builder: (_) => VendorMybookingsScreen());
       case vendorWalletScreen:
         return MaterialPageRoute(builder: (_) => VendorMyWalletScreen());
+      case vendorWithdrawScreen:
+        return MaterialPageRoute(builder: (_) => WithdrawScreen(availableBalance: '',));
       case vendorServicesScreen:
         return MaterialPageRoute(builder: (_) => VendorServicesScreen());
-      case vendorProfileScreen:
-        return MaterialPageRoute(builder: (_) => VendorProfileScreen());
+      // case vendorProfileScreen:
+      //   return MaterialPageRoute(builder: (_) => VendorProfileScreen());
       case vendorAddNewAddressScreen:
         return MaterialPageRoute(builder: (_) => VendorAddAddressScreen());
       case vendorAddNewCardScreen:

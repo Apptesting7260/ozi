@@ -28,7 +28,7 @@ class _SetAvailabilityContent extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppColors.white,
 
-      /// -------- BOTTOM BUTTON --------
+      // -------- BOTTOM BUTTON --------
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.all(16),
         child: CustomButton(
@@ -48,7 +48,7 @@ class _SetAvailabilityContent extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
 
-            /// -------- FIXED APP BAR --------
+            // -------- FIXED APP BAR --------
             VendorCustomAppBar(
               title: "Set Your Availability",
               columnChild:isFromProfile? Text('') : Text(
@@ -59,7 +59,7 @@ class _SetAvailabilityContent extends StatelessWidget {
 
             hBox(20),
 
-            /// -------- SCROLLABLE CONTENT --------
+            // -------- SCROLLABLE CONTENT --------
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -247,9 +247,10 @@ class _SetAvailabilityContent extends StatelessWidget {
             Icon(Icons.access_time, size: 20, color: AppColors.darkText),
             wBox(6),
             Text(
-              time,
+              _formatDisplayTime(time),
               style: AppFontStyle.text_14_400(AppColors.darkText),
             ),
+
           ],
         ),
       ),
@@ -271,4 +272,20 @@ class _SetAvailabilityContent extends StatelessWidget {
     final minute = time.minute.toString().padLeft(2, '0');
     return '$hour:$minute';
   }
+
+  String _formatDisplayTime(String time) {
+    final parts = time.split(':');
+    int hour = int.parse(parts[0]);
+    int minute = int.parse(parts[1]);
+
+    String period = hour >= 12 ? "PM" : "AM";
+
+    int displayHour = hour % 12;
+    if (displayHour == 0) displayHour = 12;
+
+    String formattedMinute = minute.toString().padLeft(2, '0');
+
+    return "$displayHour:$formattedMinute $period";
+  }
+
 }

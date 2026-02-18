@@ -9,11 +9,18 @@ import '../view/identity_verification_screen.dart';
 
 class AvailabilityProvider extends ChangeNotifier {
 
-  AvailabilityProvider(bool isFromProfile){
-    if(isFromProfile){
+  AvailabilityProvider(bool isFromProfile) {
+    if (isFromProfile) {
+      // Profile edit → Load from API
       getAvailability();
+    } else {
+      // Registration → Enable all days by default
+      availability.forEach((key, value) {
+        value.enabled = true;
+      });
     }
   }
+
 
   final NetworkApiServices _apiService = NetworkApiServices();
 
@@ -33,9 +40,43 @@ class AvailabilityProvider extends ChangeNotifier {
   }
 
   void addSlot(String day) {
-    availability[day]!.slots.add(TimeSlot());
+    final slots = availability[day]!.slots;
+
+    if (slots.isNotEmpty) {
+      final lastSlot = slots.last;
+
+      // Convert last "to" time to minutes
+      final parts = lastSlot.to.split(':');
+      int hour = int.parse(parts[0]);
+      int minute = int.parse(parts[1]);
+
+      // Start new slot from last slot's end
+      int newFromHour = hour;
+      int newFromMinute = minute;
+
+      // Default 1 hour duration
+      int newToHour = newFromHour + 1;
+      int newToMinute = newFromMinute;
+
+      // Prevent overflow after 23:59
+      if (newToHour >= 24) {
+        return; // stop adding if day ends
+      }
+
+      String newFrom =
+          "${newFromHour.toString().padLeft(2, '0')}:${newFromMinute.toString().padLeft(2, '0')}";
+
+      String newTo =
+          "${newToHour.toString().padLeft(2, '0')}:${newToMinute.toString().padLeft(2, '0')}";
+
+      slots.add(TimeSlot(from: newFrom, to: newTo));
+    } else {
+      slots.add(TimeSlot(from: "09:00", to: "10:00"));
+    }
+
     notifyListeners();
   }
+
 
   void removeSlot(String day, int index) {
     // Only remove if there's more than 1 slot (keep at least 1)
@@ -46,14 +87,38 @@ class AvailabilityProvider extends ChangeNotifier {
   }
 
   void updateSlotTime(String day, int index, {String? from, String? to}) {
+    final slot = availability[day]!.slots[index];
+
+    int convertToMinutes(String time) {
+      final parts = time.split(':');
+      return int.parse(parts[0]) * 60 + int.parse(parts[1]);
+    }
+
     if (from != null) {
-      availability[day]!.slots[index].from = from;
+      int fromMinutes = convertToMinutes(from);
+      int toMinutes = convertToMinutes(slot.to);
+
+      if (fromMinutes < toMinutes) {
+        slot.from = from;
+      } else {
+        return; // prevent invalid
+      }
     }
+
     if (to != null) {
-      availability[day]!.slots[index].to = to;
+      int toMinutes = convertToMinutes(to);
+      int fromMinutes = convertToMinutes(slot.from);
+
+      if (toMinutes > fromMinutes) {
+        slot.to = to;
+      } else {
+        return; // prevent invalid
+      }
     }
+
     notifyListeners();
   }
+
 
   Map<String, List<Map<String, String>>> formatAvailability(
       Map<String, DayAvailability> availability,

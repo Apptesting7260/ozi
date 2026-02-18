@@ -60,23 +60,26 @@ class _LoginScreenState extends State<LoginScreen> {
       return;
     }
 
-    // Send OTP
-    final success = await loginProvider.sendOtp(
-      phoneNumber: phoneNumber,
-      countryCode: '+$countryCode',
-    );
+    // // Send OTP
+    // final success = await loginProvider.sendOtp(
+    //   phoneNumber: phoneNumber,
+    //   countryCode: '+$countryCode',
+    // );
+
+    final success = await loginProvider.sendOtp("+$countryCode$phoneNumber");
 
     if (success) {
-      if (mounted) {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) =>
-                VerificationScreen(phone: "+$countryCode $phoneNumber"),
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => VerificationScreen(
+            phone: "+$countryCode $phoneNumber",
+            verificationId: loginProvider.verificationId,
           ),
-        );
-      }
-    } else {
+        ),
+      );
+    }
+    else {
       if (mounted) {
         _showSnackBar(loginProvider.errorMessage ?? 'Failed to send OTP');
       }
