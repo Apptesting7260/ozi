@@ -163,8 +163,19 @@ class VendorHomeProvider extends ChangeNotifier {
                   if (kDebugMode) {
                     print("Add pressed");
                   }
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => ServiceDetailsScreen(null,"Add Service"),));
-                  // Navigator.of(context).pop();
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ServiceDetailsScreen(null, "Add Service"),
+                    ),
+                  ).then((value) {
+                    if (value == true) {
+                      Navigator.of(context).pop();//8947898911
+                      getHomeData();
+                    }
+                  });
+
+                  //
                 },
                 child: Text("Add"),
               ),

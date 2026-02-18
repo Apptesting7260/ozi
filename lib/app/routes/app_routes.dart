@@ -197,8 +197,8 @@ class AppRoutes {
         return MaterialPageRoute(builder: (_) => WithdrawScreen(availableBalance: '',));
       case vendorServicesScreen:
         return MaterialPageRoute(builder: (_) => VendorServicesScreen());
-      case vendorProfileScreen:
-        return MaterialPageRoute(builder: (_) => VendorProfileScreen());
+      // case vendorProfileScreen:
+      //   return MaterialPageRoute(builder: (_) => VendorProfileScreen());
       case vendorAddNewAddressScreen:
         return MaterialPageRoute(builder: (_) => VendorAddAddressScreen());
       case vendorAddNewCardScreen:

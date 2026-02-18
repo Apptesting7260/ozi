@@ -6,6 +6,7 @@ import '../../../../core/constants/app_urls.dart';
 import '../../../../routes/app_routes.dart';
 import '../../../../shared/widgets/custom_image_path_helper.dart';
 import '../../../auth/vendor/signup/view/identity_verification_screen.dart';
+import '../address/view/location_picker.dart';
 import '../edit profile/provider/EditProfileProvider.dart';
 import '../edit profile/view/EditProfileScreen.dart';
 
@@ -20,6 +21,7 @@ class ProfileScreen extends StatelessWidget {
 
 class ProfileScreenView extends StatelessWidget {
   const ProfileScreenView({super.key});
+
   @override
   Widget build(BuildContext context) {
     final profileProvider = context.watch<ProfileProvider>();
@@ -179,6 +181,31 @@ class ProfileScreenView extends StatelessWidget {
                                           ),
                                     ),
                                   );
+                                },
+                              ),
+
+                            if (profileProvider.userProfile?.data?.userRole ==
+                                'vendor')
+                              _profileTile(
+                                icon: ImageConstants.document,
+                                title: "Shop Address",
+                                onTap: () async {
+                                  final result = await Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          const LocationPickerPage(),
+                                    ),
+                                  );
+
+                                  if (result != null) {
+                                    if (kDebugMode) {
+                                      print("Latitude: ${result.latitude}");
+                                    }
+                                    if (kDebugMode) {
+                                      print("Longitude: ${result.longitude}");
+                                    }
+                                  }
                                 },
                               ),
 

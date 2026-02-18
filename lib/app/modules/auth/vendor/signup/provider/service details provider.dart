@@ -1,7 +1,5 @@
-import 'package:flutter/material.dart';
-import 'dart:io';
+import '../../../../../core/appExports/app_export.dart';
 import '../../../../../core/constants/app_urls.dart';
-import '../../../../../core/utils/get_utils.dart';
 import '../../../../../data/models/all_services_model_vendor.dart';
 import '../../../../../data/models/category_dropdown_model.dart';
 import '../../../../../data/network/network_api_services.dart';
@@ -35,8 +33,8 @@ class ServiceDetailsProvider extends ChangeNotifier {
 
   // timer
 
-  String? durationUnit = "minutes"; // default
-  String? durationValue;
+  String? durationUnit = "minutes";
+  String? durationValue = "10";
 
   List<String> get durationList {
     if (durationUnit == "hours") {
@@ -118,9 +116,7 @@ class ServiceDetailsProvider extends ChangeNotifier {
 
   bool get enableContinue =>
       pickedImage != null &&
-      serviceName != null &&
-      category != null &&
-      priceAmount != null;
+      category != null;
 
   //CategoryDropDown
 
@@ -135,7 +131,9 @@ class ServiceDetailsProvider extends ChangeNotifier {
     try {
       setCategory(null);
       final response = await _apiService.getApi(AppUrls.vendorGetCategoryData);
-      print(response);
+      if (kDebugMode) {
+        print(response);
+      }
       updateCategories(CategoryDropDown.fromJson(response));
       if (service != null) {
         serviceName.text = service.serviceName ?? '';
@@ -191,10 +189,13 @@ class ServiceDetailsProvider extends ChangeNotifier {
         data,
         files,
       );
-      print(response);
-      if (response['status'] == true) {
-        Navigator.pop(navigatorKey.currentContext!);
+      if (kDebugMode) {
+        print(response);
       }
+      if (response['status'] == true) {
+        Navigator.pop(navigatorKey.currentContext!, true);
+      }
+
       updateAddLoading(false);
     } catch (e) {
       updateAddLoading(false);

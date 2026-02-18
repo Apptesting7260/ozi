@@ -267,6 +267,8 @@ class _ServiceDetailsContentState extends State<_ServiceDetailsContent> {
                         maxLines: 5,
                         minLines: 5,
                         borderRadius: 30,
+                        textInputType: TextInputType.multiline,     // to add multiline
+                        textInputAction: TextInputAction.newline,
                         // onChanged: provider.setDescription,
                         validator: (value) {
                           if (value == null || value.trim().isEmpty) {
@@ -357,7 +359,9 @@ class _ServiceDetailsContentState extends State<_ServiceDetailsContent> {
                               selectedValue: provider.durationUnit,
                               hintText: "Duration Type",
                               onChanged: provider.setDurationUnit,
-                              borderRadius: 60, validator: (String? value) {  },
+                              borderRadius: 60, validator: (String? value) {
+                                return null;
+                                },
                             ),
                           ),
                         ],

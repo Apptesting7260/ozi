@@ -168,11 +168,14 @@ class VerificationProvider extends ChangeNotifier {
       User? user = userCredential.user;
 
       if (user == null) {
+        if (kDebugMode) {
+          print("Firebase User =========================================================> $user");
+        }
         throw Exception("Firebase user is null");
       }
 
       // Get Firebase ID token
-   //   String idToken = (await user.getIdToken())!;
+      // String idToken = (await user.getIdToken())!;
 
           String countryCode = "+91";
           String mobile = phone;

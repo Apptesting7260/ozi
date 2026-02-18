@@ -20,6 +20,7 @@ class TransactionHistoryProvider extends ChangeNotifier {
   String selectedFilter = "All";
 
   final List<TransactionModel> transactions = [
+
     TransactionModel(
       title: "Deep Cleaning",
       user: "John Doe",
@@ -27,6 +28,7 @@ class TransactionHistoryProvider extends ChangeNotifier {
       amount: 120,
       isCredit: true,
     ),
+
     TransactionModel(
       title: "Deep Cleaning",
       user: "Mike Chen",
@@ -34,6 +36,7 @@ class TransactionHistoryProvider extends ChangeNotifier {
       amount: 85,
       isCredit: true,
     ),
+
     TransactionModel(
       title: "Withdrawal",
       user: "Bank Transfer",
@@ -44,7 +47,9 @@ class TransactionHistoryProvider extends ChangeNotifier {
   ];
 
   void changeFilter(String filter) {
+
     selectedFilter = filter;
     notifyListeners();
+
   }
 }

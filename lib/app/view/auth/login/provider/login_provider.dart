@@ -264,7 +264,7 @@ class LoginProvider extends ChangeNotifier {
       return '$countryName allows only $expectedLength digits. You entered ${cleanNumber.length}';
     }
 
-    return null; // Valid
+    return null;
   }
 
   // Future<bool> sendOtp({
