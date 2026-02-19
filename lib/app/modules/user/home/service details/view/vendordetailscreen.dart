@@ -207,7 +207,7 @@ class VendorDetailView extends StatelessWidget {
                     Icon(Icons.star, size: 18.w, color: AppColors.orange),
                     wBox(4.w),
                     Text(
-                      vendor?.receivedReviewsAvgRating ?? "0",
+                      vendor?.receivedReviewsAvgRating?.toString() ?? "0",
                       style: AppFontStyle.text_14_600(
                         AppColors.black,
                         fontFamily: AppFontFamily.bold,

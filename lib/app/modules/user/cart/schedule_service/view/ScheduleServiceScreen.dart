@@ -186,36 +186,43 @@ class _ScheduleServiceScreenContent extends StatelessWidget {
                             ),
                           ),
                         )
-                      : Wrap(
-                          spacing: 12,
-                          runSpacing: 12,
-                          children: times.map((time) {
+                      : GridView.builder(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          gridDelegate:
+                              const SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: 3,
+                                crossAxisSpacing: 12,
+                                mainAxisSpacing: 12,
+                                childAspectRatio: 2.2,
+                              ),
+                          itemCount: times.length,
+                          itemBuilder: (context, index) {
+                            final time = times[index];
                             final isSelected = provider.selectedTime == time;
                             return GestureDetector(
                               onTap: () => provider.selectTime(time),
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 20,
-                                  vertical: 12,
-                                ),
+                              child: AnimatedContainer(
+                                duration: const Duration(milliseconds: 200),
                                 decoration: BoxDecoration(
                                   color: isSelected
                                       ? AppColors.primary
                                       : AppColors.lightGrey,
                                   borderRadius: BorderRadius.circular(12),
                                 ),
+                                alignment: Alignment.center,
                                 child: Text(
                                   time,
-                                  style: TextStyle(
-                                    color: isSelected
-                                        ? Colors.white
-                                        : Colors.black,
+                                  style: AppFontStyle.text_14_600(
+                                    isSelected ? Colors.white : Colors.black,
+                                    fontFamily: AppFontFamily.semiBold,
                                   ),
                                 ),
                               ),
                             );
-                          }).toList(),
+                          },
                         ),
+
                   SizedBox(height: 24),
 
                   // ========== SERVICE ADDRESS ==========

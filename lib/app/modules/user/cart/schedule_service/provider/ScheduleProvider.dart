@@ -69,29 +69,29 @@ class ScheduleProvider extends ChangeNotifier {
 
     if (slots == null || slots.isEmpty) return [];
 
-    // Convert API DaySlot to displayable time strings (From - To)
     List<String> times = [];
     for (var slot in slots) {
       if (slot.from != null && slot.to != null) {
-        times.add(_formatSlotForDisplay(slot));
+        DateTime startTime = _parseTime(slot.from!);
+        DateTime endTime = _parseTime(slot.to!);
+
+        // Generate hourly slots
+        DateTime current = startTime;
+        while (!current.isAfter(endTime)) {
+          times.add(_formatTime(current));
+          current = current.add(const Duration(hours: 1));
+        }
       }
     }
     return times;
   }
 
-  String _formatSlotForDisplay(DaySlot slot) {
-    if (slot.from == null || slot.to == null) return "";
-
-    String formatTime(String timeStr) {
-      DateTime time = _parseTime(timeStr);
-      int displayHour = time.hour % 12;
-      if (displayHour == 0) displayHour = 12;
-      final minute = time.minute.toString().padLeft(2, '0');
-      final period = time.hour >= 12 ? 'PM' : 'AM';
-      return '$displayHour:$minute $period';
-    }
-
-    return "${formatTime(slot.from!)} - ${formatTime(slot.to!)}";
+  String _formatTime(DateTime time) {
+    int displayHour = time.hour % 12;
+    if (displayHour == 0) displayHour = 12;
+    final minute = time.minute.toString().padLeft(2, '0');
+    final period = time.hour >= 12 ? 'PM' : 'AM';
+    return '$displayHour:$minute $period';
   }
 
   // --- Helpers ---
@@ -181,11 +181,25 @@ class ScheduleProvider extends ChangeNotifier {
       DaySlot? selectedSlot;
       for (var slot in slots) {
         if (slot.from != null && slot.to != null) {
-          if (_formatSlotForDisplay(slot) == _selectedTime) {
-            selectedSlot = slot;
-            break;
+          DateTime startTime = _parseTime(slot.from!);
+          DateTime endTime = _parseTime(slot.to!);
+
+          DateTime current = startTime;
+          while (!current.isAfter(endTime)) {
+            if (_formatTime(current) == _selectedTime) {
+              // Create a 1-hour slot for the selection
+              String fromStr =
+                  "${current.hour.toString().padLeft(2, '0')}:${current.minute.toString().padLeft(2, '0')}";
+              DateTime nextHour = current.add(const Duration(hours: 1));
+              String toStr =
+                  "${nextHour.hour.toString().padLeft(2, '0')}:${nextHour.minute.toString().padLeft(2, '0')}";
+              selectedSlot = DaySlot(from: fromStr, to: toStr);
+              break;
+            }
+            current = current.add(const Duration(hours: 1));
           }
         }
+        if (selectedSlot != null) break;
       }
 
       if (selectedSlot == null) {
@@ -197,7 +211,7 @@ class ScheduleProvider extends ChangeNotifier {
         "vendor_id": _bookService?.vendorId,
         "service_date": _selectedDate.toIso8601String().split('T').first,
         "service_day": _getDayName(_selectedDate),
-        "service_time": {"from": selectedSlot.from, "to": selectedSlot.to},
+        "service_time": selectedSlot.from,
         "address_id": addressId,
         "payment_method": paymentMethod,
       };

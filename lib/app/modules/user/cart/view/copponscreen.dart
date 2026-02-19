@@ -205,6 +205,10 @@ class _CopponScreenState extends State<CopponScreen> {
             "${coupon.type == 'percentage' ? (coupon.value ?? '0') + '%' : '\$' + (coupon.value ?? '0')} off on service book",
             style: AppFontStyle.text_14_400(AppColors.grey),
           ),
+          Text(
+            "${coupon.minCartAmountMsg.toString()}",
+            style: AppFontStyle.text_14_400(AppColors.primary),
+          ),
           hBox(16),
           Container(
             padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),

@@ -188,7 +188,7 @@ class ServiceDetailView extends StatelessWidget {
                       Icon(Icons.star, size: 14, color: AppColors.orange),
                       wBox(4),
                       Text(
-                        serviceData.reviewsCount.toString() ??
+                        serviceData.ratings.toString() ??
                             "", // Placeholder rating
                         style: AppFontStyle.text_12_600(
                           AppColors.black,
@@ -352,7 +352,7 @@ class ServiceDetailView extends StatelessWidget {
               Icon(Icons.error_outline, color: Colors.red),
               wBox(10),
               Text(
-                "Error",
+                "Exception",
                 maxLines: 3,
                 overflow: TextOverflow.ellipsis,
                 style: AppFontStyle.text_18_600(

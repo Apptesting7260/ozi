@@ -95,39 +95,50 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
                     );
                   }
 
-                  return SingleChildScrollView(
-                    physics: BouncingScrollPhysics(),
-                    padding: EdgeInsets.all(16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _bookingIdAndTotal(data),
-                        hBox(20),
-                        _serviceCards(data.items ?? []),
-                        hBox(20),
-
-                        // if (widget.tabIndex == 1 &&
-                        //     data.serviceStartOtp != null) ...[
-                        _otpSection(data.serviceStartOtp!),
-
-                        //   hBox(20),
-                        // ],
-                        if (data.vendor != null) ...[
-                          _serviceProvider(data.vendor!, provider),
+                  return RefreshIndicator(
+                    onRefresh: () async {
+                      final bookingId = widget.bookingData['id'];
+                      if (bookingId != null) {
+                        await provider.getBookingDetails(bookingId);
+                      }
+                    },
+                    color: AppColors.primary,
+                    child: SingleChildScrollView(
+                      physics: const AlwaysScrollableScrollPhysics(
+                        parent: BouncingScrollPhysics(),
+                      ),
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _bookingIdAndTotal(data),
                           hBox(20),
-                        ],
+                          _serviceCards(data.items ?? []),
+                          hBox(20),
 
-                        _bookingDetailsSection(data),
-                        hBox(20),
-                        _paymentMethod(data),
-                        hBox(20),
-                        _paymentSummary(data, provider),
-                        hBox(30),
-                        // // if (widget.tabIndex == 2) ...[
-                        // _getBottomButton(context),
-                        // hBox(30),
-                        // ],
-                      ],
+                          // if (widget.tabIndex == 1 &&
+                          //     data.serviceStartOtp != null) ...[
+                          _otpSection(data.serviceStartOtp!),
+
+                          //   hBox(20),
+                          // ],
+                          if (data.vendor != null) ...[
+                            _serviceProvider(data.vendor!, provider),
+                            hBox(20),
+                          ],
+
+                          _bookingDetailsSection(data),
+                          hBox(20),
+                          _paymentMethod(data),
+                          hBox(20),
+                          _paymentSummary(data, provider),
+                          hBox(30),
+                          // // if (widget.tabIndex == 2) ...[
+                          // _getBottomButton(context),
+                          // hBox(30),
+                          // ],
+                        ],
+                      ),
                     ),
                   );
                 },
@@ -274,19 +285,25 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
                       ),
                     )
                   else
-                    Wrap(
-                      spacing: 12,
-                      runSpacing: 12,
-                      children: times.map((time) {
+                    GridView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 3,
+                            crossAxisSpacing: 12,
+                            mainAxisSpacing: 12,
+                            childAspectRatio: 2.2,
+                          ),
+                      itemCount: times.length,
+                      itemBuilder: (context, index) {
+                        final time = times[index];
                         final isSelected =
                             provider.selectedRescheduleTime == time;
                         return GestureDetector(
                           onTap: () => provider.selectRescheduleTime(time),
                           child: Container(
-                            padding: EdgeInsets.symmetric(
-                              horizontal: 20,
-                              vertical: 12,
-                            ),
+                            alignment: Alignment.center,
                             decoration: BoxDecoration(
                               color: isSelected
                                   ? AppColors.primary
@@ -295,13 +312,14 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
                             ),
                             child: Text(
                               time,
-                              style: TextStyle(
-                                color: isSelected ? Colors.white : Colors.black,
+                              style: AppFontStyle.text_14_600(
+                                isSelected ? Colors.white : Colors.black,
+                                fontFamily: AppFontFamily.semiBold,
                               ),
                             ),
                           ),
                         );
-                      }).toList(),
+                      },
                     ),
                   hBox(32),
                   CustomButton(
@@ -823,10 +841,29 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
                   ],
                 ),
               ),
-              if (vendor.mobile != null)
+              if (provider.bookingDetails?.data?.status != "Rejected") ...[
+                if (vendor.mobile != null)
+                  GestureDetector(
+                    onTap: () {
+                      launchUrl(Uri.parse("tel:${vendor.mobile}"));
+                    },
+                    child: Container(
+                      padding: EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: AppColors.primary,
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        Icons.phone,
+                        color: AppColors.white,
+                        size: 20,
+                      ),
+                    ),
+                  ),
+                wBox(12),
                 GestureDetector(
                   onTap: () {
-                    launchUrl(Uri.parse("tel:${vendor.mobile}"));
+                    provider.sendMessage(vendor.id?.toString() ?? '');
                   },
                   child: Container(
                     padding: EdgeInsets.all(12),
@@ -834,23 +871,14 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
                       color: AppColors.primary,
                       shape: BoxShape.circle,
                     ),
-                    child: Icon(Icons.phone, color: AppColors.white, size: 20),
+                    child: Icon(
+                      Icons.message,
+                      color: AppColors.white,
+                      size: 20,
+                    ),
                   ),
                 ),
-              wBox(12),
-              GestureDetector(
-                onTap: () {
-                  provider.sendMessage(vendor.id?.toString() ?? '');
-                },
-                child: Container(
-                  padding: EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: AppColors.primary,
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(Icons.message, color: AppColors.white, size: 20),
-                ),
-              ),
+              ],
             ],
           ),
         ),
@@ -979,6 +1007,7 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
                   double.parse(data.discountAmount!) > 0)
                 _summaryRow("Discount", "-\$${data.discountAmount}"),
               hBox(16),
+
               Divider(
                 color: AppColors.black.withValues(alpha: 0.10),
                 thickness: 2,

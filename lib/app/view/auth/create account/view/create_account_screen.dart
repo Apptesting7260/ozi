@@ -413,6 +413,7 @@ class _OtpDialogContentState extends State<_OtpDialogContent> {
                                           successMessage =
                                               "OTP resent successfully";
                                         });
+                                        Navigator.pop(context);
                                       } else {
                                         setState(() {
                                           errorMessage =
