@@ -15,6 +15,7 @@ import 'package:ozi/app/modules/vendor/home/model/readNotification_model.dart';
 import 'package:ozi/app/modules/vendor/home/notification/model/get_notification_model.dart';
 import 'package:ozi/app/modules/vendor/profile/help/model/helpsupportmodel.dart';
 import 'package:ozi/app/modules/vendor/wallet/model/wallet_detail_model.dart';
+import 'package:ozi/app/modules/vendor/wallet/transaction_history/transaction_history_model.dart';
 import 'package:ozi/app/view/user_role/choose_your_role/model/choose_role_model.dart';
 import '../../core/appExports/app_export.dart';
 import '../../core/constants/app_urls.dart';
@@ -804,9 +805,7 @@ class Repository {
     }
   }
 
-  Future<bool> withDrawMoney({
-    required String amount,
-  }) async {
+  Future<bool> withDrawMoney({required String amount}) async {
     try {
       dev.log("withDrawMoney URL: ${AppUrls.withDrawMoney}");
 
@@ -828,5 +827,40 @@ class Repository {
     }
   }
 
+  Future<TransactionHistoryModel> fetchTransactionsHistory({
+    String? search,
+    int? limit,
+    String? period,
+    int? page, // 👈 add this
+  }) async {
+    try{
+    Map<String, dynamic> queryParams = {};
 
+    if (search != null && search.isNotEmpty) {
+      queryParams['search'] = search;
+    }
+
+    if (limit != null) {
+      queryParams['limit'] = limit;
+    }
+
+    if (period != null && period.isNotEmpty) {
+      queryParams['period'] = period;
+    }
+
+    if (page != null) {
+      queryParams['page'] = page;
+    }
+
+    final response = await _apiService.getApiWithPerms(
+      queryParams,
+      AppUrls.walletTransactions,
+    );
+
+    return TransactionHistoryModel.fromJson(response);
+  }
+  catch (e) {
+      rethrow;
+    }
+  }
 }
