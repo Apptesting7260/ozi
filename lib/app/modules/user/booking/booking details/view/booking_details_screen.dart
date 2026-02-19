@@ -842,7 +842,7 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
                     MaterialPageRoute(
                       builder: (context) => singleServiceScreen(
                         serviceId: int.parse(
-                          provider.bookingDetails?.data?.items[0].serviceId
+                          provider.bookingDetails?.data?.items?[0].serviceId
                                   .toString() ??
                               "",
                         ),
