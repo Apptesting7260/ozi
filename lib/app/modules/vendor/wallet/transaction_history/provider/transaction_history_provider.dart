@@ -1,55 +1,93 @@
 import 'package:flutter/material.dart';
+import 'package:ozi/app/data/repository/repository.dart';
 
-class TransactionModel {
-  final String title;
-  final String user;
-  final String time;
-  final double amount;
-  final bool isCredit;
+import '../transaction_history_model.dart';
 
-  TransactionModel({
-    required this.title,
-    required this.user,
-    required this.time,
-    required this.amount,
-    required this.isCredit,
-  });
-}
 
 class TransactionHistoryProvider extends ChangeNotifier {
+
+  final Repository _repository = Repository();
+
+  // ---------------- VARIABLES ----------------
+
+  List<TransactionHistoryData> transactions = [];
+  TransactionHistoryPagination? pagination;
+
   String selectedFilter = "All";
+  String searchQuery = "";
 
-  final List<TransactionModel> transactions = [
+  bool _loading = false;
+  bool get loading => _loading;
 
-    TransactionModel(
-      title: "Deep Cleaning",
-      user: "John Doe",
-      time: "Today, 4:00 PM",
-      amount: 120,
-      isCredit: true,
-    ),
+  int _currentPage = 1;
+  bool _isLoadingMore = false;
+  bool get isLoadingMore => _isLoadingMore;
 
-    TransactionModel(
-      title: "Deep Cleaning",
-      user: "Mike Chen",
-      time: "Yesterday, 6:30 PM",
-      amount: 85,
-      isCredit: true,
-    ),
+  // ---------------- FETCH ----------------
 
-    TransactionModel(
-      title: "Withdrawal",
-      user: "Bank Transfer",
-      time: "Dec 15, 6:30 PM",
-      amount: 500,
-      isCredit: false,
-    ),
-  ];
+  Future<void> fetchTransactions({bool isLoadMore = false}) async {
 
-  void changeFilter(String filter) {
+    if (isLoadMore) {
+      if (_isLoadingMore || pagination?.hasMore != true) return;
+      _isLoadingMore = true;
+    } else {
+      _loading = true;
+      _currentPage = 1;
+      pagination = null;
+      transactions.clear();
+    }
 
-    selectedFilter = filter;
     notifyListeners();
 
+    try {
+      final response = await _repository.fetchTransactionsHistory(
+        search: searchQuery,
+        limit: 10,
+        period: _mapFilterToPeriod(selectedFilter),
+        page: _currentPage,
+      );
+
+      if (response.data != null) {
+        transactions.addAll(response.data!);
+      }
+
+      pagination = response.pagination;
+
+      if (pagination?.hasMore == true) {
+        _currentPage++;
+      }
+
+    } catch (e) {
+      print(e);
+    }
+
+    _loading = false;
+    _isLoadingMore = false;
+    notifyListeners();
+  }
+
+  // ---------------- FILTER ----------------
+
+  void changeFilter(String filter) {
+    selectedFilter = filter;
+    fetchTransactions();
+  }
+
+  String? _mapFilterToPeriod(String filter) {
+    switch (filter) {
+      case "This Month":
+        return "this_month";
+      case "Last 6 Months":
+        return "last_6_months";
+      default:
+        return null;
+    }
+  }
+
+  // ---------------- SEARCH ----------------
+
+  void updateSearch(String value) {
+    searchQuery = value;
+    fetchTransactions();
   }
 }
