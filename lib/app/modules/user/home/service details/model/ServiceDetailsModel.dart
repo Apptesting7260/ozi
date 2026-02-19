@@ -53,6 +53,7 @@ class ServiceData {
   String? updatedAt;
   dynamic deletedAt;
   dynamic reviewsCount;
+  dynamic ratings;
   Category? category;
   Category? subcategory;
   Vendor? vendor;
@@ -76,6 +77,7 @@ class ServiceData {
     this.updatedAt,
     this.deletedAt,
     this.reviewsCount,
+    this.ratings,
     this.category,
     this.subcategory,
     this.vendor,
@@ -108,6 +110,9 @@ class ServiceData {
     reviewsCount =
         num.tryParse(json['reviews_count']?.toString() ?? '')?.toInt() ??
         json['reviews_count'];
+    ratings =
+        num.tryParse(json['average_rating']?.toString() ?? '')?.toDouble() ??
+        json['ratings'];
     category = json['category'] != null
         ? new Category.fromJson(json['category'])
         : null;

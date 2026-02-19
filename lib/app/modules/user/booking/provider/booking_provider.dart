@@ -285,10 +285,31 @@ class BookingProvider extends ChangeNotifier {
     List<String> times = [];
     for (var slot in slots) {
       if (slot.from != null && slot.to != null) {
-        times.add(_formatSlotForDisplay(slot));
+        DateTime startTime = _parseTime(slot.from!);
+        DateTime endTime = _parseTime(slot.to!);
+
+        // Generate hourly slots
+        DateTime current = startTime;
+        while (!current.isAfter(endTime)) {
+          times.add(_formatTime(current));
+          current = current.add(const Duration(hours: 1));
+        }
       }
     }
     return times;
+  }
+
+  DateTime _parseTime(String time) {
+    final parts = time.split(':');
+    return DateTime(0, 0, 0, int.parse(parts[0]), int.parse(parts[1]));
+  }
+
+  String _formatTime(DateTime time) {
+    int displayHour = time.hour % 12;
+    if (displayHour == 0) displayHour = 12;
+    final minuteStr = time.minute.toString().padLeft(2, '0');
+    final period = time.hour >= 12 ? 'PM' : 'AM';
+    return '$displayHour:$minuteStr $period';
   }
 
   String _getDayName(DateTime date) {
@@ -302,28 +323,6 @@ class BookingProvider extends ChangeNotifier {
       'sunday',
     ];
     return days[date.weekday - 1].toLowerCase();
-  }
-
-  String _formatSlotForDisplay(DaySlot slot) {
-    if (slot.from == null || slot.to == null) return "";
-
-    String formatTime(String timeStr) {
-      try {
-        final parts = timeStr.split(':');
-        int hour = int.parse(parts[0]);
-        int minute = int.parse(parts[1]);
-
-        int displayHour = hour % 12;
-        if (displayHour == 0) displayHour = 12;
-        final minuteStr = minute.toString().padLeft(2, '0');
-        final period = hour >= 12 ? 'PM' : 'AM';
-        return '$displayHour:$minuteStr $period';
-      } catch (e) {
-        return timeStr;
-      }
-    }
-
-    return "${formatTime(slot.from!)}-${formatTime(slot.to!)}";
   }
 
   void selectRescheduleDate(DateTime date) {
@@ -387,11 +386,25 @@ class BookingProvider extends ChangeNotifier {
       DaySlot? selectedSlot;
       for (var slot in slots) {
         if (slot.from != null && slot.to != null) {
-          if (_formatSlotForDisplay(slot) == _selectedRescheduleTime) {
-            selectedSlot = slot;
-            break;
+          DateTime startTime = _parseTime(slot.from!);
+          DateTime endTime = _parseTime(slot.to!);
+
+          DateTime current = startTime;
+          while (!current.isAfter(endTime)) {
+            if (_formatTime(current) == _selectedRescheduleTime) {
+              // Create a 1-hour slot for the selection
+              String fromStr =
+                  "${current.hour.toString().padLeft(2, '0')}:${current.minute.toString().padLeft(2, '0')}";
+              DateTime nextHour = current.add(const Duration(hours: 1));
+              String toStr =
+                  "${nextHour.hour.toString().padLeft(2, '0')}:${nextHour.minute.toString().padLeft(2, '0')}";
+              selectedSlot = DaySlot(from: fromStr, to: toStr);
+              break;
+            }
+            current = current.add(const Duration(hours: 1));
           }
         }
+        if (selectedSlot != null) break;
       }
 
       if (selectedSlot == null) {
@@ -405,7 +418,7 @@ class BookingProvider extends ChangeNotifier {
             .split('T')
             .first,
         "service_day": dayName,
-        "service_time": {"from": selectedSlot.from, "to": selectedSlot.to},
+        "service_time": selectedSlot.from,
       };
 
       final response = await _repository.rescheduleBookingApi(data);

@@ -53,6 +53,7 @@ class Data {
   String? createdAt;
   String? updatedAt;
   dynamic deletedAt;
+  dynamic averageRating;
   Category? category;
   Category? subcategory;
   Vendor? vendor;
@@ -75,6 +76,7 @@ class Data {
     this.createdAt,
     this.updatedAt,
     this.deletedAt,
+    this.averageRating,
     this.category,
     this.subcategory,
     this.vendor,
@@ -104,6 +106,9 @@ class Data {
     createdAt = json['created_at'];
     updatedAt = json['updated_at'];
     deletedAt = json['deleted_at'];
+    averageRating =
+        num.tryParse(json['average_rating']?.toString() ?? '')?.toDouble() ??
+        json['average_rating'];
     category = json['category'] != null
         ? new Category.fromJson(json['category'])
         : null;
@@ -199,7 +204,11 @@ class Vendor {
       firstName = json['first_name'];
       lastName = json['last_name'];
       proImg = json['pro_img'];
-      receivedReviewsAvgRating = json['received_reviews_avg_rating'];
+      receivedReviewsAvgRating =
+          num.tryParse(
+            json['received_reviews_avg_rating']?.toString() ?? '',
+          )?.toDouble() ??
+          json['received_reviews_avg_rating'];
       received_reviews_count =
           num.tryParse(
             json['received_reviews_count']?.toString() ?? '',
@@ -212,7 +221,11 @@ class Vendor {
         firstName = first['first_name'];
         lastName = first['last_name'];
         proImg = first['pro_img'];
-        receivedReviewsAvgRating = first['received_reviews_avg_rating'];
+        receivedReviewsAvgRating =
+            num.tryParse(
+              first['received_reviews_avg_rating']?.toString() ?? '',
+            )?.toDouble() ??
+            first['received_reviews_avg_rating'];
         received_reviews_count =
             num.tryParse(
               first['received_reviews_count']?.toString() ?? '',
