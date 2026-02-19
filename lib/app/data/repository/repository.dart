@@ -483,6 +483,18 @@ class Repository {
     }
   }
 
+  // ********************************************* getSingleService Api ***********************************************//
+  Future<dynamic> getSingleServiceApi(int serviceId) async {
+    try {
+      dynamic response = await _apiService.getApi(
+        "${AppUrls.singleServiceUrl}/$serviceId",
+      );
+      return response;
+    } catch (e) {
+      throw Exception(e);
+    }
+  }
+
   // ********************************************* AddNewUserAddress Api ***********************************************//
   Future<dynamic> addNewUserAddressApi(Map<String, dynamic> data) async {
     try {
@@ -833,33 +845,32 @@ class Repository {
     String? period,
     int? page, // 👈 add this
   }) async {
-    try{
-    Map<String, dynamic> queryParams = {};
+    try {
+      Map<String, dynamic> queryParams = {};
 
-    if (search != null && search.isNotEmpty) {
-      queryParams['search'] = search;
-    }
+      if (search != null && search.isNotEmpty) {
+        queryParams['search'] = search;
+      }
 
-    if (limit != null) {
-      queryParams['limit'] = limit;
-    }
+      if (limit != null) {
+        queryParams['limit'] = limit;
+      }
 
-    if (period != null && period.isNotEmpty) {
-      queryParams['period'] = period;
-    }
+      if (period != null && period.isNotEmpty) {
+        queryParams['period'] = period;
+      }
 
-    if (page != null) {
-      queryParams['page'] = page;
-    }
+      if (page != null) {
+        queryParams['page'] = page;
+      }
 
-    final response = await _apiService.getApiWithPerms(
-      queryParams,
-      AppUrls.walletTransactions,
-    );
+      final response = await _apiService.getApiWithPerms(
+        queryParams,
+        AppUrls.walletTransactions,
+      );
 
-    return TransactionHistoryModel.fromJson(response);
-  }
-  catch (e) {
+      return TransactionHistoryModel.fromJson(response);
+    } catch (e) {
       rethrow;
     }
   }

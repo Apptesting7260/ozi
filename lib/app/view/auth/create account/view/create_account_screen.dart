@@ -44,7 +44,7 @@ class CreateAccountScreen extends StatelessWidget {
                       /// Subtitle
                       Text(
                         maxLines: 2,
-                        "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
+                        "Create an account to continue.",
                         style: AppFontStyle.text_16_400(AppColors.grey),
                       ),
 
@@ -165,16 +165,18 @@ class CreateAccountScreen extends StatelessWidget {
                                       color: AppColors.primary,
                                     ),
                                   )
+                                : value.isEmailVerified
+                                ? Icon(
+                                    Icons.check_circle,
+                                    color: AppColors.green,
+                                    size: 20,
+                                  )
                                 : Text(
-                                    value.isEmailVerified
-                                        ? "Verified"
-                                        : "Verify",
+                                    "Verify",
                                     style: AppFontStyle.text_14_400(
-                                      value.isEmailVerified
-                                          ? AppColors.green
-                                          : (value.isEmailValid
-                                                ? AppColors.primary
-                                                : AppColors.grey),
+                                      value.isEmailValid
+                                          ? AppColors.primary
+                                          : AppColors.grey,
                                     ),
                                   ),
                           ),

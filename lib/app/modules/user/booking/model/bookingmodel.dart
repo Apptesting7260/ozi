@@ -73,9 +73,13 @@ class Data {
     bookingCode = json['booking_code']?.toString();
     serviceDate = json['service_date']?.toString();
     serviceDay = json['service_day']?.toString();
-    serviceTime = json['service_time'] != null
-        ? new ServiceTime.fromJson(json['service_time'])
-        : null;
+    if (json['service_time'] is String) {
+      serviceTime = ServiceTime(from: json['service_time'], to: "");
+    } else if (json['service_time'] != null) {
+      serviceTime = ServiceTime.fromJson(json['service_time']);
+    } else {
+      serviceTime = null;
+    }
     serviceStartOtp = json['service_start_otp']?.toString();
     address = json['address'] != null
         ? new Address.fromJson(json['address'])

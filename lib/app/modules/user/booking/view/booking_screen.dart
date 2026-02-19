@@ -1,3 +1,5 @@
+import 'package:ozi/app/modules/user/singleService/screen/singleservicescreen.dart';
+
 import '../../../../core/appExports/app_export.dart';
 import '../booking details/view/booking_details_screen.dart';
 import '../provider/booking_provider.dart';
@@ -174,8 +176,12 @@ class MyBookingsScreen extends StatelessWidget {
     }
     String time = "";
     if (booking.serviceTime != null) {
-      time =
-          "${booking.serviceTime?.from ?? ""}-${booking.serviceTime?.to ?? ""}";
+      if (booking.serviceTime?.to != null &&
+          booking.serviceTime!.to!.isNotEmpty) {
+        time = "${booking.serviceTime?.from ?? ""}-${booking.serviceTime?.to}";
+      } else {
+        time = booking.serviceTime?.from ?? "";
+      }
     }
 
     String address = "";
@@ -334,13 +340,30 @@ class MyBookingsScreen extends StatelessWidget {
         children: [
           Row(
             children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(8),
-                child: CustomImage(
-                  path: provider.getFullImageUrl(data["img"]),
-                  height: 60,
-                  width: 60,
-                  fit: BoxFit.cover,
+              InkWell(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => singleServiceScreen(
+                        serviceId: int.parse(
+                          provider.allBookings[index].services?[index].serviceId
+                                  .toString() ??
+                              "",
+                        ),
+                        isCart: false,
+                      ),
+                    ),
+                  );
+                },
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: CustomImage(
+                    path: provider.getFullImageUrl(data["img"]),
+                    height: 60,
+                    width: 60,
+                    fit: BoxFit.cover,
+                  ),
                 ),
               ),
               wBox(12),
@@ -348,11 +371,31 @@ class MyBookingsScreen extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      data["title"],
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: AppFontStyle.text_14_600(AppColors.black),
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => singleServiceScreen(
+                              serviceId: int.parse(
+                                provider
+                                        .allBookings[index]
+                                        .services?[index]
+                                        .serviceId
+                                        .toString() ??
+                                    "",
+                              ),
+                              isCart: false,
+                            ),
+                          ),
+                        );
+                      },
+                      child: Text(
+                        data["title"],
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: AppFontStyle.text_14_600(AppColors.black),
+                      ),
                     ),
                     hBox(4),
                     Text(

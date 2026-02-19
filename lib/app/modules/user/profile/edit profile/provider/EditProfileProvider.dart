@@ -1,4 +1,5 @@
 import 'package:image_picker/image_picker.dart';
+import 'package:image_cropper/image_cropper.dart';
 import '../../../../../core/appExports/app_export.dart';
 import '../../../../../data/repository/repository.dart';
 import '../../view/profile_provider/profile_provider.dart';
@@ -18,15 +19,35 @@ class EditProfileProvider extends ChangeNotifier {
   Future pickGallery() async {
     final img = await picker.pickImage(source: ImageSource.gallery);
     if (img != null) {
-      pickedImage = img;
-      notifyListeners();
+      _cropImage(img.path);
     }
   }
 
   Future pickCamera() async {
     final img = await picker.pickImage(source: ImageSource.camera);
     if (img != null) {
-      pickedImage = img;
+      _cropImage(img.path);
+    }
+  }
+
+  Future<void> _cropImage(String filePath) async {
+    final croppedFile = await ImageCropper().cropImage(
+      sourcePath: filePath,
+      aspectRatio: const CropAspectRatio(ratioX: 1, ratioY: 1), // Square crop
+      uiSettings: [
+        AndroidUiSettings(
+          toolbarTitle: 'Edit Photo',
+          toolbarColor: AppColors.primary,
+          toolbarWidgetColor: Colors.white,
+          initAspectRatio: CropAspectRatioPreset.square,
+          lockAspectRatio: true,
+        ),
+        IOSUiSettings(title: 'Edit Photo', aspectRatioLockEnabled: true),
+      ],
+    );
+
+    if (croppedFile != null) {
+      pickedImage = XFile(croppedFile.path);
       notifyListeners();
     }
   }

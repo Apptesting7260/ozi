@@ -157,56 +157,72 @@ class ServiceDetailView extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // Vendor Header
-        Row(
-          children: [
-            CircleAvatar(
-              radius: 20,
-              backgroundColor: AppColors.lightGrey2,
-              backgroundImage: serviceData.vendor?.profileImage != null
-                  ? CachedNetworkImageProvider(
-                      getFullImageUrl(serviceData.vendor?.profileImage),
-                    )
-                  : null,
-              child: serviceData.vendor?.profileImage == null
-                  ? Icon(Icons.person, color: Colors.white)
-                  : null,
-            ),
-            wBox(10),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    vendorName.isEmpty ? 'Unknown Tailor' : vendorName,
-                    style: AppFontStyle.text_16_600(
-                      AppColors.black,
-                      fontFamily: AppFontFamily.semiBold,
-                    ),
-                  ),
-                  Row(
-                    children: [
-                      Icon(Icons.star, size: 14, color: AppColors.orange),
-                      wBox(4),
-                      Text(
-                        serviceData.ratings.toString() ??
-                            "", // Placeholder rating
-                        style: AppFontStyle.text_12_600(
-                          AppColors.black,
-                          fontFamily: AppFontFamily.bold,
-                        ),
-                      ),
-                      wBox(4),
-                      Text(
-                        '• $serviceType',
-                        style: AppFontStyle.text_12_400(AppColors.lightGrey3),
-                      ),
-                    ],
-                  ),
-                ],
+        InkWell(
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => VendorDetailScreen(
+                  vendorId: serviceData.vendorId.toString(),
+                  vendorName:
+                      "${serviceData.vendor?.firstName ?? ""} ${serviceData.vendor?.lastName ?? ""}",
+                  service: service,
+                  categoryId: categoryId,
+                ),
               ),
-            ),
-            _buildViewButton(context, serviceData),
-          ],
+            );
+          },
+          child: Row(
+            children: [
+              CircleAvatar(
+                radius: 20,
+                backgroundColor: AppColors.lightGrey2,
+                backgroundImage: serviceData.vendor?.profileImage != null
+                    ? CachedNetworkImageProvider(
+                        getFullImageUrl(serviceData.vendor?.profileImage),
+                      )
+                    : null,
+                child: serviceData.vendor?.profileImage == null
+                    ? Icon(Icons.person, color: Colors.white)
+                    : null,
+              ),
+              wBox(10),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      vendorName.isEmpty ? 'Unknown Tailor' : vendorName,
+                      style: AppFontStyle.text_16_600(
+                        AppColors.black,
+                        fontFamily: AppFontFamily.semiBold,
+                      ),
+                    ),
+                    Row(
+                      children: [
+                        Icon(Icons.star, size: 14, color: AppColors.orange),
+                        wBox(4),
+                        Text(
+                          serviceData.ratings.toString() ??
+                              "", // Placeholder rating
+                          style: AppFontStyle.text_12_600(
+                            AppColors.black,
+                            fontFamily: AppFontFamily.bold,
+                          ),
+                        ),
+                        wBox(4),
+                        Text(
+                          '• $serviceType',
+                          style: AppFontStyle.text_12_400(AppColors.lightGrey3),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              _buildViewButton(context, serviceData),
+            ],
+          ),
         ),
         hBox(16),
         // Service Details

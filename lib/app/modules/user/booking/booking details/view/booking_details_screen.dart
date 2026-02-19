@@ -1,4 +1,5 @@
 import 'package:intl/intl.dart';
+import 'package:ozi/app/modules/user/singleService/screen/singleservicescreen.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../../core/appExports/app_export.dart';
@@ -566,6 +567,7 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
       onTap: () async {
         final pickedDate = await CustomDatePicker.showServiceDatePicker(
           context,
+          initialDate: provider.selectedRescheduleDate,
         );
         if (pickedDate != null) {
           provider.selectRescheduleDate(pickedDate);
@@ -667,23 +669,36 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
           item.serviceName ?? "Service",
           "${item.serviceItemTotal ?? item.unitPrice ?? '0'}",
           item.service?.serviceImage,
+          quantity: item.quantity,
+          unitPrice: item.unitPrice,
         );
       },
     );
   }
 
-  Widget _serviceCard(String title, String price, String? imagePath) {
+  Widget _serviceCard(
+    String title,
+    String price,
+    String? imagePath, {
+    int? quantity,
+    String? unitPrice,
+  }) {
     final provider = Provider.of<BookingProvider>(context, listen: false);
     return Container(
       padding: EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: AppColors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColors.containerBorder.withOpacity(0.5)),
+      ),
       child: Row(
         children: [
           ClipRRect(
             borderRadius: BorderRadius.circular(8),
             child: CustomImage(
               path: provider.getFullImageUrl(imagePath),
-              height: 50,
-              width: 50,
+              height: 60,
+              width: 60,
               fit: BoxFit.cover,
             ),
           ),
@@ -694,18 +709,29 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
               children: [
                 Text(
                   title,
-                  maxLines: 1,
+                  maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   style: AppFontStyle.text_14_600(AppColors.black),
                 ),
                 hBox(4),
-                Text(
-                  "\$$price",
-                  style: AppFontStyle.text_14_600(AppColors.primary),
-                ),
+                // Row(
+                //   children: [
+                //     if (unitPrice != null)
+                //       Text(
+                //         "\$$unitPrice",
+                //         style: AppFontStyle.text_12_400(AppColors.grey),
+                //       ),
+                //     if (unitPrice != null && quantity != null)
+                //       Text(
+                //         " x $quantity",
+                //         style: AppFontStyle.text_12_600(AppColors.black),
+                //       ),
+                //   ],
+                // ),
               ],
             ),
           ),
+          Text("\$$price", style: AppFontStyle.text_14_700(AppColors.primary)),
         ],
       ),
     );
@@ -809,19 +835,36 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
           padding: EdgeInsets.all(12),
           child: Row(
             children: [
-              Container(
-                height: 50,
-                width: 50,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: const Color.fromARGB(153, 221, 220, 220),
-                ),
-                child: Image.network(
-                  provider.getFullImageUrl(vendor.proImg),
-                  fit: BoxFit.cover,
-                  errorBuilder: (_, __, ___) {
-                    return Icon(Icons.person_3_outlined);
-                  },
+              InkWell(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => singleServiceScreen(
+                        serviceId: int.parse(
+                          provider.bookingDetails?.data?.items[0].serviceId
+                                  .toString() ??
+                              "",
+                        ),
+                        isCart: false,
+                      ),
+                    ),
+                  );
+                },
+                child: Container(
+                  height: 50,
+                  width: 50,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: const Color.fromARGB(153, 221, 220, 220),
+                  ),
+                  child: Image.network(
+                    provider.getFullImageUrl(vendor.proImg),
+                    fit: BoxFit.cover,
+                    errorBuilder: (_, __, ___) {
+                      return Icon(Icons.person_3_outlined);
+                    },
+                  ),
                 ),
               ),
               wBox(12),
@@ -909,7 +952,10 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
           Icons.access_time,
           "Time",
           data.serviceTime != null
-              ? "${data.serviceTime!.from ?? 'N/A'} - ${data.serviceTime!.to ?? 'N/A'}"
+              ? (data.serviceTime!.to != null &&
+                        data.serviceTime!.to!.isNotEmpty)
+                    ? "${data.serviceTime!.from ?? 'N/A'} - ${data.serviceTime!.to}"
+                    : data.serviceTime!.from ?? 'N/A'
               : "N/A",
         ),
         hBox(12),

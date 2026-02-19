@@ -78,52 +78,57 @@ class _BookingConfirmScreenState extends State<BookingConfirmScreen> {
           body: SafeArea(
             child: Consumer<BookingConfirmProvider>(
               builder: (context, provider, _) {
-                return SingleChildScrollView(
-                  padding: REdgeInsets.symmetric(horizontal: 16),
-                  child: Column(
-                    children: [
-                      hBox(10),
-                      Screenshot(
-                        controller: screenshotController,
-                        child: Container(
-                          color: AppColors.white,
-                          padding: REdgeInsets.symmetric(horizontal: 16),
-                          child: Column(
-                            children: [
-                              _successIcon(),
-                              hBox(14),
-                              Text(
-                                "Booking Confirmed!",
-                                style: AppFontStyle.text_20_700(
-                                  AppColors.black,
-                                  fontFamily: AppFontFamily.bold,
+                return RefreshIndicator(
+                  onRefresh: provider.refreshBooking,
+                  color: AppColors.primary,
+                  child: SingleChildScrollView(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    padding: REdgeInsets.symmetric(horizontal: 16),
+                    child: Column(
+                      children: [
+                        hBox(10),
+                        Screenshot(
+                          controller: screenshotController,
+                          child: Container(
+                            color: AppColors.white,
+                            padding: REdgeInsets.symmetric(horizontal: 16),
+                            child: Column(
+                              children: [
+                                _successIcon(),
+                                hBox(14),
+                                Text(
+                                  "Booking Confirmed!",
+                                  style: AppFontStyle.text_20_700(
+                                    AppColors.black,
+                                    fontFamily: AppFontFamily.bold,
+                                  ),
+                                  textAlign: TextAlign.center,
                                 ),
-                                textAlign: TextAlign.center,
-                              ),
-                              hBox(6),
-                              Text(
-                                "Your service has been booked successfully",
-                                style: AppFontStyle.text_14_400(
-                                  AppColors.darkText,
+                                hBox(6),
+                                Text(
+                                  "Your service has been booked successfully",
+                                  style: AppFontStyle.text_14_400(
+                                    AppColors.darkText,
+                                  ),
+                                  textAlign: TextAlign.center,
                                 ),
-                                textAlign: TextAlign.center,
-                              ),
-                              hBox(20),
-                              _bookingID(provider),
-                              hBox(20),
-                              _otpCard(provider),
-                              hBox(20),
-                              _detailsCard(provider),
-                              hBox(20),
-                            ],
+                                hBox(20),
+                                _bookingID(provider),
+                                hBox(20),
+                                _otpCard(provider),
+                                hBox(20),
+                                _detailsCard(provider),
+                                hBox(20),
+                              ],
+                            ),
                           ),
                         ),
-                      ),
-                      _viewBookingsButton(context),
-                      SizedBox(height: 16),
-                      _bottomActions(),
-                      SizedBox(height: 16),
-                    ],
+                        _viewBookingsButton(context),
+                        SizedBox(height: 16),
+                        _bottomActions(),
+                        SizedBox(height: 16),
+                      ],
+                    ),
                   ),
                 );
               },
@@ -268,14 +273,34 @@ class _BookingConfirmScreenState extends State<BookingConfirmScreen> {
           hBox(18),
 
           /// Service
-          Text("Service", style: AppFontStyle.text_12_400(AppColors.grey)),
+          Text("Services", style: AppFontStyle.text_12_400(AppColors.grey)),
           SizedBox(height: 4),
-          Text(
-            provider.serviceName,
-            style: AppFontStyle.text_14_500(
-              AppColors.black,
-              fontFamily: AppFontFamily.medium,
-            ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: provider.services.map((service) {
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 4),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: Text(
+                        service.serviceName ?? "",
+                        style: AppFontStyle.text_14_500(
+                          AppColors.black,
+                          fontFamily: AppFontFamily.medium,
+                        ),
+                      ),
+                    ),
+                    if (service.quantity != null && service.quantity! > 0)
+                      Text(
+                        "Quantity:${service.quantity}",
+                        style: AppFontStyle.text_12_600(AppColors.black),
+                      ),
+                  ],
+                ),
+              );
+            }).toList(),
           ),
 
           SizedBox(height: 14),
@@ -316,7 +341,7 @@ class _BookingConfirmScreenState extends State<BookingConfirmScreen> {
           _detailsRow(
             imagePath: ImageConstants.location,
             label: "Address",
-            value: provider.address,
+            value: provider.address.toString(),
           ),
 
           SizedBox(height: 22),

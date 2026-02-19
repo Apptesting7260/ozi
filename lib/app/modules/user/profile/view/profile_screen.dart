@@ -229,16 +229,16 @@ class ProfileScreenView extends StatelessWidget {
                                   AppRoutes.savedAddressScreen,
                                 ),
                               ),
-                            if (profileProvider.userProfile?.data?.userRole ==
-                                'user')
-                              _profileTile(
-                                icon: ImageConstants.card,
-                                title: "Payment Methods",
-                                onTap: () => Navigator.pushNamed(
-                                  context,
-                                  AppRoutes.paymentMethodsScreen,
-                                ),
-                              ),
+                            // if (profileProvider.userProfile?.data?.userRole ==
+                            //     'user')
+                            //   _profileTile(
+                            //     icon: ImageConstants.card,
+                            //     title: "Payment Methods",
+                            //     onTap: () => Navigator.pushNamed(
+                            //       context,
+                            //       AppRoutes.paymentMethodsScreen,
+                            //     ),
+                            //   ),
                             _profileTile(
                               icon: ImageConstants.setting,
                               title: "Settings",

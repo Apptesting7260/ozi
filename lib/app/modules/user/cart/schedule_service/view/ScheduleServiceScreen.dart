@@ -72,9 +72,10 @@ class _ScheduleServiceScreenContent extends StatelessWidget {
                               final pickedDate =
                                   await CustomDatePicker.showServiceDatePicker(
                                     context,
+                                    initialDate: provider.selectedDate,
                                   );
                               if (pickedDate != null) {
-                                provider.selectDate(pickedDate);
+                                provider.selectDate(pickedDate, isCustom: true);
                               }
                             },
                             child: Container(
@@ -112,7 +113,7 @@ class _ScheduleServiceScreenContent extends StatelessWidget {
                         }
 
                         /// 🔹 NORMAL DATE ITEMS
-                        final date = DateTime.now().add(Duration(days: index));
+                        final date = provider.quickDates[index];
                         final isSelected =
                             provider.selectedDate.year == date.year &&
                             provider.selectedDate.month == date.month &&
@@ -133,7 +134,7 @@ class _ScheduleServiceScreenContent extends StatelessWidget {
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Text(
-                                  provider.quickDates[index]['day']!,
+                                  provider.formatDatePart(date, 'day'),
                                   style: TextStyle(
                                     color: isSelected
                                         ? Colors.white
@@ -142,7 +143,7 @@ class _ScheduleServiceScreenContent extends StatelessWidget {
                                 ),
                                 const SizedBox(height: 4),
                                 Text(
-                                  provider.quickDates[index]['date']!,
+                                  provider.formatDatePart(date, 'date'),
                                   style: TextStyle(
                                     fontSize: 18,
                                     fontWeight: FontWeight.bold,
@@ -152,7 +153,7 @@ class _ScheduleServiceScreenContent extends StatelessWidget {
                                   ),
                                 ),
                                 Text(
-                                  provider.quickDates[index]['month']!,
+                                  provider.formatDatePart(date, 'month'),
                                   style: TextStyle(
                                     color: isSelected
                                         ? Colors.white
@@ -276,22 +277,30 @@ class _ScheduleServiceScreenContent extends StatelessWidget {
                       border: Border.all(color: AppColors.containerBorder),
                     ),
                     child: Row(
+                      mainAxisAlignment: addressProvider.selectedAddress == null
+                          ? MainAxisAlignment.center
+                          : MainAxisAlignment.start,
                       children: [
-                        Container(
-                          padding: EdgeInsets.all(10),
-                          decoration: BoxDecoration(
-                            color: AppColors.lightGrey,
-                            borderRadius: BorderRadius.circular(30),
+                        if (addressProvider.selectedAddress != null) ...[
+                          Container(
+                            padding: EdgeInsets.all(10),
+                            decoration: BoxDecoration(
+                              color: AppColors.lightGrey,
+                              borderRadius: BorderRadius.circular(30),
+                            ),
+                            child: CustomImage(
+                              path: ImageConstants.home2,
+                              color: AppColors.black,
+                            ),
                           ),
-                          child: CustomImage(
-                            path: ImageConstants.home2,
-                            color: AppColors.black,
-                          ),
-                        ),
-                        SizedBox(width: 12),
+                          SizedBox(width: 12),
+                        ],
                         Expanded(
                           child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                            crossAxisAlignment:
+                                addressProvider.selectedAddress == null
+                                ? CrossAxisAlignment.center
+                                : CrossAxisAlignment.start,
                             children: [
                               Text(
                                 addressProvider.selectedAddress?.addressType !=
@@ -307,15 +316,17 @@ class _ScheduleServiceScreenContent extends StatelessWidget {
                                   fontFamily: AppFontFamily.semiBold,
                                 ),
                               ),
-                              SizedBox(height: 4),
-                              Text(
-                                addressProvider.selectedAddress != null
-                                    ? addressProvider.getFormattedAddress(
-                                        addressProvider.selectedAddress!,
-                                      )
-                                    : '',
-                                style: AppFontStyle.text_14_400(AppColors.grey),
-                              ),
+                              if (addressProvider.selectedAddress != null) ...[
+                                SizedBox(height: 4),
+                                Text(
+                                  addressProvider.getFormattedAddress(
+                                    addressProvider.selectedAddress!,
+                                  ),
+                                  style: AppFontStyle.text_14_400(
+                                    AppColors.grey,
+                                  ),
+                                ),
+                              ],
                             ],
                           ),
                         ),
