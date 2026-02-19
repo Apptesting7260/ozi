@@ -1,3 +1,4 @@
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:ozi/app/modules/auth/vendor/signup/view/service_details.dart';
 import '../../../../core/appExports/app_export.dart';
 import '../../../../core/constants/app_urls.dart';
@@ -131,19 +132,32 @@ class VendorHomeProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> updateLocation(Position? location)async {
-    if(location==null) return;
+  // Future<void> updateLocation(Position? location)async {
+  //   if(location==null) return;
+  //   try {
+  //     final response = await _apiService.postApi({
+  //       "latitude" : location.latitude,
+  //       "longitude" : location.longitude
+  //     },AppUrls.vendorUpdateLocation);
+  //     getHomeData();
+  //   } catch (e) {
+  //     getHomeData();
+  //     Get.showToast(e.toString(), type: ToastType.error);
+  //   }
+  // }
+
+  Future<void> updateLocationFromLatLng(LatLng latLng) async {
     try {
       final response = await _apiService.postApi({
-        "latitude" : location.latitude,
-        "longitude" : location.longitude
-      },AppUrls.vendorUpdateLocation);
-      getHomeData();
+        "latitude": latLng.latitude,
+        "longitude": latLng.longitude, //  fixed
+      }, AppUrls.vendorUpdateLocation);
+
     } catch (e) {
-      getHomeData();
       Get.showToast(e.toString(), type: ToastType.error);
     }
   }
+
 
   void _showPopup(BuildContext context) {
     showDialog(
@@ -170,12 +184,11 @@ class VendorHomeProvider extends ChangeNotifier {
                     ),
                   ).then((value) {
                     if (value == true) {
-                      Navigator.of(context).pop();//8947898911
+                      Navigator.of(context).pop();
                       getHomeData();
                     }
                   });
 
-                  //
                 },
                 child: Text("Add"),
               ),
@@ -223,22 +236,51 @@ class VendorHomeProvider extends ChangeNotifier {
             content: const Text(
                 'Vendor location not available. Please update your location.'),
             actions: [
+              // ElevatedButton(
+              //   onPressed: () async {
+              //     try {
+              //       // // Get current location
+              //       // Position position = await _determinePosition();
+              //       // if (kDebugMode) {
+              //       //   print('Lat: ${position.latitude}, Lng: ${position.longitude}');
+              //       // }
+              //       // updateLocation(position);
+              //       // Navigator.of(context).pop();
+              //
+              //       Navigator.pushNamed(context, '/locationPickerScreen');
+              //       Navigator.of(context).pop();
+              //     } catch (e) {
+              //       Get.showToast(e.toString(), type: ToastType.error);
+              //     }
+              //   },
+              //   child: const Text('Update'),
+              // ),
               ElevatedButton(
                 onPressed: () async {
                   try {
-                    // Get current location
-                    Position position = await _determinePosition();
-                    if (kDebugMode) {
-                      print('Lat: ${position.latitude}, Lng: ${position.longitude}');
+                    ///  Navigate & WAIT for result
+                    final LatLng? result =
+                    await Navigator.pushNamed(
+                      context,
+                      '/locationPickerScreen',
+                    ) as LatLng?;
+
+                    if (result != null) {
+
+                      await updateLocationFromLatLng(result);
+
+                      Navigator.of(context).pop();
+
+                      await getHomeData();
                     }
-                    updateLocation(position);
-                    Navigator.of(context).pop();
+
                   } catch (e) {
                     Get.showToast(e.toString(), type: ToastType.error);
                   }
                 },
                 child: const Text('Update'),
               ),
+
             ],
           ),
         );

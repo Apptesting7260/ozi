@@ -1,3 +1,8 @@
+import 'package:device_info_plus/device_info_plus.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:photo_manager/photo_manager.dart';
+
 import '../../../../../core/appExports/app_export.dart';
 import '../../../../../core/constants/app_urls.dart';
 import '../../../../../data/models/all_services_model_vendor.dart';
@@ -7,6 +12,7 @@ import '../../../../../data/network/network_api_services.dart';
 class ServiceDetailsProvider extends ChangeNotifier {
   final NetworkApiServices _apiService = NetworkApiServices();
   VendorGetAllServicesModelData? serviceForEdit;
+  final ImagePicker picker = ImagePicker();
 
   ServiceDetailsProvider(VendorGetAllServicesModelData? service) {
     serviceForEdit = service;
@@ -19,7 +25,7 @@ class ServiceDetailsProvider extends ChangeNotifier {
   String? imageError;
 
   bool validateImage() {
-    if (pickedImage == null &&
+    if (profileImage == null &&
         serviceForEdit?.serviceImage == null) {
       imageError = "Please upload service image";
       notifyListeners();
@@ -64,7 +70,7 @@ class ServiceDetailsProvider extends ChangeNotifier {
 
 
 
-  File? pickedImage;
+  // File? pickedImage;
 
   CategoryDropDownData? category;
   Subcategories? subCategory;
@@ -73,9 +79,125 @@ class ServiceDetailsProvider extends ChangeNotifier {
   TextEditingController priceAmount = TextEditingController();
   String status = 'Active';
 
-  void setImage(File file) {
-    pickedImage = file;
-    notifyListeners();
+  Future<int> _getAndroidSDKInt() async {
+    try {
+      final deviceInfo = await DeviceInfoPlugin().androidInfo;
+      return deviceInfo.version.sdkInt;
+    } catch (e) {
+      return 0; // default fallback
+    }
+  }
+
+  Future<File?> compressImage(File file, {int quality = 70}) async {
+    final filePath = file.absolute.path;
+
+    final result = await FlutterImageCompress.compressAndGetFile(
+      filePath,
+      filePath.replaceFirst(
+        RegExp(r'\.(jpg|jpeg|png|heic|webp)$', caseSensitive: false),
+        '_compressed.jpg',
+      ),
+      quality: quality,
+    );
+
+    if (result == null) return null;
+
+    return File(result.path);
+  }
+
+
+
+
+  File? profileImage;
+  Future<void> pickAndCropSingleImage(BuildContext context) async {
+    bool hasPermission = false;
+
+    if (Platform.isAndroid) {
+      final sdkInt = await _getAndroidSDKInt();
+      print("Android SDK Int: $sdkInt");
+      if (sdkInt >= 33) {
+        if (await Permission.photos.request().isGranted) {
+          hasPermission = true;
+        }
+      } else {
+        if (await Permission.storage.request().isGranted) {
+          hasPermission = true;
+        }
+      }
+    } else if (Platform.isIOS) {
+      final result = await PhotoManager.requestPermissionExtend();
+      if (result.isAuth) {
+        hasPermission = true;
+      } else {
+        print("iOS: Gallery access denied");
+        PhotoManager.openSetting();
+        return;
+      }
+    }
+
+    if (!hasPermission) {
+      print("Gallery access denied");
+      return;
+    }
+
+    // // Pick image from gallery
+    final picker = ImagePicker();
+    // final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+    // if (pickedFile == null) {
+    //   print("No image selected");
+    //   return;
+    // }
+    //
+    // // Crop the picked image
+    // final croppedFile = await ImageCropper().cropImage(
+    //   sourcePath: pickedFile.path,
+    //   aspectRatio: CropAspectRatio(ratioX: 1, ratioY: 1),
+    //   uiSettings: [
+    //     AndroidUiSettings(
+    //       toolbarTitle: 'Crop Image',
+    //       toolbarColor: navigatorKey.currentContext!.white,
+    //       toolbarWidgetColor: navigatorKey.currentContext!.black,
+    //       initAspectRatio: CropAspectRatioPreset.original,
+    //       lockAspectRatio: true,
+    //     ),
+    //     IOSUiSettings(title: 'Crop Image'),
+    //   ],
+    // );
+    //
+    // if (croppedFile != null) {
+    //   profileImage = File(croppedFile.path);
+    //   notifyListeners();
+    // }
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+    if (pickedFile == null) return;
+
+    try {
+      final croppedFile = await ImageCropper().cropImage(
+        sourcePath: pickedFile.path,
+        aspectRatio: const CropAspectRatio(ratioX: 1, ratioY: 1),
+        uiSettings: [
+          AndroidUiSettings(
+            toolbarTitle: 'Crop Image',
+            toolbarColor: AppColors.white,
+            toolbarWidgetColor: AppColors.black,
+            lockAspectRatio: true,
+          ),
+          IOSUiSettings(title: 'Crop Image'),
+        ],
+      );
+
+      if (croppedFile != null) {
+        File file = File(croppedFile.path);
+        File? compressed = await compressImage(file);
+        if (compressed != null) {
+          profileImage = compressed;
+          notifyListeners();
+        }
+      }
+    } catch (e) {
+      print("Cropper Crash: $e");
+    }
+
   }
 
   void setCategory(CategoryDropDownData? val) {
@@ -115,8 +237,8 @@ class ServiceDetailsProvider extends ChangeNotifier {
   // }
 
   bool get enableContinue =>
-      pickedImage != null &&
-      category != null;
+      profileImage != null &&
+          category != null;
 
   //CategoryDropDown
 
@@ -144,7 +266,7 @@ class ServiceDetailsProvider extends ChangeNotifier {
         );
         setSubCategory(
           category?.subcategories?.firstWhere(
-            (e) => e.id == service.subcategory?.id,
+                (e) => e.id == service.subcategory?.id,
           ),
         );
         setDurationUnit(service.durationType);
@@ -177,8 +299,8 @@ class ServiceDetailsProvider extends ChangeNotifier {
       "status": status.toLowerCase(),
     };
     Map<String, dynamic> files = {};
-    if (pickedImage != null) {
-      files["service_image"] = pickedImage?.path ?? '';
+    if (profileImage != null) {
+      files["service_image"] = profileImage?.path ?? '';
     }
     if (serviceForEdit != null) {
       data['service_id'] = serviceForEdit?.id ?? '';
@@ -203,3 +325,5 @@ class ServiceDetailsProvider extends ChangeNotifier {
     }
   }
 }
+
+

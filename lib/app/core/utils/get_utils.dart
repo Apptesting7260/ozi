@@ -153,6 +153,8 @@ class Get {
     }
   }
 
+ // GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+
   static String getFormattedFullDate(String dateTimeString) {
     try {
       final dateTime = DateTime.parse(dateTimeString).toLocal();

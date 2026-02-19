@@ -6,7 +6,8 @@ import '../../../../core/constants/app_urls.dart';
 import '../../../../routes/app_routes.dart';
 import '../../../../shared/widgets/custom_image_path_helper.dart';
 import '../../../auth/vendor/signup/view/identity_verification_screen.dart';
-import '../address/view/location_picker.dart';
+
+import '../address map/view/location_picker.dart';
 import '../edit profile/provider/EditProfileProvider.dart';
 import '../edit profile/view/EditProfileScreen.dart';
 

@@ -31,12 +31,12 @@ class EditProfileScreen extends StatelessWidget {
                 children: [
                   hBox(10),
 
-                  /// PROFILE SECTION
+                  // PROFILE SECTION
                   _profileSection(provider, context),
 
                   hBox(30),
 
-                  /// FIELDS
+                  // FIELDS
                   _inputFields(provider),
 
                   hBox(30),
@@ -94,7 +94,7 @@ class EditProfileScreen extends StatelessWidget {
               ),
             ),
 
-            /// CAMERA BUTTON
+            // CAMERA BUTTON
             GestureDetector(
               onTap: () => _showPicker(context),
               child: Container(

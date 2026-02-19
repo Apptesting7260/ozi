@@ -36,19 +36,19 @@ class _ServiceDetailsContentState extends State<_ServiceDetailsContent> {
   final _imageKey = GlobalKey();
 
 
-  Future<void> _pickImage(BuildContext context) async {
-    final provider = Provider.of<ServiceDetailsProvider>(
-      context,
-      listen: false,
-    );
-
-    final ImagePicker picker = ImagePicker();
-    final XFile? file = await picker.pickImage(source: ImageSource.gallery);
-
-    if (file != null) {
-      provider.setImage(File(file.path));
-    }
-  }
+  // Future<void> _pickImage(BuildContext context) async {
+  //   final provider = Provider.of<ServiceDetailsProvider>(
+  //     context,
+  //     listen: false,
+  //   );
+  //
+  //   final ImagePicker picker = ImagePicker();
+  //   final XFile? file = await picker.pickImage(source: ImageSource.gallery);
+  //
+  //   if (file != null) {
+  //     provider.setImage(File(file.path));
+  //   }
+  // }
 
   // bool _validateImage(ServiceDetailsProvider provider) {
   //   if (provider.pickedImage == null &&
@@ -95,7 +95,7 @@ class _ServiceDetailsContentState extends State<_ServiceDetailsContent> {
                       Container(
                         key: _imageKey,
                         child: GestureDetector(
-                          onTap: () => _pickImage(context),
+                          onTap: () => provider.pickAndCropSingleImage(context),
                           child: Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -106,13 +106,13 @@ class _ServiceDetailsContentState extends State<_ServiceDetailsContent> {
                                   borderRadius: BorderRadius.circular(14),
                                   border: Border.all(
                                     color: AppColors.primary.withOpacity(0.4),
-                                    style: provider.pickedImage == null
+                                    style: provider.profileImage == null
                                         ? BorderStyle.solid
                                         : BorderStyle.none,
                                   ),
                                 ),
                                 child:
-                                provider.pickedImage == null &&
+                                provider.profileImage == null &&
                                     provider.serviceForEdit == null
                                     ? Center(
                                   child: CustomImage(
@@ -125,9 +125,9 @@ class _ServiceDetailsContentState extends State<_ServiceDetailsContent> {
                                     : ClipRRect(
                                   borderRadius: BorderRadius.circular(14),
                                   child: CustomImage(
-                                    path: provider.pickedImage == null
+                                    path: provider.profileImage == null
                                         ? '${AppUrls.imageBaseUrl}${provider.serviceForEdit?.serviceImage ?? ''}'
-                                        : provider.pickedImage?.path ?? '',
+                                        : provider.profileImage?.path ?? '',
                                     fit: BoxFit.cover,
                                   ),
                                 ),
@@ -162,7 +162,7 @@ class _ServiceDetailsContentState extends State<_ServiceDetailsContent> {
                                       height: 35,
                                       width: 150,
                                       borderRadius: BorderRadius.circular(30),
-                                      onPressed: () => _pickImage(context),
+                                      onPressed: () => provider.pickAndCropSingleImage(context),
                                       child: Row(
                                         mainAxisAlignment:
                                         MainAxisAlignment.center,
@@ -175,7 +175,7 @@ class _ServiceDetailsContentState extends State<_ServiceDetailsContent> {
                                           ),
                                           wBox(5),
                                           Text(
-                                            provider.pickedImage == null
+                                            provider.profileImage == null
                                                 ? "Upload Image"
                                                 : "Change Image",
                                             style: AppFontStyle.text_12_400(
@@ -267,19 +267,39 @@ class _ServiceDetailsContentState extends State<_ServiceDetailsContent> {
                         maxLines: 5,
                         minLines: 5,
                         borderRadius: 30,
-                        textInputType: TextInputType.multiline,     // to add multiline
+                        textInputType: TextInputType.multiline,
                         textInputAction: TextInputAction.newline,
-                        // onChanged: provider.setDescription,
+                        maxLength: 300, //  character limit
+
                         validator: (value) {
                           if (value == null || value.trim().isEmpty) {
                             return "Description is required";
                           }
-                          if (value.trim().length < 10) {
+
+                          final text = value.trim();
+
+                          if (text.length < 10) {
                             return "Description must be at least 10 characters";
                           }
+
+                          if (text.length > 300) {
+                            return "Maximum 300 characters allowed";
+                          }
+
+                          final wordCount = text
+                              .split(RegExp(r'\s+'))
+                              .where((word) => word.isNotEmpty)
+                              .length;
+
+                          if (wordCount > 30) {
+                            return "Maximum 30 words allowed";
+                          }
+
                           return null;
                         },
+
                       ),
+
 
                       hBox(20),
 
