@@ -48,9 +48,9 @@ class AppUrls {
   static const String withDrawMoney = "$baseUrl/wallet-withdraw-amount";
   static const String sendEmail = "$baseUrl/send-email-otp";
   static const String verifyEmail = "$baseUrl/verify-email-otp";
+  static const String singleServiceUrl = "$baseUrl/get-service";
   static const String walletTransactions =
       "https://nbturls.in/oziservice/api/wallet-transactions";
-
 
   // Vendor APIs
   static const String getAllCategories = "$baseUrl/get-all-categories";

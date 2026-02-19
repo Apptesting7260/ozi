@@ -23,15 +23,47 @@ class ScheduleProvider extends ChangeNotifier {
     DateTime.now().month,
     DateTime.now().day,
   );
+  DateTime? _customSelectedDate;
   String? _selectedTime;
   BookServiceModel? _bookService;
   // Map<String, List<DaySlot>> _dayAvailability = {};
   Map<String, List<DaySlot>> _dayAvailability = {};
 
   // Get next 4 days for quick selection
-  List<Map<String, String>> get quickDates {
-    List<Map<String, String>> dates = [];
-    const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  List<DateTime> get quickDates {
+    List<DateTime> dates = [];
+    DateTime today = DateTime(
+      DateTime.now().year,
+      DateTime.now().month,
+      DateTime.now().day,
+    );
+
+    // Default 4 days
+    for (int i = 0; i < 4; i++) {
+      dates.add(today.add(Duration(days: i)));
+    }
+
+    // If a custom date is selected and it's not in the default 4 days,
+    // Add it to the list (at index 1 as requested)
+    if (_customSelectedDate != null) {
+      bool alreadyExists = dates.any(
+        (d) =>
+            d.year == _customSelectedDate!.year &&
+            d.month == _customSelectedDate!.month &&
+            d.day == _customSelectedDate!.day,
+      );
+
+      if (!alreadyExists) {
+        // Show at index 0 as requested.
+        dates.insert(0, _customSelectedDate!);
+      }
+    }
+
+    return dates;
+  }
+
+  String formatDatePart(DateTime date, String part) {
+    const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
     const months = [
       'Jan',
       'Feb',
@@ -47,15 +79,10 @@ class ScheduleProvider extends ChangeNotifier {
       'Dec',
     ];
 
-    for (int i = 0; i < 4; i++) {
-      DateTime date = DateTime.now().add(Duration(days: i));
-      dates.add({
-        'day': days[date.weekday - 1],
-        'date': date.day.toString(),
-        'month': months[date.month - 1],
-      });
-    }
-    return dates;
+    if (part == 'day') return days[date.weekday % 7];
+    if (part == 'date') return date.day.toString();
+    if (part == 'month') return months[date.month - 1];
+    return "";
   }
 
   // Getters
@@ -114,8 +141,11 @@ class ScheduleProvider extends ChangeNotifier {
     return DateTime(0, 0, 0, int.parse(parts[0]), int.parse(parts[1]));
   }
 
-  void selectDate(DateTime date) {
+  void selectDate(DateTime date, {bool isCustom = false}) {
     _selectedDate = DateTime(date.year, date.month, date.day);
+    if (isCustom) {
+      _customSelectedDate = _selectedDate;
+    }
     _selectedTime = null; // reset selected time
     notifyListeners();
   }

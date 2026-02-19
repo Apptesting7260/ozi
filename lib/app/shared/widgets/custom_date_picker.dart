@@ -1,11 +1,14 @@
-
 import '../../core/appExports/app_export.dart';
 
 class CustomDatePicker {
   /// Show date picker for age verification (18+ years old)
   static Future<DateTime?> show(BuildContext context) async {
     final DateTime today = DateTime.now();
-    final DateTime maxSelectableDate = DateTime(today.year - 18, today.month, today.day);
+    final DateTime maxSelectableDate = DateTime(
+      today.year - 18,
+      today.month,
+      today.day,
+    );
 
     final DateTime? pickedDate = await showDatePicker(
       context: context,
@@ -21,9 +24,7 @@ class CustomDatePicker {
               onSurface: Colors.black,
             ),
             textButtonTheme: TextButtonThemeData(
-              style: TextButton.styleFrom(
-                foregroundColor: AppColors.primary,
-              ),
+              style: TextButton.styleFrom(foregroundColor: AppColors.primary),
             ),
           ),
           child: child!,
@@ -33,13 +34,22 @@ class CustomDatePicker {
     return pickedDate;
   }
 
-  static Future<DateTime?> showServiceDatePicker(BuildContext context) async {
+  static Future<DateTime?> showServiceDatePicker(
+    BuildContext context, {
+    DateTime? initialDate,
+  }) async {
     final DateTime today = DateTime.now();
-    final DateTime maxSelectableDate = DateTime(today.year + 1, today.month, today.day);
+    final DateTime maxSelectableDate = DateTime(
+      today.year + 1,
+      today.month,
+      today.day,
+    );
 
     final DateTime? pickedDate = await showDatePicker(
       context: context,
-      initialDate: today,
+      initialDate: (initialDate != null && initialDate.isAfter(today))
+          ? initialDate
+          : today,
       firstDate: today,
       lastDate: maxSelectableDate,
       builder: (context, child) {
@@ -51,9 +61,7 @@ class CustomDatePicker {
               onSurface: Colors.black,
             ),
             textButtonTheme: TextButtonThemeData(
-              style: TextButton.styleFrom(
-                foregroundColor: AppColors.primary,
-              ),
+              style: TextButton.styleFrom(foregroundColor: AppColors.primary),
             ),
           ),
           child: child!,

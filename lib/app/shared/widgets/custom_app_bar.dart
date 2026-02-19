@@ -1,18 +1,23 @@
-
-
 import '../../core/appExports/app_export.dart';
 
-class CustomAppBar extends StatelessWidget {
+class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String title;
   final Widget? child;
   final Widget? columnChild;
+  final double? height;
+  final VoidCallback? onBackTap;
 
   const CustomAppBar({
     super.key,
     required this.title,
     this.child,
     this.columnChild,
+    this.height,
+    this.onBackTap,
   });
+
+  @override
+  Size get preferredSize => Size.fromHeight(height ?? 60.h);
 
   @override
   Widget build(BuildContext context) {
@@ -30,11 +35,11 @@ class CustomAppBar extends StatelessWidget {
                 Align(
                   alignment: Alignment.centerLeft,
                   child: InkWell(
-                    onTap: () => Navigator.pop(context),
+                    onTap: onBackTap ?? () => Navigator.pop(context),
                     child: Container(
                       height: 40,
                       width: 40,
-                      decoration:  BoxDecoration(
+                      decoration: const BoxDecoration(
                         shape: BoxShape.circle,
                         color: Color(0xFFEFEFEF),
                       ),
@@ -53,18 +58,12 @@ class CustomAppBar extends StatelessWidget {
                   ),
                 ),
                 if (child != null)
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: child!,
-                  ),
+                  Align(alignment: Alignment.centerRight, child: child!),
               ],
             ),
           ),
           if (columnChild != null)
-            Padding(
-              padding: REdgeInsets.only(top: 0.0),
-              child: columnChild,
-            ),
+            Padding(padding: REdgeInsets.only(top: 0.0), child: columnChild),
           hBox(10),
         ],
       ),

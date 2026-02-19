@@ -133,8 +133,16 @@ class EditProfileScreen extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            hBox(20),
+            hBox(5),
 
+            ListTile(
+              leading: Icon(Icons.camera_alt, color: AppColors.primary),
+              title: const Text("Camera"),
+              onTap: () {
+                Navigator.pop(context);
+                provider.pickCamera();
+              },
+            ),
             ListTile(
               leading: Icon(Icons.photo_library, color: AppColors.primary),
               title: const Text("Gallery"),
@@ -143,16 +151,6 @@ class EditProfileScreen extends StatelessWidget {
                 provider.pickGallery();
               },
             ),
-
-            // ListTile(
-            //   leading: Icon(Icons.camera_alt, color: AppColors.primary),
-            //   title: const Text("Camera"),
-            //   onTap: () {
-            //     Navigator.pop(context);
-            //     provider.pickCamera();
-            //   },
-            // ),
-            // ),
 
             hBox(10),
           ],

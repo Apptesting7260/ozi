@@ -3,6 +3,8 @@ import 'package:ozi/app/view/user_role/choose_your_role/view/choose_role.dart';
 import '../../../../core/appExports/app_export.dart';
 import '../../verification_screen/view/verification_screen.dart';
 import '../provider/login_provider.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:geocoding/geocoding.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -19,8 +21,66 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   void initState() {
     super.initState();
-    _selectedCountry = Country.parse('IN');
+    _selectedCountry = Country.parse('IN'); // Set default immediately
+    _loadInitialCountry();
     _updateMaxPhoneLength();
+  }
+
+  Future<void> _loadInitialCountry() async {
+    try {
+      // 1. Try to get from device locale first (fast and no permission needed)
+      final Locale deviceLocale =
+          WidgetsBinding.instance.platformDispatcher.locale;
+      final String? deviceCountryCode = deviceLocale.countryCode;
+
+      if (deviceCountryCode != null) {
+        try {
+          final country = Country.parse(deviceCountryCode);
+          setState(() {
+            _selectedCountry = country;
+            _updateMaxPhoneLength();
+          });
+        } catch (_) {}
+      }
+
+      // 2. Request accurate location from GPS
+      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) return;
+
+      LocationPermission permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+        if (permission == LocationPermission.denied) return;
+      }
+
+      if (permission == LocationPermission.deniedForever) return;
+
+      // If we have permission, get the actual position
+      Position position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.low,
+        timeLimit: const Duration(seconds: 5),
+      );
+
+      List<Placemark> placemarks = await placemarkFromCoordinates(
+        position.latitude,
+        position.longitude,
+      );
+
+      if (placemarks.isNotEmpty && placemarks.first.isoCountryCode != null) {
+        final String? locCountryCode = placemarks.first.isoCountryCode;
+        if (locCountryCode != null) {
+          try {
+            final country = Country.parse(locCountryCode);
+            setState(() {
+              _selectedCountry = country;
+              _updateMaxPhoneLength();
+            });
+          } catch (_) {}
+        }
+      }
+    } catch (e) {
+      debugPrint("Error detecting country: $e");
+    }
   }
 
   @override
@@ -78,8 +138,7 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
         ),
       );
-    }
-    else {
+    } else {
       if (mounted) {
         _showSnackBar(loginProvider.errorMessage ?? 'Failed to send OTP');
       }

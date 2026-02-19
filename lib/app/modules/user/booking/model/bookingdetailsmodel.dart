@@ -83,9 +83,13 @@ class Data {
     paymentMethod = json['payment_method']?.toString();
     serviceDate = json['service_date']?.toString();
     serviceDay = json['service_day']?.toString();
-    serviceTime = json['service_time'] != null
-        ? ServiceTime.fromJson(json['service_time'])
-        : null;
+    if (json['service_time'] is String) {
+      serviceTime = ServiceTime(from: json['service_time'], to: "");
+    } else if (json['service_time'] != null) {
+      serviceTime = ServiceTime.fromJson(json['service_time']);
+    } else {
+      serviceTime = null;
+    }
     subtotal = json['subtotal']?.toString();
     serviceFee = json['service_fee']?.toString();
     total = json['total']?.toString();
@@ -101,6 +105,11 @@ class Data {
     if (json['items'] != null) {
       items = <Items>[];
       json['items'].forEach((v) {
+        items!.add(new Items.fromJson(v));
+      });
+    } else if (json['services'] != null) {
+      items = <Items>[];
+      json['services'].forEach((v) {
         items!.add(new Items.fromJson(v));
       });
     }
@@ -185,7 +194,8 @@ class Items {
     quantity = json['quantity'] is int
         ? json['quantity']
         : int.tryParse(json['quantity'].toString());
-    serviceItemTotal = json['service_item_total']?.toString();
+    serviceItemTotal = (json['service_item_total'] ?? json['total'])
+        ?.toString();
     createdAt = json['created_at']?.toString();
     updatedAt = json['updated_at']?.toString();
     service = json['service'] != null
@@ -421,7 +431,14 @@ class Address {
     zipCode = json['zip_code']?.toString();
     createdAt = json['created_at']?.toString();
     updatedAt = json['updated_at']?.toString();
-    fullAddress = json['full_address']?.toString();
+    fullAddress =
+        json['full_address']?.toString() ??
+        [
+          if (streetAddress?.isNotEmpty == true) streetAddress,
+          if (apartment?.isNotEmpty == true) apartment,
+          if (city?.isNotEmpty == true) city,
+          if (zipCode?.isNotEmpty == true) zipCode,
+        ].join(", ");
   }
 
   Map<String, dynamic> toJson() {
