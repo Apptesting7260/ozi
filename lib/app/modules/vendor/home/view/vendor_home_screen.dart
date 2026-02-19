@@ -326,7 +326,7 @@ class _VendorHomeScreenState extends State<VendorHomeScreen> {
                 ),
               ),
 
-              /// ✅ SWITCH (NOW WORKS)
+              // SWITCH (NOW WORKS)
               CustomToggleSwitch(
                 value:
                     (provider.homeModel.data?.vendorStatus?.isOnline ?? false),

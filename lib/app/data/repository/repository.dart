@@ -843,7 +843,7 @@ class Repository {
     String? search,
     int? limit,
     String? period,
-    int? page, // 👈 add this
+    int? page,
   }) async {
     try {
       Map<String, dynamic> queryParams = {};
@@ -871,6 +871,27 @@ class Repository {
 
       return TransactionHistoryModel.fromJson(response);
     } catch (e) {
+      rethrow;
+    }
+  }
+
+
+  // **************************  verify Profile Email Api **************************//
+
+  Future<dynamic> verifyEditProfileEmailApi(Map<String, dynamic> data) async {
+    try {
+      print('API Request URL: ${AppUrls.verifyEmail}');
+      print('API Request Data: $data');
+
+      dynamic response = await _apiService.postApi(data, AppUrls.verifyEmail);
+
+      print('API Response: $response');
+      print('API Response Type: ${response.runtimeType}');
+
+      // Return raw response, let the provider parse it
+      return response;
+    } catch (e) {
+      print('verifyEditProfileEmailApi Error: $e');
       rethrow;
     }
   }

@@ -2,6 +2,7 @@
 
 
 
+import 'package:ozi/app/modules/user/profile/address%20map/view/location_picker.dart';
 import 'package:ozi/app/modules/user/profile/login%20details/view/login_details.dart';
 import 'package:ozi/app/modules/vendor/home/view/vendor_home_screen.dart';
 import 'package:ozi/app/modules/vendor/navigation%20tab/view/vendor_navigation_tab_screen.dart';
@@ -87,6 +88,7 @@ class AppRoutes {
   static const String vendorCommonScreen = '/vendorCommonScreen';
   static const String vendorAddNewCardScreen = '/vendorAddNewCardScreen';
   static const String vendorAddNewAddressScreen = '/vendorAddNewAddressScreen';
+  static const String locationPickerScreen = '/locationPickerScreen';
 
 
 
@@ -201,6 +203,8 @@ class AppRoutes {
       //   return MaterialPageRoute(builder: (_) => VendorProfileScreen());
       case vendorAddNewAddressScreen:
         return MaterialPageRoute(builder: (_) => VendorAddAddressScreen());
+      case locationPickerScreen:
+        return MaterialPageRoute(builder: (_) => LocationPickerPage());
       case vendorAddNewCardScreen:
         return MaterialPageRoute(builder: (_) => VendorAddNewCardScreen());
       // case vendorBookingDetailsScreen:
