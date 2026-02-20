@@ -65,7 +65,7 @@ class VendorBookingDetailsScreen extends StatelessWidget {
                                 _bookingDetailsSection(
                                   address: provider.homeModel.data?.data?.address?.fullAddress??'',
                                   date: Get.getFormattedDate2(provider.homeModel.data?.data?.serviceDate??''),
-                                  time:provider.homeModel.data?.data?.serviceTime?.from??''
+                                  time:provider.homeModel.data?.data?.serviceTime ??''
                                 ),
                                 hBox(20),
                                 SizedBox(
