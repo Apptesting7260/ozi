@@ -684,55 +684,74 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
     String? unitPrice,
   }) {
     final provider = Provider.of<BookingProvider>(context, listen: false);
-    return Container(
-      padding: EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: AppColors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.containerBorder.withOpacity(0.5)),
-      ),
-      child: Row(
-        children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(8),
-            child: CustomImage(
-              path: provider.getFullImageUrl(imagePath),
-              height: 60,
-              width: 60,
-              fit: BoxFit.cover,
+    return InkWell(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => singleServiceScreen(
+              serviceId: int.parse(
+                provider.bookingDetails?.data?.items?[0].serviceId.toString() ??
+                    "",
+              ),
+              isCart: false,
             ),
           ),
-          wBox(12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: AppFontStyle.text_14_600(AppColors.black),
-                ),
-                hBox(4),
-                // Row(
-                //   children: [
-                //     if (unitPrice != null)
-                //       Text(
-                //         "\$$unitPrice",
-                //         style: AppFontStyle.text_12_400(AppColors.grey),
-                //       ),
-                //     if (unitPrice != null && quantity != null)
-                //       Text(
-                //         " x $quantity",
-                //         style: AppFontStyle.text_12_600(AppColors.black),
-                //       ),
-                //   ],
-                // ),
-              ],
+        );
+      },
+      child: Container(
+        padding: EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: AppColors.white,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: AppColors.containerBorder.withOpacity(0.5)),
+        ),
+        child: Row(
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: CustomImage(
+                path: provider.getFullImageUrl(imagePath),
+                height: 60,
+                width: 60,
+                fit: BoxFit.cover,
+              ),
             ),
-          ),
-          Text("\$$price", style: AppFontStyle.text_14_700(AppColors.primary)),
-        ],
+            wBox(12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppFontStyle.text_14_600(AppColors.black),
+                  ),
+                  hBox(4),
+                  // Row(
+                  //   children: [
+                  //     if (unitPrice != null)
+                  //       Text(
+                  //         "\$$unitPrice",
+                  //         style: AppFontStyle.text_12_400(AppColors.grey),
+                  //       ),
+                  //     if (unitPrice != null && quantity != null)
+                  //       Text(
+                  //         " x $quantity",
+                  //         style: AppFontStyle.text_12_600(AppColors.black),
+                  //       ),
+                  //   ],
+                  // ),
+                ],
+              ),
+            ),
+            Text(
+              "\$$price",
+              style: AppFontStyle.text_14_700(AppColors.primary),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -835,36 +854,19 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
           padding: EdgeInsets.all(12),
           child: Row(
             children: [
-              InkWell(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => singleServiceScreen(
-                        serviceId: int.parse(
-                          provider.bookingDetails?.data?.items?[0].serviceId
-                                  .toString() ??
-                              "",
-                        ),
-                        isCart: false,
-                      ),
-                    ),
-                  );
-                },
-                child: Container(
-                  height: 50,
-                  width: 50,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: const Color.fromARGB(153, 221, 220, 220),
-                  ),
-                  child: Image.network(
-                    provider.getFullImageUrl(vendor.proImg),
-                    fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) {
-                      return Icon(Icons.person_3_outlined);
-                    },
-                  ),
+              Container(
+                height: 50,
+                width: 50,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: const Color.fromARGB(153, 221, 220, 220),
+                ),
+                child: Image.network(
+                  provider.getFullImageUrl(vendor.proImg),
+                  fit: BoxFit.cover,
+                  errorBuilder: (_, __, ___) {
+                    return Icon(Icons.person_3_outlined);
+                  },
                 ),
               ),
               wBox(12),
