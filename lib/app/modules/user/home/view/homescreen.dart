@@ -1,4 +1,5 @@
 import 'package:ozi/app/modules/user/cart/change%20address/view/ChangeAddressScreen.dart';
+import 'package:ozi/app/modules/user/cart/change%20address/provider/ChangeAddressProvider.dart';
 import 'package:ozi/app/modules/user/navigation%20tab/provider/navigation_provider.dart';
 import 'package:ozi/app/modules/vendor/home/notification/view/vendor_notifications_screen.dart';
 
@@ -79,66 +80,80 @@ class HomeScreenView extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text.rich(
-              TextSpan(
-                children: [
-                  TextSpan(
-                    text: "Hello ",
-                    style: AppFontStyle.text_24_500(AppColors.black),
-                  ),
-                  TextSpan(
-                    text: context.watch<ProfileProvider>().firstName,
-                    style: AppFontStyle.text_24_600(
-                      AppColors.black,
-                      fontFamily: AppFontFamily.bold,
+        Flexible(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text.rich(
+                TextSpan(
+                  children: [
+                    TextSpan(
+                      text: "Hello ",
+                      style: AppFontStyle.text_24_500(AppColors.black),
                     ),
-                  ),
-                  TextSpan(
-                    text: "!",
-                    style: AppFontStyle.text_24_600(
-                      AppColors.black,
-                      fontFamily: AppFontFamily.bold,
+                    TextSpan(
+                      text: context.watch<ProfileProvider>().firstName,
+                      style: AppFontStyle.text_24_600(
+                        AppColors.black,
+                        fontFamily: AppFontFamily.bold,
+                      ),
                     ),
-                  ),
-                ],
+                    TextSpan(
+                      text: "!",
+                      style: AppFontStyle.text_24_600(
+                        AppColors.black,
+                        fontFamily: AppFontFamily.bold,
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
-            SizedBox(height: 4),
-            GestureDetector(
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const ChangeAddressScreen(),
-                  ),
-                );
-              },
-              // onTap: () => provider.onLocationTap(context),
-              child: Row(
-                children: [
-                  Icon(
-                    Icons.location_on_outlined,
-                    size: 16,
-                    color: Colors.grey[600],
-                  ),
-                  SizedBox(width: 4),
-                  Text(
-                    provider.selectedLocation,
-                    style: AppFontStyle.text_14_400(AppColors.grey),
-                  ),
-                  SizedBox(width: 4),
-                  Icon(
-                    Icons.keyboard_arrow_right,
-                    size: 16,
-                    color: Colors.grey[600],
-                  ),
-                ],
+              SizedBox(height: 4),
+              GestureDetector(
+                onTap: () async {
+                  final result = await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          const ChangeAddressScreen(isFromHome: true),
+                    ),
+                  );
+                  if (result != null) {
+                    provider.updateFromSelection(
+                      result as int,
+                      context.read<ChangeAddressProvider>(),
+                    );
+                  }
+                },
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.location_on_rounded,
+                      size: 18.sp,
+                      color: AppColors.primary,
+                    ),
+                    wBox(6),
+                    Flexible(
+                      child: Text(
+                        provider.selectedLocation,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: AppFontStyle.text_12_400(AppColors.grey),
+                      ),
+                    ),
+                    // wBox(4),
+                    Icon(
+                      Icons.keyboard_arrow_right,
+                      size: 20.sp,
+                      color: AppColors.grey,
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
 
         Row(

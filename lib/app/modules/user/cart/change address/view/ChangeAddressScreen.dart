@@ -10,7 +10,8 @@ import '../../../../../shared/widgets/custom_radio_button.dart';
 import '../provider/ChangeAddressProvider.dart';
 
 class ChangeAddressScreen extends StatefulWidget {
-  const ChangeAddressScreen({super.key});
+  final bool isFromHome;
+  const ChangeAddressScreen({super.key, this.isFromHome = false});
 
   @override
   State<ChangeAddressScreen> createState() => _ChangeAddressScreenState();
@@ -159,6 +160,10 @@ class _ChangeAddressScreenState extends State<ChangeAddressScreen> {
                         : ListView(
                             padding: REdgeInsets.all(16),
                             children: [
+                              if (widget.isFromHome) ...[
+                                _currentLocationTile(provider),
+                                SizedBox(height: 12),
+                              ],
                               ...List.generate(provider.addresses.length, (
                                 index,
                               ) {
@@ -235,6 +240,89 @@ class _ChangeAddressScreenState extends State<ChangeAddressScreen> {
               ],
             );
           },
+        ),
+      ),
+    );
+  }
+
+  Widget _currentLocationTile(ChangeAddressProvider provider) {
+    bool selected = provider.selectedIndex == -2;
+    return GestureDetector(
+      onTap: () {
+        provider.useCurrentLocation();
+      },
+      child: Container(
+        padding: EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: selected
+              ? AppColors.primary.withOpacity(.08)
+              : AppColors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: selected ? AppColors.primary : AppColors.containerBorder,
+            width: selected ? 1.5 : 1,
+          ),
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              height: 44,
+              width: 44,
+              decoration: BoxDecoration(
+                color: selected
+                    ? AppColors.primary
+                    : AppColors.primary.withOpacity(.20),
+                borderRadius: BorderRadius.circular(30),
+              ),
+              padding: EdgeInsets.all(12),
+              child: provider.isLocationLoading
+                  ? SizedBox(
+                      height: 12,
+                      width: 12,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: selected ? AppColors.white : AppColors.primary,
+                      ),
+                    )
+                  : CustomImage(
+                      path: ImageConstants.location,
+                      color: selected ? AppColors.white : AppColors.primary,
+                    ),
+            ),
+            SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        "Use current location",
+                        style: AppFontStyle.text_16_600(
+                          selected ? AppColors.primary : AppColors.black,
+                        ),
+                      ),
+                      Icon(
+                        Icons.keyboard_arrow_right,
+                        color: selected ? AppColors.primary : AppColors.grey,
+                      ),
+                    ],
+                  ),
+                  if (provider.currentLocationAddress != null) ...[
+                    SizedBox(height: 6),
+                    Text(
+                      provider.currentLocationAddress!,
+                      style: AppFontStyle.text_13_400(AppColors.grey),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          ],
         ),
       ),
     );

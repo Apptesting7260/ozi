@@ -58,7 +58,7 @@ class CupponProvider extends ChangeNotifier {
   bool _isApplyLoading = false;
   bool get isApplyLoading => _isApplyLoading;
 
-  Future<bool> applyCoupon(String promoId) async {
+  Future<bool> applyCoupon(String promoId, {String? code}) async {
     _isApplyLoading = true;
     notifyListeners();
 
@@ -66,7 +66,7 @@ class CupponProvider extends ChangeNotifier {
       final response = await _repository.applyorRemoveCupponApi(promoId);
 
       if (response != null && response['status'] == true) {
-        _appliedCouponCode = _selectedCoupon?.code;
+        _appliedCouponCode = code ?? _selectedCoupon?.code;
         Get.showToast(
           response['message'] ?? "Coupon applied successfully",
           type: ToastType.success,

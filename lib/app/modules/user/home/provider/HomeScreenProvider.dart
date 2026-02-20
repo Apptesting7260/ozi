@@ -5,6 +5,7 @@ import '../../../../core/appExports/app_export.dart';
 import '../../../../data/repository/repository.dart';
 import '../model/category_model.dart';
 import '../services/view/CategoryDetailScreen.dart';
+import '../../cart/change address/provider/ChangeAddressProvider.dart';
 
 class HomeScreenProvider extends ChangeNotifier {
   HomeScreenProvider() {
@@ -111,6 +112,24 @@ class HomeScreenProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  void updateFromSelection(int index, ChangeAddressProvider addressProvider) {
+    if (index == -2) {
+      // Current location
+      if (addressProvider.currentLocationAddress != null) {
+        _selectedLocation = addressProvider.currentLocationAddress!;
+        if (addressProvider.currentLat != null) {
+          lat = addressProvider.currentLat!.toStringAsFixed(6);
+          lng = addressProvider.currentLng!.toStringAsFixed(6);
+        }
+      }
+    } else if (index >= 0 && index < addressProvider.addresses.length) {
+      final address = addressProvider.addresses[index];
+      _selectedLocation = addressProvider.getFormattedAddress(address);
+    }
+    notifyListeners();
+    fetchCategories(); // Refresh categories for new location
+  }
+
   void onCategoryTap(Data category, BuildContext context) {
     Navigator.push(
       context,
@@ -119,9 +138,16 @@ class HomeScreenProvider extends ChangeNotifier {
       ),
     );
   }
-  // Future<void> refreshData() async {
-  //   await fetchCategories();
-  // }
+
+  void resetState() {
+    _isLoaded = false;
+    _isLoading = false;
+    _selectedLocation = "Select Location";
+    lat = null;
+    lng = null;
+    _serviceCategories.clear();
+    notifyListeners();
+  }
 
   Future<bool> getCurrentLocation() async {
     try {
@@ -163,6 +189,10 @@ class HomeScreenProvider extends ChangeNotifier {
         return false;
       }
 
+      // Indicate loading start for address specifically
+      _selectedLocation = "Fetching location...";
+      notifyListeners();
+
       Position position = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high,
         timeLimit: const Duration(seconds: 10),
@@ -171,26 +201,44 @@ class HomeScreenProvider extends ChangeNotifier {
       lat = position.latitude.toStringAsFixed(6);
       lng = position.longitude.toStringAsFixed(6);
 
+      // Fallback in case geocoding fails
+      _selectedLocation = "Current Location";
+      notifyListeners();
+
+      // Fetch categories even if geocoding hasn't finished
       await fetchCategories();
 
-      List<Placemark> placemarks = await placemarkFromCoordinates(
-        position.latitude,
-        position.longitude,
-      );
+      try {
+        List<Placemark> placemarks = await placemarkFromCoordinates(
+          position.latitude,
+          position.longitude,
+        ).timeout(const Duration(seconds: 5));
 
-      if (placemarks.isNotEmpty) {
-        Placemark place = placemarks.first;
-        countryName = place.country;
-        countryCode = place.isoCountryCode;
-        _selectedLocation = "${place.locality ?? ""}, ${place.country ?? ""}";
-        if (_selectedLocation.startsWith(", ")) {
-          _selectedLocation = _selectedLocation.substring(2);
+        if (placemarks.isNotEmpty) {
+          Placemark place = placemarks.first;
+          countryName = place.country;
+          countryCode = place.isoCountryCode;
+          _selectedLocation = [
+            place.street,
+            place.subLocality,
+            place.locality,
+            place.administrativeArea,
+            place.country,
+          ].where((e) => e != null && e.isNotEmpty).join(', ');
         }
+      } catch (geocodingError) {
+        debugPrint("Geocoding failed: $geocodingError");
+        // Keep "Current Location"
       }
+
+      notifyListeners();
       return true;
     } catch (e) {
       debugPrint("Location error: $e");
       _isLoading = false;
+      if (_selectedLocation == "Fetching location...") {
+        _selectedLocation = "Location error";
+      }
       notifyListeners();
       return false;
     }

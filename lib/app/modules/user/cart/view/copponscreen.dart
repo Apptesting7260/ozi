@@ -113,22 +113,44 @@ class _CopponScreenState extends State<CopponScreen> {
           ),
           GestureDetector(
             onTap: () async {
+              if (provider.isApplyLoading) return;
+
               if (provider.selectedCoupon != null) {
                 bool success = await provider.applyCoupon(
                   provider.selectedCoupon!.id.toString(),
+                  code: provider.selectedCoupon!.code,
                 );
                 if (success) {
+                  final cartProvider = context.read<CartProvider>();
+                  cartProvider.setAppliedCoupon(provider.selectedCoupon!.code);
+                  cartProvider.fetchCartItems();
                   Navigator.pop(context, provider.selectedCoupon);
                 }
               } else if (_couponController.text.isNotEmpty) {
-                bool success = await provider.applyCoupon(
-                  _couponController.text,
-                );
-                if (success) {
-                  Navigator.pop(
-                    context,
-                    model.Data(code: _couponController.text),
+                final typedCode = _couponController.text.trim().toLowerCase();
+                final coupons = provider.couponsModel?.data ?? [];
+                model.Data? foundCoupon;
+
+                for (var coupon in coupons) {
+                  if (coupon.code?.toLowerCase() == typedCode) {
+                    foundCoupon = coupon;
+                    break;
+                  }
+                }
+
+                if (foundCoupon != null) {
+                  bool success = await provider.applyCoupon(
+                    foundCoupon.id.toString(),
+                    code: foundCoupon.code,
                   );
+                  if (success) {
+                    final cartProvider = context.read<CartProvider>();
+                    cartProvider.setAppliedCoupon(foundCoupon.code);
+                    cartProvider.fetchCartItems();
+                    Navigator.pop(context, foundCoupon);
+                  }
+                } else {
+                  Get.showToast("Invalid coupon code", type: ToastType.error);
                 }
               } else {
                 Get.showToast(
@@ -137,10 +159,19 @@ class _CopponScreenState extends State<CopponScreen> {
                 );
               }
             },
-            child: Text(
-              "Apply",
-              style: AppFontStyle.text_16_600(AppColors.primary),
-            ),
+            child: provider.isApplyLoading
+                ? SizedBox(
+                    width: 20.w,
+                    height: 20.w,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: AppColors.primary,
+                    ),
+                  )
+                : Text(
+                    "Apply",
+                    style: AppFontStyle.text_16_600(AppColors.primary),
+                  ),
           ),
         ],
       ),
@@ -266,6 +297,7 @@ class _CopponScreenState extends State<CopponScreen> {
             ? () async {
                 bool success = await provider.applyCoupon(
                   provider.selectedCoupon!.id.toString(),
+                  code: provider.selectedCoupon!.code,
                 );
                 if (success) {
                   final cartProvider = context.read<CartProvider>();

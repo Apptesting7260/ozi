@@ -1,4 +1,5 @@
 import 'package:ozi/app/core/appExports/app_export.dart';
+import 'package:ozi/app/modules/user/home/provider/HomeScreenProvider.dart';
 import '../../../../../data/repository/repository.dart';
 import '../../../../../data/storage/user_preference.dart';
 import '../model/logout_model.dart';
@@ -45,6 +46,7 @@ class ProfileProvider extends ChangeNotifier {
       if (response.status == true) {
         await UserPreference.clearSharedPreference();
         if (context.mounted) {
+          context.read<HomeScreenProvider>().resetState();
           Navigator.pushNamedAndRemoveUntil(
             context,
             AppRoutes.splashScreen,
@@ -86,7 +88,7 @@ class ProfileProvider extends ChangeNotifier {
       dynamic response = await _repository.getProfileApi();
 
       _userProfile = UserProfileModel.fromJson(response);
-      UserPreference.saveUserId(_userProfile?.data?.id.toString()??'');
+      UserPreference.saveUserId(_userProfile?.data?.id.toString() ?? '');
       _isProfileLoading = false;
       notifyListeners();
 
