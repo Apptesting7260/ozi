@@ -15,7 +15,7 @@ import 'package:ozi/app/modules/vendor/home/model/readNotification_model.dart';
 import 'package:ozi/app/modules/vendor/home/notification/model/get_notification_model.dart';
 import 'package:ozi/app/modules/vendor/profile/help/model/helpsupportmodel.dart';
 import 'package:ozi/app/modules/vendor/wallet/model/wallet_detail_model.dart';
-import 'package:ozi/app/modules/vendor/wallet/transaction_history/transaction_history_model.dart';
+import 'package:ozi/app/modules/vendor/wallet/transaction_history/model/transaction_history_model.dart';
 import 'package:ozi/app/view/user_role/choose_your_role/model/choose_role_model.dart';
 import '../../core/appExports/app_export.dart';
 import '../../core/constants/app_urls.dart';
@@ -877,13 +877,31 @@ class Repository {
 
 
   // **************************  verify Profile Email Api **************************//
+  Future<dynamic> verifyUpdateEmailApi(Map<String, dynamic> data) async {
+    try {
+      print('API Request URL: ${AppUrls.updateProfileEmail}');
+      print('API Request Data: $data');
+
+      dynamic response = await _apiService.postApi(data, AppUrls.updateProfileEmail);
+
+      print('API Response: $response');
+      print('API Response Type: ${response.runtimeType}');
+
+      // Return raw response, let the provider parse it
+      return response;
+    } catch (e) {
+      print('verifyUpdateEmailApi Error: $e');
+      rethrow;
+    }
+  }
+
 
   Future<dynamic> verifyEditProfileEmailApi(Map<String, dynamic> data) async {
     try {
-      print('API Request URL: ${AppUrls.verifyEmail}');
+      print('API Request URL: ${AppUrls.verifyProfileEmail}');
       print('API Request Data: $data');
 
-      dynamic response = await _apiService.postApi(data, AppUrls.verifyEmail);
+      dynamic response = await _apiService.postApi(data, AppUrls.verifyProfileEmail);
 
       print('API Response: $response');
       print('API Response Type: ${response.runtimeType}');

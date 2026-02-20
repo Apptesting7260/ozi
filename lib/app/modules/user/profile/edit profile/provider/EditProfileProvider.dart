@@ -341,6 +341,71 @@ class EditProfileProvider extends ChangeNotifier {
     }
   }
 
+
+  // Email Verification
+
+  bool _isEmailValid = false;
+  bool get isEmailValid => _isEmailValid;
+
+  bool _isEmailVerified = false;
+  bool get isEmailVerified => _isEmailVerified;
+
+  bool _isloading = false;
+  bool get isloading => _isloading;
+
+  bool _otpLoading = false;
+  bool get otpLoading => _otpLoading;
+
+  updateISLoading(bool value) {
+    _isloading = value;
+    notifyListeners();
+  }
+
+  Future<dynamic> emailSendOtpApi(Map<String, dynamic> data) async {
+    try {
+      updateISLoading(true);
+      final response = await Repository().verifyUpdateEmailApi(data);
+      updateISLoading(false);
+      return response;
+    } catch (e) {
+      updateISLoading(false);
+      rethrow;
+    }
+  }
+
+  Future<dynamic> verifyEmailApi(Map<String, dynamic> data) async {
+    try {
+      _otpLoading = true;
+      notifyListeners();
+      final response = await Repository().verifyEditProfileEmailApi(data);
+      _otpLoading = false;
+      if (response['status'] == true ||
+          response['status'] == 200 ||
+          response['message']?.toString().toLowerCase().contains('success') ==
+              true) {
+        _isEmailVerified = true;
+      }
+      notifyListeners();
+      // Navigator.pop(navigatorKey.currentContext!);
+      return response;
+    } catch (e) {
+      _otpLoading = false;
+      notifyListeners();
+      rethrow;
+    }
+  }
+
+
+  void validateEmail(String val) {
+    _isEmailValid = RegExp(
+      r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
+    ).hasMatch(val.trim());
+    _isEmailVerified = false; // Reset verification on change
+    notifyListeners();
+  }
+
+
+
   @override
   void dispose() {
     firstNameController.dispose();
