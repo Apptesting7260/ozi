@@ -148,7 +148,7 @@
 //     );
 //   }
 // }
-import 'package:ozi/app/modules/vendor/wallet/transaction_history/transaction_history_model.dart';
+import 'package:ozi/app/modules/vendor/wallet/transaction_history/model/transaction_history_model.dart';
 
 import '../../../../../core/appExports/app_export.dart';
 import '../../../../../shared/widgets/custom_app_bar.dart';
@@ -258,26 +258,47 @@ class _TransactionHistoryContentState extends State<_TransactionHistoryContent> 
 
               // LIST
               Expanded(
-                child: ListView.separated(
-                  controller: _scrollController,
-                  itemCount: provider.transactions.length +
-                      (provider.isLoadingMore ? 1 : 0),
+                child: Builder (
+                  builder: (_)
+                  {
 
-                  separatorBuilder: (_, __) => Divider(height: 24),
-                  itemBuilder: (_, index) {
-                    if (index == provider.transactions.length) {
-                      return const Padding(
-                        padding: EdgeInsets.all(16),
-                        child: Center(
-                          child: CircularProgressIndicator(),
+                    //  Initial Full Screen Loader
+                    if (provider.loading && provider.transactions.isEmpty) {
+                      return const Center(
+                        child: CircularProgressIndicator(),
+                      );
+                    }
+
+                    //  Empty State
+                    if (!provider.loading && provider.transactions.isEmpty) {
+                      return const Center(
+                        child: Text(
+                          "No transactions found",
+                          style: TextStyle(fontSize: 14),
                         ),
                       );
                     }
 
-                    return _transactionTile(provider.transactions[index]);
+                   return ListView.separated(
+                      controller: _scrollController,
+                      itemCount: provider.transactions.length +
+                          (provider.isLoadingMore ? 1 : 0),
+
+                      separatorBuilder: (_, __) => Divider(height: 24),
+                      itemBuilder: (_, index) {
+                        if (index == provider.transactions.length) {
+                          return const Padding(
+                            padding: EdgeInsets.all(16),
+                            child: Center(
+                              child: CircularProgressIndicator(),
+                            ),
+                          );
+                        }
+
+                        return _transactionTile(provider.transactions[index]);
+                      },
+                    );
                   },
-
-
                 ),
               ),
             ],

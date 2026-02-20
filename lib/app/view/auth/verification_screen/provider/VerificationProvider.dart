@@ -15,14 +15,14 @@ import '../model/verify_otp.dart';
 
 class VerificationProvider extends ChangeNotifier {
 
-  final String verificationId;
+  String verificationId;
 
   VerificationProvider(this.verificationId);
 
   final TextEditingController otpController = TextEditingController();
   final NetworkApiServices _apiService = NetworkApiServices();
  // String? token = PushNotificationService.fcmToken;
-
+  int? _resendToken;
 
   int resendTime = 55;
   Timer? timer;
@@ -143,6 +143,7 @@ class VerificationProvider extends ChangeNotifier {
   //String verificationId = '';
 
   Future<void> verifyOtpMethod(String phone) async {
+    if (isLoading) return;
     final deviceInfo = await getDeviceInfo();
 
     if (otpController.text.length != 6) {
@@ -204,10 +205,10 @@ class VerificationProvider extends ChangeNotifier {
 
       if (response.status == true) {
 
-        // Optional: Save token locally
-        if (response.token != null) {
-          await saveLogin(response.role, response.token);
-        }
+        await _auth.signOut();
+
+        print("Successfully session clear =====================> ${_auth.currentUser}");
+
 
               if (navigatorKey.currentContext!.mounted) {
                 if(response.stepCompleted=='0'){
@@ -329,36 +330,33 @@ class VerificationProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      String countryCode = "+91";
-      String mobile = phone;
+      await _auth.verifyPhoneNumber(
+        phoneNumber: phone,
+        forceResendingToken: _resendToken,
+        timeout: const Duration(seconds: 60),
 
-      if (phone.startsWith("+")) {
-        int spaceIndex = phone.indexOf(" ");
-        if (spaceIndex > 0) {
-          countryCode = phone.substring(0, spaceIndex);
-          mobile = phone.substring(spaceIndex + 1);
-        }
-      }
+        verificationCompleted: (PhoneAuthCredential credential) async {
+          // Optional: Auto verify (Android only)
+        },
 
-      Map<String, dynamic> requestData = {
-        "country_code": countryCode,
-        "mobile": mobile,
-      };
+        verificationFailed: (FirebaseAuthException e) {
+          isLoading = false;
+          errorMessage = e.message ?? "Verification failed";
+          notifyListeners();
+        },
 
-      dynamic response = await _apiService.postApiWithoutToken(
-        requestData,
-        AppUrls.login,
+        codeSent: (String newVerificationId, int? resendToken) {
+          verificationId = newVerificationId;
+          _resendToken = resendToken;
+          isLoading = false;
+          startTimer();
+          notifyListeners();
+        },
+
+        codeAutoRetrievalTimeout: (String newVerificationId) {
+          verificationId = newVerificationId;
+        },
       );
-
-      isLoading = false;
-
-      if (response['status'] == true) {
-        startTimer();
-        errorMessage = null;
-      } else {
-        errorMessage = response['message'] ?? "Failed to resend OTP";
-      }
-      notifyListeners();
     } catch (e) {
       isLoading = false;
       errorMessage = "Failed to resend OTP. Please try again.";

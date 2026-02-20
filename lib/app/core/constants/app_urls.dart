@@ -52,6 +52,9 @@ class AppUrls {
   static const String walletTransactions =
       "https://nbturls.in/oziservice/api/wallet-transactions";
 
+  static const String updateProfileEmail = "$baseUrl/change-email-otp";
+  static const String verifyProfileEmail = "$baseUrl/verify-change-email-otp";
+
   // Vendor APIs
   static const String getAllCategories = "$baseUrl/get-all-categories";
   static const String saveCategoryForVendor = "$baseUrl/vendor-categories";

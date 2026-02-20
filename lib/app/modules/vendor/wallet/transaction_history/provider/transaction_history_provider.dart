@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:ozi/app/data/repository/repository.dart';
 
-import '../transaction_history_model.dart';
+import '../model/transaction_history_model.dart';
 
 
 class TransactionHistoryProvider extends ChangeNotifier {
