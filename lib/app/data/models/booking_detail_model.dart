@@ -30,7 +30,7 @@ class BookingDetailModelData {
   String? paymentMethod;
   String? serviceDate;
   String? serviceDay;
-  ServiceTime? serviceTime;
+  String? serviceTime;
   String? subtotal;
   String? serviceFee;
   String? total;
@@ -70,9 +70,8 @@ class BookingDetailModelData {
     paymentMethod = json['payment_method']?.toString();
     serviceDate = json['service_date']?.toString();
     serviceDay = json['service_day']?.toString();
-    serviceTime = json['service_time'] != null
-        ? new ServiceTime.fromJson(json['service_time'])
-        : null;
+    serviceTime = json['service_time']?.toString();
+
     subtotal = json['subtotal']?.toString();
     serviceFee = json['service_fee']?.toString();
     total = json['total']?.toString();
@@ -101,9 +100,9 @@ class BookingDetailModelData {
     data['payment_method'] = this.paymentMethod;
     data['service_date'] = this.serviceDate;
     data['service_day'] = this.serviceDay;
-    if (this.serviceTime != null) {
-      data['service_time'] = this.serviceTime!.toJson();
-    }
+    // if (this.serviceTime != null) {
+    //   data['service_time'] = this.serviceTime!.toJson();
+    // }
     data['subtotal'] = this.subtotal;
     data['service_fee'] = this.serviceFee;
     data['total'] = this.total;

@@ -247,7 +247,7 @@ class _BookingCard extends StatelessWidget {
                 ),
                 hBox(5),
 
-                /// LOCATION
+                // LOCATION
                 _InfoRowFull(
                   icon: Icons.location_on,
                   text: booking.address?.fullAddress??"",
