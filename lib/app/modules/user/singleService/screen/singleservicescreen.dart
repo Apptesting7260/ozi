@@ -191,7 +191,7 @@ class _singleServiceScreenState extends State<singleServiceScreen> {
                       Icon(Icons.star, size: 14.sp, color: AppColors.orange),
                       wBox(4),
                       Text(
-                        "4.5", // Placeholder as model doesn't have ratings
+                        "${serviceData.avgRating ?? 0.0}", // Placeholder as model doesn't have ratings
                         style: AppFontStyle.text_12_600(
                           AppColors.black,
                           fontFamily: AppFontFamily.bold,

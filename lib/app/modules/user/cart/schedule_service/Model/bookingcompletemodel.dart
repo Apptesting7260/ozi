@@ -34,7 +34,7 @@ class Data {
   String? paymentMethod;
   String? subtotal;
   String? serviceFee;
-  int? discountAmount;
+  String? discountAmount;
   String? total;
   int? serviceStartOtp;
   Vendor? vendor;
@@ -73,7 +73,7 @@ class Data {
     paymentMethod = json['payment_method'];
     subtotal = json['subtotal'];
     serviceFee = json['service_fee'];
-    discountAmount = json['discount_amount'];
+    discountAmount = json['discount_amount']?.toString();
     total = json['total'];
     serviceStartOtp = json['service_start_otp'];
     vendor = json['vendor'] != null

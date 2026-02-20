@@ -1,3 +1,4 @@
+import 'package:ozi/app/modules/user/cart/change%20address/view/ChangeAddressScreen.dart';
 import 'package:ozi/app/modules/user/navigation%20tab/provider/navigation_provider.dart';
 import 'package:ozi/app/modules/vendor/home/notification/view/vendor_notifications_screen.dart';
 
@@ -107,7 +108,15 @@ class HomeScreenView extends StatelessWidget {
             ),
             SizedBox(height: 4),
             GestureDetector(
-              onTap: () => provider.onLocationTap(context),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const ChangeAddressScreen(),
+                  ),
+                );
+              },
+              // onTap: () => provider.onLocationTap(context),
               child: Row(
                 children: [
                   Icon(

@@ -1,16 +1,39 @@
 import 'package:flutter/material.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:geocoding/geocoding.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:ozi/app/core/utils/get_utils.dart';
 import '../../../../../data/repository/repository.dart';
 import '../model/add_new_address_model.dart';
 
 class AddAddressProvider extends ChangeNotifier {
   final _repository = Repository();
+  bool _disposed = false;
+  bool _isFetchingAddress = false;
+
+  @override
+  void dispose() {
+    _disposed = true;
+    streetAddressController.dispose();
+    apartmentController.dispose();
+    cityController.dispose();
+    zipCodeController.dispose();
+    countryController.dispose();
+    super.dispose();
+  }
+
+  void safeNotifyListeners() {
+    if (!_disposed) {
+      notifyListeners();
+    }
+  }
 
   // Form Controllers
   final TextEditingController streetAddressController = TextEditingController();
   final TextEditingController apartmentController = TextEditingController();
   final TextEditingController cityController = TextEditingController();
   final TextEditingController zipCodeController = TextEditingController();
+  final TextEditingController countryController = TextEditingController();
 
   int _selectedType = 0; // 0 = Home, 1 = Work, 2 = Other
   int get selectedType => _selectedType;
@@ -20,6 +43,18 @@ class AddAddressProvider extends ChangeNotifier {
 
   String _errorMessage = '';
   String get errorMessage => _errorMessage;
+
+  // Google Map State
+  GoogleMapController? mapController;
+  LatLng? selectedLatLng;
+  final Set<Marker> markers = {};
+
+  // Static initial location (Jaipur)
+  final LatLng initialLocation = const LatLng(26.9124, 75.7873);
+
+  void setMapController(GoogleMapController ctrl) {
+    mapController = ctrl;
+  }
 
   // Get address type string
   String get addressType {
@@ -37,7 +72,90 @@ class AddAddressProvider extends ChangeNotifier {
 
   void updateType(int index) {
     _selectedType = index;
-    notifyListeners();
+    safeNotifyListeners();
+  }
+
+  // When user taps map
+  Future<void> onMapTap(LatLng latLng) async {
+    _updateMarker(latLng);
+    await mapController?.animateCamera(CameraUpdate.newLatLng(latLng));
+  }
+
+  // Move to Current Location
+  Future<void> moveToCurrentLocation() async {
+    try {
+      Position position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high,
+      );
+
+      LatLng latLng = LatLng(position.latitude, position.longitude);
+
+      _updateMarker(latLng); // Update marker immediately
+      await mapController?.animateCamera(
+        CameraUpdate.newCameraPosition(
+          CameraPosition(target: latLng, zoom: 17),
+        ),
+      );
+    } catch (e) {
+      _errorMessage = "Location permission denied";
+      safeNotifyListeners();
+    }
+  }
+
+  // When map camera stops moving
+  Future<void> onCameraIdle(LatLng latLng) async {
+    if (_isFetchingAddress) return;
+    _updateMarker(latLng);
+    await _updateLocationAndAddress(latLng);
+  }
+
+  // Helper to update the marker position
+  void _updateMarker(LatLng latLng) {
+    selectedLatLng = latLng;
+    markers.clear();
+    markers.add(
+      Marker(
+        markerId: const MarkerId("selected"),
+        position: latLng,
+        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueCyan),
+        infoWindow: const InfoWindow(title: "Selected Location"),
+      ),
+    );
+    safeNotifyListeners();
+  }
+
+  // Common function for address fetching
+  Future<void> _updateLocationAndAddress(LatLng latLng) async {
+    if (_disposed || _isFetchingAddress) return;
+
+    _isFetchingAddress = true;
+    safeNotifyListeners();
+
+    try {
+      List<Placemark> placemarks = await placemarkFromCoordinates(
+        latLng.latitude,
+        latLng.longitude,
+      );
+
+      if (placemarks.isNotEmpty && !_disposed) {
+        Placemark place = placemarks.first;
+
+        streetAddressController.text =
+            "${place.street ?? ''} ${place.subLocality ?? ''}".trim();
+        cityController.text = place.locality ?? '';
+        zipCodeController.text = place.postalCode ?? '';
+        countryController.text = place.country ?? '';
+
+        if (cityController.text.isEmpty) {
+          cityController.text = place.subAdministrativeArea ?? '';
+        }
+      }
+    } catch (e) {
+      print("Unable to fetch address: $e");
+    } finally {
+      _isFetchingAddress = false;
+      safeNotifyListeners();
+    }
   }
 
   // Validate form
@@ -56,11 +174,10 @@ class AddAddressProvider extends ChangeNotifier {
 
   // Add new address
   Future<bool> addNewAddress(BuildContext context) async {
-    // Validate
     String? validationError = validateForm();
     if (validationError != null) {
       _errorMessage = validationError;
-      notifyListeners();
+      safeNotifyListeners();
 
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -72,32 +189,28 @@ class AddAddressProvider extends ChangeNotifier {
 
     _isLoading = true;
     _errorMessage = '';
-    notifyListeners();
+    safeNotifyListeners();
 
     try {
-      // Prepare request data
       Map<String, dynamic> requestData = {
         'street_address': streetAddressController.text.trim(),
         'apartment': apartmentController.text.trim(),
         'city': cityController.text.trim(),
         'zip_code': zipCodeController.text.trim(),
+        'country': countryController.text.trim(),
         'address_type': addressType,
-        'is_default': 0, // Set to 1 if you want this to be default
+        'latitude': selectedLatLng?.latitude,
+        'longitude': selectedLatLng?.longitude,
+        'is_default': 0,
       };
 
-      print('Adding new address: $requestData');
-
-      // Call API
       dynamic response = await _repository.addNewUserAddressApi(requestData);
-
-      // Parse response
       AddNewAddressModel addressModel = AddNewAddressModel.fromJson(response);
 
       _isLoading = false;
-      notifyListeners();
+      safeNotifyListeners();
 
       if (addressModel.status == true) {
-        // Success
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -108,10 +221,7 @@ class AddAddressProvider extends ChangeNotifier {
             ),
           );
         }
-
-        // Clear form
         clearForm();
-
         return true;
       } else {
         throw Exception(addressModel.message ?? 'Failed to add address');
@@ -119,43 +229,22 @@ class AddAddressProvider extends ChangeNotifier {
     } catch (e) {
       _isLoading = false;
       _errorMessage = e.toString().replaceAll('Exception: ', '');
-      notifyListeners();
-      Get.showToast(
-        e.toString() ?? 'Something went wrong',
-        type: ToastType.error,
-      );
-      print('Error adding address: $_errorMessage');
-
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Failed to add address: $_errorMessage'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
-
+      safeNotifyListeners();
+      Get.showToast(e.toString(), type: ToastType.error);
       return false;
     }
   }
 
-  // Clear form
   void clearForm() {
     streetAddressController.clear();
     apartmentController.clear();
     cityController.clear();
     zipCodeController.clear();
+    countryController.clear();
+    markers.clear();
+    selectedLatLng = null;
     _selectedType = 0;
     _errorMessage = '';
-    notifyListeners();
-  }
-
-  @override
-  void dispose() {
-    streetAddressController.dispose();
-    apartmentController.dispose();
-    cityController.dispose();
-    zipCodeController.dispose();
-    super.dispose();
+    safeNotifyListeners();
   }
 }

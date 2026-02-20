@@ -1,5 +1,3 @@
-
-
 import '../../core/appExports/app_export.dart';
 
 class AppFontStyle {
@@ -39,7 +37,9 @@ class AppFontStyle {
       height: height,
       fontFamily: fontFamily,
     );
-  } static text_28_6002(Color color, {fontFamily, height}) {
+  }
+
+  static text_28_6002(Color color, {fontFamily, height}) {
     return _textStyle(
       color,
       28.0,
@@ -48,7 +48,8 @@ class AppFontStyle {
       fontFamily: fontFamily,
     );
   }
-static text_34_600(Color color, {fontFamily, height}) {
+
+  static text_34_600(Color color, {fontFamily, height}) {
     return _textStyle(
       color,
       34.0,
@@ -56,7 +57,9 @@ static text_34_600(Color color, {fontFamily, height}) {
       height: height,
       fontFamily: fontFamily,
     );
-  }static text_32_600(Color color, {fontFamily, height}) {
+  }
+
+  static text_32_600(Color color, {fontFamily, height}) {
     return _textStyle(
       color,
       32.0,
@@ -135,7 +138,8 @@ static text_34_600(Color color, {fontFamily, height}) {
       fontFamily: fontFamily,
     );
   }
-static text_24_700(Color color, {fontFamily, height}) {
+
+  static text_24_700(Color color, {fontFamily, height}) {
     return _textStyle(
       color,
       24.0,
@@ -205,17 +209,21 @@ static text_24_700(Color color, {fontFamily, height}) {
     );
   }
 
-  static text_16_300(Color color, {fontFamily, height, TextOverflow? overflow}) {
+  static text_16_300(
+    Color color, {
+    fontFamily,
+    height,
+    TextOverflow? overflow,
+  }) {
     return _textStyle(
       color,
       16.0,
       FontWeight.w300,
       height: height,
       fontFamily: fontFamily,
-      overflow: overflow
+      overflow: overflow,
     );
   }
-
 
   static text_14_300(Color color, {fontFamily, height}) {
     return _textStyle(
@@ -235,7 +243,9 @@ static text_24_700(Color color, {fontFamily, height}) {
       height: height,
       fontFamily: fontFamily,
     );
-  }  static text_8_600(Color color, {fontFamily, height}) {
+  }
+
+  static text_8_600(Color color, {fontFamily, height}) {
     return _textStyle(
       color,
       8.0,
@@ -293,7 +303,9 @@ static text_24_700(Color color, {fontFamily, height}) {
       height: height,
       fontFamily: fontFamily,
     );
-  }  static text_24_600(Color color, {fontFamily, height}) {
+  }
+
+  static text_24_600(Color color, {fontFamily, height}) {
     return _textStyle(
       color,
       24.0,
@@ -301,7 +313,9 @@ static text_24_700(Color color, {fontFamily, height}) {
       height: height,
       fontFamily: fontFamily,
     );
-}static text_26_600(Color color, {fontFamily, height}) {
+  }
+
+  static text_26_600(Color color, {fontFamily, height}) {
     return _textStyle(
       color,
       26.0,
@@ -310,6 +324,7 @@ static text_24_700(Color color, {fontFamily, height}) {
       fontFamily: fontFamily,
     );
   }
+
   static text_22_600(Color color, {fontFamily, height}) {
     return _textStyle(
       color,
@@ -398,7 +413,9 @@ static text_24_700(Color color, {fontFamily, height}) {
       height: height,
       fontFamily: fontFamily,
     );
-  }static text_16_600(Color color, {fontFamily, height}) {
+  }
+
+  static text_16_600(Color color, {fontFamily, height}) {
     return _textStyle(
       color,
       16.0,
@@ -417,6 +434,7 @@ static text_24_700(Color color, {fontFamily, height}) {
       fontFamily: fontFamily,
     );
   }
+
   static text_12_300(Color color, {fontFamily, height}) {
     return _textStyle(
       color,
@@ -435,7 +453,9 @@ static text_24_700(Color color, {fontFamily, height}) {
       height: height,
       fontFamily: fontFamily,
     );
-  }static text_13_600(Color color, {fontFamily, height}) {
+  }
+
+  static text_13_600(Color color, {fontFamily, height}) {
     return _textStyle(
       color,
       13.0,
@@ -463,10 +483,22 @@ static text_24_700(Color color, {fontFamily, height}) {
       height: height,
       fontFamily: fontFamily,
     );
-  }static text_11_500(Color color, {fontFamily, height}) {
+  }
+
+  static text_11_500(Color color, {fontFamily, height}) {
     return _textStyle(
       color,
       11.0,
+      FontWeight.w500,
+      height: height,
+      fontFamily: fontFamily,
+    );
+  }
+
+  static text_13_500(Color color, {fontFamily, height}) {
+    return _textStyle(
+      color,
+      13.0,
       FontWeight.w500,
       height: height,
       fontFamily: fontFamily,

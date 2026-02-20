@@ -36,6 +36,8 @@ class Data {
   String? createdAt;
   String? updatedAt;
   String? deletedAt;
+  String? reviewCount;
+  String? avgRating;
   Category? category;
   Category? subcategory;
   Vendor? vendor;
@@ -57,6 +59,8 @@ class Data {
     this.createdAt,
     this.updatedAt,
     this.deletedAt,
+    this.reviewCount,
+    this.avgRating,
     this.category,
     this.subcategory,
     this.vendor,
@@ -79,6 +83,8 @@ class Data {
     createdAt = json['created_at'];
     updatedAt = json['updated_at'];
     deletedAt = json['deleted_at'];
+    reviewCount = json['reviews_count']?.toString();
+    avgRating = json['average_rating']?.toString();
     category = json['category'] != null
         ? new Category.fromJson(json['category'])
         : null;

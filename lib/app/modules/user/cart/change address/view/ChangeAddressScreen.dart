@@ -18,6 +18,14 @@ class ChangeAddressScreen extends StatefulWidget {
 
 class _ChangeAddressScreenState extends State<ChangeAddressScreen> {
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<ChangeAddressProvider>().fetchUserAddresses();
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     final provider = context.watch<ChangeAddressProvider>();
 
