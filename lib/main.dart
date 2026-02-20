@@ -1,6 +1,7 @@
 import 'package:chucker_flutter/chucker_flutter.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
+import 'package:ozi/app/modules/user/cart/change%20address/provider/ChangeAddressProvider.dart';
 import 'package:ozi/app/modules/user/profile/add%20new%20address/provider/add_address_provider.dart';
 import 'package:ozi/app/modules/user/profile/edit%20address/provider/edit_user_address_provider.dart';
 import 'package:ozi/app/modules/vendor/navigation%20tab/provider/navigation_provider.dart';
@@ -71,6 +72,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => MessageProvider()),
         ChangeNotifierProvider(create: (_) => SocketController()),
         ChangeNotifierProvider(create: (_) => VendorServicesProvider()),
+        ChangeNotifierProvider(create: (_) => ChangeAddressProvider()),
         ChangeNotifierProvider(
           create: (_) => CartProvider(repository: Repository()),
         ),
