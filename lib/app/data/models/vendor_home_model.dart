@@ -115,7 +115,7 @@ class VendorHomeRequests {
   String? customerName;
   String? customerPhone;
   String? serviceDate;
-  VendorHomeServiceTime? serviceTime;
+  String? serviceTime;
   String? address;
   String? totalAmount;
   String? status;
@@ -143,9 +143,10 @@ class VendorHomeRequests {
     customerName = json['customer_name']?.toString();
     customerPhone = json['customer_phone']?.toString();
     serviceDate = json['service_date']?.toString();
-    serviceTime = json['service_time'] != null
-        ? new VendorHomeServiceTime.fromJson(json['service_time'])
-        : null;
+    serviceTime = json['service_time']?.toString();
+    // serviceTime = json['service_time'] != null
+    //     ? new VendorHomeServiceTime.fromJson(json['service_time'])
+    //     : null;
     address = json['address'];
     totalAmount = json['total_amount'];
     status = json['status'];
@@ -160,9 +161,9 @@ class VendorHomeRequests {
     data['customer_name'] = this.customerName;
     data['customer_phone'] = this.customerPhone;
     data['service_date'] = this.serviceDate;
-    if (this.serviceTime != null) {
-      data['service_time'] = this.serviceTime!.toJson();
-    }
+    // if (this.serviceTime != null) {
+    //   data['service_time'] = this.serviceTime!.toJson();
+    // }
     data['address'] = this.address;
     data['total_amount'] = this.totalAmount;
     data['status'] = this.status;
@@ -170,24 +171,24 @@ class VendorHomeRequests {
   }
 }
 
-class VendorHomeServiceTime {
-  String? from;
-  String? to;
-
-  VendorHomeServiceTime({this.from, this.to});
-
-  VendorHomeServiceTime.fromJson(Map<String, dynamic> json) {
-    from = json['from']?.toString();
-    to = json['to']?.toString();
-  }
-
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['from'] = this.from;
-    data['to'] = this.to;
-    return data;
-  }
-}
+// class VendorHomeServiceTime {
+//   String? from;
+//   String? to;
+//
+//   VendorHomeServiceTime({this.from, this.to});
+//
+//   VendorHomeServiceTime.fromJson(Map<String, dynamic> json) {
+//     from = json['from']?.toString();
+//     to = json['to']?.toString();
+//   }
+//
+//   Map<String, dynamic> toJson() {
+//     final Map<String, dynamic> data = new Map<String, dynamic>();
+//     data['from'] = this.from;
+//     data['to'] = this.to;
+//     return data;
+//   }
+// }
 
 class VendorAllRequestsModel {
   bool? status;

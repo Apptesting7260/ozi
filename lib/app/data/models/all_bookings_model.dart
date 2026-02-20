@@ -40,7 +40,7 @@ class AllBookingsModelData {
   String? paymentMethod;
   String? serviceDate;
   String? serviceDay;
-  ServiceTime? serviceTime;
+  String? serviceTime;
   String? subtotal;
   String? serviceFee;
   String? total;
@@ -82,9 +82,8 @@ class AllBookingsModelData {
     paymentMethod = json['payment_method']?.toString();
     serviceDate = json['service_date']?.toString();
     serviceDay = json['service_day']?.toString();
-    serviceTime = json['service_time'] != null
-        ? new ServiceTime.fromJson(json['service_time'])
-        : null;
+    serviceTime = json['service_time']?.toString();
+
     subtotal = json['subtotal']?.toString();
     serviceFee = json['service_fee']?.toString();
     total = json['total']?.toString();
@@ -108,9 +107,9 @@ class AllBookingsModelData {
     data['payment_method'] = this.paymentMethod;
     data['service_date'] = this.serviceDate;
     data['service_day'] = this.serviceDay;
-    if (this.serviceTime != null) {
-      data['service_time'] = this.serviceTime!.toJson();
-    }
+    // if (this.serviceTime != null) {
+    //   data['service_time'] = this.serviceTime!.toJson();
+    // }
     data['subtotal'] = this.subtotal;
     data['service_fee'] = this.serviceFee;
     data['total'] = this.total;
@@ -129,24 +128,24 @@ class AllBookingsModelData {
   }
 }
 
-class ServiceTime {
-  String? from;
-  String? to;
-
-  ServiceTime({this.from, this.to});
-
-  ServiceTime.fromJson(Map<String, dynamic> json) {
-    from = json['from']?.toString();
-    to = json['to']?.toString();
-  }
-
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['from'] = this.from;
-    data['to'] = this.to;
-    return data;
-  }
-}
+// class ServiceTime {
+//   String? from;
+//   String? to;
+//
+//   ServiceTime({this.from, this.to});
+//
+//   ServiceTime.fromJson(Map<String, dynamic> json) {
+//     from = json['from']?.toString();
+//     to = json['to']?.toString();
+//   }
+//
+//   Map<String, dynamic> toJson() {
+//     final Map<String, dynamic> data = new Map<String, dynamic>();
+//     data['from'] = this.from;
+//     data['to'] = this.to;
+//     return data;
+//   }
+// }
 
 class User {
   String? id;

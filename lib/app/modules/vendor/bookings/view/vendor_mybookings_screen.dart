@@ -241,7 +241,7 @@ class _BookingCard extends StatelessWidget {
                      SizedBox(width: 14),
                     _InfoRowInline(
                       icon: Icons.access_time,
-                      text: '${booking.serviceTime?.from??''} - ${booking.serviceTime?.to??''}',
+                      text: booking.serviceTime??'',
                     ),
                   ],
                 ),

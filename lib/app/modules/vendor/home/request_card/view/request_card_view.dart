@@ -121,7 +121,7 @@ class RequestCard extends StatelessWidget {
               wBox(12),
               Icon(Icons.access_time, size: 14, color: AppColors.grey),
               wBox(6),
-              Text('${request.serviceTime?.from?.toString()} - ${request.serviceTime?.to?.toString()}', style: AppFontStyle.text_12_400(AppColors.grey)),
+              Text('${request.serviceTime?.toString()}}', style: AppFontStyle.text_12_400(AppColors.grey)),
             ],
           ),
 
