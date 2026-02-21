@@ -191,6 +191,7 @@ class _MyServicesContent extends StatelessWidget {
                       return RefreshIndicator(
                         onRefresh: () => provider.getAllBookings(),
                         child: ListView.separated(
+                          physics: const AlwaysScrollableScrollPhysics(),
                           controller: provider.scrollController,
 
                           itemCount: list.length +
@@ -314,7 +315,7 @@ class _MyServicesContent extends StatelessWidget {
                   ),
                 ),
 
-                /// STATUS
+                // STATUS
                 Container(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 10,

@@ -763,7 +763,7 @@ class VendorBookingDetailsScreen extends StatelessWidget {
               wBox(12),
 
               Text(
-                paymentMethod == "pay_online" ? "Visa •••• 4242" : "Cash",
+                paymentMethod == "pay_online" ? "Online Payment" : "Cash",
                 style: AppFontStyle.text_14_600(AppColors.black),
               ),
             ],

@@ -307,7 +307,7 @@ class _MyWalletContent extends StatelessWidget {
                 ),
               ),
               hBox(2),
-              Text(tx.createdAt ?? "",
+              Text(Get.formatTimeAgo(tx.createdAt ?? ""),
                   style: AppFontStyle.text_11_400(
                       AppColors.grey)),
             ],

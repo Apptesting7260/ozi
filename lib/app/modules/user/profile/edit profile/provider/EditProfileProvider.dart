@@ -275,6 +275,8 @@ class EditProfileProvider extends ChangeNotifier {
 
   File? get selectedFile =>
       pickedImage != null ? File(pickedImage!.path) : null;
+
+
   void populateProfileData(dynamic userData) {
     if (userData != null) {
       firstNameController.text = userData.firstName ?? '';

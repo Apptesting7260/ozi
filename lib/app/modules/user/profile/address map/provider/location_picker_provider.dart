@@ -2,107 +2,211 @@ import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:ozi/app/core/appExports/app_export.dart';
-
 import '../../../../../core/constants/app_urls.dart';
 import '../../../../../core/utils/get_utils.dart';
 import '../../../../../data/network/network_api_services.dart';
-import '../../../../vendor/home/provider/vendor_home_provider.dart';
-import '../../view/profile_provider/profile_provider.dart';
+import '../../../../../data/repository/repository.dart';
 
 class LocationPickerProvider extends ChangeNotifier {
-  GoogleMapController? controller;
+  final Repository _repository = Repository();
+  final NetworkApiServices _apiService = NetworkApiServices();
 
+  GoogleMapController? _mapController;
 
-  LatLng? selectedLatLng;
-  String? selectedAddress;
+  LatLng selectedLatLng = const LatLng(28.6139, 77.2090);
+  String address = '';
+  bool isLoadingAddress = false;
+  bool isLoadingApi = false;
 
-  final Set<Marker> markers = {};
+  LatLng? apiLatLng;
 
-  // Static initial location (Jaipur)
-  final LatLng initialLocation =
-  const LatLng(26.9124, 75.7873);
-
-  void setController(GoogleMapController ctrl) {
-    controller = ctrl;
+  void setController(GoogleMapController controller) {
+    _mapController = controller;
+    fetchLatLong();
   }
 
-  // When user taps map
-  Future<void> onTap(LatLng latLng) async {
-    await _setMarkerAndAddress(latLng);
-  }
-
-  // Move to Current Location
-  Future<void> moveToCurrentLocation() async {
+  // Fetch lat long from API always
+  Future<void> fetchLatLong() async {
     try {
-      Position position =
-      await Geolocator.getCurrentPosition(
-          desiredAccuracy:
-          LocationAccuracy.high);
+      isLoadingApi = true;
+      notifyListeners();
 
-      LatLng latLng =
-      LatLng(position.latitude, position.longitude);
+      final response = await _repository.fetchLatLong();
 
-      await controller?.animateCamera(
-        CameraUpdate.newCameraPosition(
-          CameraPosition(target: latLng, zoom: 17),
-        ),
+      if (response.status == true && response.data != null) {
+        final lat = double.tryParse(response.data!.latitude ?? '');
+        final lng = double.tryParse(response.data!.longitude ?? '');
+
+        if (lat != null && lng != null) {
+          apiLatLng = LatLng(lat, lng);
+          selectedLatLng = apiLatLng!;
+
+          _mapController?.animateCamera(
+            CameraUpdate.newCameraPosition(
+              CameraPosition(target: selectedLatLng, zoom: 16),
+            ),
+          );
+
+          await getAddress(selectedLatLng);
+        }
+      }
+    } catch (_) {}
+
+    isLoadingApi = false;
+    notifyListeners();
+  }
+
+  // Get address from lat long
+  Future<void> getAddress(LatLng latLng) async {
+    isLoadingAddress = true;
+    notifyListeners();
+
+    try {
+      final placemarks =
+      await placemarkFromCoordinates(latLng.latitude, latLng.longitude);
+
+      final place = placemarks.first;
+
+      address =
+      '${place.street ?? ''}, ${place.subLocality ?? ''}, ${place.locality ?? ''}';
+    } catch (_) {
+      address = 'Unable to fetch address';
+    }
+
+    isLoadingAddress = false;
+    notifyListeners();
+  }
+
+  // When map moves
+  void onCameraMove(CameraPosition position) {
+    selectedLatLng = position.target;
+  }
+
+  // When map idle
+  void onCameraIdle() {
+    getAddress(selectedLatLng);
+  }
+
+  // Move to current location
+  Future<void> moveToCurrentLocation(BuildContext context) async {
+    try {
+      bool serviceEnabled;
+      LocationPermission permission;
+
+      //  Check if location service is enabled
+      serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) {
+        throw Exception('Location services are disabled.');
+      }
+
+      //  Check permission
+      permission = await Geolocator.checkPermission();
+
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+
+        if (permission == LocationPermission.denied) {
+          _showPermissionDialog(context);
+          return;
+        }
+      }
+
+      if (permission == LocationPermission.deniedForever) {
+        _showOpenSettingsDialog(context);
+        return;
+      }
+
+      // If granted → get position
+      Position position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high,
       );
 
-      await _setMarkerAndAddress(latLng);
+      // Move camera
+      final latLng = LatLng(position.latitude, position.longitude);
+
+      _mapController?.animateCamera(
+        CameraUpdate.newLatLngZoom(latLng, 16),
+      );
+
     } catch (e) {
-      selectedAddress = "Location permission denied";
-      notifyListeners();
+      debugPrint("Location error: $e");
     }
   }
 
-  // Common function for marker + address
-  Future<void> _setMarkerAndAddress(
-      LatLng latLng) async {
-    selectedLatLng = latLng;
-    selectedAddress = "Fetching address...";
+  Future<void> zoomIn() async {
+    final zoom = await _mapController?.getZoomLevel();
+    if (zoom != null) {
+      _mapController?.animateCamera(CameraUpdate.zoomTo(zoom + 1));
+    }
+  }
 
-    markers.clear();
-    markers.add(
-      Marker(
-        markerId: const MarkerId("selected"),
-        position: latLng,
-        infoWindow: const InfoWindow(
-            title: "Selected Location"),
+  Future<void> zoomOut() async {
+    final zoom = await _mapController?.getZoomLevel();
+    if (zoom != null) {
+      _mapController?.animateCamera(CameraUpdate.zoomTo(zoom - 1));
+    }
+  }
+
+
+  Future<void> updateLocationFromLatLng(LatLng latLng) async {
+    try {
+      final response = await _apiService.postApi({
+        "latitude": latLng.latitude,
+        "longitude": latLng.longitude,
+      }, AppUrls.vendorUpdateLocation);
+
+    } catch (e) {
+      Get.showToast(e.toString(), type: ToastType.error);
+    }
+  }
+
+
+  void _showPermissionDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text("Location Permission Required"),
+        content: const Text(
+          "Please allow location access to use current location feature.",
+        ),
+        actions: [
+          TextButton(
+            onPressed: () async {
+              Navigator.pop(context);
+              await Geolocator.requestPermission();
+            },
+            child: const Text("Allow"),
+          ),
+        ],
       ),
     );
-
-    notifyListeners();
-
-    try {
-      List<Placemark> placemarks =
-      await placemarkFromCoordinates(
-          latLng.latitude,
-          latLng.longitude);
-
-      if (placemarks.isNotEmpty) {
-        Placemark place = placemarks.first;
-
-        selectedAddress =
-        "${place.street ?? ''}, "
-            "${place.locality ?? ''}, "
-            "${place.administrativeArea ?? ''}, "
-            "${place.country ?? ''}";
-      }
-    } catch (e) {
-      selectedAddress = "Unable to fetch address";
-    }
-
-    notifyListeners();
   }
 
-  void zoomIn() {
-    controller?.animateCamera(
-        CameraUpdate.zoomIn());
-  }
 
-  void zoomOut() {
-    controller?.animateCamera(
-        CameraUpdate.zoomOut());
+  void _showOpenSettingsDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text("Permission Permanently Denied"),
+        content: const Text(
+          "Location permission is permanently denied. Please enable it from app settings.",
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            child: const Text("Cancel"),
+          ),
+          TextButton(
+            onPressed: () async {
+              Navigator.pop(context);
+              await Geolocator.openAppSettings();
+            },
+            child: const Text("Open Settings"),
+          ),
+        ],
+      ),
+    );
   }
 }

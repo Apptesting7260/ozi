@@ -49,7 +49,7 @@ dependencies:
   screenshot: ^3.0.0
   path_provider: ^2.1.5
   firebase_auth: ^6.1.4
-  google_maps_flutter: ^2.10.0
+  google_maps_flutter: ^2.14.0
   image_cropper: ^9.1.0
   photo_manager: ^3.7.1
   flutter_image_compress: ^2.4.0

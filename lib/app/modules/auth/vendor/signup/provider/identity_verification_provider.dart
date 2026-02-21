@@ -1,12 +1,14 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 
+import '../../../../../core/appExports/app_export.dart';
 import '../../../../../core/constants/app_urls.dart';
 import '../../../../../core/utils/get_utils.dart';
 import '../../../../../core/utils/toast.dart';
 import '../../../../../data/models/vendor_document_model.dart';
 import '../../../../../data/network/network_api_services.dart';
 import '../../../../../data/storage/user_preference.dart';
+import '../../../../user/profile/view/profile_provider/profile_provider.dart';
 import '../view/ready_to_go_livescreen.dart';
 
 class IdentityVerificationProvider extends ChangeNotifier {
@@ -43,16 +45,20 @@ class IdentityVerificationProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> saveDocuments(bool isFromProfile)async {
+  Future<void> saveDocuments(bool isFromProfile , BuildContext context)async {
     updateSubmitLoading(true);
     try {
       Map<String,String> files = {
         "government_id_image":governmentId?.path??'',
         "certificate":certification?.path??''
       };
-      print(files);
+      if (kDebugMode) {
+        print(files);
+      }
       final response = await _apiService.postApiMultiPart(AppUrls.docsVendor,{},files);
-      print(response);
+      if (kDebugMode) {
+        print(response);
+      }
       if(isFromProfile==false){
         await UserPreference.saveStep('4');
         Navigator.push(
@@ -62,18 +68,28 @@ class IdentityVerificationProvider extends ChangeNotifier {
           ),
         );
       }else{
-        Navigator.pop(navigatorKey.currentContext!);
+        final profileProvider =
+        Provider.of<ProfileProvider>(context, listen: false);
+
+        await profileProvider.fetchUserProfile();
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              response['message'] ?? "Profile Updated",
+            ),
+          ),
+        );
+
+        Navigator.pop(context);
       }
-      // Navigator.push(
-      //   navigatorKey.currentContext!,
-      //   MaterialPageRoute(
-      //     builder: (_) => IdentityVerificationScreen(),
-      //   ),
-      // );
       updateSubmitLoading(false);
     } catch (e) {
       updateSubmitLoading(false);
-      showCustomToast(navigatorKey.currentContext!, e.toString());
+      if (kDebugMode) {
+        print("============================================>$e");
+      }
+      showCustomToast(context, e.toString());
     }
 
   }
@@ -88,7 +104,9 @@ class IdentityVerificationProvider extends ChangeNotifier {
       fetchedCertificate = fetchedDocuments.data?.certificate;
       govtIdImage = fetchedDocuments.data?.governmentIdImage;
       notifyListeners();
-      print(response);
+      if (kDebugMode) {
+        print(response);
+      }
     } catch (e) {
       showCustomToast(navigatorKey.currentContext!, e.toString());
     }

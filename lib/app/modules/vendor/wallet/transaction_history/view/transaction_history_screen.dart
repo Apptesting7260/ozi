@@ -279,25 +279,32 @@ class _TransactionHistoryContentState extends State<_TransactionHistoryContent> 
                       );
                     }
 
-                   return ListView.separated(
-                      controller: _scrollController,
-                      itemCount: provider.transactions.length +
-                          (provider.isLoadingMore ? 1 : 0),
+                   return RefreshIndicator(
+                     onRefresh: () async {
+                       await provider.fetchTransactions();
+                     },
+                     child: ListView.separated(
+                       physics: const AlwaysScrollableScrollPhysics(),
 
-                      separatorBuilder: (_, __) => Divider(height: 24),
-                      itemBuilder: (_, index) {
-                        if (index == provider.transactions.length) {
-                          return const Padding(
-                            padding: EdgeInsets.all(16),
-                            child: Center(
-                              child: CircularProgressIndicator(),
-                            ),
-                          );
-                        }
+                       controller: _scrollController,
+                        itemCount: provider.transactions.length +
+                            (provider.isLoadingMore ? 1 : 0),
 
-                        return _transactionTile(provider.transactions[index]);
-                      },
-                    );
+                        separatorBuilder: (_, __) => Divider(height: 24),
+                        itemBuilder: (_, index) {
+                          if (index == provider.transactions.length) {
+                            return const Padding(
+                              padding: EdgeInsets.all(16),
+                              child: Center(
+                                child: CircularProgressIndicator(),
+                              ),
+                            );
+                          }
+
+                          return _transactionTile(provider.transactions[index]);
+                        },
+                      ),
+                   );
                   },
                 ),
               ),
@@ -375,7 +382,7 @@ class _TransactionHistoryContentState extends State<_TransactionHistoryContent> 
                 tx.type == "credit" ? AppColors.primary : Colors.red,
               ),
             ),
-            Text(Get.formatTimeAgo(tx.createdAt ?? "") ?? "",
+            Text(Get.formatTimeAgo(tx.createdAt ?? ""),
                 style: AppFontStyle.text_14_400(AppColors.grey)),
           ],
         ),
