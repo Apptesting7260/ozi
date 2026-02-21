@@ -886,7 +886,10 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
                   ],
                 ),
               ),
-              if (provider.bookingDetails?.data?.status != "Rejected") ...[
+              if (provider.bookingDetails?.data?.status?.toLowerCase() !=
+                      "rejected" &&
+                  provider.bookingDetails?.data?.status?.toLowerCase() !=
+                      "cancelled") ...[
                 if (vendor.mobile != null)
                   GestureDetector(
                     onTap: () {
