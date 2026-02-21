@@ -87,54 +87,57 @@ class _singleServiceScreenState extends State<singleServiceScreen> {
   }
 
   Widget _buildBottomBar(BuildContext context, SingleServiceProvider provider) {
-    return Container(
-      padding: EdgeInsets.all(16.w),
-      decoration: const BoxDecoration(color: Colors.white),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            '\$${provider.totalAmount.toStringAsFixed(2)}',
-            style: AppFontStyle.text_28_600(
-              AppColors.black,
-              fontFamily: AppFontFamily.bold,
-            ),
-          ),
-          CustomButton(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => const NavigationTabScreen(initialIndex: 1),
-                ),
-              );
-            },
-            width: 150.w,
-            height: 50.h,
-            color: AppColors.primary,
+    return widget.isCart
+        ? Container(
+            padding: EdgeInsets.all(16.w),
+            decoration: const BoxDecoration(color: Colors.white),
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                CustomImage(
-                  path: ImageConstants.cart,
-                  height: 20.w,
-                  width: 20.w,
-                  color: AppColors.white,
-                ),
-                wBox(8),
                 Text(
-                  'View Cart',
-                  style: AppFontStyle.text_14_600(
-                    Colors.white,
-                    fontFamily: AppFontFamily.semiBold,
+                  '\$${provider.totalAmount.toStringAsFixed(2)}',
+                  style: AppFontStyle.text_28_600(
+                    AppColors.black,
+                    fontFamily: AppFontFamily.bold,
+                  ),
+                ),
+                CustomButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) =>
+                            const NavigationTabScreen(initialIndex: 1),
+                      ),
+                    );
+                  },
+                  width: 150.w,
+                  height: 50.h,
+                  color: AppColors.primary,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      CustomImage(
+                        path: ImageConstants.cart,
+                        height: 20.w,
+                        width: 20.w,
+                        color: AppColors.white,
+                      ),
+                      wBox(8),
+                      Text(
+                        'View Cart',
+                        style: AppFontStyle.text_14_600(
+                          Colors.white,
+                          fontFamily: AppFontFamily.semiBold,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ],
             ),
-          ),
-        ],
-      ),
-    );
+          )
+        : SizedBox.shrink();
   }
 
   String getFullImageUrl(String? path) {

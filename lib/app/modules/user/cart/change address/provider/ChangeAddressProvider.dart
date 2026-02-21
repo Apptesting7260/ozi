@@ -1,4 +1,6 @@
-import 'package:flutter/material.dart';
+import 'package:geocoding/geocoding.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:ozi/app/core/appExports/app_export.dart';
 import 'package:ozi/app/core/constants/image_constant.dart';
 import 'package:ozi/app/core/utils/get_utils.dart';
 import 'package:ozi/app/data/repository/repository.dart';
@@ -19,6 +21,21 @@ class ChangeAddressProvider extends ChangeNotifier {
 
   List<Data> _addresses = [];
   List<Data> get addresses => _addresses;
+
+  String? _currentLocationAddress;
+  String? get currentLocationAddress => _currentLocationAddress;
+
+  double? _currentLat;
+  double? get currentLat => _currentLat;
+
+  double? _currentLng;
+  double? get currentLng => _currentLng;
+
+  bool _isUsingCurrentLocation = false;
+  bool get isUsingCurrentLocation => _isUsingCurrentLocation;
+
+  bool _isLocationLoading = false;
+  bool get isLocationLoading => _isLocationLoading;
 
   // ---------------- ICON ----------------
   String getIconForAddressType(String? type) {
@@ -63,10 +80,87 @@ class ChangeAddressProvider extends ChangeNotifier {
 
   // ---------------- SELECT ----------------
   void selectAddress(int index) {
+    _isUsingCurrentLocation = false;
     if (index >= 0 && index < _addresses.length) {
       _selectedIndex = index;
       notifyListeners();
     }
+  }
+
+  Future<void> useCurrentLocation() async {
+    _isLocationLoading = true;
+    notifyListeners();
+
+    try {
+      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) {
+        Get.showToast(
+          'Please enable location services',
+          type: ToastType.notice,
+        );
+        _isLocationLoading = false;
+        notifyListeners();
+        return;
+      }
+
+      LocationPermission permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+        if (permission == LocationPermission.denied) {
+          Get.showToast(
+            'Location permission is required.',
+            type: ToastType.error,
+          );
+          _isLocationLoading = false;
+          notifyListeners();
+          return;
+        }
+      }
+
+      if (permission == LocationPermission.deniedForever) {
+        Get.showToast(
+          'Location permission is permanently denied.',
+          type: ToastType.error,
+        );
+        _isLocationLoading = false;
+        notifyListeners();
+        return;
+      }
+
+      Position position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high,
+        timeLimit: const Duration(seconds: 10),
+      );
+
+      List<Placemark> placemarks = await placemarkFromCoordinates(
+        position.latitude,
+        position.longitude,
+      );
+
+      if (placemarks.isNotEmpty) {
+        Placemark place = placemarks.first;
+        // Construct full address: Street, Area, City
+        _currentLocationAddress = [
+          place.street,
+          place.subLocality,
+          place.locality,
+          place.administrativeArea,
+          place.country,
+        ].where((e) => e != null && e.isNotEmpty).join(', ');
+
+        _currentLat = position.latitude;
+        _currentLng = position.longitude;
+
+        _isUsingCurrentLocation = true;
+        _selectedIndex = -2; // Special index for current location
+      }
+    } catch (e) {
+      debugPrint("Location error: $e");
+      Get.showToast('Failed to get location: $e', type: ToastType.error);
+    }
+
+    _isLocationLoading = false;
+    notifyListeners();
   }
 
   Data? get selectedAddress {

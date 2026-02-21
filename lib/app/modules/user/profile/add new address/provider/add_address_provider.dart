@@ -187,6 +187,20 @@ class AddAddressProvider extends ChangeNotifier {
       return false;
     }
 
+    if (selectedLatLng == null) {
+      _errorMessage = 'Please select a location on the map';
+      safeNotifyListeners();
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Please select a location on the map'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+      return false;
+    }
+
     _isLoading = true;
     _errorMessage = '';
     safeNotifyListeners();
@@ -199,8 +213,8 @@ class AddAddressProvider extends ChangeNotifier {
         'zip_code': zipCodeController.text.trim(),
         'country': countryController.text.trim(),
         'address_type': addressType,
-        'latitude': selectedLatLng?.latitude,
-        'longitude': selectedLatLng?.longitude,
+        'latitude': selectedLatLng?.latitude.toString(),
+        'longitude': selectedLatLng?.longitude.toString(),
         'is_default': 0,
       };
 

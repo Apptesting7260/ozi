@@ -5,6 +5,7 @@ import '../../../../core/appExports/app_export.dart';
 import '../../../../data/repository/repository.dart';
 import '../model/category_model.dart';
 import '../services/view/CategoryDetailScreen.dart';
+import '../../cart/change address/provider/ChangeAddressProvider.dart';
 
 class HomeScreenProvider extends ChangeNotifier {
   HomeScreenProvider() {
@@ -31,6 +32,8 @@ class HomeScreenProvider extends ChangeNotifier {
 
   String _searchQuery = "";
   String get searchQuery => _searchQuery;
+
+  bool _isManualLocation = false;
 
   void setSearchQuery(String query) {
     _searchQuery = query;
@@ -61,30 +64,38 @@ class HomeScreenProvider extends ChangeNotifier {
 
     bool success = await getCurrentLocation();
     if (success) {
-      _isLoading = false;
       _isLoaded = true;
     }
-    // If not successful, we keep _isLoading = true to show shimmer
-    // as per user requirement.
+    _isLoading = false;
     notifyListeners();
   }
 
   Future<void> refreshData() async {
     _isLoading = true;
+    _isManualLocation = false; // Reset manual flag on manual refresh
     notifyListeners();
 
     bool success = await getCurrentLocation();
     if (success) {
-      _isLoading = false;
       _isLoaded = true;
     }
+    _isLoading = false;
     notifyListeners();
   }
 
   Future<void> fetchCategories() async {
     if (lat == null || lng == null || lat!.isEmpty || lng!.isEmpty) {
-      debugPrint("⚠️ Skipping Category API: Location not available");
+      debugPrint(
+        "⚠️ Skipping Category API: Location not available : lat $lat, lng : $lng",
+      );
       return;
+    }
+
+    // Only show shimmer if we don't have any data yet
+    bool shouldShowShimmer = _serviceCategories.isEmpty;
+    if (shouldShowShimmer) {
+      _isLoading = true;
+      notifyListeners();
     }
 
     try {
@@ -93,21 +104,89 @@ class HomeScreenProvider extends ChangeNotifier {
         lng!,
       );
 
-      _serviceCategories.clear();
-      if (model.status == true &&
-          model.data != null &&
-          model.data!.isNotEmpty) {
+      if (model.status == true && model.data != null) {
+        _serviceCategories.clear();
         _serviceCategories.addAll(model.data!);
+        debugPrint(
+          "Category API Success: Found ${_serviceCategories.length} categories",
+        );
+      } else {
+        debugPrint("Category API returned status false or empty data");
+        // We might want to clear here if we want to show "No Services"
+        _serviceCategories.clear();
       }
-      notifyListeners();
     } catch (e) {
-      // Avoid showing errors if it's related to missing location or expected issues
       debugPrint("❌ Category API Error: $e");
+      // Keep existing categories on error
+    } finally {
+      _isLoading = false;
+      notifyListeners();
     }
   }
 
   void updateLocation(String location) {
     _selectedLocation = location;
+    notifyListeners();
+  }
+
+  Future<void> updateFromSelection(
+    int index,
+    ChangeAddressProvider addressProvider,
+  ) async {
+    _isManualLocation = true; // Mark that user has manually chosen a location
+    _isLoading = true;
+    notifyListeners();
+
+    if (index == -2) {
+      // Current location
+      if (addressProvider.currentLocationAddress != null) {
+        _selectedLocation = addressProvider.currentLocationAddress!;
+        if (addressProvider.currentLat != null) {
+          lat = addressProvider.currentLat!.toStringAsFixed(6);
+          lng = addressProvider.currentLng!.toStringAsFixed(6);
+        }
+      }
+    } else if (index >= 0 && index < addressProvider.addresses.length) {
+      final address = addressProvider.addresses[index];
+      _selectedLocation = addressProvider.getFormattedAddress(address);
+
+      String? newLat = address.latitude;
+      String? newLng = address.longitude;
+
+      // Fallback: If lat/lng is missing, try geocoding the address string
+      if (newLat == null ||
+          newLat.isEmpty ||
+          newLat == "null" ||
+          newLng == null ||
+          newLng.isEmpty ||
+          newLng == "null") {
+        debugPrint(
+          "Coordinates missing for selected address, trying geocode...",
+        );
+
+        try {
+          List<Location> locations = await locationFromAddress(
+            _selectedLocation,
+          ).timeout(const Duration(seconds: 5));
+
+          if (locations.isNotEmpty) {
+            newLat = locations.first.latitude.toStringAsFixed(6);
+            newLng = locations.first.longitude.toStringAsFixed(6);
+            debugPrint("Successfully geocoded address to: $newLat, $newLng");
+          }
+        } catch (e) {
+          debugPrint("Geocoding failed: $e");
+        }
+      }
+
+      lat = newLat;
+      lng = newLng;
+      print("updateFromSelection lat  = $lat");
+      print("updateFromSelection lng = $lng");
+    }
+    notifyListeners();
+    await fetchCategories(); // Wait for categories to be fetched
+    _isLoading = false;
     notifyListeners();
   }
 
@@ -119,9 +198,17 @@ class HomeScreenProvider extends ChangeNotifier {
       ),
     );
   }
-  // Future<void> refreshData() async {
-  //   await fetchCategories();
-  // }
+
+  void resetState() {
+    _isLoaded = false;
+    _isLoading = false;
+    _isManualLocation = false;
+    _selectedLocation = "Select Location";
+    lat = null;
+    lng = null;
+    _serviceCategories.clear();
+    notifyListeners();
+  }
 
   Future<bool> getCurrentLocation() async {
     try {
@@ -134,8 +221,6 @@ class HomeScreenProvider extends ChangeNotifier {
           'Please enable location services',
           type: ToastType.notice,
         );
-        _isLoading = false;
-        notifyListeners();
         return false;
       }
 
@@ -147,8 +232,6 @@ class HomeScreenProvider extends ChangeNotifier {
             'Location permission is required.',
             type: ToastType.error,
           );
-          _isLoading = false;
-          notifyListeners();
           return false;
         }
       }
@@ -158,39 +241,70 @@ class HomeScreenProvider extends ChangeNotifier {
           'Location permission is required.',
           type: ToastType.error,
         );
-        _isLoading = false;
-        notifyListeners();
         return false;
       }
+
+      // If user has manually selected an address in the meantime, don't stomp on it
+      if (_isManualLocation) {
+        debugPrint("Ignoring auto-GPS update: Manual location is already set.");
+        return true;
+      }
+
+      // Indicate loading start for address specifically
+      _selectedLocation = "Fetching location...";
+      notifyListeners();
 
       Position position = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high,
         timeLimit: const Duration(seconds: 10),
       );
 
+      // Final check before updating state
+      if (_isManualLocation) return true;
+
       lat = position.latitude.toStringAsFixed(6);
       lng = position.longitude.toStringAsFixed(6);
 
+      // Fallback in case geocoding fails
+      _selectedLocation = "Current Location";
+      notifyListeners();
+
+      // Fetch categories even if geocoding hasn't finished
       await fetchCategories();
 
-      List<Placemark> placemarks = await placemarkFromCoordinates(
-        position.latitude,
-        position.longitude,
-      );
+      try {
+        List<Placemark> placemarks = await placemarkFromCoordinates(
+          position.latitude,
+          position.longitude,
+        ).timeout(const Duration(seconds: 5));
 
-      if (placemarks.isNotEmpty) {
-        Placemark place = placemarks.first;
-        countryName = place.country;
-        countryCode = place.isoCountryCode;
-        _selectedLocation = "${place.locality ?? ""}, ${place.country ?? ""}";
-        if (_selectedLocation.startsWith(", ")) {
-          _selectedLocation = _selectedLocation.substring(2);
+        // Re-check manual flag after geocoding too
+        if (_isManualLocation) return true;
+
+        if (placemarks.isNotEmpty) {
+          Placemark place = placemarks.first;
+          countryName = place.country;
+          countryCode = place.isoCountryCode;
+          _selectedLocation = [
+            place.street,
+            place.subLocality,
+            place.locality,
+            place.administrativeArea,
+            place.country,
+          ].where((e) => e != null && e.isNotEmpty).join(', ');
         }
+      } catch (geocodingError) {
+        debugPrint("Geocoding failed: $geocodingError");
+        // Keep "Current Location"
       }
+
+      notifyListeners();
       return true;
     } catch (e) {
       debugPrint("Location error: $e");
-      _isLoading = false;
+      if (_selectedLocation == "Fetching location...") {
+        _selectedLocation = "Location error";
+      }
       notifyListeners();
       return false;
     }
