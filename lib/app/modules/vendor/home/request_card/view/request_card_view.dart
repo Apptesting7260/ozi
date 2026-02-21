@@ -173,7 +173,7 @@ class RequestCard extends StatelessWidget {
                   text: "Accept",
                   onPressed:onAccept,
                 ),
-              ] else
+              ] else if (request.status=='confirmed')
                 GestureDetector(
                   onTap: () async {
                     final Uri launchUri = Uri(
@@ -194,6 +194,7 @@ class RequestCard extends StatelessWidget {
                   ),
                 ),
             ],
+
           ),
         ],
       ),

@@ -60,6 +60,7 @@ class VendorBookingDetailsScreen extends StatelessWidget {
                                     '${provider.homeModel.data?.data?.user?.countryCode??''}${provider.homeModel.data?.data?.user?.mobile??''}',
                                     provider.homeModel.data?.data?.user?.lastName??'',
                                     '${AppUrls.imageBaseUrl}${provider.homeModel.data?.data?.user?.proImg??''}',
+                                  provider.homeModel.data?.data?.status??'',
                                 ),
                                 hBox(20),
                                 _bookingDetailsSection(
@@ -594,7 +595,7 @@ class VendorBookingDetailsScreen extends StatelessWidget {
   }
 
 
-  Widget _serviceProvider(String customerName,String contact,String subHeading,String image) {
+  Widget _serviceProvider(String customerName,String contact,String subHeading,String image , String status) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -638,6 +639,9 @@ class VendorBookingDetailsScreen extends StatelessWidget {
                   ],
                 ),
               ),
+               if (status == 'rejected')
+                 SizedBox.shrink()
+             else
               GestureDetector(
                 onTap: (){
                   Get.dialCall(contact);

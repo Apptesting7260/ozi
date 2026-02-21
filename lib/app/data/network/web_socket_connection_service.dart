@@ -1,7 +1,5 @@
-import 'dart:async';
-import 'dart:convert';
-import 'package:flutter/cupertino.dart';
 import 'package:socket_io_client/socket_io_client.dart' as io;
+import '../../core/appExports/app_export.dart';
 import '../../core/constants/app_urls.dart';
 import '../storage/user_preference.dart';
 
@@ -42,7 +40,9 @@ class SocketController extends ChangeNotifier {
 
   /// INTERNAL: Build socket config and connect
   Future<void> _initSocketInternal() async {
-    print('🔧 Initializing socket');
+    if (kDebugMode) {
+      print('🔧 Initializing socket');
+    }
 
     // socket = io.io(
     //   AppUrls.baseUrlSocket,
@@ -82,7 +82,9 @@ class SocketController extends ChangeNotifier {
 
     socket!.onConnect((_) {
       if (!completer.isCompleted) {
-        print("🔌 Socket connected: ${socket!.id}");
+        if (kDebugMode) {
+          print("🔌 Socket connected: ${socket!.id}");
+        }
         completer.complete();
       }
     });
@@ -105,19 +107,25 @@ class SocketController extends ChangeNotifier {
 
     final userId = await UserPreference.returnUserId();
     if (userId == null) {
-      print('No user ID → cannot go online');
+      if (kDebugMode) {
+        print('No user ID → cannot go online');
+      }
       _isGoingOnline = false;
       return;
     }
 
     // Already online?
     if (socket!.id == subscribeSocketId && userId == subscribeUserId) {
-      print("Already online. Skipping goOnline()");
+      if (kDebugMode) {
+        print("Already online. Skipping goOnline()");
+      }
       _isGoingOnline = false;
       return;
     }
 
-    print("🌐 Going online...");
+    if (kDebugMode) {
+      print("🌐 Going online...");
+    }
     final completer = Completer<void>();
 
     socket!.emit(AppUrls.goOnlineEvent, {"userId": userId});
@@ -132,10 +140,14 @@ class SocketController extends ChangeNotifier {
         subscribeSocketId = socket!.id;
         subscribeUserId = userId;
 
-        print("✅ Online success: $data");
+        if (kDebugMode) {
+          print("✅ Online success: $data");
+        }
         completer.complete();
       } else {
-        print("❌ Online failed: $data");
+        if (kDebugMode) {
+          print("❌ Online failed: $data");
+        }
         completer.completeError("Failed to go online");
       }
     });
@@ -148,12 +160,16 @@ class SocketController extends ChangeNotifier {
   /// SEND MESSAGE (Fully Automated)
   /// ==========================================================
   Future<void> sendMessage(String event, Map<String, dynamic>? data) async {
-    print("📤 Preparing to send message...");
+    if (kDebugMode) {
+      print("📤 Preparing to send message...");
+    }
 
     // AUTO-FIX everything before sending
     await ensureSocketReady();
 
-    print("📤 Sending event $event => $data");
+    if (kDebugMode) {
+      print("📤 Sending event $event => $data");
+    }
     socket!.emit(event, data);
   }
 

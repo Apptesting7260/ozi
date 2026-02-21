@@ -84,7 +84,6 @@ class PushNotificationService {
       debugPrint('📝message notification data=====${message.data['NotificationType']}');
       debugPrint('notification body=====$notification.  $android.   $appleNotification');
 
-      if ((notification != null && android != null)||message.data!=null) {
         if(message.data['NotificationType']=='call'){
 
         }else if(message.data['NotificationType'] == 'call_ended'){
@@ -100,19 +99,20 @@ class PushNotificationService {
             debugPrint("123154115415abc");
           }
         });
-      } else if (notification != null && appleNotification != null) {
-        // await showNotification(message.notification);
-        debugPrint('apple notification1');
-        showCustomSnackBar(notification.title.toString(), notification.body.toString(), navigatorKey.currentContext!);
-      }
     },
     );
 
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) async {
       if (message.notification != null) {
-        print('called on tap');
-        print(message.notification?.body);
-        print(message.data);
+        if (kDebugMode) {
+          print('called on tap');
+        }
+        if (kDebugMode) {
+          print(message.notification?.body);
+        }
+        if (kDebugMode) {
+          print(message.data);
+        }
         if(message.data['conversationId']!=null){
           navigateFromNotification(entityType: 'chat',entityId: message.data['conversationId'],);
         }else if(message.data['NotificationType']=='live_streaming'){
@@ -209,14 +209,7 @@ class PushNotificationService {
     );
   }
 
-  static Future _onDidReceiveLocalNotification(
-      int? id, String? title, String? body, String? payload) async {
-    debugPrint("receive==$payload,== $body");
-  }
 
-  static Future _selectNotification(String? payload) async {
-    debugPrint('notification payload: $payload');
-  }
 
   static void onDidReceiveNotificationResponse(NotificationResponse notificationResponse) async {
     // NotificationsController  controller = Get.put(NotificationsController());
@@ -243,7 +236,9 @@ class PushNotificationService {
   }
 
   static showCustomSnackBar(String title, String message, BuildContext context) {
-    print("object>>>> $title \n $message");
+    if (kDebugMode) {
+      print("object>>>> $title \n $message");
+    }
     Flushbar(
       margin: const EdgeInsets.all(10),
       borderRadius: BorderRadius.circular(12),
