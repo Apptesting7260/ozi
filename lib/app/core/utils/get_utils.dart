@@ -496,10 +496,6 @@ class Get {
   //     }
   //   }
 
-  static String _formatPrice(dynamic price) {
-    if (price == null) return '0.00';
-    return double.parse(price.toString()).toStringAsFixed(2);
-  }
 
   // static String _formatServicesList(List<Items>? items) {
   //   if (items == null || items.isEmpty) {

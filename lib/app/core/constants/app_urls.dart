@@ -23,11 +23,11 @@ class AppUrls {
   static const String addUserAddress = "$baseUrl/store-user-address";
   static const String updateUserAddress = "$baseUrl/update-user-address";
   static const String deleteUserAddress = "$baseUrl/delete-user-address";
-  static const String schedule_service = "$baseUrl/booking-vendor-availability";
-  static const String reschedule_service = "$baseUrl/get-vendor-availability";
+  static const String scheduleService = "$baseUrl/booking-vendor-availability";
+  static const String rescheduleService = "$baseUrl/get-vendor-availability";
   static const String bookService = "$baseUrl/book-services";
   static const String vendorReview = "$baseUrl/get-reviews";
-  static const String AddReview = "$baseUrl/add-update-review";
+  static const String addReview = "$baseUrl/add-update-review";
   static const String cancelBooking = "$baseUrl/booking-cancel";
   static const String getAllBookings = "$baseUrl/get-user-bookings";
   static const String getBookingDetails = "$baseUrl/user-booking-details?";
@@ -35,12 +35,12 @@ class AppUrls {
   static const String deleteAccountUrl = "$baseUrl/delete-profile";
   static const String updateNotificationUrl = "$baseUrl/update-notification?";
   static const String helpSupportUrl = "$baseUrl/get-faqs";
-  static const String SupportUrl = "$baseUrl/send-user-email";
+  static const String supportUrl = "$baseUrl/send-user-email";
   static const String getCoupons = "$baseUrl/get-coupons";
   static const String bookAgainUrl = "$baseUrl/book-again";
-  static const String applyCoupoon = "$baseUrl/apply-remove-coupon";
+  static const String applyCoupon = "$baseUrl/apply-remove-coupon";
   static const String vendorServiceUrl = "$baseUrl/get-vendor-services-users";
-  static const String rescheduleservicePostApiUrl =
+  static const String rescheduleServicePostApiUrl =
       "$baseUrl/reschedule-booking";
   static const String getNotications = "$baseUrl/notifications";
   static const String readAllNotificationsApi =

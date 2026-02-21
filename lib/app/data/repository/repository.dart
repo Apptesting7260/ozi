@@ -287,10 +287,10 @@ class Repository {
   // **************************  Submit Review Api **************************//
   Future<dynamic> submitReviewApi(Map<String, dynamic> data) async {
     try {
-      print('API Request URL: ${AppUrls.AddReview}');
+      print('API Request URL: ${AppUrls.addReview}');
       print('API Request Data: $data');
 
-      dynamic response = await _apiService.postApi(data, AppUrls.AddReview);
+      dynamic response = await _apiService.postApi(data, AppUrls.addReview);
       print('API Response: $response');
       return response;
     } catch (e) {
@@ -514,10 +514,10 @@ class Repository {
   // ********************************************* Support Api ***********************************************//
   Future<dynamic> supportApi(Map<String, dynamic> data) async {
     try {
-      dev.log("Support API URL: ${AppUrls.SupportUrl}");
+      dev.log("Support API URL: ${AppUrls.supportUrl}");
       dev.log("Request Data: $data");
 
-      final response = await _apiService.postApi(data, AppUrls.SupportUrl);
+      final response = await _apiService.postApi(data, AppUrls.supportUrl);
 
       return response;
     } catch (e) {
@@ -587,10 +587,10 @@ class Repository {
   // ********************************************* scheduleService Api ***********************************************//
   Future<BookServiceModel> scheduleServiceApi() async {
     try {
-      dev.log("scheduleServiceApi API URL: ${AppUrls.schedule_service}");
+      dev.log("scheduleServiceApi API URL: ${AppUrls.scheduleService}");
 
       // Use PUT method and append addressId to URL
-      final response = await _apiService.getApi(AppUrls.schedule_service);
+      final response = await _apiService.getApi(AppUrls.scheduleService);
 
       if (response is List) {
         if (response.isEmpty) return BookServiceModel();
@@ -610,12 +610,12 @@ class Repository {
   ) async {
     try {
       dev.log(
-        "fetchRescheduleAvailabilityApi URL: ${AppUrls.reschedule_service}?booking_id=$bookingId",
+        "fetchRescheduleAvailabilityApi URL: ${AppUrls.rescheduleService}?booking_id=$bookingId",
       );
 
       // Use PUT method and append addressId to URL
       final response = await _apiService.getApi(
-        "${AppUrls.reschedule_service}?booking_id=$bookingId",
+        "${AppUrls.rescheduleService}?booking_id=$bookingId",
       );
 
       if (response is List) {
@@ -634,13 +634,13 @@ class Repository {
   Future<dynamic> rescheduleBookingApi(Map<String, dynamic> data) async {
     try {
       dev.log(
-        "rescheduleBookingApi URL: ${AppUrls.rescheduleservicePostApiUrl}",
+        "rescheduleBookingApi URL: ${AppUrls.rescheduleServicePostApiUrl}",
       );
       dev.log("Request Data: $data");
 
       final response = await _apiService.postApi(
         data,
-        AppUrls.rescheduleservicePostApiUrl,
+        AppUrls.rescheduleServicePostApiUrl,
       );
 
       return response;
@@ -654,11 +654,11 @@ class Repository {
 
   Future<dynamic> applyorRemoveCupponApi(String promoId) async {
     try {
-      dev.log("applyorRemoveCupponApi URL: ${AppUrls.applyCoupoon}");
+      dev.log("applyorRemoveCupponApi URL: ${AppUrls.applyCoupon}");
 
       final response = await _apiService.postApi({
         "promo_id": promoId,
-      }, AppUrls.applyCoupoon);
+      }, AppUrls.applyCoupon);
 
       return response;
     } catch (e) {

@@ -9,7 +9,7 @@ class AppInterceptor extends Interceptor {
 
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) async {
-    // 🔹 Get token from secure storage
+    // Get token from secure storage
     String? token = await UserPreference.returnAccessToken();
 
     if (token != null && token.isNotEmpty) {

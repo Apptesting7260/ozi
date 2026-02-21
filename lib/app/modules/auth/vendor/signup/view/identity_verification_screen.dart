@@ -1,11 +1,7 @@
 import 'package:image_picker/image_picker.dart';
-import 'package:ozi/app/modules/auth/vendor/signup/view/ready_to_go_livescreen.dart';
 import '../../../../../core/appExports/app_export.dart';
 import '../../../../../core/constants/app_urls.dart';
-import '../../../../../shared/widgets/custom_app_bar.dart';
 import '../provider/identity_verification_provider.dart';
-import 'package:dotted_border/dotted_border.dart';
-
 import '../widget/vendor_custom_appbar.dart';
 
 class IdentityVerificationScreen extends StatelessWidget {

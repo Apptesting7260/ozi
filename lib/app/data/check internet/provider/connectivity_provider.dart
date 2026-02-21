@@ -49,14 +49,14 @@
 //   }
 //
 //   void _onConnected() {
-//     
+//
 //     // Add your functions that should run when internet is available
 //     _syncData();
 //     _fetchUpdates();
 //   }
 //
 //   void _onDisconnected() {
-//     
+//
 //     // Add your functions for offline mode
 //     _saveToLocal();
 //     _showOfflineMessage();
@@ -67,31 +67,31 @@
 //     // Your sync logic here
 //     try {
 //       // Example: sync pending data to server
-//       
+//
 //       // await apiService.syncPendingData();
 //     } catch (e) {
-//       
+//
 //     }
 //   }
 //
 //   Future<void> _fetchUpdates() async {
 //     // Your fetch logic here
 //     try {
-//       
+//
 //       // await apiService.fetchUpdates();
 //     } catch (e) {
-//       
+//
 //     }
 //   }
 //
 //   void _saveToLocal() {
 //     // Save current state to local storage
-//     
+//
 //   }
 //
 //   void _showOfflineMessage() {
 //     // You can use this to show offline indicators
-//     
+//
 //   }
 //
 //   // Method to manually trigger online functions
