@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:geocoding/geocoding.dart';
+import 'package:geolocator/geolocator.dart';
 import '../../../../../data/repository/repository.dart';
 import '../../save address/model/user_address_model.dart';
 
@@ -18,6 +21,19 @@ class EditUserAddressProvider extends ChangeNotifier {
   bool get isLoading => _isLoading;
 
   int? _addressId;
+  String? _lat;
+  String? _lng;
+
+  // Map related state
+  GoogleMapController? mapController;
+  LatLng? selectedLatLng;
+  final Set<Marker> markers = {};
+  bool _isFetchingAddress = false;
+  final LatLng initialLocation = const LatLng(26.9124, 75.7873);
+
+  void setMapController(GoogleMapController ctrl) {
+    mapController = ctrl;
+  }
 
   void init(Data? address) {
     print(
@@ -36,7 +52,21 @@ class EditUserAddressProvider extends ChangeNotifier {
     }
 
     _addressId = address?.id;
-    print("Setting _addressId to: $_addressId");
+    _lat = address?.latitude;
+    _lng = address?.longitude;
+    print("Setting _addressId to: $_addressId, lat: $_lat, lng: $_lng");
+
+    if (_lat != null &&
+        _lng != null &&
+        _lat != "null" &&
+        _lng != "null" &&
+        _lat!.isNotEmpty &&
+        _lng!.isNotEmpty) {
+      selectedLatLng = LatLng(double.parse(_lat!), double.parse(_lng!));
+      _updateMarker(selectedLatLng!);
+    } else {
+      selectedLatLng = initialLocation;
+    }
 
     streetController = TextEditingController(
       text: address?.streetAddress ?? '',
@@ -78,8 +108,86 @@ class EditUserAddressProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  // Map Interaction Methods
+  Future<void> onMapTap(LatLng latLng) async {
+    _updateMarker(latLng);
+    await mapController?.animateCamera(CameraUpdate.newLatLng(latLng));
+  }
+
+  Future<void> onCameraIdle(LatLng latLng) async {
+    if (_isFetchingAddress) return;
+    _updateMarker(latLng);
+    await _updateLocationAndAddress(latLng);
+  }
+
+  void _updateMarker(LatLng latLng) {
+    selectedLatLng = latLng;
+    _lat = latLng.latitude.toString();
+    _lng = latLng.longitude.toString();
+    markers.clear();
+    markers.add(
+      Marker(
+        markerId: const MarkerId("selected"),
+        position: latLng,
+        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueCyan),
+      ),
+    );
+    notifyListeners();
+  }
+
+  Future<void> _updateLocationAndAddress(LatLng latLng) async {
+    if (_isFetchingAddress) return;
+
+    _isFetchingAddress = true;
+    notifyListeners();
+
+    try {
+      List<Placemark> placemarks = await placemarkFromCoordinates(
+        latLng.latitude,
+        latLng.longitude,
+      );
+
+      if (placemarks.isNotEmpty) {
+        Placemark place = placemarks.first;
+
+        streetController.text =
+            "${place.street ?? ''} ${place.subLocality ?? ''}".trim();
+        cityController.text = place.locality ?? '';
+        zipController.text = place.postalCode ?? '';
+
+        if (cityController.text.isEmpty) {
+          cityController.text = place.subAdministrativeArea ?? '';
+        }
+      }
+    } catch (e) {
+      print("Unable to fetch address: $e");
+    } finally {
+      _isFetchingAddress = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> moveToCurrentLocation() async {
+    try {
+      Position position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high,
+      );
+
+      LatLng latLng = LatLng(position.latitude, position.longitude);
+
+      _updateMarker(latLng);
+      await mapController?.animateCamera(
+        CameraUpdate.newCameraPosition(
+          CameraPosition(target: latLng, zoom: 17),
+        ),
+      );
+    } catch (e) {
+      print("Location permission denied: $e");
+    }
+  }
+
   Future<bool> updateAddress(BuildContext context) async {
-    print("Address If : $_addressId");
+    print("Address ID : $_addressId");
     if (_addressId == null) {
       _showSnackBar(context, "Address ID not found", Colors.red);
       return false;
@@ -109,6 +217,8 @@ class EditUserAddressProvider extends ChangeNotifier {
         "apartment": apartmentController.text.trim(),
         "city": cityController.text.trim(),
         "zip_code": zipController.text.trim(),
+        "latitude": _lat,
+        "longitude": _lng,
       };
 
       final response = await _repository.editUserAddressApi(_addressId!, data);
@@ -153,12 +263,16 @@ class EditUserAddressProvider extends ChangeNotifier {
     _initialized = false;
     _addressId = null;
     _isLoading = false;
+    selectedLatLng = null;
+    markers.clear();
   }
 
   void disposeControllers() {
-    streetController.dispose();
-    apartmentController.dispose();
-    cityController.dispose();
-    zipController.dispose();
+    if (_initialized) {
+      streetController.dispose();
+      apartmentController.dispose();
+      cityController.dispose();
+      zipController.dispose();
+    }
   }
 }

@@ -300,7 +300,7 @@ class HomeScreenView extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.all(20),
           child: Text(
-            "No categories found",
+            "No Services Available At Your Location",
             style: AppFontStyle.text_16_500(AppColors.grey),
           ),
         ),

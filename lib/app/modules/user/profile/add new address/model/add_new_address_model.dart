@@ -8,7 +8,9 @@ class AddNewAddressModel {
   AddNewAddressModel.fromJson(Map<String, dynamic> json) {
     status = json['status'];
     message = json['message'];
-    data = json['data'] != null ? AddNewAddressData.fromJson(json['data']) : null;
+    data = json['data'] != null
+        ? AddNewAddressData.fromJson(json['data'])
+        : null;
   }
 
   Map<String, dynamic> toJson() {
@@ -30,23 +32,28 @@ class AddNewAddressData {
   String? zipCode;
   String? addressType;
   bool? isDefault;
+  String? latitude;
+  String? longitude;
   String? updatedAt;
   String? createdAt;
   int? id;
   String? fullAddress;
 
-  AddNewAddressData(
-      {this.userId,
-        this.streetAddress,
-        this.apartment,
-        this.city,
-        this.zipCode,
-        this.addressType,
-        this.isDefault,
-        this.updatedAt,
-        this.createdAt,
-        this.id,
-        this.fullAddress});
+  AddNewAddressData({
+    this.userId,
+    this.streetAddress,
+    this.apartment,
+    this.city,
+    this.zipCode,
+    this.addressType,
+    this.isDefault,
+    this.latitude,
+    this.longitude,
+    this.updatedAt,
+    this.createdAt,
+    this.id,
+    this.fullAddress,
+  });
 
   AddNewAddressData.fromJson(Map<String, dynamic> json) {
     userId = json['user_id'];
@@ -56,6 +63,9 @@ class AddNewAddressData {
     zipCode = json['zip_code'];
     addressType = json['address_type'];
     isDefault = json['is_default'];
+    latitude = (json['latitude'] ?? json['lat'] ?? json['latitude'])
+        ?.toString();
+    longitude = (json['longitude'] ?? json['long'] ?? json['lng'])?.toString();
     updatedAt = json['updated_at'];
     createdAt = json['created_at'];
     id = json['id'];
@@ -71,6 +81,8 @@ class AddNewAddressData {
     data['zip_code'] = zipCode;
     data['address_type'] = addressType;
     data['is_default'] = isDefault;
+    data['latitude'] = latitude;
+    data['longitude'] = longitude;
     data['updated_at'] = updatedAt;
     data['created_at'] = createdAt;
     data['id'] = id;
