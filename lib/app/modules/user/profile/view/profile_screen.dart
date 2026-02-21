@@ -1,4 +1,3 @@
-import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:ozi/app/modules/auth/vendor/signup/view/set_availability.dart';
 import 'package:ozi/app/modules/user/profile/view/profile_provider/profile_provider.dart';
 import '../../../../core/appExports/app_export.dart';
@@ -6,7 +5,6 @@ import '../../../../core/constants/app_urls.dart';
 import '../../../../routes/app_routes.dart';
 import '../../../../shared/widgets/custom_image_path_helper.dart';
 import '../../../auth/vendor/signup/view/identity_verification_screen.dart';
-
 import '../address map/view/location_picker.dart';
 import '../edit profile/provider/EditProfileProvider.dart';
 import '../edit profile/view/EditProfileScreen.dart';
@@ -151,8 +149,7 @@ class ProfileScreenView extends StatelessWidget {
                                 ),
                               ),
                             ),
-                            if (profileProvider.userProfile?.data?.userRole ==
-                                'vendor')
+                            if (profileProvider.userProfile?.data?.userRole == 'vendor')
                               _profileTile(
                                 icon: ImageConstants.calendor,
                                 title: "Availability",
@@ -173,12 +170,19 @@ class ProfileScreenView extends StatelessWidget {
                                 icon: ImageConstants.document,
                                 title: "Documents",
                                 onTap: () {
+                                  final userData = context
+                                      .read<ProfileProvider>()
+                                      .userData;
+
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
                                       builder: (context) =>
                                           IdentityVerificationScreen(
                                             isFromProfile: true,
+                                            docImg: userData?.vendorDetail?.governmentIdImage ,
+                                            certificateImg:
+                                            userData?.vendorDetail?.certificate
                                           ),
                                     ),
                                   );
@@ -195,7 +199,7 @@ class ProfileScreenView extends StatelessWidget {
                                     context,
                                     MaterialPageRoute(
                                       builder: (context) =>
-                                          const LocationPickerPage(),
+                                          MapPickerPage(isFromProfile: true,),
                                     ),
                                   );
 

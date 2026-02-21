@@ -1,34 +1,53 @@
 import 'package:image_picker/image_picker.dart';
 import 'package:ozi/app/modules/auth/vendor/signup/view/ready_to_go_livescreen.dart';
 import '../../../../../core/appExports/app_export.dart';
+import '../../../../../core/constants/app_urls.dart';
 import '../../../../../shared/widgets/custom_app_bar.dart';
 import '../provider/identity_verification_provider.dart';
 import 'package:dotted_border/dotted_border.dart';
 
 import '../widget/vendor_custom_appbar.dart';
 
-
 class IdentityVerificationScreen extends StatelessWidget {
-  const IdentityVerificationScreen({super.key, required this.isFromProfile});
+  IdentityVerificationScreen({
+    super.key,
+    required this.isFromProfile,
+    this.docImg,
+    this.certificateImg,
+  });
+
   final bool isFromProfile;
+  String? docImg;
+  String? certificateImg;
 
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
       create: (_) => IdentityVerificationProvider(isFromProfile),
-      child:  _IdentityVerificationContent(isFromProfile),
+      child: _IdentityVerificationContent(
+        isFromProfile,
+        docImg,
+        certificateImg,
+      ),
     );
   }
 }
 
 class _IdentityVerificationContent extends StatelessWidget {
-  const _IdentityVerificationContent(this.isFromProfile);
+  _IdentityVerificationContent(
+    this.isFromProfile,
+    this.docImg,
+    this.certificateImg,
+  );
+
   final bool isFromProfile;
+  String? docImg;
+  String? certificateImg;
 
   Future<void> _pickFile(
-      BuildContext context,
-      void Function(File) onSelected,
-      ) async {
+    BuildContext context,
+    void Function(File) onSelected,
+  ) async {
     final picker = ImagePicker();
     final XFile? file = await picker.pickImage(source: ImageSource.gallery);
 
@@ -44,7 +63,7 @@ class _IdentityVerificationContent extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppColors.white,
 
-      /// -------- BOTTOM BUTTON --------
+      // -------- BOTTOM BUTTON --------
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.all(16),
         child: CustomButton(
@@ -57,7 +76,7 @@ class _IdentityVerificationContent extends StatelessWidget {
               : AppColors.primary.withValues(alpha: 0.6),
           onPressed: () {
             if (!provider.canContinue) return;
-            provider.saveDocuments(isFromProfile);
+            provider.saveDocuments(isFromProfile, context);
           },
         ),
       ),
@@ -66,15 +85,16 @@ class _IdentityVerificationContent extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-
             Column(
               children: [
                 VendorCustomAppBar(
                   title: "Identity Verification",
-                  columnChild: isFromProfile?Text(''): Text(
-                    "Step 4 of 6",
-                    style: AppFontStyle.text_12_400(AppColors.grey),
-                  ),
+                  columnChild: isFromProfile
+                      ? Text('')
+                      : Text(
+                          "Step 4 of 6",
+                          style: AppFontStyle.text_12_400(AppColors.grey),
+                        ),
                 ),
               ],
             ),
@@ -87,7 +107,6 @@ class _IdentityVerificationContent extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-
                     Container(
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
@@ -121,32 +140,35 @@ class _IdentityVerificationContent extends StatelessWidget {
 
                     hBox(24),
 
-                    /// GOVERNMENT ID
+                    // GOVERNMENT ID
                     _documentTile(
                       title: "Government ID",
                       subtitle: "Driver's license or passport",
                       required: true,
                       uploaded: provider.isGovernmentUploaded,
                       iconPath: ImageConstants.governmentId,
-                      onUpload: () => _pickFile(
-                        context,
-                        provider.setGovernmentId,
-                      ), remotePath: provider.govtIdImage,
+                      onUpload: () =>
+                          _pickFile(context, provider.setGovernmentId),
+                      remotePath: provider.govtIdImage,
+                      imageUrl: '${AppUrls.imageBaseUrl}${docImg ?? ''}',
+                      selectedFile: provider.governmentId,
                     ),
 
                     hBox(16),
 
-                    /// CERTIFICATIONS
+                    // CERTIFICATIONS
                     _documentTile(
                       title: "Certifications",
                       subtitle: "Professional certificates (optional)",
                       required: false,
                       uploaded: provider.isCertificationUploaded,
                       iconPath: ImageConstants.certificate,
-                      onUpload: () => _pickFile(
-                        context,
-                        provider.setCertification,
-                      ), remotePath: provider.fetchedCertificate,
+                      onUpload: () =>
+                          _pickFile(context, provider.setCertification),
+                      remotePath: provider.fetchedCertificate,
+                      imageUrl:
+                          '${AppUrls.imageBaseUrl}${certificateImg ?? ''}',
+                      selectedFile: provider.certification,
                     ),
 
                     hBox(20),
@@ -160,7 +182,6 @@ class _IdentityVerificationContent extends StatelessWidget {
     );
   }
 
-
   // ---------------- DOCUMENT TILE ----------------
   Widget _documentTile({
     required String title,
@@ -170,13 +191,13 @@ class _IdentityVerificationContent extends StatelessWidget {
     required String iconPath,
     required String? remotePath,
     required VoidCallback onUpload,
+    required String imageUrl,
+    File? selectedFile,
   }) {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: uploaded
-            ? AppColors.white
-            : AppColors.white,
+        color: uploaded ? AppColors.white : AppColors.white,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: uploaded
@@ -198,7 +219,6 @@ class _IdentityVerificationContent extends StatelessWidget {
         children: [
           Row(
             children: [
-
               Container(
                 decoration: BoxDecoration(
                   color: AppColors.primary.withValues(alpha: .12),
@@ -250,31 +270,76 @@ class _IdentityVerificationContent extends StatelessWidget {
 
           hBox(12),
 
+
+          if (selectedFile != null)
+          //  SHOW LOCAL IMAGE FIRST
+            Container(
+              margin: const EdgeInsets.only(bottom: 10),
+              height: 150,
+              width: double.infinity,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: AppColors.grey.withValues(alpha: .15),
+                ),
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: Image.file(
+                  selectedFile,
+                  fit: BoxFit.cover,
+                ),
+              ),
+            )
+
+          else if (isFromProfile &&
+              imageUrl.isNotEmpty &&
+              imageUrl != AppUrls.imageBaseUrl)
+          //  SHOW NETWORK IMAGE IF NO LOCAL FILE
+            Container(
+              margin: const EdgeInsets.only(bottom: 10),
+              height: 150,
+              width: double.infinity,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: AppColors.grey.withValues(alpha: .15),
+                ),
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: Image.network(
+                  imageUrl,
+                  fit: BoxFit.cover,
+                ),
+              ),
+            )
+          else
+            SizedBox.shrink(),
+
           // Upload Status or Button
           if (uploaded)
             Padding(
               padding: const EdgeInsets.only(left: 45),
               child: Row(
                 children: [
-                Container(
-                height: 16,
-                width: 16,
-                decoration: BoxDecoration(
-                  color: AppColors.white,
-                  borderRadius: BorderRadius.circular(30),
-                  border: Border.all(
-                    color: AppColors.primary,
+                  Container(
+                    height: 16,
+                    width: 16,
+                    decoration: BoxDecoration(
+                      color: AppColors.white,
+                      borderRadius: BorderRadius.circular(30),
+                      border: Border.all(color: AppColors.primary),
+                    ),
+                    child: Center(
+                      child: CustomImage(
+                        path: ImageConstants.rightIcon,
+                        color: AppColors.primary,
+                      ),
+                    ),
                   ),
-                ),
-                child: Center(
-                  child: CustomImage(
-                    path: ImageConstants.rightIcon,
-                    color: AppColors.primary,
-                  ),
-                ),
-              ),
 
-                wBox(6),
+                  wBox(6),
                   Text(
                     "Document uploaded",
                     style: AppFontStyle.text_12_400(AppColors.primary),
@@ -363,7 +428,10 @@ class DottedBorderPainter extends CustomPainter {
         final end = distance + length;
         if (draw) {
           dest.addPath(
-            metric.extractPath(distance, end > metric.length ? metric.length : end),
+            metric.extractPath(
+              distance,
+              end > metric.length ? metric.length : end,
+            ),
             Offset.zero,
           );
         }

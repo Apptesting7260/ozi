@@ -9,6 +9,7 @@ import 'package:ozi/app/modules/user/cart/view/model/couponmodel.dart';
 import 'package:ozi/app/modules/user/home/model/category_model.dart';
 import 'package:ozi/app/modules/user/home/service%20details/model/ServiceDetailsModel.dart';
 import 'package:ozi/app/modules/user/home/service%20details/model/vendordetaiulmodel.dart';
+import 'package:ozi/app/modules/user/profile/address%20map/model/saved_latlong_model.dart';
 import 'package:ozi/app/modules/user/profile/setting/model/settingsmodel.dart';
 import 'package:ozi/app/modules/user/profile/view/model/logout_model.dart';
 import 'package:ozi/app/modules/vendor/home/model/readNotification_model.dart';
@@ -875,14 +876,16 @@ class Repository {
     }
   }
 
-
   // **************************  verify Profile Email Api **************************//
   Future<dynamic> verifyUpdateEmailApi(Map<String, dynamic> data) async {
     try {
       print('API Request URL: ${AppUrls.updateProfileEmail}');
       print('API Request Data: $data');
 
-      dynamic response = await _apiService.postApi(data, AppUrls.updateProfileEmail);
+      dynamic response = await _apiService.postApi(
+        data,
+        AppUrls.updateProfileEmail,
+      );
 
       print('API Response: $response');
       print('API Response Type: ${response.runtimeType}');
@@ -895,13 +898,15 @@ class Repository {
     }
   }
 
-
   Future<dynamic> verifyEditProfileEmailApi(Map<String, dynamic> data) async {
     try {
       print('API Request URL: ${AppUrls.verifyProfileEmail}');
       print('API Request Data: $data');
 
-      dynamic response = await _apiService.postApi(data, AppUrls.verifyProfileEmail);
+      dynamic response = await _apiService.postApi(
+        data,
+        AppUrls.verifyProfileEmail,
+      );
 
       print('API Response: $response');
       print('API Response Type: ${response.runtimeType}');
@@ -911,6 +916,17 @@ class Repository {
     } catch (e) {
       print('verifyEditProfileEmailApi Error: $e');
       rethrow;
+    }
+  }
+
+  Future<SavedLatlongModel> fetchLatLong() async {
+    try {
+      final response = await _apiService.getApi(AppUrls.fetchLatLong);
+
+      return SavedLatlongModel.fromJson(response);
+    } catch (e) {
+      dev.log("Error in fetchLatLong: $e");
+      throw Exception(e);
     }
   }
 }

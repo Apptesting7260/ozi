@@ -14,6 +14,7 @@ import 'app/core/push notification/push_notification.dart';
 import 'app/data/network/web_socket_connection_service.dart';
 import 'app/modules/user/home/provider/HomeScreenProvider.dart';
 import 'app/modules/user/navigation tab/provider/navigation_provider.dart';
+import 'app/modules/user/profile/address map/provider/location_picker_provider.dart';
 import 'app/modules/user/profile/login details/provider/login_details_provider.dart';
 import 'app/modules/user/profile/save address/provider/saved_address_provider.dart';
 import 'app/modules/user/profile/view/profile_provider/profile_provider.dart';
@@ -73,6 +74,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => SocketController()),
         ChangeNotifierProvider(create: (_) => VendorServicesProvider()),
         ChangeNotifierProvider(create: (_) => ChangeAddressProvider()),
+        ChangeNotifierProvider(create: (_) => LocationPickerProvider()),
         ChangeNotifierProvider(
           create: (_) => CartProvider(repository: Repository()),
         ),

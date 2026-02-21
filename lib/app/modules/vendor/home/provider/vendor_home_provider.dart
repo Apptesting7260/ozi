@@ -227,10 +227,10 @@ class VendorHomeProvider extends ChangeNotifier {
     // Show dialog
     await showDialog(
       context: context,
-      barrierDismissible: false, // Cannot dismiss by tapping outside
+      barrierDismissible: false,
       builder: (context) {
         return WillPopScope(
-          onWillPop: () async => false, // Disable back button
+          onWillPop: () async => false,
           child: AlertDialog(
             title: const Text('Location Required'),
             content: const Text(
@@ -288,41 +288,30 @@ class VendorHomeProvider extends ChangeNotifier {
     );
   }
 
-// Helper function to get current location
-  Future<Position> _determinePosition() async {
-    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) {
-      return Future.error('Location services are disabled.');
-    }
-
-    LocationPermission permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-      if (permission == LocationPermission.denied) {
-        return Future.error('Location permissions are denied');
-      }
-    }
-
-    if (permission == LocationPermission.deniedForever) {
-      return Future.error(
-          'Location permissions are permanently denied, we cannot request permissions.');
-    }
-
-    return await Geolocator.getCurrentPosition();
-  }
-
-
-
-
-
+// // Helper function to get current location
+//   Future<Position> _determinePosition() async {
+//     bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+//     if (!serviceEnabled) {
+//       return Future.error('Location services are disabled.');
+//     }
+//
+//     LocationPermission permission = await Geolocator.checkPermission();
+//     if (permission == LocationPermission.denied) {
+//       permission = await Geolocator.requestPermission();
+//       if (permission == LocationPermission.denied) {
+//         return Future.error('Location permissions are denied');
+//       }
+//     }
+//
+//     if (permission == LocationPermission.deniedForever) {
+//       return Future.error(
+//           'Location permissions are permanently denied, we cannot request permissions.');
+//     }
+//
+//     return await Geolocator.getCurrentPosition();
+//   }
 
 }
-
-// ===================================================
-// MODELS
-// ===================================================
-
-
 
 
 enum BookingStatus { newRequest, confirmed }

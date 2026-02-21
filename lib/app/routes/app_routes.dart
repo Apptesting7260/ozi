@@ -204,7 +204,7 @@ class AppRoutes {
       case vendorAddNewAddressScreen:
         return MaterialPageRoute(builder: (_) => VendorAddAddressScreen());
       case locationPickerScreen:
-        return MaterialPageRoute(builder: (_) => LocationPickerPage());
+        return MaterialPageRoute(builder: (_) => MapPickerPage());
       case vendorAddNewCardScreen:
         return MaterialPageRoute(builder: (_) => VendorAddNewCardScreen());
       // case vendorBookingDetailsScreen:
