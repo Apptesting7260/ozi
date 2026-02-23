@@ -328,16 +328,89 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     color: AppColors.lightGrey2,
                     isOutlined: true,
-                    onPressed: () {
-                      // Navigator.pop(context);
-                    },
-                    // onPressed: _handleSkip,
+                    onPressed: _handleSkip,
+                  ),
+
+                  hBox(35),
+
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Divider(
+                          color: AppColors.lightGrey2.withValues(alpha: 0.5),
+                          thickness: 1,
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: Text(
+                          "Or continue with",
+                          style: AppFontStyle.text_14_400(
+                            AppColors.grey,
+                            fontFamily: AppFontFamily.regular,
+                          ),
+                        ),
+                      ),
+                      Expanded(
+                        child: Divider(
+                          color: AppColors.lightGrey2.withValues(alpha: 0.5),
+                          thickness: 1,
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  hBox(35),
+
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      _socialButton(
+                        imagePath: "assets/images/Google.png",
+                        onTap: () {
+                          print("click on googlie");
+                          loginProvider.signInWithGoogle(context);
+                        },
+                      ),
+                      wBox(20),
+                      _socialButton(
+                        imagePath: "assets/images/gg--facebook 1.png",
+                        onTap: () {
+                          // Handle Facebook login
+                        },
+                      ),
+                    ],
                   ),
                 ],
               ),
             ),
           );
         },
+      ),
+    );
+  }
+
+  Widget _socialButton({
+    required String imagePath,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(50),
+      child: Container(
+        height: 56.h,
+        width: 56.h,
+        decoration: BoxDecoration(
+          color: AppColors.lightGrey,
+          shape: BoxShape.circle,
+        ),
+        padding: const EdgeInsets.all(16),
+        child: CustomImage(
+          path: imagePath,
+          fit: BoxFit.contain,
+          height: 20,
+          width: 20,
+        ),
       ),
     );
   }
