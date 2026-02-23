@@ -1,6 +1,7 @@
 import 'package:chucker_flutter/chucker_flutter.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:ozi/app/modules/user/cart/change%20address/provider/ChangeAddressProvider.dart';
 import 'package:ozi/app/modules/user/profile/add%20new%20address/provider/add_address_provider.dart';
 import 'package:ozi/app/modules/user/profile/edit%20address/provider/edit_user_address_provider.dart';
@@ -46,6 +47,18 @@ void main() async {
   ChuckerFlutter.isDebugMode = false;
 
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  try {
+    await GoogleSignIn.instance.initialize(
+      // clientId: 'your-ios-or-web-client-id.apps.googleusercontent.com',     // usually only needed for iOS / web
+      serverClientId:
+          '102047141140-maig6m3qtbl17h9h8d39r14tr1d7qgb4.apps.googleusercontent.com', // usually for Android if you need server auth code
+      // scopes: ['email', 'profile'],   // ← you can pass scopes here (or later in authenticate)
+    );
+    debugPrint('Google Sign-In initialized successfully');
+  } catch (e) {
+    debugPrint('Failed to initialize Google Sign-In: $e');
+    // Optionally show a toast or log — but don't crash the app
+  }
   PushNotificationService.firebaseNotification();
 
   Stripe.publishableKey =

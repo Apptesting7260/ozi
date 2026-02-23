@@ -29,44 +29,38 @@ class _SplashScreenState extends State<SplashScreen> {
     });
   }
 
-  Future<void>  authInit(BuildContext context)async {
-    bool isLogin = await UserPreference.returnIsLoggedIn()??false;
+  Future<void> authInit(BuildContext context) async {
+    bool isLogin = await UserPreference.returnIsLoggedIn() ?? false;
     String? token = await UserPreference.returnAccessToken();
     String? role = await UserPreference.returnRole();
     String? step = await UserPreference.returnStep();
     String? userId = await UserPreference.returnUserId();
-    if(isLogin&&token!=null&&role!=null){
-      if(step=='0'){
+    if (isLogin && token != null && role != null) {
+      if (step == '0') {
         Navigator.pushReplacement(
           navigatorKey.currentContext!,
-          MaterialPageRoute(
-            builder: (_) => ChooseRoleScreen(userId: userId,),
-          ),
+          MaterialPageRoute(builder: (_) => ChooseRoleScreen(userId: userId)),
         );
-      }else if(step=='1'&&role=='vendor'){
+      } else if (step == '1' && role == 'vendor') {
+        Navigator.push(
+          navigatorKey.currentContext!,
+          MaterialPageRoute(builder: (_) => ServiceCategory()),
+        );
+      } else if (step == '2' && role == 'vendor') {
+        Navigator.push(
+          navigatorKey.currentContext!,
+          MaterialPageRoute(builder: (_) => SetAvailabilityScreen(false)),
+        );
+      } else if (step == '3' && role == 'vendor') {
         Navigator.push(
           navigatorKey.currentContext!,
           MaterialPageRoute(
-            builder: (_) => ServiceCategory(),
+            builder: (_) => IdentityVerificationScreen(isFromProfile: false),
           ),
         );
-      }else if(step=='2'&&role=='vendor'){
-        Navigator.push(
-          navigatorKey.currentContext!,
-          MaterialPageRoute(
-            builder: (_) => SetAvailabilityScreen(false),
-          ),
-        );
-      }else if(step=='3'&&role=='vendor'){
-        Navigator.push(
-          navigatorKey.currentContext!,
-          MaterialPageRoute(
-            builder: (_) => IdentityVerificationScreen(isFromProfile: false,),
-          ),
-        );
-      }else{
-        if(role!=null&&token!=null){
-          loginWithSaveTokenRedirection(role,token);
+      } else {
+        if (role != null && token != null) {
+          loginWithSaveTokenRedirection(role, token);
         }
       }
       // if(role=='user'){
@@ -84,39 +78,33 @@ class _SplashScreenState extends State<SplashScreen> {
       //     ),
       //   );
       // }
-    }else{
+    } else {
       Navigator.pushAndRemoveUntil(
         context,
-        MaterialPageRoute(
-          builder: (_) => const WelcomeScreen(),
-        ),
-            (route) => false, // This removes all previous routes
+        MaterialPageRoute(builder: (_) => const WelcomeScreen()),
+        (route) => false, // This removes all previous routes
       );
     }
   }
 
-
-
-  Future<void> loginWithSaveTokenRedirection(String? role,String? token) async {
-    if(role==null||token==null){
+  Future<void> loginWithSaveTokenRedirection(
+    String? role,
+    String? token,
+  ) async {
+    if (role == null || token == null) {
       return;
     }
-    if(role=='user'){
+    if (role == 'user') {
       Navigator.push(
         navigatorKey.currentContext!,
-        MaterialPageRoute(
-          builder: (_) =>   NavigationTabScreen(),
-        ),
+        MaterialPageRoute(builder: (_) => NavigationTabScreen()),
       );
-    }else if(role=='vendor'){
+    } else if (role == 'vendor') {
       Navigator.push(
         navigatorKey.currentContext!,
-        MaterialPageRoute(
-          builder: (_) =>   VendorNavigationTabScreen(),
-        ),
+        MaterialPageRoute(builder: (_) => VendorNavigationTabScreen()),
       );
     }
-
   }
 
   @override
@@ -128,9 +116,7 @@ class _SplashScreenState extends State<SplashScreen> {
           Positioned.fill(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
-              children: const [
-                SplashLogo(),
-              ],
+              children: const [SplashLogo()],
             ),
           ),
         ],

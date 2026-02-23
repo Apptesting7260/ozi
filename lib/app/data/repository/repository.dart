@@ -486,6 +486,14 @@ class Repository {
     }
   }
 
+  Future<dynamic> socialLoginApi(Map<String, dynamic> data) async {
+    dynamic response = await _apiService.postApiWithoutToken(
+      data,
+      AppUrls.socialLogin,
+    );
+    return response;
+  }
+
   // ********************************************* getSingleService Api ***********************************************//
   Future<dynamic> getSingleServiceApi(int serviceId) async {
     try {

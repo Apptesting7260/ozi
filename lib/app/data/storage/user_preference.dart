@@ -1,7 +1,9 @@
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+
 import '../../core/appExports/app_export.dart';
 
 class UserPreference {
-
+  static final FlutterSecureStorage secureStorage = FlutterSecureStorage();
   static saveAccessToken(String token) async {
     SharedPreferences pref = await SharedPreferences.getInstance();
     pref.setString("accessToken", token);
@@ -13,7 +15,17 @@ class UserPreference {
     return token;
   }
 
+  static saveRefreshToken(String token) async {
+    // SharedPreferences pref = await SharedPreferences.getInstance();
+    // pref.setString("refresh_token", token);
 
+    secureStorage.write(key: "refresh_token", value: token);
+  }
+
+  static saveLoginStatus(bool isLogin) async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    pref.setBool("isLogin", isLogin);
+  }
 
   static isLoggedIn(bool step) async {
     SharedPreferences pref = await SharedPreferences.getInstance();
@@ -48,6 +60,12 @@ class UserPreference {
     return step;
   }
 
+  static saveToken(String token) async {
+    secureStorage.write(key: "token", value: token);
+    // SharedPreferences pref = await SharedPreferences.getInstance();
+    // pref.setString("token", token);
+  }
+
   static saveUserId(String userId) async {
     SharedPreferences pref = await SharedPreferences.getInstance();
     pref.setString("userid", userId);
@@ -58,7 +76,6 @@ class UserPreference {
     String? userId = pref.getString("userid");
     return userId;
   }
-
 
   static clearSharedPreference() async {
     SharedPreferences pref = await SharedPreferences.getInstance();
