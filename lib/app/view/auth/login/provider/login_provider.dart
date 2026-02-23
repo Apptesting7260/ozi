@@ -2,7 +2,14 @@ import 'dart:async';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:http/http.dart' as http;
+import 'package:ozi/app/core/appExports/app_export.dart';
+import 'package:ozi/app/core/device%20info/datainfoservices.dart';
+import 'package:ozi/app/core/push%20notification/push_notification.dart';
+import 'package:ozi/app/data/repository/repository.dart';
+import 'package:ozi/app/data/storage/user_preference.dart';
+import 'package:ozi/app/shared/widgets/customoverlayloader.dart';
 import 'dart:convert';
 import '../../../../core/constants/app_urls.dart';
 import '../model/login_model.dart';
@@ -11,7 +18,7 @@ class LoginProvider extends ChangeNotifier {
   bool _isLoading = false;
   String? _errorMessage;
   LoginModel? _loginResponse;
-
+  Repository _repository = Repository();
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
   LoginModel? get loginResponse => _loginResponse;
@@ -83,17 +90,26 @@ class LoginProvider extends ChangeNotifier {
     '233': {'length': 9, 'name': 'Ghana'}, // Ghana
     '234': {'length': 10, 'name': 'Nigeria'}, // Nigeria
     '235': {'length': 8, 'name': 'Chad'}, // Chad
-    '236': {'length': 8, 'name': 'Central African Republic'}, // Central African Republic
+    '236': {
+      'length': 8,
+      'name': 'Central African Republic',
+    }, // Central African Republic
     '237': {'length': 9, 'name': 'Cameroon'}, // Cameroon
     '238': {'length': 7, 'name': 'Cape Verde'}, // Cape Verde
-    '239': {'length': 7, 'name': 'Sao Tome and Principe'}, // Sao Tome and Principe
+    '239': {
+      'length': 7,
+      'name': 'Sao Tome and Principe',
+    }, // Sao Tome and Principe
     '240': {'length': 9, 'name': 'Equatorial Guinea'}, // Equatorial Guinea
     '241': {'length': 7, 'name': 'Gabon'}, // Gabon
     '242': {'length': 9, 'name': 'Congo'}, // Congo
     '243': {'length': 9, 'name': 'DR Congo'}, // DR Congo
     '244': {'length': 9, 'name': 'Angola'}, // Angola
     '245': {'length': 9, 'name': 'Guinea-Bissau'}, // Guinea-Bissau
-    '246': {'length': 7, 'name': 'British Indian Ocean Territory'}, // British Indian Ocean Territory
+    '246': {
+      'length': 7,
+      'name': 'British Indian Ocean Territory',
+    }, // British Indian Ocean Territory
     '247': {'length': 4, 'name': 'Ascension Island'}, // Ascension Island
     '248': {'length': 7, 'name': 'Seychelles'}, // Seychelles
     '249': {'length': 9, 'name': 'Sudan'}, // Sudan
@@ -146,7 +162,10 @@ class LoginProvider extends ChangeNotifier {
     '383': {'length': 8, 'name': 'Kosovo'}, // Kosovo
     '385': {'length': 9, 'name': 'Croatia'}, // Croatia
     '386': {'length': 8, 'name': 'Slovenia'}, // Slovenia
-    '387': {'length': 8, 'name': 'Bosnia and Herzegovina'}, // Bosnia and Herzegovina
+    '387': {
+      'length': 8,
+      'name': 'Bosnia and Herzegovina',
+    }, // Bosnia and Herzegovina
     '389': {'length': 8, 'name': 'Macedonia'}, // Macedonia
     '420': {'length': 9, 'name': 'Czech Republic'}, // Czech Republic
     '421': {'length': 9, 'name': 'Slovakia'}, // Slovakia
@@ -159,7 +178,10 @@ class LoginProvider extends ChangeNotifier {
     '505': {'length': 8, 'name': 'Nicaragua'}, // Nicaragua
     '506': {'length': 8, 'name': 'Costa Rica'}, // Costa Rica
     '507': {'length': 8, 'name': 'Panama'}, // Panama
-    '508': {'length': 6, 'name': 'Saint Pierre and Miquelon'}, // Saint Pierre and Miquelon
+    '508': {
+      'length': 6,
+      'name': 'Saint Pierre and Miquelon',
+    }, // Saint Pierre and Miquelon
     '509': {'length': 8, 'name': 'Haiti'}, // Haiti
     '590': {'length': 9, 'name': 'Guadeloupe'}, // Guadeloupe
     '591': {'length': 8, 'name': 'Bolivia'}, // Bolivia
@@ -170,7 +192,10 @@ class LoginProvider extends ChangeNotifier {
     '596': {'length': 9, 'name': 'Martinique'}, // Martinique
     '597': {'length': 7, 'name': 'Suriname'}, // Suriname
     '598': {'length': 8, 'name': 'Uruguay'}, // Uruguay
-    '599': {'length': 7, 'name': 'Netherlands Antilles'}, // Netherlands Antilles
+    '599': {
+      'length': 7,
+      'name': 'Netherlands Antilles',
+    }, // Netherlands Antilles
     '670': {'length': 8, 'name': 'East Timor'}, // East Timor
     '672': {'length': 6, 'name': 'Antarctica'}, // Antarctica
     '673': {'length': 7, 'name': 'Brunei'}, // Brunei
@@ -224,6 +249,21 @@ class LoginProvider extends ChangeNotifier {
     '998': {'length': 9, 'name': 'Uzbekistan'}, // Uzbekistan
   };
 
+  String? _loginErrorInvalidCredentialsMessage;
+  String? get loginErrorInvalidCredentialsMessage =>
+      _loginErrorInvalidCredentialsMessage;
+  setloginErrorInvalidCredentialsMessage(String? value) {
+    _loginErrorInvalidCredentialsMessage = value;
+    notifyListeners();
+  }
+
+  String? _emailNotFoundMessage;
+  String? get emailNotFoundMessage => _emailNotFoundMessage;
+  setEmailNotFoundMessage(String? value) {
+    _emailNotFoundMessage = value;
+    notifyListeners();
+  }
+
   int getExpectedPhoneLength(String countryCode) {
     final config = countryPhoneConfig[countryCode];
     return config?['length'] ?? 10; // Default to 10 if not found
@@ -267,141 +307,6 @@ class LoginProvider extends ChangeNotifier {
     return null;
   }
 
-  // Future<bool> sendOtp({
-  //   required String phoneNumber,
-  //   required String countryCode,
-  // }) async {
-  //   final cleanCountryCode = countryCode.replaceAll('+', '');
-  //
-  //   final validationError = validatePhoneNumber(phoneNumber, cleanCountryCode);
-  //   if (validationError != null) {
-  //     _errorMessage = validationError;
-  //     notifyListeners();
-  //     return false;
-  //   }
-  //
-  //   _isLoading = true;
-  //   _errorMessage = null;
-  //   notifyListeners();
-  //
-  //   try {
-  //     final url = Uri.parse(AppUrls.login);
-  //
-  //     final cleanPhone = phoneNumber.replaceAll(RegExp(r'[^\d]'), '');
-  //
-  //     final requestBody = {
-  //       'mobile': cleanPhone,
-  //       'country_code': '+$cleanCountryCode',
-  //     };
-  //
-  //     print('🔵 Sending OTP request to: $url');
-  //     print('📤 Request body: ${json.encode(requestBody)}');
-  //
-  //     final response = await http.post(
-  //       url,
-  //       headers: {
-  //         'Content-Type': 'application/json',
-  //         'Accept': 'application/json',
-  //         'User-Agent': 'OziService-App',
-  //       },
-  //       body: json.encode(requestBody),
-  //     ).timeout(
-  //       Duration(seconds: 30),
-  //       onTimeout: () {
-  //         throw Exception('Request timeout. Please check your internet connection.');
-  //       },
-  //     );
-  //
-  //     print('📥 Response status code: ${response.statusCode}');
-  //     print('📥 Response body: ${response.body}');
-  //     print('📥 Response headers: ${response.headers}');
-  //
-  //     if (response.statusCode == 200 || response.statusCode == 201) {
-  //       try {
-  //         final responseData = json.decode(response.body);
-  //         _loginResponse = LoginModel.fromJson(responseData);
-  //
-  //         _isLoading = false;
-  //
-  //         if (_loginResponse?.status == true) {
-  //           print('✅ OTP sent successfully');
-  //           notifyListeners();
-  //           return true;
-  //         } else {
-  //           _errorMessage = _loginResponse?.message ?? 'Failed to send OTP';
-  //           print('❌ API returned false status: $_errorMessage');
-  //           notifyListeners();
-  //           return false;
-  //         }
-  //       } catch (e) {
-  //         _isLoading = false;
-  //         _errorMessage = 'Invalid response format from server';
-  //         print('❌ JSON parsing error: $e');
-  //         notifyListeners();
-  //         return false;
-  //       }
-  //     } else if (response.statusCode == 302) {
-  //       _isLoading = false;
-  //       _errorMessage = 'Server configuration issue. Please contact support.';
-  //       print('❌ 302 Redirect detected. Location: ${response.headers['location']}');
-  //       notifyListeners();
-  //       return false;
-  //     } else if (response.statusCode == 400) {
-  //       _isLoading = false;
-  //       try {
-  //         final responseData = json.decode(response.body);
-  //         _errorMessage = responseData['message'] ?? 'Invalid phone number or country code';
-  //       } catch (e) {
-  //         _errorMessage = 'Invalid request';
-  //       }
-  //       print('❌ Bad request: $_errorMessage');
-  //       notifyListeners();
-  //       return false;
-  //     } else if (response.statusCode == 422) {
-  //       _isLoading = false;
-  //       try {
-  //         final responseData = json.decode(response.body);
-  //         _errorMessage = responseData['message'] ?? 'Validation error';
-  //       } catch (e) {
-  //         _errorMessage = 'Validation error';
-  //       }
-  //       print('❌ Validation error: $_errorMessage');
-  //       notifyListeners();
-  //       return false;
-  //     } else if (response.statusCode == 500) {
-  //       _isLoading = false;
-  //       _errorMessage = 'Server error. Please try again later.';
-  //       print('❌ 500 Server error');
-  //       notifyListeners();
-  //       return false;
-  //     } else {
-  //       _isLoading = false;
-  //       _errorMessage = 'Error ${response.statusCode}: ${response.reasonPhrase}';
-  //       print('❌ Unexpected status code: ${response.statusCode}');
-  //       notifyListeners();
-  //       return false;
-  //     }
-  //   } on http.ClientException catch (e) {
-  //     _isLoading = false;
-  //     _errorMessage = 'Network error. Please check your internet connection.';
-  //     print('❌ ClientException: $e');
-  //     notifyListeners();
-  //     return false;
-  //   } on FormatException catch (e) {
-  //     _isLoading = false;
-  //     _errorMessage = 'Invalid response from server';
-  //     print('❌ FormatException: $e');
-  //     notifyListeners();
-  //     return false;
-  //   } catch (e) {
-  //     _isLoading = false;
-  //     _errorMessage = 'Something went wrong. Please try again.';
-  //     print('❌ General Exception: $e');
-  //     notifyListeners();
-  //     return false;
-  //   }
-  // }
-
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
   String verificationId = '';
@@ -429,7 +334,7 @@ class LoginProvider extends ChangeNotifier {
       },
 
       codeSent: (String verId, int? resendToken) {
-        verificationId = verId;   // save globally
+        verificationId = verId; // save globally
         _isLoading = false;
         notifyListeners();
         completer.complete(true);
@@ -443,9 +348,198 @@ class LoginProvider extends ChangeNotifier {
     return completer.future;
   }
 
+  Future<void> signInWithGoogle(BuildContext context) async {
+    try {
+      CustomOverlayLoader.show(context);
 
+      final GoogleSignIn signIn = GoogleSignIn.instance; // It's now a singleton
 
+      // If you didn't initialize globally in main.dart, do it here (but prefer main)
+      // await signIn.initialize(serverClientId: '...');
 
+      // Use authenticate() — it throws on cancel/error instead of returning null
+      final GoogleSignInAccount? googleUser = await signIn.authenticate(
+        scopeHint: ['email', 'profile'], // Optional, but good to include
+      );
+
+      if (googleUser == null) {
+        CustomOverlayLoader.hide();
+        return;
+      }
+
+      // Get the authentication details (idToken only!)
+      final GoogleSignInAuthentication googleAuth =
+          await googleUser.authentication;
+
+      debugPrint('Google user ID: ${googleUser.id}');
+      debugPrint(
+        'idToken: ${googleAuth.idToken}',
+      ); // ← This MUST be a long string like "eyJhbGciOi... . payload . signature"
+
+      if (googleAuth.idToken == null || googleAuth.idToken!.isEmpty) {
+        Get.showToast(
+          'Failed to retrieve Google ID token',
+          type: ToastType.error,
+        );
+        CustomOverlayLoader.hide();
+        return;
+      }
+
+      // Send the REAL idToken (JWT) to your backend
+      await socialLoginApi(navigatorKey.currentContext!, googleAuth.idToken!);
+
+      CustomOverlayLoader.hide();
+    } on GoogleSignInException catch (e) {
+      CustomOverlayLoader.hide();
+      if (e.code == GoogleSignInExceptionCode.canceled) {
+        return;
+      }
+      debugPrint('Google Sign-In error: ${e.code} – ${e.description}');
+      Get.showToast(
+        'Google Sign-In failed: ${e.description ?? "Unknown"}',
+        type: ToastType.error,
+      );
+    } on PlatformException catch (e) {
+      CustomOverlayLoader.hide();
+      debugPrint('Platform error: ${e.message}');
+      Get.showToast(
+        'Google Sign-In failed. Check configuration.',
+        type: ToastType.error,
+      );
+    } catch (e) {
+      CustomOverlayLoader.hide();
+      debugPrint('Unexpected error: $e');
+      Get.showToast('Login failed. Please try again.', type: ToastType.error);
+    }
+  }
+  // Future<void> signInWithGoogle(BuildContext context) async {
+  //   try {
+  //     CustomOverlayLoader.show(context);
+
+  //     final GoogleSignIn signIn = GoogleSignIn.instance;
+
+  //     // Optional: ensure initialized (you can skip if you did it globally)
+  //     // await signIn.initialize();  // ← call only once in the app
+
+  //     // New authentication method – throws if canceled/failed
+  //     final GoogleSignInAccount? googleUser = await signIn.authenticate(
+  //       scopeHint: ['email', 'profile'], // ← pass scopes here
+  //     );
+
+  //     if (googleUser == null) {
+  //       // This case is now very rare – usually throws GoogleSignInException
+  //       CustomOverlayLoader.hide();
+  //       return;
+  //     }
+
+  //     // Optional: Firebase login (still works the same way)
+  //     // final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+  //     // final credential = GoogleAuthProvider.credential(
+  //     //   accessToken: googleAuth.accessToken,
+  //     //   idToken: googleAuth.idToken,
+  //     // );
+  //     // await FirebaseAuth.instance.signInWithCredential(credential);
+
+  //     String displayName = googleUser.displayName ?? '';
+  //     String firstName = '';
+  //     String lastName = '';
+
+  //     if (displayName.isNotEmpty) {
+  //       List<String> nameParts = displayName.split(' ');
+  //       firstName = nameParts.first;
+  //       lastName = nameParts.length > 1 ? nameParts.sublist(1).join(' ') : '';
+  //     }
+
+  //     // Call your backend API with Google ID
+  //     await socialLoginApi(navigatorKey.currentContext!, googleUser.id);
+
+  //     CustomOverlayLoader.hide();
+  //   } on GoogleSignInException catch (e) {
+  //     CustomOverlayLoader.hide();
+
+  //     if (e.code == GoogleSignInExceptionCode.canceled) {
+  //       // User canceled – silent return or show info toast
+  //       return;
+  //     }
+
+  //     debugPrint('Google Sign-In error: ${e.code} – ${e.description}');
+  //     Get.showToast(
+  //       'Google Sign-In failed: ${e.description ?? "Unknown error"}',
+  //       type: ToastType.error,
+  //     );
+  //   } on PlatformException catch (e) {
+  //     CustomOverlayLoader.hide();
+  //     debugPrint('PlatformException: ${e.message}');
+  //     Get.showToast(
+  //       'Google Sign-In failed. Please check configuration.',
+  //       type: ToastType.error,
+  //     );
+  //   } catch (e) {
+  //     CustomOverlayLoader.hide();
+  //     debugPrint('Unexpected error: $e');
+  //     Get.showToast('Login failed. Please try again.', type: ToastType.error);
+  //   }
+  // }
+
+  bool _isLoader = false;
+  bool get isLoader => _isLoader;
+  updateLoading(bool value) {
+    _isLoader = value;
+    notifyListeners();
+  }
+
+  Future<void> socialLoginApi(BuildContext context, String idToken) async {
+    updateLoading(true);
+
+    try {
+      String deviceId = await DeviceIdService.getDeviceId();
+      String deviceName = await DeviceIdService.getDeviceName();
+
+      final value = await _repository.socialLoginApi({
+        "id_token": idToken,
+        "device_name": deviceName,
+        "device_type": Platform.isAndroid ? "android" : "ios",
+        "fcm_token": PushNotificationService.fcmToken ?? "",
+      });
+
+      // Only interact with context if widget is still mounted
+      if (context.mounted) {
+        if (value['status'] == true) {
+          await UserPreference.saveToken(value['accessToken']);
+          await UserPreference.saveUserId(value['user']['id']);
+          await UserPreference.saveRefreshToken(value['user']['refreshToken']);
+          await UserPreference.saveLoginStatus(true);
+
+          Get.showToast(
+            value['message']?.toString() ?? 'Login Successfully',
+            type: ToastType.success,
+          );
+
+          // if (value['user']['is_profile_completed'] == true) {
+          //   Get.offAllNamed(Routes.home);
+          // } else {
+          //   Get.offAllNamed(Routes.completeProfile);
+          // }
+        }
+      }
+    } catch (error) {
+      if (context.mounted) {
+        if (error.toString() == 'Invalid credentials.') {
+          setloginErrorInvalidCredentialsMessage(error.toString());
+        } else if (error.toString().contains(
+          'This email is not registered with us.',
+        )) {
+          setEmailNotFoundMessage(error.toString());
+        } else {
+          Get.showToast(error.toString(), type: ToastType.error);
+        }
+      }
+
+      Get.consoleLog(error.toString(), "error while COMPLETE PROFILE");
+    } finally {
+      updateLoading(false);
+    }
+  }
 
   void clearError() {
     _errorMessage = null;

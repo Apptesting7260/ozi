@@ -40,7 +40,7 @@ dependencies:
   geolocator: ^14.0.2
   geocoding: ^4.0.0
   socket_io_client: ^3.1.4
-  firebase_core: ^4.0.0
+  firebase_core: ^4.4.0
   firebase_messaging: ^16.0.0
   flutter_local_notifications: ^19.4.0
   another_flushbar: ^1.12.30
@@ -53,6 +53,9 @@ dependencies:
   image_cropper: ^9.1.0
   photo_manager: ^3.7.1
   flutter_image_compress: ^2.4.0
+  google_sign_in: ^7.2.0
+  flutter_overlay_loader: ^2.0.0
+  flutter_secure_storage: ^10.0.0
 
 dev_dependencies:
   flutter_test:

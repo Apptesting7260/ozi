@@ -6,7 +6,7 @@
 //}
 //
 //android {
-//    namespace = "com.example.ozi"
+//    namespace = "com.services.ozi"
 //    compileSdk = flutter.compileSdkVersion
 //    ndkVersion = flutter.ndkVersion
 //
