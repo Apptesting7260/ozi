@@ -2,6 +2,7 @@ import 'package:ozi/app/modules/user/home/model/category_model.dart';
 import 'package:ozi/app/modules/user/navigation%20tab/view/navigation_tab_screen.dart';
 import '../../../../../core/appExports/app_export.dart';
 import '../../../../../core/constants/app_urls.dart';
+import '../../../../../shared/widgets/auth_guard.dart';
 import '../../../../../shared/widgets/custom_app_bar.dart';
 import '../provider/ServiceDetailProvider.dart';
 import '../model/ServiceDetailsModel.dart';
@@ -158,7 +159,11 @@ class ServiceDetailView extends StatelessWidget {
       children: [
         // Vendor Header
         InkWell(
-          onTap: () {
+          onTap: () async{
+            final bool allowed = await AuthGuard.requireLogin(context);
+
+            if (!allowed) return;
+
             Navigator.push(
               context,
               MaterialPageRoute(
@@ -320,7 +325,10 @@ class ServiceDetailView extends StatelessWidget {
 
   Widget _buildViewButton(BuildContext context, ServiceData serviceData) {
     return InkWell(
-      onTap: () {
+      onTap: () async{
+        final bool allowed = await AuthGuard.requireLogin(context);
+
+        if (!allowed) return;
         if (serviceData.vendorId != null) {
           Navigator.push(
             context,
@@ -431,6 +439,9 @@ class ServiceDetailView extends StatelessWidget {
       borderRadius: BorderRadius.circular(20),
       color: AppColors.primary,
       onPressed: () async {
+          final bool allowed = await AuthGuard.requireLogin(context);
+
+          if (!allowed) return;
         try {
           await provider.addToCart(serviceId);
         } catch (e) {

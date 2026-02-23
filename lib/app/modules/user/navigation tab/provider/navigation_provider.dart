@@ -1,4 +1,5 @@
 import '../../../../core/appExports/app_export.dart';
+import '../../../../shared/widgets/auth_guard.dart';
 import '../../booking/view/booking_screen.dart';
 import '../../cart/view/my_cart_screen.dart';
 import '../../help/view/help_screen.dart';
@@ -11,10 +12,27 @@ class NavigationProvider extends ChangeNotifier {
 
 
 
-  // --------------------------------------------------------
+  // // --------------------------------------------------------
+  // Future<void> setIndex(int index, BuildContext context) async {
+  //   if (index >= 1) {
+  //   }
+  //
+  //   _currentIndex = index;
+  //   notifyListeners();
+  // }
+
   Future<void> setIndex(int index, BuildContext context) async {
-    if (index >= 1) {
+    // Always allow Home & Help
+    if (index == 0 || index == 3) {
+      _currentIndex = index;
+      notifyListeners();
+      return;
     }
+
+    // For restricted tabs, use AuthGuard
+    final bool allowed = await AuthGuard.requireLogin(context);
+
+    if (!allowed) return;
 
     _currentIndex = index;
     notifyListeners();

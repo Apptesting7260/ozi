@@ -1,4 +1,5 @@
 import '../../../../core/appExports/app_export.dart';
+import '../../../../shared/widgets/auth_guard.dart';
 import '../../../../shared/widgets/custom_text_form_field.dart';
 import '../../../../shared/widgets/custom_shimmer_box.dart';
 import '../provider/HelpProvider.dart';
@@ -291,7 +292,13 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
             text: provider.isLoading ? "Sending..." : "Send Message",
             onPressed: provider.isLoading
                 ? null
-                : () {
+                : ()
+              async {
+
+                final bool allowed = await AuthGuard.requireLogin(context);
+
+                if (!allowed) return;
+
                     if (_emailController.text.trim().isEmpty ||
                         _subjectController.text.trim().isEmpty ||
                         _messageController.text.trim().isEmpty) {
@@ -334,7 +341,11 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
             title: "Call Us",
             subtitle: provider.helpModel?.actions?.callUs.toString() ?? "",
             buttonText: "Call Now",
-            onTap: () {
+            onTap: () async{
+              final bool allowed = await AuthGuard.requireLogin(context);
+
+              if (!allowed) return;
+
               Get.dialCall(
                 provider.helpModel?.actions?.callUs.toString() ?? "",
               );
@@ -359,7 +370,11 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
             title: "Email Us",
             subtitle: provider.helpModel?.actions?.emailUs ?? "",
             buttonText: "Send Email",
-            onTap: () {
+            onTap: () async{
+              final bool allowed = await AuthGuard.requireLogin(context);
+
+              if (!allowed) return;
+
               final email = provider.helpModel?.actions?.emailUs?.trim();
               if (email != null && email.isNotEmpty) {
                 Get.sendEmail(email);

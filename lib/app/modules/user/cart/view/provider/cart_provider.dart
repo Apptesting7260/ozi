@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:ozi/app/core/utils/get_utils.dart';
 import '../../../../../data/repository/repository.dart';
+import '../../../../../data/storage/user_preference.dart';
 import '../model/cart_items_model.dart';
 import '../model/increase_cart_quantity_model.dart';
 
@@ -32,6 +33,14 @@ class CartProvider with ChangeNotifier {
   String? get appliedCouponCode => _appliedCouponCode;
 
   Future<void> fetchCartItems() async {
+
+    // 🔐 STEP 1: Check token first
+    final token = await UserPreference.returnAccessToken();
+    if (token == null || token.isEmpty) {
+      // Guest user → do nothing
+      return;
+    }
+
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();

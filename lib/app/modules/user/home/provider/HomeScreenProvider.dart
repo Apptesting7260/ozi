@@ -1,6 +1,5 @@
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
-
 import '../../../../core/appExports/app_export.dart';
 import '../../../../data/repository/repository.dart';
 import '../model/category_model.dart';
@@ -181,8 +180,12 @@ class HomeScreenProvider extends ChangeNotifier {
 
       lat = newLat;
       lng = newLng;
-      print("updateFromSelection lat  = $lat");
-      print("updateFromSelection lng = $lng");
+      if (kDebugMode) {
+        print("updateFromSelection lat  = $lat");
+      }
+      if (kDebugMode) {
+        print("updateFromSelection lng = $lng");
+      }
     }
     notifyListeners();
     await fetchCategories(); // Wait for categories to be fetched

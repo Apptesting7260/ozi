@@ -77,34 +77,74 @@ class ProfileProvider extends ChangeNotifier {
     }
   }
 
+  // Future<void> fetchUserProfile() async {
+  //   _isProfileLoading = true;
+  //   _errorMessage = '';
+  //   notifyListeners();
+  //
+  //   try {
+  //     print('=== TOKEN DEBUG ===');
+  //
+  //     dynamic response = await _repository.getProfileApi();
+  //
+  //     _userProfile = UserProfileModel.fromJson(response);
+  //     UserPreference.saveUserId(_userProfile?.data?.id.toString() ?? '');
+  //     _isProfileLoading = false;
+  //     notifyListeners();
+  //
+  //     if (_userProfile?.status != true) {
+  //       _errorMessage = _userProfile?.message ?? 'Failed to fetch profile';
+  //       notifyListeners();
+  //     }
+  //   } catch (e) {
+  //     _isProfileLoading = false;
+  //     _errorMessage = e.toString().replaceAll('Exception: ', '');
+  //     Get.showToast(
+  //       e.toString() ?? 'Something went wrong',
+  //       type: ToastType.error,
+  //     );
+  //     notifyListeners();
+  //     print('Error fetching profile: $_errorMessage');
+  //   }
+  // }
   Future<void> fetchUserProfile() async {
+
+    // 🔐 STEP 1: Check token first
+    final token = await UserPreference.returnAccessToken();
+    if (token == null || token.isEmpty) {
+      // Guest user → do nothing
+      return;
+    }
+
     _isProfileLoading = true;
     _errorMessage = '';
     notifyListeners();
 
     try {
-      print('=== TOKEN DEBUG ===');
-
       dynamic response = await _repository.getProfileApi();
 
       _userProfile = UserProfileModel.fromJson(response);
       UserPreference.saveUserId(_userProfile?.data?.id.toString() ?? '');
+
       _isProfileLoading = false;
       notifyListeners();
 
       if (_userProfile?.status != true) {
-        _errorMessage = _userProfile?.message ?? 'Failed to fetch profile';
+        _errorMessage =
+            _userProfile?.message ?? 'Failed to fetch profile';
         notifyListeners();
       }
     } catch (e) {
       _isProfileLoading = false;
-      _errorMessage = e.toString().replaceAll('Exception: ', '');
+      _errorMessage =
+          e.toString().replaceAll('Exception: ', '');
+
       Get.showToast(
-        e.toString() ?? 'Something went wrong',
+        _errorMessage,
         type: ToastType.error,
       );
+
       notifyListeners();
-      print('Error fetching profile: $_errorMessage');
     }
   }
 
