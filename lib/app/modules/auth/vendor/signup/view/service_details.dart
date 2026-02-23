@@ -291,8 +291,9 @@ class _ServiceDetailsContentState extends State<_ServiceDetailsContent> {
                               .where((word) => word.isNotEmpty)
                               .length;
 
-                          if (wordCount > 30) {
-                            return "Maximum 30 words allowed";
+                          if (wordCount > 40) {
+                            return "Maximum 4"
+                                "0 words allowed";
                           }
 
                           return null;

@@ -254,7 +254,9 @@ class Repository {
 
   // **************************  Get Cart Items Api **************************//
   Future<CartItemsModel> getCartItemsApi() async {
+
     try {
+
       print('API Request URL: ${AppUrls.getCartItemsApi}');
 
       dynamic response = await _apiService.getApi(AppUrls.getCartItemsApi);

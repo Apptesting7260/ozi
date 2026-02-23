@@ -5,6 +5,8 @@ import 'package:ozi/app/modules/vendor/home/notification/view/vendor_notificatio
 
 import '../../../../core/appExports/app_export.dart';
 import '../../../../core/constants/app_urls.dart';
+import '../../../../data/storage/user_preference.dart';
+import '../../../../shared/widgets/auth_guard.dart';
 import '../../../../shared/widgets/custom_image_path_helper.dart';
 import '../../../../shared/widgets/custom_shimmer_box.dart';
 import '../../../../shared/widgets/custom_text_form_field.dart';
@@ -31,6 +33,7 @@ class _HomeScreenState extends State<HomeScreen> {
       }
     });
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -111,6 +114,11 @@ class HomeScreenView extends StatelessWidget {
               SizedBox(height: 4),
               GestureDetector(
                 onTap: () async {
+
+                  final bool allowed = await AuthGuard.requireLogin(context);
+
+                  if (!allowed) return;
+
                   final result = await Navigator.push(
                     context,
                     MaterialPageRoute(
@@ -159,7 +167,11 @@ class HomeScreenView extends StatelessWidget {
         Row(
           children: [
             GestureDetector(
-              onTap: () {
+              onTap: () async{
+                final bool allowed = await AuthGuard.requireLogin(context);
+
+                if (!allowed) return;
+
                 Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context) => MessageScreen()),
@@ -173,7 +185,11 @@ class HomeScreenView extends StatelessWidget {
             ),
             wBox(12),
             GestureDetector(
-              onTap: () {
+              onTap: () async{
+                final bool allowed = await AuthGuard.requireLogin(context);
+
+                if (!allowed) return;
+
                 Navigator.push(
                   context,
                   MaterialPageRoute(

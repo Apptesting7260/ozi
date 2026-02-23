@@ -6,6 +6,7 @@ import 'package:ozi/app/modules/user/cart/view/model/cart_items_model.dart';
 import 'package:ozi/app/modules/user/home/service%20details/model/vendordetaiulmodel.dart';
 import '../../../../../core/constants/app_urls.dart';
 import '../../../../../data/repository/repository.dart';
+import '../../../../../data/storage/user_preference.dart';
 import '../../model/category_model.dart' hide Data;
 import '../model/ServiceDetailsModel.dart';
 import '../model/add_to_cart.dart';
@@ -121,6 +122,13 @@ class ServiceDetailProvider extends ChangeNotifier {
       _items.fold(0, (sum, item) => sum + (item.quantity ?? 0));
 
   Future<void> fetchCartItems() async {
+    // 🔐 STEP 1: Check token first
+    final token = await UserPreference.returnAccessToken();
+    if (token == null || token.isEmpty) {
+      // Guest user → do nothing
+      return;
+    }
+
     try {
       final CartItemsModel response = await _repository.getCartItemsApi();
 

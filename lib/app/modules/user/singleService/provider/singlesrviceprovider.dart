@@ -4,6 +4,8 @@ import 'package:ozi/app/modules/user/singleService/model/singleservicemodel.dart
 import 'package:ozi/app/modules/user/cart/view/model/cart_items_model.dart';
 import 'package:ozi/app/core/utils/get_utils.dart';
 
+import '../../../../data/storage/user_preference.dart';
+
 class SingleServiceProvider extends ChangeNotifier {
   final Repository _repository;
   SingleServiceProvider(this._repository);
@@ -44,6 +46,13 @@ class SingleServiceProvider extends ChangeNotifier {
   }
 
   Future<void> fetchCartItems() async {
+    // 🔐 STEP 1: Check token first
+    final token = await UserPreference.returnAccessToken();
+    if (token == null || token.isEmpty) {
+      // Guest user → do nothing
+      return;
+    }
+
     try {
       final response = await _repository.getCartItemsApi();
       if (response.status == true && response.data != null) {

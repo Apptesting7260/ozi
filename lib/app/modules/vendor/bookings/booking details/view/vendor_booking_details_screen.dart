@@ -1,11 +1,6 @@
-
-
-
-
 import 'package:ozi/app/core/constants/app_urls.dart';
 import 'package:ozi/app/data/models/booking_detail_model.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
-
 import '../../../../../core/appExports/app_export.dart';
 import '../../../../../data/response/api_status.dart';
 import '../../../../../shared/widgets/custom_app_bar.dart';
@@ -35,7 +30,7 @@ class VendorBookingDetailsScreen extends StatelessWidget {
                   CustomAppBar(title: "Booking Details"),
                   switch (provider.homeModel.status) {
                     ApiStatus.loading =>
-                        Expanded(child: const Center(child: CircularProgressIndicator())),
+                        Expanded( child: const Center(child: CircularProgressIndicator())),
 
                     ApiStatus.completed =>
                         Expanded(
@@ -49,12 +44,6 @@ class VendorBookingDetailsScreen extends StatelessWidget {
                                 hBox(20),
                                 _serviceCards(provider.homeModel.data?.data?.items),
                                 hBox(20),
-
-                                // if (tabIndex == 1) ...[
-                                //   _otpSection(),
-                                //   hBox(20),
-                                // ],
-
                                 _serviceProvider(
                                     provider.homeModel.data?.data?.user?.firstName??'',
                                     '${provider.homeModel.data?.data?.user?.countryCode??''}${provider.homeModel.data?.data?.user?.mobile??''}',
@@ -595,7 +584,7 @@ class VendorBookingDetailsScreen extends StatelessWidget {
   }
 
 
-  Widget _serviceProvider(String customerName,String contact,String subHeading,String image , String status) {
+  Widget _serviceProvider( String customerName , String contact , String subHeading , String image , String status ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -606,11 +595,6 @@ class VendorBookingDetailsScreen extends StatelessWidget {
         hBox(12),
         Container(
           padding: EdgeInsets.all(12),
-          // decoration: BoxDecoration(
-          //   borderRadius: BorderRadius.circular(12),
-          //   border: Border.all(color: AppColors.containerBorder),
-          //   color: AppColors.white,
-          // ),
           child: Row(
             children: [
               ClipRRect(
@@ -639,7 +623,7 @@ class VendorBookingDetailsScreen extends StatelessWidget {
                   ],
                 ),
               ),
-               if (status == 'rejected')
+               if ( status == 'rejected' )
                  SizedBox.shrink()
              else
               GestureDetector(
@@ -801,7 +785,7 @@ class VendorBookingDetailsScreen extends StatelessWidget {
               hBox(16),
               Divider(color: AppColors.black.withValues(alpha: 0.10), thickness: 2,),
               hBox(12),
-              _summaryRow("Total", "\$${total}", isTotal: true),
+              _summaryRow("Total", "\$$total", isTotal: true),
             ],
           ),
         ),
@@ -992,10 +976,14 @@ class OTPBottomSheet extends StatelessWidget {
               selectedFillColor: Colors.white,
             ),
             onCompleted: (pin) {
-              print("OTP: $pin");
+              if (kDebugMode) {
+                print("OTP: $pin");
+              }
             },
             onChanged: (value) {
-              print(value);
+              if (kDebugMode) {
+                print(value);
+              }
             },
             appContext: context,
           ),
@@ -1003,16 +991,18 @@ class OTPBottomSheet extends StatelessWidget {
           ElevatedButton(
             onPressed: () {
               // Handle OTP verification and job start logic here
-              print("OTP: ${otpController.text}");
+              if (kDebugMode) {
+                print("OTP: ${otpController.text}");
+              }
               Navigator.pop(context);
             },
-            child: Text('Verify & Start Job'),
             style: ElevatedButton.styleFrom(
               minimumSize: Size(double.infinity, 50),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(8),
               ),
             ),
+            child: Text('Verify & Start Job'),
           ),
         ],
       ),

@@ -1,6 +1,7 @@
 import 'package:flutter/services.dart';
 import 'package:ozi/app/view/user_role/choose_your_role/view/choose_role.dart';
 import '../../../../core/appExports/app_export.dart';
+import '../../../../modules/user/navigation tab/view/navigation_tab_screen.dart';
 import '../../verification_screen/view/verification_screen.dart';
 import '../provider/login_provider.dart';
 import 'package:geolocator/geolocator.dart';

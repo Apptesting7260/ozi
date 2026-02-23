@@ -127,7 +127,7 @@ class _MessageScreenState extends State<MessageScreen> {
                                               child: Padding(
                                                 padding: const EdgeInsets.all(5.0),
                                                 child: Text(
-                                                  "${message?.participants?.length?.toString()??''}",
+                                                  message?.participants?.length.toString()??'',
                                                   style: AppFontStyle.text_13_400(AppColors.white),
                                                 ),
                                               ),
@@ -232,6 +232,7 @@ class _MessageScreenState extends State<MessageScreen> {
 
   AppBar _messageAppBar(BuildContext context) {
     return AppBar(
+      centerTitle: true,
       leadingWidth: 40,
       leading: InkWell(
         onTap: (){
@@ -246,7 +247,7 @@ class _MessageScreenState extends State<MessageScreen> {
       elevation: 0,
       title: Text(
         "Messages",
-        style: AppFontStyle.text_30_500(AppColors.black),
+        style: AppFontStyle.text_20_600(AppColors.black),
       ),
       actions: [
         // InkWell(

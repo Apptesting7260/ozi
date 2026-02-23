@@ -166,7 +166,9 @@ class VerificationProvider extends ChangeNotifier {
       // Sign in with Firebase
       UserCredential userCredential = await FirebaseAuth.instance.signInWithCredential(credential);
 
+     // String? idToken = await FirebaseAuth.instance.currentUser?.getIdToken();
       User? user = userCredential.user;
+
 
       if (user == null) {
         if (kDebugMode) {
@@ -176,7 +178,7 @@ class VerificationProvider extends ChangeNotifier {
       }
 
       // Get Firebase ID token
-      // String idToken = (await user.getIdToken())!;
+       String idToken = (await user.getIdToken())!;
 
           String countryCode = "+91";
           String mobile = phone;
@@ -194,6 +196,7 @@ class VerificationProvider extends ChangeNotifier {
         "country_code": countryCode,
         "mobile": mobile,
         "fcm_token":PushNotificationService.fcmToken ?? "",
+        "id_token": idToken,
         "device_name": deviceInfo["device_name"] ?? "",
         "device_type": deviceInfo["device_type"] ?? "",
       };
@@ -207,7 +210,9 @@ class VerificationProvider extends ChangeNotifier {
 
         await _auth.signOut();
 
-        print("Successfully session clear =====================> ${_auth.currentUser}");
+        if (kDebugMode) {
+          print("Successfully session clear =====================> ${_auth.currentUser}");
+        }
 
 
               if (navigatorKey.currentContext!.mounted) {
