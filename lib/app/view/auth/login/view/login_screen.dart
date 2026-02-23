@@ -329,7 +329,13 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     color: AppColors.lightGrey2,
                     isOutlined: true,
-                    onPressed: _handleSkip,
+                    onPressed: ()
+                    {
+                      Navigator.push(
+                        navigatorKey.currentContext!,
+                        MaterialPageRoute(builder: (_) => NavigationTabScreen()),
+                      );
+                    },
                   ),
 
                   hBox(35),
