@@ -1,6 +1,4 @@
-import 'package:flutter/material.dart';
-import 'package:ozi/app/core/utils/get_utils.dart';
-import '../../../../../core/constants/image_constant.dart';
+import '../../../../../core/appExports/app_export.dart';
 import '../../../../../data/repository/repository.dart';
 import '../model/user_address_model.dart';
 
@@ -65,11 +63,13 @@ class SavedAddressProvider extends ChangeNotifier {
       _isLoading = false;
       _errorMessage = e.toString().replaceAll('Exception: ', '');
       Get.showToast(
-        e.toString() ?? 'Something went wrong',
+        e.toString(),
         type: ToastType.error,
       );
       notifyListeners();
-      print('Error fetching addresses: $_errorMessage');
+      if (kDebugMode) {
+        print('Error fetching addresses: $_errorMessage');
+      }
     }
   }
 
@@ -121,7 +121,9 @@ class SavedAddressProvider extends ChangeNotifier {
     try {
       final response = await _repository.deleteUserAddressApi(addressId!);
 
-      print("Delete API Response: ${response.toJson()}");
+      if (kDebugMode) {
+        print("Delete API Response: ${response.toJson()}");
+      }
 
       if (response.status == true) {
         _addresses.removeAt(index);
@@ -145,11 +147,13 @@ class SavedAddressProvider extends ChangeNotifier {
         throw Exception(response.message ?? "Failed to delete");
       }
     } catch (e) {
-      print("Delete Address Error: $e");
+      if (kDebugMode) {
+        print("Delete Address Error: $e");
+      }
 
       if (context.mounted) {
         Get.showToast(
-          e.toString() ?? 'Something went wrong',
+          e.toString(),
           type: ToastType.error,
         );
       }

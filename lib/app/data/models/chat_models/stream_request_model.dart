@@ -8,13 +8,13 @@ class LiveSreamRequestModel {
   LiveSreamRequestModel.fromJson(Map<String, dynamic> json) {
     status = json['status'];
     message = json['message'];
-    data = json['data'] != null ? new LiveSreamRequestModelData.fromJson(json['data']) : null;
+    data = json['data'] != null ? LiveSreamRequestModelData.fromJson(json['data']) : null;
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['status'] = this.status;
-    data['message'] = this.message;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['status'] = status;
+    data['message'] = message;
     if (this.data != null) {
       data['data'] = this.data!.toJson();
     }
@@ -60,17 +60,17 @@ class LiveSreamRequestModelData {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['NotificationType'] = this.notificationType;
-    data['uuid'] = this.uuid;
-    data['streaming_type'] = this.streamingType;
-    data['hostId'] = this.hostId;
-    data['token'] = this.token;
-    data['hostName'] = this.hostName;
-    data['hostImage'] = this.hostImage;
-    data['channelName'] = this.channelName;
-    data['appId'] = this.appId;
-    data['liveSessionId'] = this.liveSessionId;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['NotificationType'] = notificationType;
+    data['uuid'] = uuid;
+    data['streaming_type'] = streamingType;
+    data['hostId'] = hostId;
+    data['token'] = token;
+    data['hostName'] = hostName;
+    data['hostImage'] = hostImage;
+    data['channelName'] = channelName;
+    data['appId'] = appId;
+    data['liveSessionId'] = liveSessionId;
     return data;
   }
 }

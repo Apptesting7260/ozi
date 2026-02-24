@@ -6,12 +6,12 @@ class WalletDetailModel {
 
   WalletDetailModel.fromJson(Map<String, dynamic> json) {
     status = json['status'];
-    data = json['data'] != null ? new WalletData.fromJson(json['data']) : null;
+    data = json['data'] != null ? WalletData.fromJson(json['data']) : null;
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['status'] = this.status;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['status'] = status;
     if (this.data != null) {
       data['data'] = this.data!.toJson();
     }
@@ -52,15 +52,15 @@ class WalletData {
 
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['available_balance'] = this.availableBalance;
-    data['pending_balance'] = this.pendingBalance;
-    data['week_earning'] = this.weekEarning;
-    data['today_earning'] = this.todayEarning;
-    data['status'] = this.status;
-    if (this.recentTransactions != null) {
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['available_balance'] = availableBalance;
+    data['pending_balance'] = pendingBalance;
+    data['week_earning'] = weekEarning;
+    data['today_earning'] = todayEarning;
+    data['status'] = status;
+    if (recentTransactions != null) {
       data['recent_transactions'] =
-          this.recentTransactions!.map((v) => v.toJson()).toList();
+          recentTransactions!.map((v) => v.toJson()).toList();
     }
     return data;
   }
@@ -107,18 +107,18 @@ class RecentTransactions {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['id'] = this.id;
-    data['wallet_id'] = this.walletId;
-    data['booking_id'] = this.bookingId;
-    data['amount'] = this.amount;
-    data['type'] = this.type;
-    data['balance_type'] = this.balanceType;
-    data['source'] = this.source;
-    data['payment_method'] = this.paymentMethod;
-    data['reference_id'] = this.referenceId;
-    data['description'] = this.description;
-    data['created_at'] = this.createdAt;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['id'] = id;
+    data['wallet_id'] = walletId;
+    data['booking_id'] = bookingId;
+    data['amount'] = amount;
+    data['type'] = type;
+    data['balance_type'] = balanceType;
+    data['source'] = source;
+    data['payment_method'] = paymentMethod;
+    data['reference_id'] = referenceId;
+    data['description'] = description;
+    data['created_at'] = createdAt;
     return data;
   }
 }

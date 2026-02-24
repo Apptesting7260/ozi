@@ -1,9 +1,7 @@
-import 'package:flutter/material.dart';
 import 'package:ozi/app/data/repository/repository.dart';
 import 'package:ozi/app/modules/user/singleService/model/singleservicemodel.dart';
 import 'package:ozi/app/modules/user/cart/view/model/cart_items_model.dart';
-import 'package:ozi/app/core/utils/get_utils.dart';
-
+import '../../../../core/appExports/app_export.dart';
 import '../../../../data/storage/user_preference.dart';
 
 class SingleServiceProvider extends ChangeNotifier {
@@ -19,7 +17,7 @@ class SingleServiceProvider extends ChangeNotifier {
   String? _error;
   String? get error => _error;
 
-  Map<int, int> _cartQuantities = {};
+  final Map<int, int> _cartQuantities = {};
   List<CartItem> _cartItems = [];
   int _totalAmount = 0;
   int get totalAmount => _totalAmount;
@@ -71,7 +69,9 @@ class SingleServiceProvider extends ChangeNotifier {
       }
       notifyListeners();
     } catch (e) {
-      print('Error fetching cart items: $e');
+      if (kDebugMode) {
+        print('Error fetching cart items: $e');
+      }
     }
   }
 

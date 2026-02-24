@@ -5,7 +5,6 @@ import '../../../data/models/chat_models/conversion_list_model.dart';
 import '../../../data/response/api_status.dart';
 import '../../../routes/app_routes.dart';
 import '../circular_profile_image.dart';
-import '../create_group_ui/screen/create_group_screen.dart';
 import '../provider/message_provider.dart';
 
 class MessageScreen extends StatefulWidget {
@@ -34,7 +33,9 @@ class _MessageScreenState extends State<MessageScreen> {
 
   @override
   Widget build(BuildContext context) {
-    print('rebuild happends message');
+    if (kDebugMode) {
+      print('rebuild happends message');
+    }
     return Consumer<MessageProvider>(
       builder: (context, value, child) {
         switch (value.allConversionData.status) {
@@ -47,7 +48,7 @@ class _MessageScreenState extends State<MessageScreen> {
             return Scaffold(
               backgroundColor: AppColors.white,
               appBar: _messageAppBar(context),
-              body: value.allConversionData?.data==null||value.allConversionData.data?.data?.length==0?
+              body: value.allConversionData.data==null||value.allConversionData.data?.data?.length==0?
               RefreshIndicator(
                   onRefresh: () async{
                     value.getAllConversions(true);
@@ -82,12 +83,10 @@ class _MessageScreenState extends State<MessageScreen> {
 
                           return InkWell(
                             onTap: () async {
-                              // if(isGroup) {
-                              //   Navigator.pushNamed(context, AppRoutes.groupMessageDetailsScreen);
-                              // } else {
-                              //
-                              // }
-                              print('shared content is ${widget.sharedContent}');
+
+                              if (kDebugMode) {
+                                print('shared content is ${widget.sharedContent}');
+                              }
                               value.readAllCounts(message?.sId??'');
                               await Navigator.pushNamed(
                                 navigatorKey.currentContext!,
@@ -100,14 +99,7 @@ class _MessageScreenState extends State<MessageScreen> {
                               padding: REdgeInsets.symmetric(horizontal: 16, vertical: 10),
                               child: Row(
                                 children: [
-                                  // CircularProfileImage(
-                                  //   child: CustomImage(
-                                  //     shimmerChild: Container(color: Colors.grey),
-                                  //     width: 60,
-                                  //     height: 60,
-                                  //     path: message['image'],
-                                  //   ),
-                                  // ),
+
                                   Stack(
                                     children: [
                                       CircularProfileImage(

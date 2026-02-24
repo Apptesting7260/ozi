@@ -1,4 +1,3 @@
-import 'package:ozi/app/modules/auth/vendor/signup/view/identity_verification_screen.dart';
 import '../../../../../core/appExports/app_export.dart';
 import '../../../../../shared/widgets/custom_toggle_switch.dart';
 import '../provider/availability_provider.dart';
@@ -37,7 +36,9 @@ class _SetAvailabilityContent extends StatelessWidget {
           height: 54,
           borderRadius: BorderRadius.circular(60),
           onPressed: provider.submitLoading?(){}: () {
-            print(provider.availability.toString());
+            if (kDebugMode) {
+              print(provider.availability.toString());
+            }
             provider.saveAvailability(isFromProfile);
           },
         ),

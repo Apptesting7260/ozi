@@ -1,5 +1,4 @@
 import 'package:image_picker/image_picker.dart';
-import 'package:ozi/app/modules/auth/vendor/signup/view/set_availability.dart';
 import 'package:ozi/app/modules/vendor/services/edit%20service/provider/vendor_editservice_provider.dart';
 import '../../../../../core/appExports/app_export.dart';
 import '../../../../../shared/widgets/custom_app_bar.dart';

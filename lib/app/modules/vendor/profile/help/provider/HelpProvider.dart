@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import '../../../../../core/appExports/app_export.dart';
 import '../../../../../data/repository/repository.dart';
 import '../model/helpsupportmodel.dart';
 
@@ -57,12 +57,16 @@ class HelpVendorProvider extends ChangeNotifier {
   }) async {
     _isLoading = true;
     notifyListeners();
-    print("Sending support message with data: $email, $subject, $message");
+    if (kDebugMode) {
+      print("Sending support message with data: $email, $subject, $message");
+    }
     try {
       var data = {"email": email, "subject": subject, "message": message};
 
       final response = await _repository.supportApi(data);
-      print("data we are sending in api :$data");
+      if (kDebugMode) {
+        print("data we are sending in api :$data");
+      }
       if (response['status']?.toLowerCase() == "success" ||
           response['status'] == "1") {
         onSuccess(response['message'] ?? "Message sent successfully");

@@ -12,24 +12,24 @@ class boostReelModel {
     if (json['boosts'] != null) {
       boosts = <Boosts>[];
       json['boosts'].forEach((v) {
-        boosts!.add(new Boosts.fromJson(v));
+        boosts!.add(Boosts.fromJson(v));
       });
     }
     sort = json['sort'];
     count = json['count'];
-    reel = json['reel'] != null ? new Reel.fromJson(json['reel']) : null;
+    reel = json['reel'] != null ? Reel.fromJson(json['reel']) : null;
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['status'] = this.status;
-    if (this.boosts != null) {
-      data['boosts'] = this.boosts!.map((v) => v.toJson()).toList();
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['status'] = status;
+    if (boosts != null) {
+      data['boosts'] = boosts!.map((v) => v.toJson()).toList();
     }
-    data['sort'] = this.sort;
-    data['count'] = this.count;
-    if (this.reel != null) {
-      data['reel'] = this.reel!.toJson();
+    data['sort'] = sort;
+    data['count'] = count;
+    if (reel != null) {
+      data['reel'] = reel!.toJson();
     }
     return data;
   }
@@ -62,13 +62,13 @@ class Boosts {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['amount'] = this.amount;
-    data['createdAt'] = this.createdAt;
-    data['views'] = this.views;
-    data['id'] = this.id;
-    data['duration'] = this.duration;
-    data['updatedAt'] = this.updatedAt;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['amount'] = amount;
+    data['createdAt'] = createdAt;
+    data['views'] = views;
+    data['id'] = id;
+    data['duration'] = duration;
+    data['updatedAt'] = updatedAt;
     return data;
   }
 }
@@ -91,12 +91,12 @@ class Reel {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['caption'] = this.caption;
-    data['fileUrl'] = this.fileUrl;
-    data['id'] = this.id;
-    data['imageUrl'] = this.imageUrl;
-    data['userId'] = this.userId;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['caption'] = caption;
+    data['fileUrl'] = fileUrl;
+    data['id'] = id;
+    data['imageUrl'] = imageUrl;
+    data['userId'] = userId;
     return data;
   }
 }

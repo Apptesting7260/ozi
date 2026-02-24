@@ -59,10 +59,8 @@ class _SplashScreenState extends State<SplashScreen> {
           ),
         );
       } else {
-        if (role != null && token != null) {
-          loginWithSaveTokenRedirection(role, token);
-        }
-      }
+        loginWithSaveTokenRedirection(role, token);
+            }
       // if(role=='user'){
       //   Navigator.push(
       //     navigatorKey.currentContext!,

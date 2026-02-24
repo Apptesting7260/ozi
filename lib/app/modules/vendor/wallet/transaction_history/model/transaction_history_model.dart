@@ -10,22 +10,22 @@ class TransactionHistoryModel {
     if (json['data'] != null) {
       data = <TransactionHistoryData>[];
       json['data'].forEach((v) {
-        data!.add(new TransactionHistoryData.fromJson(v));
+        data!.add(TransactionHistoryData.fromJson(v));
       });
     }
     pagination = json['pagination'] != null
-        ? new TransactionHistoryPagination.fromJson(json['pagination'])
+        ? TransactionHistoryPagination.fromJson(json['pagination'])
         : null;
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['status'] = this.status;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['status'] = status;
     if (this.data != null) {
       data['data'] = this.data!.map((v) => v.toJson()).toList();
     }
-    if (this.pagination != null) {
-      data['pagination'] = this.pagination!.toJson();
+    if (pagination != null) {
+      data['pagination'] = pagination!.toJson();
     }
     return data;
   }
@@ -78,20 +78,20 @@ class TransactionHistoryData {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['id'] = this.id;
-    data['user_name'] = this.userName;
-    data['wallet_id'] = this.walletId;
-    data['booking_id'] = this.bookingId;
-    data['booking_code'] = this.bookingCode;
-    data['amount'] = this.amount;
-    data['type'] = this.type;
-    data['balance_type'] = this.balanceType;
-    data['source'] = this.source;
-    data['payment_method'] = this.paymentMethod;
-    data['reference_id'] = this.referenceId;
-    data['description'] = this.description;
-    data['created_at'] = this.createdAt;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['id'] = id;
+    data['user_name'] = userName;
+    data['wallet_id'] = walletId;
+    data['booking_id'] = bookingId;
+    data['booking_code'] = bookingCode;
+    data['amount'] = amount;
+    data['type'] = type;
+    data['balance_type'] = balanceType;
+    data['source'] = source;
+    data['payment_method'] = paymentMethod;
+    data['reference_id'] = referenceId;
+    data['description'] = description;
+    data['created_at'] = createdAt;
     return data;
   }
 }
@@ -119,12 +119,12 @@ class TransactionHistoryPagination {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['current_page'] = this.currentPage;
-    data['per_page'] = this.perPage;
-    data['total'] = this.total;
-    data['last_page'] = this.lastPage;
-    data['has_more'] = this.hasMore;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['current_page'] = currentPage;
+    data['per_page'] = perPage;
+    data['total'] = total;
+    data['last_page'] = lastPage;
+    data['has_more'] = hasMore;
     return data;
   }
 }

@@ -13,6 +13,9 @@ class HomeScreenProvider extends ChangeNotifier {
   String _selectedLocation = "Select Location";
   final String _userName = "Alex";
 
+
+  final TextEditingController searchController = TextEditingController();
+
   String? lat;
   String? lng;
   String? countryCode;
@@ -38,7 +41,6 @@ class HomeScreenProvider extends ChangeNotifier {
     _searchQuery = query;
     notifyListeners();
   }
-
   List<Data> get filteredCategories {
     if (_searchQuery.trim().isEmpty) {
       return _serviceCategories;
@@ -317,51 +319,65 @@ class HomeScreenProvider extends ChangeNotifier {
     try {
       LocationPermission permission = await Geolocator.checkPermission();
 
+      // If permission is denied, request it
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+      }
+
+      // If still denied
+      if (permission == LocationPermission.denied) {
+        Get.showToast(
+          'Location permission is required.',
+          type: ToastType.error,
+        );
+        return;
+      }
+
+      // If permanently denied
       if (permission == LocationPermission.deniedForever) {
-        // Show dialog to open app settings
-        bool? shouldOpenSettings = await showDialog<bool>(
+        bool? openSettings = await showDialog<bool>(
           context: context,
-          builder: (BuildContext context) {
-            return AlertDialog(
-              title: Text('Location Permission Required'),
-              content: Text(
-                'Location permission is permanently denied. Please enable it from app settings to view services.',
+          builder: (context) => AlertDialog(
+            title: const Text('Location Permission Required'),
+            content: const Text(
+              'Location permission is permanently denied. Please enable it from app settings.',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context, false),
+                child: const Text('Cancel'),
               ),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.of(context).pop(false),
-                  child: Text('Cancel'),
-                ),
-                TextButton(
-                  onPressed: () => Navigator.of(context).pop(true),
-                  child: Text('Open Settings'),
-                ),
-              ],
-            );
-          },
+              TextButton(
+                onPressed: () => Navigator.pop(context, true),
+                child: const Text('Open Settings'),
+              ),
+            ],
+          ),
         );
 
-        if (shouldOpenSettings == true) {
+        if (openSettings == true) {
           await Geolocator.openAppSettings();
         }
-      } else {
-        // Request permission
-        _isLoading = true;
-        notifyListeners();
-
-        bool success = await getCurrentLocation();
-        if (success) {
-          _isLoading = false;
-          _isLoaded = true;
-          Get.showToast(
-            'Location updated successfully',
-            type: ToastType.success,
-          );
-        } else {
-          _isLoading = false;
-        }
-        notifyListeners();
+        return;
       }
+
+      // Permission granted
+      _isLoading = true;
+      notifyListeners();
+
+      bool success = await getCurrentLocation();
+
+      _isLoading = false;
+
+      if (success) {
+        _isLoaded = true;
+        Get.showToast(
+          'Location updated successfully',
+          type: ToastType.success,
+        );
+      }
+
+      notifyListeners();
     } catch (e) {
       debugPrint("Error requesting location permission: $e");
       _isLoading = false;
@@ -376,4 +392,10 @@ class HomeScreenProvider extends ChangeNotifier {
 
   void onProfileTap(BuildContext context) {}
   void onSearchTap(BuildContext context) {}
+
+  @override
+  void dispose() {
+    searchController.dispose();
+    super.dispose();
+  }
 }

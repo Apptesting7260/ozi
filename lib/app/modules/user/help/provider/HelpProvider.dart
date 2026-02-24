@@ -45,7 +45,7 @@ class HelpUserProvider extends ChangeNotifier {
       }
     } catch (e) {
       Get.showToast(
-        e.toString() ?? 'Something went wrong',
+        e.toString(),
         type: ToastType.error,
       );
       debugPrint("Error fetching help data: $e");
@@ -86,7 +86,7 @@ class HelpUserProvider extends ChangeNotifier {
       }
     } catch (e) {
       Get.showToast(
-        e.toString() ?? 'Something went wrong',
+        e.toString(),
         type: ToastType.error,
       );
       debugPrint("Error sending support message: $e");

@@ -6,12 +6,12 @@ class SavedLatlongModel {
 
   SavedLatlongModel.fromJson(Map<String, dynamic> json) {
     status = json['status'];
-    data = json['data'] != null ? new SavedLatlongModelData.fromJson(json['data']) : null;
+    data = json['data'] != null ? SavedLatlongModelData.fromJson(json['data']) : null;
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['status'] = this.status;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['status'] = status;
     if (this.data != null) {
       data['data'] = this.data!.toJson();
     }
@@ -35,11 +35,11 @@ class SavedLatlongModelData {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['id'] = this.id;
-    data['vendor_id'] = this.vendorId;
-    data['longitude'] = this.longitude;
-    data['latitude'] = this.latitude;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['id'] = id;
+    data['vendor_id'] = vendorId;
+    data['longitude'] = longitude;
+    data['latitude'] = latitude;
     return data;
   }
 }

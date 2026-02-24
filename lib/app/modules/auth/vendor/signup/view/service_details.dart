@@ -1,4 +1,3 @@
-import 'package:image_picker/image_picker.dart';
 import 'package:ozi/app/core/constants/app_urls.dart';
 import 'package:ozi/app/data/models/all_services_model_vendor.dart';
 import '../../../../../core/appExports/app_export.dart';
@@ -205,16 +204,13 @@ class _ServiceDetailsContentState extends State<_ServiceDetailsContent> {
                           ),
                         ),
 
-
                       hBox(28),
 
-                      // ================= SERVICE NAME =================
                       CustomTextFormField(
                         label: "Service Name",
                         controller: provider.serviceName,
                         hintText: "e.g. Deep House Cleaning",
                         borderRadius: 60,
-                        // onChanged: provider.setName,
                         validator: (value) {
                           if (value == null || value.trim().isEmpty) {
                             return "Service name is required";
@@ -225,7 +221,6 @@ class _ServiceDetailsContentState extends State<_ServiceDetailsContent> {
 
                       hBox(20),
 
-                      // ================= CATEGORY =================
                       CustomDropDownT<CategoryDropDownData>(
                         label: "Category",
                         items: provider.categories?.data ?? [],
@@ -241,7 +236,6 @@ class _ServiceDetailsContentState extends State<_ServiceDetailsContent> {
 
                       hBox(20),
 
-                      // ================= SUBCATEGORY =================
                       CustomDropDownT<Subcategories>(
                         label: "Sub Category",
                         items: provider.category?.subcategories ?? [],
@@ -259,7 +253,6 @@ class _ServiceDetailsContentState extends State<_ServiceDetailsContent> {
 
                       hBox(20),
 
-                      // ================= DESCRIPTION =================
                       CustomTextFormField(
                         controller: provider.description,
                         label: "Description",
@@ -269,7 +262,7 @@ class _ServiceDetailsContentState extends State<_ServiceDetailsContent> {
                         borderRadius: 30,
                         textInputType: TextInputType.multiline,
                         textInputAction: TextInputAction.newline,
-                        maxLength: 300, //  character limit
+                        maxLength: 300,
 
                         validator: (value) {
                           if (value == null || value.trim().isEmpty) {
@@ -301,15 +294,13 @@ class _ServiceDetailsContentState extends State<_ServiceDetailsContent> {
 
                       ),
 
-
                       hBox(20),
 
-                      // ================= PRICE =================
                       CustomTextFormField(
                         controller: provider.priceAmount,
                         label: "Service Price",
                         hintText: "0.00",
-                        textInputType: TextInputType.number,
+                        textInputType: const TextInputType.numberWithOptions(decimal: true),
                         prefix: Padding(
                           padding: const EdgeInsets.only(left: 14, right: 8),
                           child: CustomImage(
@@ -319,15 +310,33 @@ class _ServiceDetailsContentState extends State<_ServiceDetailsContent> {
                           ),
                         ),
                         borderRadius: 60,
-                        // onChanged: provider.setPrice,
+                        maxLength: 7,
                         validator: (value) {
-                          if (value == null || value.isEmpty) {
+                          if (value == null || value.trim().isEmpty) {
                             return "Price is required";
                           }
-                          final price = double.tryParse(value);
-                          if (price == null || price <= 0) {
-                            return "Enter valid price";
+
+                          final trimmedValue = value.trim();
+
+                          final regex = RegExp(r'^\d+(\.\d{1,2})?$');
+                          if (!regex.hasMatch(trimmedValue)) {
+                            return "Enter valid price (max 2 decimals)";
                           }
+
+                          final price = double.tryParse(trimmedValue);
+
+                          if (price == null) {
+                            return "Invalid price format";
+                          }
+
+                          if (price <= 0) {
+                            return "Price must be greater than 0";
+                          }
+
+                          if (price > 10000000) {
+                            return "Price is too large";
+                          }
+
                           return null;
                         },
                       ),

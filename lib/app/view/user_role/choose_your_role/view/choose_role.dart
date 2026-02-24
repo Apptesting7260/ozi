@@ -1,5 +1,3 @@
-import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:ozi/app/view/user_role/choose_your_role/view/provider/RoleProvider.dart';
 import '../../../../core/appExports/app_export.dart';
 import '../../../auth/create account/view/create_account_screen.dart';

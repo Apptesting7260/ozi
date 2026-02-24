@@ -1,13 +1,9 @@
-import 'package:flutter/cupertino.dart';
 import 'package:ozi/app/core/appExports/app_export.dart';
 import '../../../core/constants/app_urls.dart';
-import '../../../core/utils/get_utils.dart';
-import '../../../data/models/chat_models/check_conversion_model.dart';
 import '../../../data/models/chat_models/conversion_list_model.dart';
 import '../../../data/network/web_socket_connection_service.dart';
 import '../../../data/response/api_response.dart';
 import '../../../data/storage/user_preference.dart';
-import '../../../routes/app_routes.dart';
 import '../message_isolates/message_isolates.dart';
 
 class MessageProvider extends ChangeNotifier {

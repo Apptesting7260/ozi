@@ -310,6 +310,7 @@ class VendorDetailView extends StatelessWidget {
             ],
           ),
           content: Text(
+            maxLines: 4,
             message.replaceAll('Exception: ', ''),
             style: AppFontStyle.text_14_400(AppColors.darkText),
           ),

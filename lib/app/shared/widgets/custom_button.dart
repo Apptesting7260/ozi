@@ -46,7 +46,7 @@ class CustomButton extends StatelessWidget {
         : (forGroundColor ??
               (isOutlined
                   ? AppColors.primary
-                  : (AppColors.containerBorder ?? Colors.white)));
+                  : (AppColors.containerBorder)));
 
     return GestureDetector(
       onTap: isLoading == true ? null : onPressed,

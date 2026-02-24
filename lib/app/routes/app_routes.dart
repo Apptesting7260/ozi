@@ -6,7 +6,6 @@ import 'package:ozi/app/modules/user/profile/address%20map/view/location_picker.
 import 'package:ozi/app/modules/user/profile/login%20details/view/login_details.dart';
 import 'package:ozi/app/modules/vendor/home/view/vendor_home_screen.dart';
 import 'package:ozi/app/modules/vendor/navigation%20tab/view/vendor_navigation_tab_screen.dart';
-import 'package:ozi/app/modules/vendor/profile/view/vendor_profile_screen.dart';
 import 'package:ozi/app/modules/vendor/services/view/service_screen.dart';
 import '../core/appExports/app_export.dart';
 import '../modules/user/help/view/help_screen.dart';
@@ -28,7 +27,6 @@ import '../modules/vendor/profile/add new address/view/AddAddressScreen.dart';
 import '../modules/vendor/profile/add new card/view/AddNewCardScreen.dart';
 import '../modules/vendor/wallet/view/wallet_screen.dart';
 import '../modules/vendor/wallet/withdraw/view/withdraw_screen.dart';
-import '../view/auth/create account/view/create_account_screen.dart';
 import '../view/auth/login/view/login_screen.dart';
 import '../view/auth/verification_screen/view/verification_screen.dart';
 import '../view/message/message_details/screens/message_details.dart';

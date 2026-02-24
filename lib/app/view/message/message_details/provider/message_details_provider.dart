@@ -1,20 +1,15 @@
-import 'package:flutter/cupertino.dart';
 
-import 'dart:io';
 
 import 'package:ozi/app/core/appExports/app_export.dart';
 
 import '../../../../core/constants/app_urls.dart';
-import '../../../../core/utils/get_utils.dart';
 import '../../../../data/models/chat_models/conversion_list_model.dart';
 import '../../../../data/models/chat_models/message_list_model.dart';
 import '../../../../data/models/chat_models/page_status_model.dart';
 import '../../../../data/network/web_socket_connection_service.dart';
-import '../../../../data/repository/repository.dart';
 import '../../../../data/response/api_response.dart';
 import '../../../../data/storage/user_preference.dart';
 import '../../message_isolates/message_isolates.dart';
-import 'package:path/path.dart' as path;
 
 import '../../provider/message_provider.dart';
 
@@ -216,7 +211,9 @@ class MessageDetailsProvider extends ChangeNotifier {
     });
 
     socket.listenToEvent(AppUrls.updateMessageEvent, (p0) async {
-      print('message deleted with data ${p0}');
+      if (kDebugMode) {
+        print('message deleted with data $p0');
+      }
       if (p0 is String) {
         final data = jsonDecode(p0);
         // use data['key']
@@ -230,21 +227,19 @@ class MessageDetailsProvider extends ChangeNotifier {
           MessageListModelData? updatedData =
               await parseMessageListInBackground(data['data']);
 
-          if (updatedData != null) {
-            final index = _messageListData.data?.data.indexWhere(
-              (item) => item.sId == updatedData.sId,
-            );
+          final index = _messageListData.data?.data.indexWhere(
+            (item) => item.sId == updatedData.sId,
+          );
 
-            if (index != null && index != -1) {
-              // Replace the item at the matching index
-              _messageListData.data?.data[index] = updatedData;
-            } else {
-              // Optional: add it if it doesn't exist
-              _messageListData.data?.data.add(updatedData);
-            }
-            notifyListeners();
+          if (index != null && index != -1) {
+            // Replace the item at the matching index
+            _messageListData.data?.data[index] = updatedData;
+          } else {
+            // Optional: add it if it doesn't exist
+            _messageListData.data?.data.add(updatedData);
           }
-        }
+          notifyListeners();
+                }
         if (kDebugMode) {
           print("data Map is $data");
         }
@@ -252,7 +247,9 @@ class MessageDetailsProvider extends ChangeNotifier {
     });
 
     socket.listenToEvent(AppUrls.deleteMsgEvent, (p0) {
-      print('message deleted with data ${p0}');
+      if (kDebugMode) {
+        print('message deleted with data $p0');
+      }
       if (p0 is String) {
         final data = jsonDecode(p0);
         // use data['key']
@@ -276,11 +273,15 @@ class MessageDetailsProvider extends ChangeNotifier {
 
 
   void updateLastMessageOfConversation(String? lastMessage, String convId) {
-    print('Trying to update last message: $lastMessage for conversation: $convId');
+    if (kDebugMode) {
+      print('Trying to update last message: $lastMessage for conversation: $convId');
+    }
 
     final messageProvider = navigatorKey.currentContext?.read<MessageProvider>();
     if (messageProvider == null) {
-      print('MessageProvider not available in current context.');
+      if (kDebugMode) {
+        print('MessageProvider not available in current context.');
+      }
       return;
     }
 
@@ -395,15 +396,21 @@ class MessageDetailsProvider extends ChangeNotifier {
         }
       } else if (p0 is Map) {
         final data = p0 as Map<String, dynamic>;
-        print('page is $page');
+        if (kDebugMode) {
+          print('page is $page');
+        }
         if (page == 1) {
           // updateMessageListData(ApiResponse.completed(MessageListModel.fromJson(data)));
           updateMessageListData(
             ApiResponse.completed(await parseMessageDataInBackground(data)),
           );
-          print('message for send and data links are $messageForSend $dataLink');
+          if (kDebugMode) {
+            print('message for send and data links are $messageForSend $dataLink');
+          }
           if(messageForSend!=null||dataLink!=null){
-            print('sending personal message for links');
+            if (kDebugMode) {
+              print('sending personal message for links');
+            }
             sendPersonalMessage(conversionId1!,message:messageForSend,dataLink:dataLink);
           }
         } else {
@@ -411,8 +418,8 @@ class MessageDetailsProvider extends ChangeNotifier {
             data,
           );
           List<MessageListModelData>? lists = parsedData.data;
-          _messageListData.data?.data.addAll(lists ?? []);
-          if (lists?.length == 0) {
+          _messageListData.data?.data.addAll(lists);
+          if (lists.isEmpty) {
             isPagination = false;
           }
           //isPagination
@@ -434,20 +441,24 @@ class MessageDetailsProvider extends ChangeNotifier {
     String? dataLink,
   }) async {
     // if(sendLoading) return;
-    print('send message called start');
+    if (kDebugMode) {
+      print('send message called start');
+    }
 
     // if (controller.text.isEmpty && (files?.isEmpty ?? [].isEmpty)) return;
     if ((controller.text.isEmpty) &&
         (files == null || files.isEmpty) &&
         (message == null || message.isEmpty) &&
         (dataLink == null || dataLink.isEmpty)) {
-      print('Nothing to send, returning...');
+      if (kDebugMode) {
+        print('Nothing to send, returning...');
+      }
       return;
     }
-    MessageListModelData? _currentMessageIs = currentMessageIs;
+    MessageListModelData? currentMessageIs0 = currentMessageIs;
 
     if (files == null || files.isEmpty) {
-      _currentMessageIs = MessageListModelData(
+      currentMessageIs0 = MessageListModelData(
         text: message??controller.text,
         senderId: userId,
         status: 'waiting',
@@ -459,7 +470,7 @@ class MessageDetailsProvider extends ChangeNotifier {
         mediaUploadLoading: true,
       );
       if(dataLink==null){
-        messageListData.data?.data.insert(0, _currentMessageIs);
+        messageListData.data?.data.insert(0, currentMessageIs0);
       }
       notifyListeners();
       controller.clear();
@@ -478,7 +489,7 @@ class MessageDetailsProvider extends ChangeNotifier {
     socket.sendMessage(AppUrls.sendPersonalMessageEvent, {
       "senderId": userId,
       "conversationId": conversationId,
-      "message": _currentMessageIs?.text ?? '',
+      "message": currentMessageIs0?.text ?? '',
       "dataLink":dataLink,
       "file": files ?? [],
     });
@@ -498,7 +509,7 @@ class MessageDetailsProvider extends ChangeNotifier {
         if (data['status'] == true) {
           data['data']['senderType'] = "you";
           messageListData.data?.data.removeWhere(
-            (e) => e.sId == '$conversationId${_currentMessageIs?.text}',
+            (e) => e.sId == '$conversationId${currentMessageIs0?.text}',
           );
           messageListData.data?.data.insert(
             0,

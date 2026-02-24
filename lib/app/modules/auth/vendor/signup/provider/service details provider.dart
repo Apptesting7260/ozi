@@ -2,7 +2,6 @@ import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:photo_manager/photo_manager.dart';
-
 import '../../../../../core/appExports/app_export.dart';
 import '../../../../../core/constants/app_urls.dart';
 import '../../../../../data/models/all_services_model_vendor.dart';
@@ -114,7 +113,9 @@ class ServiceDetailsProvider extends ChangeNotifier {
 
     if (Platform.isAndroid) {
       final sdkInt = await _getAndroidSDKInt();
-      print("Android SDK Int: $sdkInt");
+      if (kDebugMode) {
+        print("Android SDK Int: $sdkInt");
+      }
       if (sdkInt >= 33) {
         if (await Permission.photos.request().isGranted) {
           hasPermission = true;
@@ -129,14 +130,18 @@ class ServiceDetailsProvider extends ChangeNotifier {
       if (result.isAuth) {
         hasPermission = true;
       } else {
-        print("iOS: Gallery access denied");
+        if (kDebugMode) {
+          print("iOS: Gallery access denied");
+        }
         PhotoManager.openSetting();
         return;
       }
     }
 
     if (!hasPermission) {
-      print("Gallery access denied");
+      if (kDebugMode) {
+        print("Gallery access denied");
+      }
       return;
     }
 
@@ -195,7 +200,9 @@ class ServiceDetailsProvider extends ChangeNotifier {
         }
       }
     } catch (e) {
-      print("Cropper Crash: $e");
+      if (kDebugMode) {
+        print("Cropper Crash: $e");
+      }
     }
 
   }

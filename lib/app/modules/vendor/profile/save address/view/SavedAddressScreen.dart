@@ -1,7 +1,6 @@
 
 
 import '../../../../../core/appExports/app_export.dart';
-import '../../../../../routes/app_routes.dart';
 import '../../../../../shared/widgets/custom_app_bar.dart';
 import '../../../../user/profile/add new address/view/add_address_screen.dart';
 
@@ -62,7 +61,9 @@ class _SavedAddressScreenState extends State<SavedAddressScreen> {
                       });
                     },
                     onEdit: () {
-                      print('Edit ${addresses[index]['title']}');
+                      if (kDebugMode) {
+                        print('Edit ${addresses[index]['title']}');
+                      }
                     },
                     onDelete: () {
                       // Handle delete action

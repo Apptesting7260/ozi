@@ -497,91 +497,7 @@ class VendorBookingDetailsScreen extends StatelessWidget {
     );
   }
 
-  Widget _otpSection() {
-    return Container(
-      width: double.infinity,
 
-
-      padding: EdgeInsets.all(6),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12),
-
-      ),
-      child: Container(
-        padding:  EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: AppColors.primary,
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              "Service Start OTP",
-              style: AppFontStyle.text_14_600(AppColors.white),
-            ),
-
-            hBox(4),
-
-            Text(
-              "Share with provider to begin service",
-              style: AppFontStyle.text_12_400(
-                AppColors.lightGrey.withValues(alpha: 0.9),
-              ),
-            ),
-
-            hBox(16),
-
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Row(
-                  children: [
-                    _otpBox("1"),
-                    wBox(12),
-                    _otpBox("1"),
-                    wBox(12),
-                    _otpBox("1"),
-                    wBox(12),
-                    _otpBox("1"),
-                  ],
-                ),
-
-                Container(
-                  padding:  EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                  decoration: BoxDecoration(
-                    color: AppColors.lightGrey.withValues(alpha: 0.15),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Text(
-                    "Hide",
-                    style: AppFontStyle.text_14_600(AppColors.white),
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-
-    );
-  }
-
-  Widget _otpBox(String digit) {
-    return Container(
-      width: 45,
-      height: 45,
-      decoration: BoxDecoration(
-        color: AppColors.lightGrey.withValues(alpha: 0.15),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      alignment: Alignment.center,
-      child: Text(
-        digit,
-        style: AppFontStyle.text_20_600(AppColors.white),
-      ),
-    );
-  }
 
 
   Widget _serviceProvider( String customerName , String contact , String subHeading , String image , String status ) {
@@ -940,6 +856,8 @@ class _StatusChip extends StatelessWidget {
 
 class OTPBottomSheet extends StatelessWidget {
   final TextEditingController otpController = TextEditingController();
+
+  OTPBottomSheet({super.key});
 
   @override
   Widget build(BuildContext context) {

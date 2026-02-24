@@ -1,9 +1,8 @@
 import 'dart:developer' as dev;
-import 'package:flutter/material.dart';
-import 'package:ozi/app/core/utils/get_utils.dart';
 import 'package:ozi/app/data/response/api_response.dart';
 import 'package:ozi/app/modules/user/cart/view/model/cart_items_model.dart';
 import 'package:ozi/app/modules/user/home/service%20details/model/vendordetaiulmodel.dart';
+import '../../../../../core/appExports/app_export.dart';
 import '../../../../../core/constants/app_urls.dart';
 import '../../../../../data/repository/repository.dart';
 import '../../../../../data/storage/user_preference.dart';
@@ -397,12 +396,16 @@ class ServiceDetailProvider extends ChangeNotifier {
     try {
       final response = await _repository.removeCartItemApi(cartId);
 
-      print('Remove Item Response: $response');
+      if (kDebugMode) {
+        print('Remove Item Response: $response');
+      }
 
       // Check if API call was successful
       if (response != null && response['status'] == true) {
         // Item successfully removed, UI already updated
-        print('Item removed successfully');
+        if (kDebugMode) {
+          print('Item removed successfully');
+        }
       } else {
         throw Exception(response?['message'] ?? 'Failed to remove item');
       }
@@ -423,10 +426,12 @@ class ServiceDetailProvider extends ChangeNotifier {
       _errorMessage = 'Failed to remove item: ${e.toString()}';
       notifyListeners();
       Get.showToast(
-        e.toString() ?? 'Something went wrong',
+        e.toString(),
         type: ToastType.error,
       );
-      print('Error removing item: $e');
+      if (kDebugMode) {
+        print('Error removing item: $e');
+      }
     }
   }
 
@@ -474,7 +479,9 @@ class ServiceDetailProvider extends ChangeNotifier {
         response = await _repository.decreaseCartItemApi(cartId);
       }
 
-      print("Update Quantity Response: $response");
+      if (kDebugMode) {
+        print("Update Quantity Response: $response");
+      }
 
       if (response.status == true && response.data != null) {
         final int confirmedQty = (response.data!.quantity ?? 1).toInt();
@@ -506,7 +513,7 @@ class ServiceDetailProvider extends ChangeNotifier {
       _total = originalTotal;
 
       Get.showToast(
-        e.toString() ?? 'Something went wrong',
+        e.toString(),
         type: ToastType.error,
       );
       _errorMessage = "Failed to update quantity: $e";

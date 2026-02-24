@@ -1,11 +1,10 @@
-import 'package:ozi/app/modules/auth/vendor/signup/view/service_details.dart';
 import '../../../../../core/appExports/app_export.dart';
 import '../../../../../data/response/api_status.dart';
 import '../provider/ServiceCategoryProvider.dart';
 import '../widget/vendor_custom_appbar.dart';
 
 class ServiceCategory extends StatelessWidget {
-   ServiceCategory({super.key});
+   const ServiceCategory({super.key});
 
 
 
@@ -48,12 +47,12 @@ class ServiceCategory extends StatelessWidget {
                               hBox(18),
                               Expanded(
                                 child: ListView.builder(
-                                  itemCount: value.categoriesModel?.data?.data?.length??0,
+                                  itemCount: value.categoriesModel.data?.data?.length??0,
                                   itemBuilder: (_, index) {
                                     return _categoryItem(
                                       context: context,
-                                      title: value.categoriesModel?.data?.data?[index].categoryName??'',
-                                      catId: value.categoriesModel?.data?.data?[index].id??'',
+                                      title: value.categoriesModel.data?.data?[index].categoryName??'',
+                                      catId: value.categoriesModel.data?.data?[index].id??'',
                                     );
                                   },
                                 ),

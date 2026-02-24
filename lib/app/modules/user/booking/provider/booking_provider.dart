@@ -1,25 +1,23 @@
-import 'package:flutter/material.dart';
 import 'package:ozi/app/core/appExports/app_export.dart';
 import 'package:ozi/app/core/constants/app_urls.dart';
-import 'package:ozi/app/core/utils/get_utils.dart';
 import 'package:ozi/app/data/repository/repository.dart';
 import 'package:ozi/app/modules/user/cart/schedule_service/Model/bookservicemodel.dart';
-import 'package:ozi/app/modules/user/cart/view/my_cart_screen.dart';
 import 'package:ozi/app/modules/user/navigation%20tab/provider/navigation_provider.dart';
 import '../../../../data/models/chat_models/check_conversion_model.dart';
 import '../../../../data/network/web_socket_connection_service.dart';
 import '../../../../data/storage/user_preference.dart';
 import '../../../../routes/app_routes.dart';
+import '../../navigation tab/view/navigation_tab_screen.dart';
 import '../model/bookingmodel.dart';
 import '../model/bookingdetailsmodel.dart' as details;
 import 'dart:developer' as dev;
 
 class BookingProvider extends ChangeNotifier {
-  Repository _repository = Repository();
+  final Repository _repository = Repository();
   int tabIndex = 0;
 
   bookingModel? _bookingsData;
-  List<Data> _allBookings = [];
+  final List<Data> _allBookings = [];
   bool _isLoading = false;
   bool _isLoadingMore = false;
   String? _errorMessage;
@@ -30,7 +28,7 @@ class BookingProvider extends ChangeNotifier {
   int _currentPage = 1;
   int _totalPages = 1;
   int _totalBookings = 0;
-  int _limit = 20;
+  final int _limit = 20;
   bool _hasMoreData = true;
 
   String getFullImageUrl(String? path) {
@@ -68,7 +66,6 @@ class BookingProvider extends ChangeNotifier {
 
   int _requestId = 0;
 
-  String _currentStatus = "All";
 
   setCurrentPage(int value) {
     _currentPage = value;
@@ -76,7 +73,6 @@ class BookingProvider extends ChangeNotifier {
   }
 
   Future<void> refreshBookings(String status) async {
-    _currentStatus = status;
     _currentPage = 1;
     _allBookings.clear();
     _hasMoreData = true;
@@ -125,7 +121,7 @@ class BookingProvider extends ChangeNotifier {
     } catch (e) {
       _errorMessage = e.toString();
       Get.showToast(
-        e.toString() ?? 'Something went wrong',
+        e.toString(),
         type: ToastType.error,
       );
     }
@@ -150,7 +146,7 @@ class BookingProvider extends ChangeNotifier {
       }
     } catch (e) {
       Get.showToast(
-        e.toString() ?? 'Something went wrong',
+        e.toString(),
         type: ToastType.error,
       );
       _detailsErrorMessage = e.toString();
@@ -171,14 +167,18 @@ class BookingProvider extends ChangeNotifier {
 
   Future<void> loadMoreBookings(String status) async {
     if (_isLoadingMore || !_hasMoreData) {
-      print(
+      if (kDebugMode) {
+        print(
         'Cannot load more - Loading: $_isLoadingMore, HasMore: $_hasMoreData',
       );
+      }
       return;
     }
 
     int nextPage = _currentPage + 1;
-    print('Loading more bookings - Next page: $nextPage');
+    if (kDebugMode) {
+      print('Loading more bookings - Next page: $nextPage');
+    }
     await getAllBookings(status);
   }
 
@@ -230,7 +230,9 @@ class BookingProvider extends ChangeNotifier {
     } catch (e) {
       setCancelling(false);
       // Catch network or other errors
-      print('cancelBooking Error: $e');
+      if (kDebugMode) {
+        print('cancelBooking Error: $e');
+      }
       Get.showToast("Something went wrong", type: ToastType.error);
       return false;
     }
@@ -240,7 +242,7 @@ class BookingProvider extends ChangeNotifier {
 
   DateTime _selectedRescheduleDate = DateTime.now();
   String? _selectedRescheduleTime;
-  Map<String, List<DaySlot>> _dayAvailability = {};
+  final Map<String, List<DaySlot>> _dayAvailability = {};
   bool _isAvailabilityLoading = false;
 
   DateTime get selectedRescheduleDate => _selectedRescheduleDate;
@@ -353,7 +355,9 @@ class BookingProvider extends ChangeNotifier {
         });
       }
     } catch (e) {
-      print('Error fetching availability: $e');
+      if (kDebugMode) {
+        print('Error fetching availability: $e');
+      }
     } finally {
       _isAvailabilityLoading = false;
       notifyListeners();
@@ -497,7 +501,7 @@ class BookingProvider extends ChangeNotifier {
   bool get isBookAgainLoading => _isBookAgainLoading;
   int? get bookAgainBookingId => _bookAgainBookingId;
 
-  Future<bool> bookAgain(int bookingId) async {
+  Future<bool> bookAgain(int bookingId , BuildContext context) async {
     _isBookAgainLoading = true;
     _bookAgainBookingId = bookingId;
     notifyListeners();
@@ -518,14 +522,17 @@ class BookingProvider extends ChangeNotifier {
           response?['message'] ?? 'Failed to add items to cart',
           type: ToastType.error,
         );
+        _showErrorDialog(context, response?['message']);
         return false;
       }
     } catch (e) {
       dev.log('BookAgain Error: $e');
-      Get.showToast(
-        e.toString() ?? 'Something went wrong',
-        type: ToastType.error,
-      );
+      // Get.showToast(
+      //   e.toString(),
+      //   type: ToastType.error,
+      // );
+      _showErrorDialog(context, e.toString(),);
+
       return false;
     } finally {
       _isBookAgainLoading = false;
@@ -582,4 +589,69 @@ class BookingProvider extends ChangeNotifier {
       updateSendLoading(false);
     });
   }
+
+  void _showErrorDialog(BuildContext context, String message) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: Colors.white,
+          surfaceTintColor: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          title: Row(
+            children: [
+              Icon(Icons.error_outline, color: Colors.red),
+              wBox(10),
+              Text(
+                "Error",
+                style: AppFontStyle.text_18_600(
+                  AppColors.black,
+                  fontFamily: AppFontFamily.semiBold,
+                ),
+              ),
+            ],
+          ),
+          content: Text(
+            maxLines: 4,
+            message.replaceAll('Exception: ', ''),
+            style: AppFontStyle.text_14_400(AppColors.darkText),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text(
+                "Cancel",
+                style: AppFontStyle.text_14_600(
+                  AppColors.grey,
+                  fontFamily: AppFontFamily.semiBold,
+                ),
+              ),
+            ),
+            CustomButton(
+              width: 100,
+              height: 35,
+              text: "View Cart",
+              color: AppColors.primary,
+              textStyle: AppFontStyle.text_12_600(
+                Colors.white,
+                fontFamily: AppFontFamily.semiBold,
+              ),
+              onPressed: () {
+                Navigator.pop(context); // Close dialog
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => NavigationTabScreen(initialIndex: 1),
+                  ),
+                );
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
 }

@@ -10,22 +10,22 @@ class bookingModel {
     if (json['data'] != null) {
       data = <Data>[];
       json['data'].forEach((v) {
-        data!.add(new Data.fromJson(v));
+        data!.add(Data.fromJson(v));
       });
     }
     pagination = json['pagination'] != null
-        ? new Pagination.fromJson(json['pagination'])
+        ? Pagination.fromJson(json['pagination'])
         : null;
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['status'] = this.status;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['status'] = status;
     if (this.data != null) {
       data['data'] = this.data!.map((v) => v.toJson()).toList();
     }
-    if (this.pagination != null) {
-      data['pagination'] = this.pagination!.toJson();
+    if (pagination != null) {
+      data['pagination'] = pagination!.toJson();
     }
     return data;
   }
@@ -82,18 +82,18 @@ class Data {
     }
     serviceStartOtp = json['service_start_otp']?.toString();
     address = json['address'] != null
-        ? new Address.fromJson(json['address'])
+        ? Address.fromJson(json['address'])
         : null;
     vendor = json['vendor'] != null
-        ? new Vendor.fromJson(json['vendor'])
+        ? Vendor.fromJson(json['vendor'])
         : null;
     firstService = json['first_service'] != null
-        ? new FirstService.fromJson(json['first_service'])
+        ? FirstService.fromJson(json['first_service'])
         : null;
     if (json['services'] != null) {
       services = <Services>[];
       json['services'].forEach((v) {
-        services!.add(new Services.fromJson(v));
+        services!.add(Services.fromJson(v));
       });
     }
     subtotal = json['subtotal']?.toString();
@@ -104,32 +104,32 @@ class Data {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['booking_id'] = this.bookingId;
-    data['booking_code'] = this.bookingCode;
-    data['service_date'] = this.serviceDate;
-    data['service_day'] = this.serviceDay;
-    if (this.serviceTime != null) {
-      data['service_time'] = this.serviceTime!.toJson();
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['booking_id'] = bookingId;
+    data['booking_code'] = bookingCode;
+    data['service_date'] = serviceDate;
+    data['service_day'] = serviceDay;
+    if (serviceTime != null) {
+      data['service_time'] = serviceTime!.toJson();
     }
-    data['service_start_otp'] = this.serviceStartOtp;
-    if (this.address != null) {
-      data['address'] = this.address!.toJson();
+    data['service_start_otp'] = serviceStartOtp;
+    if (address != null) {
+      data['address'] = address!.toJson();
     }
-    if (this.vendor != null) {
-      data['vendor'] = this.vendor!.toJson();
+    if (vendor != null) {
+      data['vendor'] = vendor!.toJson();
     }
-    if (this.firstService != null) {
-      data['first_service'] = this.firstService!.toJson();
+    if (firstService != null) {
+      data['first_service'] = firstService!.toJson();
     }
-    if (this.services != null) {
-      data['services'] = this.services!.map((v) => v.toJson()).toList();
+    if (services != null) {
+      data['services'] = services!.map((v) => v.toJson()).toList();
     }
-    data['subtotal'] = this.subtotal;
-    data['service_fee'] = this.serviceFee;
-    data['total'] = this.total;
-    data['status'] = this.status;
-    data['created_at'] = this.createdAt;
+    data['subtotal'] = subtotal;
+    data['service_fee'] = serviceFee;
+    data['total'] = total;
+    data['status'] = status;
+    data['created_at'] = createdAt;
     return data;
   }
 }
@@ -146,9 +146,9 @@ class ServiceTime {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['from'] = this.from;
-    data['to'] = this.to;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['from'] = from;
+    data['to'] = to;
     return data;
   }
 }
@@ -169,11 +169,11 @@ class Address {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['street_address'] = this.streetAddress;
-    data['apartment'] = this.apartment;
-    data['city'] = this.city;
-    data['zip_code'] = this.zipCode;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['street_address'] = streetAddress;
+    data['apartment'] = apartment;
+    data['city'] = city;
+    data['zip_code'] = zipCode;
     return data;
   }
 }
@@ -194,9 +194,9 @@ class Vendor {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['id'] = this.id;
-    data['name'] = this.name;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['id'] = id;
+    data['name'] = name;
     return data;
   }
 }
@@ -243,7 +243,7 @@ class FirstService {
     createdAt = json['created_at']?.toString();
     updatedAt = json['updated_at']?.toString();
     service = json['service'] != null
-        ? new Service.fromJson(json['service'])
+        ? Service.fromJson(json['service'])
         : null;
 
     // Fallback: If service is null but service_image is directly in FirstService
@@ -253,18 +253,18 @@ class FirstService {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['id'] = this.id;
-    data['booking_id'] = this.bookingId;
-    data['service_id'] = this.serviceId;
-    data['service_name'] = this.serviceName;
-    data['unit_price'] = this.unitPrice;
-    data['quantity'] = this.quantity;
-    data['service_item_total'] = this.serviceItemTotal;
-    data['created_at'] = this.createdAt;
-    data['updated_at'] = this.updatedAt;
-    if (this.service != null) {
-      data['service'] = this.service!.toJson();
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['id'] = id;
+    data['booking_id'] = bookingId;
+    data['service_id'] = serviceId;
+    data['service_name'] = serviceName;
+    data['unit_price'] = unitPrice;
+    data['quantity'] = quantity;
+    data['service_item_total'] = serviceItemTotal;
+    data['created_at'] = createdAt;
+    data['updated_at'] = updatedAt;
+    if (service != null) {
+      data['service'] = service!.toJson();
     }
     return data;
   }
@@ -342,23 +342,23 @@ class Service {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['id'] = this.id;
-    data['vendor_id'] = this.vendorId;
-    data['service_name'] = this.serviceName;
-    data['service_image'] = this.serviceImage;
-    data['category_id'] = this.categoryId;
-    data['subcategory_id'] = this.subcategoryId;
-    data['description'] = this.description;
-    data['latitude'] = this.latitude;
-    data['longitude'] = this.longitude;
-    data['service_price'] = this.servicePrice;
-    data['duration_value'] = this.durationValue;
-    data['duration_type'] = this.durationType;
-    data['status'] = this.status;
-    data['created_at'] = this.createdAt;
-    data['updated_at'] = this.updatedAt;
-    data['deleted_at'] = this.deletedAt;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['id'] = id;
+    data['vendor_id'] = vendorId;
+    data['service_name'] = serviceName;
+    data['service_image'] = serviceImage;
+    data['category_id'] = categoryId;
+    data['subcategory_id'] = subcategoryId;
+    data['description'] = description;
+    data['latitude'] = latitude;
+    data['longitude'] = longitude;
+    data['service_price'] = servicePrice;
+    data['duration_value'] = durationValue;
+    data['duration_type'] = durationType;
+    data['status'] = status;
+    data['created_at'] = createdAt;
+    data['updated_at'] = updatedAt;
+    data['deleted_at'] = deletedAt;
     return data;
   }
 }
@@ -391,12 +391,12 @@ class Services {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['service_id'] = this.serviceId;
-    data['service_name'] = this.serviceName;
-    data['unit_price'] = this.unitPrice;
-    data['quantity'] = this.quantity;
-    data['total'] = this.total;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['service_id'] = serviceId;
+    data['service_name'] = serviceName;
+    data['unit_price'] = unitPrice;
+    data['quantity'] = quantity;
+    data['total'] = total;
     return data;
   }
 }
@@ -417,11 +417,11 @@ class Pagination {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['current_page'] = this.currentPage;
-    data['total_pages'] = this.totalPages;
-    data['total'] = this.total;
-    data['limit'] = this.limit;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['current_page'] = currentPage;
+    data['total_pages'] = totalPages;
+    data['total'] = total;
+    data['limit'] = limit;
     return data;
   }
 }

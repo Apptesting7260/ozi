@@ -15,11 +15,11 @@ class ReadnotificationModel {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['status'] = this.status;
-    data['message'] = this.message;
-    data['updated_count'] = this.updatedCount;
-    data['unread_count'] = this.unreadCount;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['status'] = status;
+    data['message'] = message;
+    data['updated_count'] = updatedCount;
+    data['unread_count'] = unreadCount;
     return data;
   }
 }
