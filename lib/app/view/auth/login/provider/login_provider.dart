@@ -4,15 +4,22 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
 import 'package:ozi/app/core/appExports/app_export.dart';
 import 'package:ozi/app/core/device%20info/datainfoservices.dart';
 import 'package:ozi/app/core/push%20notification/push_notification.dart';
 import 'package:ozi/app/data/repository/repository.dart';
 import 'package:ozi/app/data/storage/user_preference.dart';
+import 'package:ozi/app/modules/auth/vendor/signup/view/identity_verification_screen.dart';
+import 'package:ozi/app/modules/auth/vendor/signup/view/set_availability.dart';
+import 'package:ozi/app/modules/user/navigation%20tab/view/navigation_tab_screen.dart';
+import 'package:ozi/app/modules/vendor/navigation%20tab/view/vendor_navigation_tab_screen.dart';
 import 'package:ozi/app/shared/widgets/customoverlayloader.dart';
+import 'package:ozi/app/view/user_role/choose_your_role/view/choose_role.dart';
 import 'dart:convert';
 import '../../../../core/constants/app_urls.dart';
 import '../model/login_model.dart';
+import '../../../../modules/auth/vendor/signup/view/service_category.dart';
 
 class LoginProvider extends ChangeNotifier {
   bool _isLoading = false;
@@ -346,36 +353,41 @@ class LoginProvider extends ChangeNotifier {
     );
 
     return completer.future;
+    // }
   }
 
   Future<void> signInWithGoogle(BuildContext context) async {
     try {
       CustomOverlayLoader.show(context);
 
-      final GoogleSignIn signIn = GoogleSignIn.instance; // It's now a singleton
+      final GoogleSignIn signIn = GoogleSignIn.instance;
 
-      // If you didn't initialize globally in main.dart, do it here (but prefer main)
-      // await signIn.initialize(serverClientId: '...');
+      // Optional: If not initialized globally in main.dart, do it here
+      // await signIn.initialize(serverClientId: 'your-server-client-id-if-using-backend');
 
-      // Use authenticate() — it throws on cancel/error instead of returning null
       final GoogleSignInAccount? googleUser = await signIn.authenticate(
-        scopeHint: ['email', 'profile'], // Optional, but good to include
+        scopeHint: ['email', 'profile'], // or add more scopes if needed
       );
 
       if (googleUser == null) {
         CustomOverlayLoader.hide();
-        return;
+        return; // User canceled
       }
+      String displayName = googleUser.displayName ?? '';
+      String firstName = '';
+      String lastName = '';
 
-      // Get the authentication details (idToken only!)
+      if (displayName.isNotEmpty) {
+        List<String> nameParts = displayName.split(' ');
+        firstName = nameParts.first;
+        lastName = nameParts.length > 1 ? nameParts.sublist(1).join(' ') : '';
+      }
       final GoogleSignInAuthentication googleAuth =
           await googleUser.authentication;
 
-      debugPrint('Google user ID: ${googleUser.id}');
       debugPrint(
-        'idToken: ${googleAuth.idToken}',
-      ); // ← This MUST be a long string like "eyJhbGciOi... . payload . signature"
-
+        'Google user ID: ${googleUser.id} & Google idToken: ${googleAuth.idToken}',
+      );
       if (googleAuth.idToken == null || googleAuth.idToken!.isEmpty) {
         Get.showToast(
           'Failed to retrieve Google ID token',
@@ -385,25 +397,77 @@ class LoginProvider extends ChangeNotifier {
         return;
       }
 
-      // Send the REAL idToken (JWT) to your backend
-      await socialLoginApi(navigatorKey.currentContext!, googleAuth.idToken!);
+      debugPrint(
+        'Google idToken (prefix): ${googleAuth.idToken!.substring(0, 20)}...',
+      );
 
-      CustomOverlayLoader.hide();
-    } on GoogleSignInException catch (e) {
-      CustomOverlayLoader.hide();
-      if (e.code == GoogleSignInExceptionCode.canceled) {
+      final credential = GoogleAuthProvider.credential(
+        idToken: googleAuth.idToken,
+      );
+
+      final userCredential = await FirebaseAuth.instance.signInWithCredential(
+        credential,
+      );
+
+      final timing = await userCredential.user?.getIdTokenResult();
+      print("token expire timing ${timing?.issuedAtTime}");
+      final issuedAt = timing?.issuedAtTime;
+
+      if (issuedAt != null) {
+        final utcDateTime = issuedAt.toUtc();
+
+        print("Token issued at (UTC): ${utcDateTime.toIso8601String()}");
+
+        final formatter = DateFormat("yyyy-MM-dd HH:mm:ss 'UTC'");
+        print("Token issued at (UTC): ${formatter.format(utcDateTime)}");
+
+        final expiresAt = utcDateTime.add(const Duration(hours: 1));
+        print("Token expires at (UTC): ${formatter.format(expiresAt)}");
+      }
+
+      final String? firebaseIdToken = await userCredential.user?.getIdToken();
+
+      if (firebaseIdToken == null || firebaseIdToken.isEmpty) {
+        Get.showToast('Failed to get Firebase ID token', type: ToastType.error);
+        CustomOverlayLoader.hide();
         return;
       }
-      debugPrint('Google Sign-In error: ${e.code} – ${e.description}');
-      Get.showToast(
-        'Google Sign-In failed: ${e.description ?? "Unknown"}',
-        type: ToastType.error,
+
+      debugPrint(
+        'Firebase ID token (prefix): ${firebaseIdToken.substring(0, 20)}...',
       );
+
+      await socialLoginApi(
+        navigatorKey.currentContext!,
+        firebaseIdToken,
+        googleUser.id,
+        issuedAt.toString(),
+        firstName,
+        lastName,
+        googleUser.email,
+      );
+
+      CustomOverlayLoader.hide();
+    } on FirebaseAuthException catch (e) {
+      CustomOverlayLoader.hide();
+      String msg = 'Firebase login failed: ${e.message ?? e.code}';
+      if (e.code == 'account-exists-with-different-credential') {
+        msg = 'Account exists with another sign-in method';
+      } else if (e.code == 'invalid-credential') {
+        msg = 'Invalid Google credential – check Firebase/Google config';
+      }
+      debugPrint('FirebaseAuthException: $e');
+      Get.showToast(msg, type: ToastType.error);
+    } on GoogleSignInException catch (e) {
+      CustomOverlayLoader.hide();
+      if (e.code == GoogleSignInExceptionCode.canceled) return;
+      debugPrint('GoogleSignInException: ${e.code} – ${e.description}');
+      Get.showToast('Google Sign-In canceled or failed', type: ToastType.error);
     } on PlatformException catch (e) {
       CustomOverlayLoader.hide();
-      debugPrint('Platform error: ${e.message}');
+      debugPrint('PlatformException: $e');
       Get.showToast(
-        'Google Sign-In failed. Check configuration.',
+        'Sign-in error – check Firebase/Google setup',
         type: ToastType.error,
       );
     } catch (e) {
@@ -412,66 +476,67 @@ class LoginProvider extends ChangeNotifier {
       Get.showToast('Login failed. Please try again.', type: ToastType.error);
     }
   }
+  //using
   // Future<void> signInWithGoogle(BuildContext context) async {
   //   try {
   //     CustomOverlayLoader.show(context);
 
-  //     final GoogleSignIn signIn = GoogleSignIn.instance;
+  //     final GoogleSignIn signIn = GoogleSignIn.instance; // It's now a singleton
 
-  //     // Optional: ensure initialized (you can skip if you did it globally)
-  //     // await signIn.initialize();  // ← call only once in the app
+  //     // If you didn't initialize globally  in main.dart, do it here (but prefer main)
+  //     // await signIn.initialize(serverClientId: '...');
 
-  //     // New authentication method – throws if canceled/failed
+  //     // Use authenticate() — it throws on cancel/error instead of returning null
   //     final GoogleSignInAccount? googleUser = await signIn.authenticate(
-  //       scopeHint: ['email', 'profile'], // ← pass scopes here
+  //       scopeHint: ['email', 'profile'], // Optional, but good to include
   //     );
 
   //     if (googleUser == null) {
-  //       // This case is now very rare – usually throws GoogleSignInException
   //       CustomOverlayLoader.hide();
   //       return;
   //     }
 
-  //     // Optional: Firebase login (still works the same way)
-  //     // final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
-  //     // final credential = GoogleAuthProvider.credential(
-  //     //   accessToken: googleAuth.accessToken,
-  //     //   idToken: googleAuth.idToken,
-  //     // );
-  //     // await FirebaseAuth.instance.signInWithCredential(credential);
+  //     // Get the authentication details (idToken only!)
+  //     final GoogleSignInAuthentication googleAuth =
+  //         await googleUser.authentication;
 
-  //     String displayName = googleUser.displayName ?? '';
-  //     String firstName = '';
-  //     String lastName = '';
+  //     debugPrint('Google user ID: ${googleUser.id}');
+  //     debugPrint(
+  //       'idToken: ${googleAuth.idToken}',
+  //     ); // ← This MUST be a long string like "eyJhbGciOi... . payload . signature"
 
-  //     if (displayName.isNotEmpty) {
-  //       List<String> nameParts = displayName.split(' ');
-  //       firstName = nameParts.first;
-  //       lastName = nameParts.length > 1 ? nameParts.sublist(1).join(' ') : '';
+  //     if (googleAuth.idToken == null || googleAuth.idToken!.isEmpty) {
+  //       Get.showToast(
+  //         'Failed to retrieve Google ID token',
+  //         type: ToastType.error,
+  //       );
+  //       CustomOverlayLoader.hide();
+  //       return;
   //     }
 
-  //     // Call your backend API with Google ID
-  //     await socialLoginApi(navigatorKey.currentContext!, googleUser.id);
+  //     // Send the REAL idToken (JWT) to your backend
+  //     await socialLoginApi(
+  //       navigatorKey.currentContext!,
+  //       googleAuth.idToken!,
+  //       googleUser.id,
+  //     );
 
   //     CustomOverlayLoader.hide();
   //   } on GoogleSignInException catch (e) {
   //     CustomOverlayLoader.hide();
-
   //     if (e.code == GoogleSignInExceptionCode.canceled) {
-  //       // User canceled – silent return or show info toast
   //       return;
   //     }
-
   //     debugPrint('Google Sign-In error: ${e.code} – ${e.description}');
   //     Get.showToast(
-  //       'Google Sign-In failed: ${e.description ?? "Unknown error"}',
+  //       'Google Sign-In failed: ${e.description ?? "Unknown"}',
   //       type: ToastType.error,
   //     );
   //   } on PlatformException catch (e) {
   //     CustomOverlayLoader.hide();
-  //     debugPrint('PlatformException: ${e.message}');
+  //     debugPrint('Platform error: ${e.message}');
   //     Get.showToast(
-  //       'Google Sign-In failed. Please check configuration.',
+  //       'Google Sign-In failed. Check configuration.',
   //       type: ToastType.error,
   //     );
   //   } catch (e) {
@@ -488,11 +553,18 @@ class LoginProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> socialLoginApi(BuildContext context, String idToken) async {
+  Future<void> socialLoginApi(
+    BuildContext context,
+    String idToken,
+    String googleId,
+    String utcTime,
+    String firstName,
+    String lastName,
+    String email,
+  ) async {
     updateLoading(true);
 
     try {
-      String deviceId = await DeviceIdService.getDeviceId();
       String deviceName = await DeviceIdService.getDeviceName();
 
       final value = await _repository.socialLoginApi({
@@ -500,6 +572,11 @@ class LoginProvider extends ChangeNotifier {
         "device_name": deviceName,
         "device_type": Platform.isAndroid ? "android" : "ios",
         "fcm_token": PushNotificationService.fcmToken ?? "",
+        "google_id": googleId,
+        "utc_time": utcTime,
+        "first_name": firstName,
+        "last_name": lastName,
+        "email": email,
       });
 
       // Only interact with context if widget is still mounted
@@ -509,26 +586,63 @@ class LoginProvider extends ChangeNotifier {
           await UserPreference.saveUserId(value['user']['id']);
           await UserPreference.saveRefreshToken(value['user']['refreshToken']);
           await UserPreference.saveLoginStatus(true);
+          if (navigatorKey.currentContext!.mounted) {
+            if (value['stepCompleted'] == '0') {
+              Navigator.pushReplacement(
+                navigatorKey.currentContext!,
+                MaterialPageRoute(
+                  builder: (_) => ChooseRoleScreen(userId: value['user']['id']),
+                ),
+              );
+            } else if (value['stepCompleted'] == '1' &&
+                value['role'] == 'vendor') {
+              await saveLogin(value['role'], value['token']);
+              Navigator.push(
+                navigatorKey.currentContext!,
+                MaterialPageRoute(builder: (_) => ServiceCategory()),
+              );
+            } else if (value['stepCompleted'] == '2' &&
+                value['role'] == 'vendor') {
+              await saveLogin(value['role'], value['token']);
+              Navigator.push(
+                navigatorKey.currentContext!,
+                MaterialPageRoute(builder: (_) => SetAvailabilityScreen(false)),
+              );
+            } else if (value['stepCompleted'] == '3' &&
+                value['role'] == 'vendor') {
+              await saveLogin(value['role'], value['token']);
+              Navigator.push(
+                navigatorKey.currentContext!,
+                MaterialPageRoute(
+                  builder: (_) =>
+                      IdentityVerificationScreen(isFromProfile: false),
+                ),
+              );
+            }
 
-          Get.showToast(
-            value['message']?.toString() ?? 'Login Successfully',
-            type: ToastType.success,
-          );
+            Get.showToast(
+              value['message']?.toString() ?? 'Login Successfully',
+              type: ToastType.success,
+            );
 
-          // if (value['user']['is_profile_completed'] == true) {
-          //   Get.offAllNamed(Routes.home);
-          // } else {
-          //   Get.offAllNamed(Routes.completeProfile);
-          // }
+            // if (value['user']['is_profile_completed'] == true) {
+            //   Get.offAllNamed(Routes.home);
+            // } else {
+            //   Get.offAllNamed(Routes.completeProfile);
+            // }
+          } else {
+            Get.showToast(
+              value['message']?.toString() ?? 'Failed to login',
+              type: ToastType.error,
+            );
+          }
         }
       }
     } catch (error) {
       if (context.mounted) {
         if (error.toString() == 'Invalid credentials.') {
           setloginErrorInvalidCredentialsMessage(error.toString());
-        } else if (error.toString().contains(
-          'This email is not registered with us.',
-        )) {
+        } else if (error.toString() == 'Email not found.') {
           setEmailNotFoundMessage(error.toString());
         } else {
           Get.showToast(error.toString(), type: ToastType.error);
@@ -538,6 +652,36 @@ class LoginProvider extends ChangeNotifier {
       Get.consoleLog(error.toString(), "error while COMPLETE PROFILE");
     } finally {
       updateLoading(false);
+    }
+  }
+
+  Future<void> saveLogin(String? role, String? token) async {
+    if (role == null || token == null) {
+      return;
+    }
+    await UserPreference.isLoggedIn(true);
+    await UserPreference.saveAccessToken(token);
+    await UserPreference.saveRole(role);
+  }
+
+  Future<void> loginWithSaveTokenRedirection(
+    String? role,
+    String? token,
+  ) async {
+    if (role == null || token == null) {
+      return;
+    }
+    await saveLogin(role, token);
+    if (role == 'user') {
+      Navigator.push(
+        navigatorKey.currentContext!,
+        MaterialPageRoute(builder: (_) => NavigationTabScreen()),
+      );
+    } else if (role == 'vendor') {
+      Navigator.push(
+        navigatorKey.currentContext!,
+        MaterialPageRoute(builder: (_) => VendorNavigationTabScreen()),
+      );
     }
   }
 
