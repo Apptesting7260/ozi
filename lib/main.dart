@@ -88,7 +88,8 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => VendorServicesProvider()),
         ChangeNotifierProvider(create: (_) => ChangeAddressProvider()),
         ChangeNotifierProvider(create: (_) => LocationPickerProvider()),
-        ChangeNotifierProvider(create: (_) => CartProvider(repository: Repository()),
+        ChangeNotifierProvider(
+          create: (_) => CartProvider(repository: Repository()),
         ),
         ChangeNotifierProvider(create: (_) => LoginDetailsProvider()),
       ],
@@ -110,7 +111,7 @@ class MyApp extends StatelessWidget {
                 useMaterial3: false,
               ),
               initialRoute: AppRoutes.splashScreen,
-              navigatorObservers: [ ChuckerFlutter.navigatorObserver ],
+              navigatorObservers: [ChuckerFlutter.navigatorObserver],
               onGenerateRoute: AppRoutes.generateRoute,
             ),
           );
