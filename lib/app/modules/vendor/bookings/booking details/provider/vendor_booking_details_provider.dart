@@ -47,7 +47,9 @@ class VendorBookingDetailsProvider extends ChangeNotifier {
 
   Future<void> getAllBookings(String bookingId)async {
 
-    print('getting categories');
+    if (kDebugMode) {
+      print('getting categories');
+    }
     // try {
       setHomeModel(ApiResponse.loading());
       final response = await _apiService.getApi(AppUrls.vendorMyBookingsDetails.replaceAll("{bookingid}", bookingId));
@@ -76,10 +78,12 @@ class VendorBookingDetailsProvider extends ChangeNotifier {
       errorMessage = null;
       notifyListeners();
     }
-    print('getting categories');
+    if (kDebugMode) {
+      print('getting categories');
+    }
     try {
       updateOtpVerifyLoading(true);
-      final response = await _apiService.postApi({
+      final _ = await _apiService.postApi({
         "otp":pinController.text,
         "booking_id":bookingId
       },AppUrls.vendorOtpVerify);
@@ -103,7 +107,7 @@ class VendorBookingDetailsProvider extends ChangeNotifier {
     if(_completeJobLoading) return;
     try {
       updateOtpVerifyLoading(true);
-      final response = await _apiService.postApi({
+      final _ = await _apiService.postApi({
         "booking_id":bookingId
       },AppUrls.completeJob);
       getAllBookings(bookingId);

@@ -6,12 +6,12 @@ class ServiceCardDetailModel {
 
   ServiceCardDetailModel.fromJson(Map<String, dynamic> json) {
     status = json['status'];
-    data = json['data'] != null ? new Data.fromJson(json['data']) : null;
+    data = json['data'] != null ? Data.fromJson(json['data']) : null;
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['status'] = this.status;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['status'] = status;
     if (this.data != null) {
       data['data'] = this.data!.toJson();
     }
@@ -54,28 +54,28 @@ class Data {
     durationType = json['duration_type'];
     status = json['status'];
     totalBookingCount = json['total_booking_count'] != null
-        ? new TotalBookingCount.fromJson(json['total_booking_count'])
+        ? TotalBookingCount.fromJson(json['total_booking_count'])
         : null;
     todayBookingCount = json['today_booking_count'] != null
-        ? new TodayBookingCount.fromJson(json['today_booking_count'])
+        ? TodayBookingCount.fromJson(json['today_booking_count'])
         : null;
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
+    final Map<String, dynamic> data = <String, dynamic>{};
     data['id'] = id;
-    data['service_name'] = this.serviceName;
-    data['service_image'] = this.serviceImage;
-    data['description'] = this.description;
-    data['service_price'] = this.servicePrice;
-    data['duration_value'] = this.durationValue;
-    data['duration_type'] = this.durationType;
-    data['status'] = this.status;
-    if (this.totalBookingCount != null) {
-      data['total_booking_count'] = this.totalBookingCount!.toJson();
+    data['service_name'] = serviceName;
+    data['service_image'] = serviceImage;
+    data['description'] = description;
+    data['service_price'] = servicePrice;
+    data['duration_value'] = durationValue;
+    data['duration_type'] = durationType;
+    data['status'] = status;
+    if (totalBookingCount != null) {
+      data['total_booking_count'] = totalBookingCount!.toJson();
     }
-    if (this.todayBookingCount != null) {
-      data['today_booking_count'] = this.todayBookingCount!.toJson();
+    if (todayBookingCount != null) {
+      data['today_booking_count'] = todayBookingCount!.toJson();
     }
     return data;
   }
@@ -110,14 +110,14 @@ class TotalBookingCount {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['total_pending_booking'] = this.totalPendingBooking;
-    data['total_confirmed_booking'] = this.totalConfirmedBooking;
-    data['total_ongoing_booking'] = this.totalOngoingBooking;
-    data['total_completed_booking'] = this.totalCompletedBooking;
-    data['total_cancelled_booking'] = this.totalCancelledBooking;
-    data['total_rejected_booking'] = this.totalRejectedBooking;
-    data['total_booking_count'] = this.totalBookingCount;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['total_pending_booking'] = totalPendingBooking;
+    data['total_confirmed_booking'] = totalConfirmedBooking;
+    data['total_ongoing_booking'] = totalOngoingBooking;
+    data['total_completed_booking'] = totalCompletedBooking;
+    data['total_cancelled_booking'] = totalCancelledBooking;
+    data['total_rejected_booking'] = totalRejectedBooking;
+    data['total_booking_count'] = totalBookingCount;
     return data;
   }
 }
@@ -151,14 +151,14 @@ class TodayBookingCount {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['today_pending_booking'] = this.todayPendingBooking;
-    data['today_confirmed_booking'] = this.todayConfirmedBooking;
-    data['today_ongoing_booking'] = this.todayOngoingBooking;
-    data['today_completed_booking'] = this.todayCompletedBooking;
-    data['today_cancelled_booking'] = this.todayCancelledBooking;
-    data['today_rejected_booking'] = this.todayRejectedBooking;
-    data['today_total_booking_count'] = this.todayTotalBookingCount;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['today_pending_booking'] = todayPendingBooking;
+    data['today_confirmed_booking'] = todayConfirmedBooking;
+    data['today_ongoing_booking'] = todayOngoingBooking;
+    data['today_completed_booking'] = todayCompletedBooking;
+    data['today_cancelled_booking'] = todayCancelledBooking;
+    data['today_rejected_booking'] = todayRejectedBooking;
+    data['today_total_booking_count'] = todayTotalBookingCount;
     return data;
   }
 }

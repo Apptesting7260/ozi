@@ -3,7 +3,6 @@ import 'package:ozi/app/modules/user/profile/view/profile_screen.dart';
 import '../../../../core/appExports/app_export.dart';
 import '../../bookings/view/vendor_mybookings_screen.dart';
 import '../../home/view/vendor_home_screen.dart';
-import '../../profile/view/vendor_profile_screen.dart';
 import '../../services/view/service_screen.dart';
 import '../../wallet/view/wallet_screen.dart';
 

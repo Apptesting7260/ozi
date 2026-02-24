@@ -1,5 +1,3 @@
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:ozi/app/core/appExports/app_export.dart';
 import 'package:ozi/app/shared/widgets/custom_app_bar.dart';
 import 'package:ozi/app/modules/user/cart/view/cupponprovider.dart';
@@ -233,11 +231,11 @@ class _CopponScreenState extends State<CopponScreen> {
           ),
           hBox(4),
           Text(
-            "${coupon.type == 'percentage' ? (coupon.value ?? '0') + '%' : '\$' + (coupon.value ?? '0')} off on service book",
+            "${coupon.type == 'percentage' ? '${coupon.value ?? '0'}%' : '\$${coupon.value ?? '0'}'} off on service book",
             style: AppFontStyle.text_14_400(AppColors.grey),
           ),
           Text(
-            "${coupon.minCartAmountMsg.toString()}",
+            coupon.minCartAmountMsg.toString(),
             style: AppFontStyle.text_14_400(AppColors.primary),
           ),
           hBox(16),

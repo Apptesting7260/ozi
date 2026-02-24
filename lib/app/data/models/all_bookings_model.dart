@@ -10,22 +10,22 @@ class AllBookingsModel {
     if (json['data'] != null) {
       data = <AllBookingsModelData>[];
       json['data'].forEach((v) {
-        data!.add(new AllBookingsModelData.fromJson(v));
+        data!.add(AllBookingsModelData.fromJson(v));
       });
     }
     pagination = json['pagination'] != null
-        ? new Pagination.fromJson(json['pagination'])
+        ? Pagination.fromJson(json['pagination'])
         : null;
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['status'] = this.status;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['status'] = status;
     if (this.data != null) {
       data['data'] = this.data!.map((v) => v.toJson()).toList();
     }
-    if (this.pagination != null) {
-      data['pagination'] = this.pagination!.toJson();
+    if (pagination != null) {
+      data['pagination'] = pagination!.toJson();
     }
     return data;
   }
@@ -92,37 +92,37 @@ class AllBookingsModelData {
     vendorActionAt = json['vendor_action_at']?.toString();
     createdAt = json['created_at']?.toString();
     updatedAt = json['updated_at']?.toString();
-    user = json['user'] != null ? new User.fromJson(json['user']) : null;
+    user = json['user'] != null ? User.fromJson(json['user']) : null;
     address =
-    json['address'] != null ? new Address.fromJson(json['address']) : null;
+    json['address'] != null ? Address.fromJson(json['address']) : null;
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['id'] = this.id;
-    data['booking_code'] = this.bookingCode;
-    data['user_id'] = this.userId;
-    data['vendor_id'] = this.vendorId;
-    data['address_id'] = this.addressId;
-    data['payment_method'] = this.paymentMethod;
-    data['service_date'] = this.serviceDate;
-    data['service_day'] = this.serviceDay;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['id'] = id;
+    data['booking_code'] = bookingCode;
+    data['user_id'] = userId;
+    data['vendor_id'] = vendorId;
+    data['address_id'] = addressId;
+    data['payment_method'] = paymentMethod;
+    data['service_date'] = serviceDate;
+    data['service_day'] = serviceDay;
     // if (this.serviceTime != null) {
     //   data['service_time'] = this.serviceTime!.toJson();
     // }
-    data['subtotal'] = this.subtotal;
-    data['service_fee'] = this.serviceFee;
-    data['total'] = this.total;
-    data['status'] = this.status;
-    data['service_start_otp'] = this.serviceStartOtp;
-    data['vendor_action_at'] = this.vendorActionAt;
-    data['created_at'] = this.createdAt;
-    data['updated_at'] = this.updatedAt;
-    if (this.user != null) {
-      data['user'] = this.user!.toJson();
+    data['subtotal'] = subtotal;
+    data['service_fee'] = serviceFee;
+    data['total'] = total;
+    data['status'] = status;
+    data['service_start_otp'] = serviceStartOtp;
+    data['vendor_action_at'] = vendorActionAt;
+    data['created_at'] = createdAt;
+    data['updated_at'] = updatedAt;
+    if (user != null) {
+      data['user'] = user!.toJson();
     }
-    if (this.address != null) {
-      data['address'] = this.address!.toJson();
+    if (address != null) {
+      data['address'] = address!.toJson();
     }
     return data;
   }
@@ -194,20 +194,20 @@ class User {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['id'] = this.id;
-    data['first_name'] = this.firstName;
-    data['last_name'] = this.lastName;
-    data['email'] = this.email;
-    data['pro_img'] = this.proImg;
-    data['country_code'] = this.countryCode;
-    data['mobile'] = this.mobile;
-    data['user_role'] = this.userRole;
-    data['is_mobile_verified'] = this.isMobileVerified;
-    data['status'] = this.status;
-    data['step_completed'] = this.stepCompleted;
-    data['created_at'] = this.createdAt;
-    data['updated_at'] = this.updatedAt;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['id'] = id;
+    data['first_name'] = firstName;
+    data['last_name'] = lastName;
+    data['email'] = email;
+    data['pro_img'] = proImg;
+    data['country_code'] = countryCode;
+    data['mobile'] = mobile;
+    data['user_role'] = userRole;
+    data['is_mobile_verified'] = isMobileVerified;
+    data['status'] = status;
+    data['step_completed'] = stepCompleted;
+    data['created_at'] = createdAt;
+    data['updated_at'] = updatedAt;
     return data;
   }
 }
@@ -253,18 +253,18 @@ class Address {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['id'] = this.id;
-    data['user_id'] = this.userId;
-    data['address_type'] = this.addressType;
-    data['is_default'] = this.isDefault;
-    data['street_address'] = this.streetAddress;
-    data['apartment'] = this.apartment;
-    data['city'] = this.city;
-    data['zip_code'] = this.zipCode;
-    data['created_at'] = this.createdAt;
-    data['updated_at'] = this.updatedAt;
-    data['full_address'] = this.fullAddress;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['id'] = id;
+    data['user_id'] = userId;
+    data['address_type'] = addressType;
+    data['is_default'] = isDefault;
+    data['street_address'] = streetAddress;
+    data['apartment'] = apartment;
+    data['city'] = city;
+    data['zip_code'] = zipCode;
+    data['created_at'] = createdAt;
+    data['updated_at'] = updatedAt;
+    data['full_address'] = fullAddress;
     return data;
   }
 }
@@ -285,11 +285,11 @@ class Pagination {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['current_page'] = this.currentPage;
-    data['total_pages'] = this.totalPages;
-    data['total'] = this.total;
-    data['limit'] = this.limit;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['current_page'] = currentPage;
+    data['total_pages'] = totalPages;
+    data['total'] = total;
+    data['limit'] = limit;
     return data;
   }
 }

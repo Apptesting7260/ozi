@@ -21,7 +21,7 @@ class DeviceIdService {
     final deviceInfo = DeviceInfoPlugin();
     if (Platform.isAndroid) {
       final androidInfo = await deviceInfo.androidInfo;
-      newId = androidInfo.id ?? const Uuid().v4();
+      newId = androidInfo.id;
     } else if (Platform.isIOS) {
       final iosInfo = await deviceInfo.iosInfo;
       newId = iosInfo.identifierForVendor ?? const Uuid().v4();
@@ -52,7 +52,7 @@ class DeviceIdService {
     } else if (Platform.isIOS) {
       final ios = await deviceInfo.iosInfo;
 
-      deviceName = ios.name ?? ios.utsname.machine ?? "iOS Device";
+      deviceName = ios.name;
     } else {
       deviceName = "Unknown Device";
     }

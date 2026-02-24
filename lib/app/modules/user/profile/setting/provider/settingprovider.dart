@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:ozi/app/core/appExports/app_export.dart';
 import 'package:ozi/app/data/repository/repository.dart';
 import 'package:ozi/app/data/storage/user_preference.dart';
@@ -23,7 +22,9 @@ class Settingprovider with ChangeNotifier {
         _settingsModel = response;
       }
     } catch (e) {
-      print('Error in settingsApi: $e');
+      if (kDebugMode) {
+        print('Error in settingsApi: $e');
+      }
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -51,7 +52,9 @@ class Settingprovider with ChangeNotifier {
       }
       return false;
     } catch (e) {
-      print('Error in deleteProfile: $e');
+      if (kDebugMode) {
+        print('Error in deleteProfile: $e');
+      }
       return false;
     } finally {
       if (_isLoading) {
@@ -98,7 +101,9 @@ class Settingprovider with ChangeNotifier {
         }
       }
     } catch (e) {
-      print('Error in updateNotificationApi: $e');
+      if (kDebugMode) {
+        print('Error in updateNotificationApi: $e');
+      }
       if (context.mounted) {
         Get.showToast("Something went wrong", type: ToastType.error);
       }

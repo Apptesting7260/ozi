@@ -1,5 +1,3 @@
-import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import '../../../../core/appExports/app_export.dart';
 import '../model/wallet_detail_model.dart';
 import '../provider/wallet_provider.dart';
@@ -205,7 +203,7 @@ class _MyWalletContent extends StatelessWidget {
             else
               ...provider.transactions
                   .map((tx) => _transactionTile(tx))
-                  .toList(),
+                  ,
           ],
         ),
       ),

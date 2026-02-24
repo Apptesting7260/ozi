@@ -1,7 +1,7 @@
-import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
+import '../../../../../core/appExports/app_export.dart';
 import '../../../../../data/repository/repository.dart';
 import '../../save address/model/user_address_model.dart';
 
@@ -36,25 +36,33 @@ class EditUserAddressProvider extends ChangeNotifier {
   }
 
   void init(Data? address) {
-    print(
+    if (kDebugMode) {
+      print(
       "Init called with address ID: ${address?.id}, already initialized: $_initialized",
     );
+    }
 
     // If already initialized with the same address, skip
     if (_initialized && _addressId == address?.id) {
-      print("Skipping init - same address");
+      if (kDebugMode) {
+        print("Skipping init - same address");
+      }
       return;
     }
 
     if (_initialized) {
-      print("Re-initializing with different address");
+      if (kDebugMode) {
+        print("Re-initializing with different address");
+      }
       disposeControllers();
     }
 
     _addressId = address?.id;
     _lat = address?.latitude;
     _lng = address?.longitude;
-    print("Setting _addressId to: $_addressId, lat: $_lat, lng: $_lng");
+    if (kDebugMode) {
+      print("Setting _addressId to: $_addressId, lat: $_lat, lng: $_lng");
+    }
 
     if (_lat != null &&
         _lng != null &&
@@ -160,7 +168,9 @@ class EditUserAddressProvider extends ChangeNotifier {
         }
       }
     } catch (e) {
-      print("Unable to fetch address: $e");
+      if (kDebugMode) {
+        print("Unable to fetch address: $e");
+      }
     } finally {
       _isFetchingAddress = false;
       notifyListeners();
@@ -182,12 +192,16 @@ class EditUserAddressProvider extends ChangeNotifier {
         ),
       );
     } catch (e) {
-      print("Location permission denied: $e");
+      if (kDebugMode) {
+        print("Location permission denied: $e");
+      }
     }
   }
 
   Future<bool> updateAddress(BuildContext context) async {
-    print("Address ID : $_addressId");
+    if (kDebugMode) {
+      print("Address ID : $_addressId");
+    }
     if (_addressId == null) {
       _showSnackBar(context, "Address ID not found", Colors.red);
       return false;
@@ -245,7 +259,9 @@ class EditUserAddressProvider extends ChangeNotifier {
       _isLoading = false;
       notifyListeners();
 
-      print("Error updating address: $e");
+      if (kDebugMode) {
+        print("Error updating address: $e");
+      }
       _showSnackBar(context, "Failed to update address", Colors.red);
       return false;
     }

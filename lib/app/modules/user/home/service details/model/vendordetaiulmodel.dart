@@ -13,7 +13,7 @@ class vendorDetailModel {
         data = <Data>[];
         if (json['data'] is List) {
           json['data'].forEach((v) {
-            data!.add(new Data.fromJson(v));
+            data!.add(Data.fromJson(v));
           });
         }
       }
@@ -25,9 +25,9 @@ class vendorDetailModel {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['status'] = this.status;
-    data['message'] = this.message;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['status'] = status;
+    data['message'] = message;
     if (this.data != null) {
       data['data'] = this.data!.map((v) => v.toJson()).toList();
     }
@@ -110,42 +110,42 @@ class Data {
         num.tryParse(json['average_rating']?.toString() ?? '')?.toDouble() ??
         json['average_rating'];
     category = json['category'] != null
-        ? new Category.fromJson(json['category'])
+        ? Category.fromJson(json['category'])
         : null;
     subcategory = json['subcategory'] != null
-        ? new Category.fromJson(json['subcategory'])
+        ? Category.fromJson(json['subcategory'])
         : null;
     vendor = json['vendor'] != null
-        ? new Vendor.fromJson(json['vendor'])
+        ? Vendor.fromJson(json['vendor'])
         : null;
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['id'] = this.id;
-    data['vendor_id'] = this.vendorId;
-    data['service_name'] = this.serviceName;
-    data['service_image'] = this.serviceImage;
-    data['category_id'] = this.categoryId;
-    data['subcategory_id'] = this.subcategoryId;
-    data['description'] = this.description;
-    data['latitude'] = this.latitude;
-    data['longitude'] = this.longitude;
-    data['service_price'] = this.servicePrice;
-    data['duration_value'] = this.durationValue;
-    data['duration_type'] = this.durationType;
-    data['status'] = this.status;
-    data['created_at'] = this.createdAt;
-    data['updated_at'] = this.updatedAt;
-    data['deleted_at'] = this.deletedAt;
-    if (this.category != null) {
-      data['category'] = this.category!.toJson();
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['id'] = id;
+    data['vendor_id'] = vendorId;
+    data['service_name'] = serviceName;
+    data['service_image'] = serviceImage;
+    data['category_id'] = categoryId;
+    data['subcategory_id'] = subcategoryId;
+    data['description'] = description;
+    data['latitude'] = latitude;
+    data['longitude'] = longitude;
+    data['service_price'] = servicePrice;
+    data['duration_value'] = durationValue;
+    data['duration_type'] = durationType;
+    data['status'] = status;
+    data['created_at'] = createdAt;
+    data['updated_at'] = updatedAt;
+    data['deleted_at'] = deletedAt;
+    if (category != null) {
+      data['category'] = category!.toJson();
     }
-    if (this.subcategory != null) {
-      data['subcategory'] = this.subcategory!.toJson();
+    if (subcategory != null) {
+      data['subcategory'] = subcategory!.toJson();
     }
-    if (this.vendor != null) {
-      data['vendor'] = this.vendor!.toJson();
+    if (vendor != null) {
+      data['vendor'] = vendor!.toJson();
     }
     return data;
   }
@@ -174,10 +174,10 @@ class Category {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['id'] = this.id;
-    data['category_name'] = this.categoryName;
-    data['parent_name'] = this.parentName;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['id'] = id;
+    data['category_name'] = categoryName;
+    data['parent_name'] = parentName;
     return data;
   }
 }
@@ -236,11 +236,11 @@ class Vendor {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['id'] = this.id;
-    data['first_name'] = this.firstName;
-    data['last_name'] = this.lastName;
-    data['pro_img'] = this.proImg;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['id'] = id;
+    data['first_name'] = firstName;
+    data['last_name'] = lastName;
+    data['pro_img'] = proImg;
     return data;
   }
 }

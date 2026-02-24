@@ -12,11 +12,11 @@ class ServiceDetailsModel {
     if (json['data'] != null) {
       data = <ServiceData>[];
       json['data'].forEach((v) {
-        data!.add(new ServiceData.fromJson(v));
+        data!.add(ServiceData.fromJson(v));
       });
     }
     pagination = json['pagination'] != null
-        ? new Pagination.fromJson(json['pagination'])
+        ? Pagination.fromJson(json['pagination'])
         : null;
   }
 
@@ -114,18 +114,18 @@ class ServiceData {
         num.tryParse(json['average_rating']?.toString() ?? '')?.toDouble() ??
         json['ratings'];
     category = json['category'] != null
-        ? new Category.fromJson(json['category'])
+        ? Category.fromJson(json['category'])
         : null;
     subcategory = json['subcategory'] != null
-        ? new Category.fromJson(json['subcategory'])
+        ? Category.fromJson(json['subcategory'])
         : null;
     vendor = json['vendor'] != null
-        ? new Vendor.fromJson(json['vendor'])
+        ? Vendor.fromJson(json['vendor'])
         : null;
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
+    final Map<String, dynamic> data = <String, dynamic>{};
     data['id'] = id;
     data['vendor_id'] = vendorId;
     data['service_name'] = serviceName;
@@ -170,7 +170,7 @@ class Category {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
+    final Map<String, dynamic> data = <String, dynamic>{};
     data['id'] = id;
     data['category_name'] = categoryName;
     data['parent_name'] = parentName;
@@ -193,7 +193,7 @@ class Vendor {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
+    final Map<String, dynamic> data = <String, dynamic>{};
     data['id'] = id;
     data['first_name'] = firstName;
     data['last_name'] = lastName;
@@ -226,7 +226,7 @@ class Pagination {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
+    final Map<String, dynamic> data = <String, dynamic>{};
     data['current_page'] = currentPage;
     data['per_page'] = perPage;
     data['total'] = total;

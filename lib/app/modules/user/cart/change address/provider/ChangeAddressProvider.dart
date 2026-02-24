@@ -1,8 +1,6 @@
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:ozi/app/core/appExports/app_export.dart';
-import 'package:ozi/app/core/constants/image_constant.dart';
-import 'package:ozi/app/core/utils/get_utils.dart';
 import 'package:ozi/app/data/repository/repository.dart';
 import '../../../profile/save address/model/user_address_model.dart';
 
@@ -66,7 +64,7 @@ class ChangeAddressProvider extends ChangeNotifier {
       }
     } catch (e) {
       Get.showToast(
-        e.toString() ?? 'Something went wrong',
+        e.toString(),
         type: ToastType.error,
       );
       _errorMessage = e.toString();
@@ -177,6 +175,6 @@ class ChangeAddressProvider extends ChangeNotifier {
       address.apartment,
       address.city,
       address.zipCode,
-    ].where((e) => e != null && e!.isNotEmpty).join(', ');
+    ].where((e) => e != null && e.isNotEmpty).join(', ');
   }
 }

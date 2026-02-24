@@ -208,8 +208,7 @@ class ServiceDetailView extends StatelessWidget {
                         Icon(Icons.star, size: 14, color: AppColors.orange),
                         wBox(4),
                         Text(
-                          serviceData.ratings.toString() ??
-                              "", // Placeholder rating
+                          serviceData.ratings.toString(), // Placeholder rating
                           style: AppFontStyle.text_12_600(
                             AppColors.black,
                             fontFamily: AppFontFamily.bold,

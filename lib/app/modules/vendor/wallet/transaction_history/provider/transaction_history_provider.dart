@@ -1,6 +1,5 @@
-import 'package:flutter/material.dart';
 import 'package:ozi/app/data/repository/repository.dart';
-
+import '../../../../../core/appExports/app_export.dart';
 import '../model/transaction_history_model.dart';
 
 
@@ -58,7 +57,9 @@ class TransactionHistoryProvider extends ChangeNotifier {
       }
 
     } catch (e) {
-      print(e);
+      if (kDebugMode) {
+        print(e);
+      }
     }
 
     _loading = false;

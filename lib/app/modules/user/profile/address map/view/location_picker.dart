@@ -248,8 +248,10 @@ class _MapPickerPageState extends State<MapPickerPage> {
           const SizedBox(height: 16),
           GestureDetector(
             onTap: widget.isFromProfile == true ? () async{
-            final result = await provider.updateLocationFromLatLng(provider.selectedLatLng);
-             print("Post Api Hit ==================================> ${provider.selectedLatLng}");
+            final _ = await provider.updateLocationFromLatLng(provider.selectedLatLng);
+             if (kDebugMode) {
+               print("Post Api Hit ==================================> ${provider.selectedLatLng}");
+             }
               Navigator.pop(context);
             } : () {
               Navigator.pop(

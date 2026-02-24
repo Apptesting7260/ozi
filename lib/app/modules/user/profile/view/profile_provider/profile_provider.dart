@@ -70,7 +70,7 @@ class ProfileProvider extends ChangeNotifier {
 
       if (context.mounted) {
         Get.showToast(
-          e.toString() ?? 'Something went wrong',
+          e.toString(),
           type: ToastType.error,
         );
       }

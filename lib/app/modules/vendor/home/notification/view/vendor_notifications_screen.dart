@@ -287,6 +287,52 @@ class _NotificationsContentState
               Expanded(
                 child: provider.isLoading
                     ? const Center(child: CircularProgressIndicator())
+
+                // EMPTY STATE
+                    : provider.notifications.isEmpty
+                    ? Center(
+                  child: Center(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 32),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Container(
+                            height: 60,
+                            width: 60,
+                            decoration: BoxDecoration(
+                              color: AppColors.primary.withValues(alpha: 0.08),
+                              shape: BoxShape.circle,
+                            ),
+                            child: Icon(
+                              Icons.notifications_none_rounded,
+                              size: 32,
+                              color: AppColors.primary,
+                            ),
+                          ),
+
+                          hBox(24),
+
+                          Text(
+                            "No new notifications",
+                            textAlign: TextAlign.center,
+                            style: AppFontStyle.text_16_600(AppColors.darkText),
+                          ),
+
+                          hBox(8),
+
+                          Text(
+                            maxLines: 3,
+                            "Everything looks good. We’ll notify you when something requires your attention.",
+                            textAlign: TextAlign.center,
+                            style: AppFontStyle.text_14_400(AppColors.grey),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                )
+
                     : ListView.separated(
                   controller: _scrollController,
                   itemCount: provider.notifications.length +
@@ -324,6 +370,7 @@ class _NotificationsContentState
 
 
 // ================= TILE =================
+
 Widget _notificationTile(
     NotificationItem  notification, {
       required VoidCallback onTap,
@@ -421,26 +468,22 @@ Widget _icon(String? type) {
   switch (type) {
     case "debit":
       icon = Icons.attach_money;
-      //bg = AppColors.primary.withValues(alpha: 0.12);
       bg = AppColors.white;
       break;
 
     case "credit":
       icon = Icons.attach_money;
-     // bg = AppColors.primary.withValues(alpha: 0.12);
       bg = AppColors.white;
       break;
 
 
     case "booking_cancelled":
       icon = Icons.close;
-      // bg = AppColors.grey.withValues(alpha: 0.15);
       bg = AppColors.white;
       break;
 
     default:
       icon = Icons.calendar_month_outlined;
-      // bg = AppColors.primary.withValues(alpha: 0.12);
       bg = AppColors.white;
       iconColor = AppColors.grey;
   }

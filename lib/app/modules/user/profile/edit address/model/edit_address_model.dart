@@ -9,7 +9,7 @@ class EditAddressModel {
     status = json['status'];
     message = json['message'];
     data = json['data'] != null
-        ? new EditAddressData.fromJson(json['data'])
+        ? EditAddressData.fromJson(json['data'])
         : null;
   }
 

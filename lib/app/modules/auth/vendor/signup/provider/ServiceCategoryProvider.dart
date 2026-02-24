@@ -1,12 +1,9 @@
-import 'dart:convert';
-import 'package:flutter/material.dart';
 import 'package:ozi/app/core/appExports/app_export.dart';
 import 'package:ozi/app/data/storage/user_preference.dart';
 import 'package:ozi/app/modules/user/home/provider/HomeScreenProvider.dart';
 import '../../../../../core/constants/app_urls.dart';
 import '../../../../../data/network/network_api_services.dart';
 import '../../../../../data/response/api_response.dart';
-import '../../../../vendor/services/service_details/view/service_details_screen.dart';
 import '../model/get_all_categories.dart';
 import '../view/set_availability.dart';
 
@@ -14,12 +11,16 @@ class ServiceCategoryProvider extends ChangeNotifier {
   final NetworkApiServices _apiService = NetworkApiServices();
 
   ServiceCategoryProvider() {
-    print(
+    if (kDebugMode) {
+      print(
       "lng: ${navigatorKey.currentContext!.read<HomeScreenProvider>().lng}",
     );
-    print(
+    }
+    if (kDebugMode) {
+      print(
       "lat: ${navigatorKey.currentContext!.read<HomeScreenProvider>().lat}",
     );
+    }
     getAllCategorites(
       navigatorKey.currentContext!.read<HomeScreenProvider>().lng.toString(),
       navigatorKey.currentContext!.read<HomeScreenProvider>().lat.toString(),
@@ -68,13 +69,17 @@ class ServiceCategoryProvider extends ChangeNotifier {
 
   Future<void> getAllCategorites(String? lng, String? lat) async {
     // updateDataLoading(true);
-    print('getting categories');
+    if (kDebugMode) {
+      print('getting categories');
+    }
     setCategoryModel(ApiResponse.loading());
     try {
       final response = await _apiService.getApiWithoutToken(
-        "${AppUrls.getAllCategories}?longitude=${lng}&latitude=${lat}",
+        "${AppUrls.getAllCategories}?longitude=$lng&latitude=$lat",
       );
-      print(response); //data['api_token'],data['role']
+      if (kDebugMode) {
+        print(response);
+      } //data['api_token'],data['role']
       // updateCategoryModel(GetAllCategoriesModel.fromJson(response));
       setCategoryModel(
         ApiResponse.completed(GetAllCategoriesModel.fromJson(response)),
@@ -107,7 +112,9 @@ class ServiceCategoryProvider extends ChangeNotifier {
         "categories":_selected
       },AppUrls.saveCategoryForVendor);
 
-      print(response);
+      if (kDebugMode) {
+        print(response);
+      }
       updateSubmitLoading(false);
       // Navigator.push(
       //   navigatorKey.currentContext!,

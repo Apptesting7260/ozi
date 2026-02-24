@@ -10,18 +10,16 @@ class MessageListModel {
     if (json['data'] != null) {
       data = <MessageListModelData>[];
       json['data'].forEach((v) {
-        data!.add(new MessageListModelData.fromJson(v));
+        data.add(MessageListModelData.fromJson(v));
       });
     }
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['status'] = this.status;
-    if (this.data != null) {
-      data['data'] = this.data!.map((v) => v.toJson()).toList();
-    }
-    return data;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['status'] = status;
+    data['data'] = this.data.map((v) => v.toJson()).toList();
+      return data;
   }
 }
 
@@ -73,7 +71,7 @@ class MessageListModelData {
     if (json['seen_by'] != null) {
       seenBy = <MessageListModelSeenBy>[];
       json['seen_by'].forEach((v) {
-        seenBy!.add(new MessageListModelSeenBy.fromJson(v));
+        seenBy!.add(MessageListModelSeenBy.fromJson(v));
       });
     }
     status = json['status'];
@@ -82,7 +80,7 @@ class MessageListModelData {
     if (json['reactions'] != null) {
       reactions = <Reactions>[];
       json['reactions'].forEach((v) {
-        reactions!.add(new Reactions.fromJson(v));
+        reactions!.add(Reactions.fromJson(v));
       });
     }
     createdAt = json['createdAt'];
@@ -92,26 +90,26 @@ class MessageListModelData {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['_id'] = this.sId;
-    data['conversationId'] = this.conversationId;
-    data['senderId'] = this.senderId;
-    data['text'] = this.text;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['_id'] = sId;
+    data['conversationId'] = conversationId;
+    data['senderId'] = senderId;
+    data['text'] = text;
     // if (this.fileUrl != null) {
     //   data['fileUrl'] = this.fileUrl!.map((v) => v.toJson()).toList();
     // }
-    if (this.seenBy != null) {
-      data['seen_by'] = this.seenBy!.map((v) => v.toJson()).toList();
+    if (seenBy != null) {
+      data['seen_by'] = seenBy!.map((v) => v.toJson()).toList();
     }
-    data['status'] = this.status;
-    data['isDeleted'] = this.isDeleted;
+    data['status'] = status;
+    data['isDeleted'] = isDeleted;
     // if (this.reactions != null) {
     //   data['reactions'] = this.reactions!.map((v) => v.toJson()).toList();
     // }
-    data['createdAt'] = this.createdAt;
-    data['updatedAt'] = this.updatedAt;
-    data['__v'] = this.iV;
-    data['senderType'] = this.senderType;
+    data['createdAt'] = createdAt;
+    data['updatedAt'] = updatedAt;
+    data['__v'] = iV;
+    data['senderType'] = senderType;
     return data;
   }
 }
@@ -132,11 +130,11 @@ class Reactions {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['userId'] = this.userId;
-    data['reaction'] = this.reaction;
-    data['_id'] = this.sId;
-    data['createdAt'] = this.createdAt;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['userId'] = userId;
+    data['reaction'] = reaction;
+    data['_id'] = sId;
+    data['createdAt'] = createdAt;
     return data;
   }
 }
@@ -158,11 +156,11 @@ class MessageListModelSeenBy {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['userId'] = this.userId;
-    data['status'] = this.status;
-    data['_id'] = this.sId;
-    data['seenAt'] = this.seenAt;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['userId'] = userId;
+    data['status'] = status;
+    data['_id'] = sId;
+    data['seenAt'] = seenAt;
     return data;
   }
 }

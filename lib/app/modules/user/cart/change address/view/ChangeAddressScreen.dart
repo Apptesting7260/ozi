@@ -1,12 +1,8 @@
-import 'package:ozi/app/modules/user/cart/checkout/view/CheckoutScreen.dart';
 import 'package:ozi/app/modules/user/profile/add%20new%20address/view/add_address_screen.dart';
-import 'package:ozi/app/modules/vendor/profile/add%20new%20address/view/AddAddressScreen.dart';
 import 'package:ozi/app/routes/app_routes.dart';
 import 'package:ozi/app/shared/widgets/custom_shimmer_box.dart';
-
 import '../../../../../core/appExports/app_export.dart';
 import '../../../../../shared/widgets/custom_app_bar.dart';
-import '../../../../../shared/widgets/custom_radio_button.dart';
 import '../provider/ChangeAddressProvider.dart';
 
 class ChangeAddressScreen extends StatefulWidget {
@@ -208,13 +204,17 @@ class _ChangeAddressScreenState extends State<ChangeAddressScreen> {
                                 text: "+ Add New Address",
                                 isOutlined: true,
                                 onPressed: () async {
-                                  print("click o uegfuwegfw");
+                                  if (kDebugMode) {
+                                    print("click o uegfuwegfw");
+                                  }
                                   final result = await Navigator.pushNamed(
                                     context,
                                     AppRoutes.addAddressScreen,
                                   );
                                   if (result == true) {
-                                    print('in this resukt');
+                                    if (kDebugMode) {
+                                      print('in this result');
+                                    }
                                     provider.fetchUserAddresses();
                                   }
                                 },

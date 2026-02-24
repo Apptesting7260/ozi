@@ -57,6 +57,7 @@ dependencies:
   flutter_overlay_loader: ^2.0.0
   flutter_secure_storage: ^10.0.0
 
+  uuid: any
 dev_dependencies:
   flutter_test:
     sdk: flutter

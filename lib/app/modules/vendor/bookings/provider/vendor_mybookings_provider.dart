@@ -1,7 +1,6 @@
 import '../../../../core/appExports/app_export.dart';
 import '../../../../core/constants/app_urls.dart';
 import '../../../../data/models/all_bookings_model.dart';
-import '../../../../data/models/vendor_home_model.dart';
 import '../../../../data/network/network_api_services.dart';
 import '../../../../data/response/api_response.dart';
 
@@ -29,7 +28,9 @@ class VendorMybookingsProvider extends ChangeNotifier {
       _homeModel.data!.pagination!.currentPage =
           _homeModel.data!.pagination!.currentPage! + 1;
     }
-    print('getting categories');
+    if (kDebugMode) {
+      print('getting categories');
+    }
     try {
       String apiUrl = AppUrls.vendorMyBookings.replaceAll(
         '{page}',
@@ -39,7 +40,9 @@ class VendorMybookingsProvider extends ChangeNotifier {
         apiUrl += '&status=${tabs[selectedTab].toLowerCase()}';
       }
       final response = await _apiService.getApi(apiUrl);
-      print(response);
+      if (kDebugMode) {
+        print(response);
+      }
       if (_homeModel.data?.pagination?.currentPage == 1 ||
           _homeModel.data?.pagination?.currentPage == null) {
         setHomeModel(

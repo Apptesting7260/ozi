@@ -6,12 +6,12 @@ class CheckConverstionModel {
 
   CheckConverstionModel.fromJson(Map<String, dynamic> json) {
     status = json['status'];
-    data = json['data'] != null ? new CheckConverstionModelData.fromJson(json['data']) : null;
+    data = json['data'] != null ? CheckConverstionModelData.fromJson(json['data']) : null;
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['status'] = this.status;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['status'] = status;
     if (this.data != null) {
       data['data'] = this.data!.toJson();
     }
@@ -42,7 +42,7 @@ class CheckConverstionModelData {
     if (json['participants'] != null) {
       participants = <Participants>[];
       json['participants'].forEach((v) {
-        participants!.add(new Participants.fromJson(v));
+        participants!.add(Participants.fromJson(v));
       });
     }
     sId = json['_id']?.toString();
@@ -53,16 +53,16 @@ class CheckConverstionModelData {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['chat_type'] = this.chatType;
-    if (this.participants != null) {
-      data['participants'] = this.participants!.map((v) => v.toJson()).toList();
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['chat_type'] = chatType;
+    if (participants != null) {
+      data['participants'] = participants!.map((v) => v.toJson()).toList();
     }
-    data['_id'] = this.sId;
-    data['activity'] = this.activity;
-    data['createdAt'] = this.createdAt;
-    data['updatedAt'] = this.updatedAt;
-    data['__v'] = this.iV;
+    data['_id'] = sId;
+    data['activity'] = activity;
+    data['createdAt'] = createdAt;
+    data['updatedAt'] = updatedAt;
+    data['__v'] = iV;
     return data;
   }
 }
@@ -86,12 +86,12 @@ class Participants {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['user_id'] = this.userId;
-    data['isMuted'] = this.isMuted;
-    data['isDeleted'] = this.isDeleted;
-    data['_id'] = this.sId;
-    data['joinedAt'] = this.joinedAt;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['user_id'] = userId;
+    data['isMuted'] = isMuted;
+    data['isDeleted'] = isDeleted;
+    data['_id'] = sId;
+    data['joinedAt'] = joinedAt;
     return data;
   }
 }

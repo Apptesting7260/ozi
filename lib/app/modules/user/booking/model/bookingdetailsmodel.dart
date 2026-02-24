@@ -6,12 +6,12 @@ class bookingDetailsModel {
 
   bookingDetailsModel.fromJson(Map<String, dynamic> json) {
     status = json['status'];
-    data = json['data'] != null ? new Data.fromJson(json['data']) : null;
+    data = json['data'] != null ? Data.fromJson(json['data']) : null;
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['status'] = this.status;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['status'] = status;
     if (this.data != null) {
       data['data'] = this.data!.toJson();
     }
@@ -105,52 +105,52 @@ class Data {
     if (json['items'] != null) {
       items = <Items>[];
       json['items'].forEach((v) {
-        items!.add(new Items.fromJson(v));
+        items!.add(Items.fromJson(v));
       });
     } else if (json['services'] != null) {
       items = <Items>[];
       json['services'].forEach((v) {
-        items!.add(new Items.fromJson(v));
+        items!.add(Items.fromJson(v));
       });
     }
     vendor = json['vendor'] != null
-        ? new Vendor.fromJson(json['vendor'])
+        ? Vendor.fromJson(json['vendor'])
         : null;
     address = json['address'] != null
-        ? new Address.fromJson(json['address'])
+        ? Address.fromJson(json['address'])
         : null;
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['id'] = this.id;
-    data['booking_code'] = this.bookingCode;
-    data['user_id'] = this.userId;
-    data['vendor_id'] = this.vendorId;
-    data['address_id'] = this.addressId;
-    data['payment_method'] = this.paymentMethod;
-    data['service_date'] = this.serviceDate;
-    data['service_day'] = this.serviceDay;
-    if (this.serviceTime != null) {
-      data['service_time'] = this.serviceTime!.toJson();
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['id'] = id;
+    data['booking_code'] = bookingCode;
+    data['user_id'] = userId;
+    data['vendor_id'] = vendorId;
+    data['address_id'] = addressId;
+    data['payment_method'] = paymentMethod;
+    data['service_date'] = serviceDate;
+    data['service_day'] = serviceDay;
+    if (serviceTime != null) {
+      data['service_time'] = serviceTime!.toJson();
     }
-    data['subtotal'] = this.subtotal;
-    data['service_fee'] = this.serviceFee;
-    data['total'] = this.total;
-    data['status'] = this.status;
-    data['service_start_otp'] = this.serviceStartOtp;
-    data['is_otp_verified'] = this.isOtpVerified;
-    data['vendor_action_at'] = this.vendorActionAt;
-    data['created_at'] = this.createdAt;
-    data['updated_at'] = this.updatedAt;
-    if (this.items != null) {
-      data['items'] = this.items!.map((v) => v.toJson()).toList();
+    data['subtotal'] = subtotal;
+    data['service_fee'] = serviceFee;
+    data['total'] = total;
+    data['status'] = status;
+    data['service_start_otp'] = serviceStartOtp;
+    data['is_otp_verified'] = isOtpVerified;
+    data['vendor_action_at'] = vendorActionAt;
+    data['created_at'] = createdAt;
+    data['updated_at'] = updatedAt;
+    if (items != null) {
+      data['items'] = items!.map((v) => v.toJson()).toList();
     }
-    if (this.vendor != null) {
-      data['vendor'] = this.vendor!.toJson();
+    if (vendor != null) {
+      data['vendor'] = vendor!.toJson();
     }
-    if (this.address != null) {
-      data['address'] = this.address!.toJson();
+    if (address != null) {
+      data['address'] = address!.toJson();
     }
     return data;
   }
@@ -199,23 +199,23 @@ class Items {
     createdAt = json['created_at']?.toString();
     updatedAt = json['updated_at']?.toString();
     service = json['service'] != null
-        ? new Service.fromJson(json['service'])
+        ? Service.fromJson(json['service'])
         : null;
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['id'] = this.id;
-    data['booking_id'] = this.bookingId;
-    data['service_id'] = this.serviceId;
-    data['service_name'] = this.serviceName;
-    data['unit_price'] = this.unitPrice;
-    data['quantity'] = this.quantity;
-    data['service_item_total'] = this.serviceItemTotal;
-    data['created_at'] = this.createdAt;
-    data['updated_at'] = this.updatedAt;
-    if (this.service != null) {
-      data['service'] = this.service!.toJson();
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['id'] = id;
+    data['booking_id'] = bookingId;
+    data['service_id'] = serviceId;
+    data['service_name'] = serviceName;
+    data['unit_price'] = unitPrice;
+    data['quantity'] = quantity;
+    data['service_item_total'] = serviceItemTotal;
+    data['created_at'] = createdAt;
+    data['updated_at'] = updatedAt;
+    if (service != null) {
+      data['service'] = service!.toJson();
     }
     return data;
   }
@@ -288,23 +288,23 @@ class Service {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['id'] = this.id;
-    data['vendor_id'] = this.vendorId;
-    data['service_name'] = this.serviceName;
-    data['service_image'] = this.serviceImage;
-    data['category_id'] = this.categoryId;
-    data['subcategory_id'] = this.subcategoryId;
-    data['description'] = this.description;
-    data['latitude'] = this.latitude;
-    data['longitude'] = this.longitude;
-    data['service_price'] = this.servicePrice;
-    data['duration_value'] = this.durationValue;
-    data['duration_type'] = this.durationType;
-    data['status'] = this.status;
-    data['created_at'] = this.createdAt;
-    data['updated_at'] = this.updatedAt;
-    data['deleted_at'] = this.deletedAt;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['id'] = id;
+    data['vendor_id'] = vendorId;
+    data['service_name'] = serviceName;
+    data['service_image'] = serviceImage;
+    data['category_id'] = categoryId;
+    data['subcategory_id'] = subcategoryId;
+    data['description'] = description;
+    data['latitude'] = latitude;
+    data['longitude'] = longitude;
+    data['service_price'] = servicePrice;
+    data['duration_value'] = durationValue;
+    data['duration_type'] = durationType;
+    data['status'] = status;
+    data['created_at'] = createdAt;
+    data['updated_at'] = updatedAt;
+    data['deleted_at'] = deletedAt;
     return data;
   }
 }
@@ -368,23 +368,23 @@ class Vendor {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['id'] = this.id;
-    data['first_name'] = this.firstName;
-    data['last_name'] = this.lastName;
-    data['email'] = this.email;
-    data['pro_img'] = this.proImg;
-    data['country_code'] = this.countryCode;
-    data['mobile'] = this.mobile;
-    data['user_role'] = this.userRole;
-    data['is_mobile_verified'] = this.isMobileVerified;
-    data['otp_expire_at'] = this.otpExpireAt;
-    data['terms'] = this.terms;
-    data['status'] = this.status;
-    data['step_completed'] = this.stepCompleted;
-    data['deleted_at'] = this.deletedAt;
-    data['created_at'] = this.createdAt;
-    data['updated_at'] = this.updatedAt;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['id'] = id;
+    data['first_name'] = firstName;
+    data['last_name'] = lastName;
+    data['email'] = email;
+    data['pro_img'] = proImg;
+    data['country_code'] = countryCode;
+    data['mobile'] = mobile;
+    data['user_role'] = userRole;
+    data['is_mobile_verified'] = isMobileVerified;
+    data['otp_expire_at'] = otpExpireAt;
+    data['terms'] = terms;
+    data['status'] = status;
+    data['step_completed'] = stepCompleted;
+    data['deleted_at'] = deletedAt;
+    data['created_at'] = createdAt;
+    data['updated_at'] = updatedAt;
     return data;
   }
 }
@@ -442,18 +442,18 @@ class Address {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['id'] = this.id;
-    data['user_id'] = this.userId;
-    data['address_type'] = this.addressType;
-    data['is_default'] = this.isDefault;
-    data['street_address'] = this.streetAddress;
-    data['apartment'] = this.apartment;
-    data['city'] = this.city;
-    data['zip_code'] = this.zipCode;
-    data['created_at'] = this.createdAt;
-    data['updated_at'] = this.updatedAt;
-    data['full_address'] = this.fullAddress;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['id'] = id;
+    data['user_id'] = userId;
+    data['address_type'] = addressType;
+    data['is_default'] = isDefault;
+    data['street_address'] = streetAddress;
+    data['apartment'] = apartment;
+    data['city'] = city;
+    data['zip_code'] = zipCode;
+    data['created_at'] = createdAt;
+    data['updated_at'] = updatedAt;
+    data['full_address'] = fullAddress;
     return data;
   }
 }
@@ -470,9 +470,9 @@ class ServiceTime {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['from'] = this.from;
-    data['to'] = this.to;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['from'] = from;
+    data['to'] = to;
     return data;
   }
 }

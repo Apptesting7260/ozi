@@ -6,12 +6,12 @@ class settingsModel {
 
   settingsModel.fromJson(Map<String, dynamic> json) {
     status = json['status'];
-    data = json['data'] != null ? new Data.fromJson(json['data']) : null;
+    data = json['data'] != null ? Data.fromJson(json['data']) : null;
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['status'] = this.status;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['status'] = status;
     if (this.data != null) {
       data['data'] = this.data!.toJson();
     }
@@ -40,11 +40,11 @@ class Data {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['is_notification_on'] = this.isNotificationOn;
-    data['email_notification'] = this.emailnotification;
-    data['terms_url'] = this.termsUrl;
-    data['privacy_url'] = this.privacyUrl;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['is_notification_on'] = isNotificationOn;
+    data['email_notification'] = emailnotification;
+    data['terms_url'] = termsUrl;
+    data['privacy_url'] = privacyUrl;
     return data;
   }
 }

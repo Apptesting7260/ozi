@@ -6,12 +6,12 @@ class VendorDocumentModel {
 
   VendorDocumentModel.fromJson(Map<String, dynamic> json) {
     status = json['status'];
-    data = json['data'] != null ? new VendorDocumentModelData.fromJson(json['data']) : null;
+    data = json['data'] != null ? VendorDocumentModelData.fromJson(json['data']) : null;
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['status'] = this.status;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['status'] = status;
     if (this.data != null) {
       data['data'] = this.data!.toJson();
     }
@@ -33,10 +33,10 @@ class VendorDocumentModelData {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['government_id_image'] = this.governmentIdImage;
-    data['certificate'] = this.certificate;
-    data['id'] = this.id;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['government_id_image'] = governmentIdImage;
+    data['certificate'] = certificate;
+    data['id'] = id;
     return data;
   }
 }

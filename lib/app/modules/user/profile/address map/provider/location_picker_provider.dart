@@ -150,7 +150,7 @@ class LocationPickerProvider extends ChangeNotifier {
 
   Future<void> updateLocationFromLatLng(LatLng latLng) async {
     try {
-      final response = await _apiService.postApi({
+      final _ = await _apiService.postApi({
         "latitude": latLng.latitude,
         "longitude": latLng.longitude,
       }, AppUrls.vendorUpdateLocation);

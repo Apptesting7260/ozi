@@ -1,14 +1,10 @@
 import 'package:ozi/app/modules/user/profile/setting/provider/settingprovider.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../../core/appExports/app_export.dart';
 import '../../../../../routes/app_routes.dart';
 import '../../../../../shared/widgets/custom_app_bar.dart';
 import '../../../../../shared/widgets/custom_toggle_switch.dart';
-import 'package:url_launcher/url_launcher.dart';
-import '../../../../vendor/profile/common screen/provider/comman_screen_provider.dart';
 import '../../common screen/provider/comman_screen_provider.dart';
-import '../../common screen/view/common_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
