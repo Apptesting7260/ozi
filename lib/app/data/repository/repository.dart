@@ -179,18 +179,28 @@ class Repository {
   // **************************  AddToCart Api **************************//
   Future<AddToCartModel> addToCartApi(Map<String, dynamic> data) async {
     try {
-      print('API Request URL: ${AppUrls.addToCartApi}');
-      print('API Request Data: $data');
+      if (kDebugMode) {
+        print('API Request URL: ${AppUrls.addToCartApi}');
+      }
+      if (kDebugMode) {
+        print('API Request Data: $data');
+      }
 
       dynamic response = await _apiService.postApi(data, AppUrls.addToCartApi);
 
-      print('API Response: $response');
-      print('API Response Type: ${response.runtimeType}');
+      if (kDebugMode) {
+        print('API Response: $response');
+      }
+      if (kDebugMode) {
+        print('API Response Type: ${response.runtimeType}');
+      }
 
       // Return raw response, let the provider parse it
       return AddToCartModel.fromJson(response);
     } catch (e) {
-      print('addToCartApi Error: $e');
+      if (kDebugMode) {
+        print('addToCartApi Error: $e');
+      }
       rethrow;
     }
   }
@@ -198,18 +208,28 @@ class Repository {
   // **************************  email Send Api **************************//
   Future<dynamic> emailSendApi(Map<String, dynamic> data) async {
     try {
-      print('API Request URL: ${AppUrls.sendEmail}');
-      print('API Request Data: $data');
+      if (kDebugMode) {
+        print('API Request URL: ${AppUrls.sendEmail}');
+      }
+      if (kDebugMode) {
+        print('API Request Data: $data');
+      }
 
       dynamic response = await _apiService.postApi(data, AppUrls.sendEmail);
 
-      print('API Response: $response');
-      print('API Response Type: ${response.runtimeType}');
+      if (kDebugMode) {
+        print('API Response: $response');
+      }
+      if (kDebugMode) {
+        print('API Response Type: ${response.runtimeType}');
+      }
 
       // Return raw response, let the provider parse it
       return response;
     } catch (e) {
-      print('addToCartApi Error: $e');
+      if (kDebugMode) {
+        print('addToCartApi Error: $e');
+      }
       rethrow;
     }
   }
@@ -217,18 +237,28 @@ class Repository {
   // **************************  verifyEmail Api **************************//
   Future<dynamic> verifyEmailApi(Map<String, dynamic> data) async {
     try {
-      print('API Request URL: ${AppUrls.verifyEmail}');
-      print('API Request Data: $data');
+      if (kDebugMode) {
+        print('API Request URL: ${AppUrls.verifyEmail}');
+      }
+      if (kDebugMode) {
+        print('API Request Data: $data');
+      }
 
       dynamic response = await _apiService.postApi(data, AppUrls.verifyEmail);
 
-      print('API Response: $response');
-      print('API Response Type: ${response.runtimeType}');
+      if (kDebugMode) {
+        print('API Response: $response');
+      }
+      if (kDebugMode) {
+        print('API Response Type: ${response.runtimeType}');
+      }
 
       // Return raw response, let the provider parse it
       return response;
     } catch (e) {
-      print('addToCartApi Error: $e');
+      if (kDebugMode) {
+        print('addToCartApi Error: $e');
+      }
       rethrow;
     }
   }
@@ -236,18 +266,28 @@ class Repository {
   // **************************  cancelBooking Api **************************//
   Future<dynamic> cancelBookingApi(int bookingId) async {
     try {
-      print('API Request URL: ${AppUrls.cancelBooking}');
-      print('API Request Data: $bookingId');
+      if (kDebugMode) {
+        print('API Request URL: ${AppUrls.cancelBooking}');
+      }
+      if (kDebugMode) {
+        print('API Request Data: $bookingId');
+      }
 
       dynamic response = await _apiService.postApi({
         "booking_id": bookingId,
       }, AppUrls.cancelBooking);
 
-      print('API Response: $response');
-      print('API Response Type: ${response.runtimeType}');
+      if (kDebugMode) {
+        print('API Response: $response');
+      }
+      if (kDebugMode) {
+        print('API Response Type: ${response.runtimeType}');
+      }
       return response;
     } catch (e) {
-      print('cancelBookingApi: $e');
+      if (kDebugMode) {
+        print('cancelBookingApi: $e');
+      }
       rethrow;
     }
   }
@@ -257,31 +297,43 @@ class Repository {
 
     try {
 
-      print('API Request URL: ${AppUrls.getCartItemsApi}');
+      if (kDebugMode) {
+        print('API Request URL: ${AppUrls.getCartItemsApi}');
+      }
 
       dynamic response = await _apiService.getApi(AppUrls.getCartItemsApi);
-      print('API Response: $response');
+      if (kDebugMode) {
+        print('API Response: $response');
+      }
       return CartItemsModel.fromJson(response);
     } catch (e) {
-      print('getCartItemsApi Error: $e');
+      if (kDebugMode) {
+        print('getCartItemsApi Error: $e');
+      }
       rethrow;
     }
   }
 
-  // **************************  GetvendorReview Api **************************//
+  // **************************  Get vendorReview Api **************************//
   Future<getVendorReviewsModel> getvendorReviewApi(
     String vendorId, {
     int page = 1,
   }) async {
     try {
       final url = "${AppUrls.vendorReview}?vendor_id=$vendorId&page=$page";
-      print('API Request URL: $url');
+      if (kDebugMode) {
+        print('API Request URL: $url');
+      }
 
       dynamic response = await _apiService.getApi(url);
-      print('API Response: $response');
+      if (kDebugMode) {
+        print('API Response: $response');
+      }
       return getVendorReviewsModel.fromJson(response);
     } catch (e) {
-      print('getvendorReviewApi Error: $e');
+      if (kDebugMode) {
+        print('getvendorReviewApi Error: $e');
+      }
       rethrow;
     }
   }
@@ -289,27 +341,41 @@ class Repository {
   // **************************  Submit Review Api **************************//
   Future<dynamic> submitReviewApi(Map<String, dynamic> data) async {
     try {
-      print('API Request URL: ${AppUrls.addReview}');
-      print('API Request Data: $data');
+      if (kDebugMode) {
+        print('API Request URL: ${AppUrls.addReview}');
+      }
+      if (kDebugMode) {
+        print('API Request Data: $data');
+      }
 
       dynamic response = await _apiService.postApi(data, AppUrls.addReview);
-      print('API Response: $response');
+      if (kDebugMode) {
+        print('API Response: $response');
+      }
       return response;
     } catch (e) {
-      print('submitReviewApi Error: $e');
+      if (kDebugMode) {
+        print('submitReviewApi Error: $e');
+      }
       rethrow;
     }
   }
 
   Future<settingsModel> settingsApi() async {
     try {
-      print('API Request URL: ${AppUrls.settingsUrl}');
+      if (kDebugMode) {
+        print('API Request URL: ${AppUrls.settingsUrl}');
+      }
 
       dynamic response = await _apiService.getApi(AppUrls.settingsUrl);
-      print('API Response: $response');
+      if (kDebugMode) {
+        print('API Response: $response');
+      }
       return settingsModel.fromJson(response);
     } catch (e) {
-      print('settingsApi Error: $e');
+      if (kDebugMode) {
+        print('settingsApi Error: $e');
+      }
       rethrow;
     }
   }
@@ -320,28 +386,40 @@ class Repository {
   ) async {
     try {
       final url = "${AppUrls.getBookingDetails}booking_id=$bookingId";
-      print('API Request URL: $url');
+      if (kDebugMode) {
+        print('API Request URL: $url');
+      }
 
       dynamic response = await _apiService.getApi(url);
-      print('API Response: $response');
+      if (kDebugMode) {
+        print('API Response: $response');
+      }
       return details.bookingDetailsModel.fromJson(response);
     } catch (e) {
-      print('getBookingDetailsApi Error: $e');
+      if (kDebugMode) {
+        print('getBookingDetailsApi Error: $e');
+      }
       rethrow;
     }
   }
 
-  // **************************  GetgetCouponsDetails Api **************************//
-  Future<getCupponsModel> getgetCouponsApi() async {
+  // **************************  GetCouponsDetails Api **************************//
+  Future<getCupponsModel> getCouponsApi() async {
     try {
       final url = AppUrls.getCoupons;
-      print('API Request URL: $url');
+      if (kDebugMode) {
+        print('API Request URL: $url');
+      }
 
       dynamic response = await _apiService.getApi(url);
-      print('API Response: $response');
+      if (kDebugMode) {
+        print('API Response: $response');
+      }
       return getCupponsModel.fromJson(response);
     } catch (e) {
-      print('getBookingDetailsApi Error: $e');
+      if (kDebugMode) {
+        print('getBookingDetailsApi Error: $e');
+      }
       rethrow;
     }
   }
@@ -355,13 +433,19 @@ class Repository {
     try {
       final url =
           '${AppUrls.getAllBookings}?status=$status&limit=$limit&page=$page';
-      print('API Request URL: $url');
+      if (kDebugMode) {
+        print('API Request URL: $url');
+      }
 
       dynamic response = await _apiService.getApi(url);
-      print('API Response: $response');
+      if (kDebugMode) {
+        print('API Response: $response');
+      }
       return bookingModel.fromJson(response);
     } catch (e) {
-      print('getAllBookings Error: $e');
+      if (kDebugMode) {
+        print('getAllBookings Error: $e');
+      }
       rethrow;
     }
   }
@@ -450,10 +534,14 @@ class Repository {
   Future<dynamic> getProfileApi() async {
     try {
       dynamic response = await _apiService.getApi(AppUrls.getUserProfile);
-      print('Profile API Response: $response');
+      if (kDebugMode) {
+        print('Profile API Response: $response');
+      }
       return response;
     } catch (e) {
-      print('Profile API Error: $e');
+      if (kDebugMode) {
+        print('Profile API Error: $e');
+      }
       throw Exception(e);
     }
   }
@@ -680,16 +768,22 @@ class Repository {
   // **************************  Delete Profile Api **************************//
   Future<dynamic> deleteProfile() async {
     try {
-      print('API Request URL: ${AppUrls.deleteAccountUrl}');
+      if (kDebugMode) {
+        print('API Request URL: ${AppUrls.deleteAccountUrl}');
+      }
 
       dynamic response = await _apiService.deleteApi(
         {},
         AppUrls.deleteAccountUrl,
       );
-      print('API Response: $response');
+      if (kDebugMode) {
+        print('API Response: $response');
+      }
       return response;
     } catch (e) {
-      print('deleteProfile Error: $e');
+      if (kDebugMode) {
+        print('deleteProfile Error: $e');
+      }
       rethrow;
     }
   }
@@ -702,16 +796,22 @@ class Repository {
     try {
       final url =
           '${AppUrls.updateNotificationUrl}notification=$notistatus&email_notification=$emailnotiStatus';
-      print('API Request URL: $url');
+      if (kDebugMode) {
+        print('API Request URL: $url');
+      }
 
       dynamic response = await _apiService.postApi({
         "notification": notistatus,
         "email_notification": emailnotiStatus,
       }, url);
-      print('API Response: $response');
+      if (kDebugMode) {
+        print('API Response: $response');
+      }
       return response;
     } catch (e) {
-      print('updateNotificationApi Error: $e');
+      if (kDebugMode) {
+        print('updateNotificationApi Error: $e');
+      }
       rethrow;
     }
   }
@@ -720,15 +820,21 @@ class Repository {
   Future<dynamic> updateEmailNotificationApi(int status) async {
     try {
       final url = '${AppUrls.updateNotificationUrl}email_notification=$status';
-      print('API Request URL: $url');
+      if (kDebugMode) {
+        print('API Request URL: $url');
+      }
 
       dynamic response = await _apiService.postApi({
         "email_notification": status,
       }, url);
-      print('API Response: $response');
+      if (kDebugMode) {
+        print('API Response: $response');
+      }
       return response;
     } catch (e) {
-      print('updateEmailNotificationApi Error: $e');
+      if (kDebugMode) {
+        print('updateEmailNotificationApi Error: $e');
+      }
       rethrow;
     }
   }
@@ -889,42 +995,62 @@ class Repository {
   // **************************  verify Profile Email Api **************************//
   Future<dynamic> verifyUpdateEmailApi(Map<String, dynamic> data) async {
     try {
-      print('API Request URL: ${AppUrls.updateProfileEmail}');
-      print('API Request Data: $data');
+      if (kDebugMode) {
+        print('API Request URL: ${AppUrls.updateProfileEmail}');
+      }
+      if (kDebugMode) {
+        print('API Request Data: $data');
+      }
 
       dynamic response = await _apiService.postApi(
         data,
         AppUrls.updateProfileEmail,
       );
 
-      print('API Response: $response');
-      print('API Response Type: ${response.runtimeType}');
+      if (kDebugMode) {
+        print('API Response: $response');
+      }
+      if (kDebugMode) {
+        print('API Response Type: ${response.runtimeType}');
+      }
 
       // Return raw response, let the provider parse it
       return response;
     } catch (e) {
-      print('verifyUpdateEmailApi Error: $e');
+      if (kDebugMode) {
+        print('verifyUpdateEmailApi Error: $e');
+      }
       rethrow;
     }
   }
 
   Future<dynamic> verifyEditProfileEmailApi(Map<String, dynamic> data) async {
     try {
-      print('API Request URL: ${AppUrls.verifyProfileEmail}');
-      print('API Request Data: $data');
+      if (kDebugMode) {
+        print('API Request URL: ${AppUrls.verifyProfileEmail}');
+      }
+      if (kDebugMode) {
+        print('API Request Data: $data');
+      }
 
       dynamic response = await _apiService.postApi(
         data,
         AppUrls.verifyProfileEmail,
       );
 
-      print('API Response: $response');
-      print('API Response Type: ${response.runtimeType}');
+      if (kDebugMode) {
+        print('API Response: $response');
+      }
+      if (kDebugMode) {
+        print('API Response Type: ${response.runtimeType}');
+      }
 
       // Return raw response, let the provider parse it
       return response;
     } catch (e) {
-      print('verifyEditProfileEmailApi Error: $e');
+      if (kDebugMode) {
+        print('verifyEditProfileEmailApi Error: $e');
+      }
       rethrow;
     }
   }

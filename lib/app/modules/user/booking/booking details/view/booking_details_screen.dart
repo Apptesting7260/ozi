@@ -396,6 +396,7 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
                     backgroundImage: NetworkImage(
                       provider.getFullImageUrl(vendor.proImg),
                     ),
+                    backgroundColor: AppColors.lightGrey,
                     child: vendor.proImg != null
                         ? null
                         : Icon(
@@ -403,7 +404,6 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
                             size: 40.r,
                             color: AppColors.black,
                           ),
-                    backgroundColor: AppColors.lightGrey,
                   ),
                   hBox(12),
                   Text(
@@ -648,7 +648,7 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
             Text("Total", style: AppFontStyle.text_12_400(AppColors.grey)),
             hBox(4),
             Text(
-              "${data.total ?? '0'}",
+              data.total ?? '0',
               style: AppFontStyle.text_16_700(AppColors.primary),
             ),
           ],
@@ -667,7 +667,7 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
         final item = items[index];
         return _serviceCard(
           item.serviceName ?? "Service",
-          "${item.serviceItemTotal ?? item.unitPrice ?? '0'}",
+          item.serviceItemTotal ?? item.unitPrice ?? '0',
           item.service?.serviceImage,
           quantity: item.quantity,
           unitPrice: item.unitPrice,

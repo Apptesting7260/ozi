@@ -56,7 +56,7 @@ class ReviewsProvider extends ChangeNotifier {
     } catch (e) {
       debugPrint('Error fetching reviews: $e');
       Get.showToast(
-        e.toString() ?? 'Something went wrong',
+        e.toString(),
         type: ToastType.error,
       );
     } finally {

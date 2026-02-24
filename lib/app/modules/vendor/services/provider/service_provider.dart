@@ -1,7 +1,5 @@
-import 'dart:async';
-import 'package:flutter/material.dart';
+import '../../../../core/appExports/app_export.dart';
 import '../../../../core/constants/app_urls.dart';
-import '../../../../core/utils/get_utils.dart';
 import '../../../../data/models/all_services_model_vendor.dart';
 import '../../../../data/network/network_api_services.dart';
 import '../../../../data/response/api_response.dart';
@@ -213,7 +211,9 @@ class VendorServicesProvider extends ChangeNotifier {
         {},
         AppUrls.deleteServiceVendor.replaceAll("{serviceid}", serviceId),
       );
-      print(response);
+      if (kDebugMode) {
+        print(response);
+      }
       _homeModel.data?.data?.removeWhere((e) => e.id == serviceId);
       notifyListeners();
       updateDeleteServiceLoading(false);

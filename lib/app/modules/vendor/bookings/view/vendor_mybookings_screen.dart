@@ -1,9 +1,7 @@
 import 'package:ozi/app/core/appExports/app_export.dart';
 import 'package:ozi/app/core/constants/app_urls.dart';
 import '../../../../data/models/all_bookings_model.dart';
-import '../../../../data/models/vendor_home_model.dart';
 import '../../../../data/response/api_status.dart';
-import '../../../user/booking/booking details/view/booking_details_screen.dart';
 import '../booking details/view/vendor_booking_details_screen.dart';
 import '../provider/vendor_mybookings_provider.dart';
 

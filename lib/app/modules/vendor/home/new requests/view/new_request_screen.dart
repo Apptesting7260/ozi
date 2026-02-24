@@ -43,7 +43,7 @@ class NewRequestsScreen extends StatelessWidget {
                         case ApiStatus.completed:
                           // TODO: Handle this case.
                           return
-                            provider.requestModel.data?.requests==null || provider.requestModel.data?.requests?.length==0?
+                            provider.requestModel.data?.requests==null || provider.requestModel.data?.requests?.length == 0?
                             SizedBox(
                               height: MediaQuery.of(context).size.height*0.2,
                               child: Center(
@@ -205,40 +205,4 @@ class NewRequestsScreen extends StatelessWidget {
   //   );
   // }
 
-  // --------------------------------------------------------------------------
-  Widget _statusBadge(BookingStatus status) {
-    final isNew = status == BookingStatus.newRequest;
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-      decoration: BoxDecoration(
-        color: isNew
-            ? AppColors.primary.withOpacity(0.12)
-            : AppColors.lightBlue.withOpacity(0.15),
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Text(
-        isNew ? "New Request" : "Confirmed",
-        style: AppFontStyle.text_11_500(
-          isNew ? AppColors.primary : AppColors.lightBlue,
-        ),
-      ),
-    );
-  }
-
-  // --------------------------------------------------------------------------
-  Widget _infoRow(IconData icon, String text) {
-    return Row(
-      children: [
-        Icon(icon, size: 14, color: AppColors.grey),
-        wBox(6),
-        Expanded(
-          child: Text(
-            text,
-            style: AppFontStyle.text_12_400(AppColors.grey),
-          ),
-        ),
-      ],
-    );
-  }
 }

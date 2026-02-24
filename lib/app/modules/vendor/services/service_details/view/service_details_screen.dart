@@ -357,54 +357,6 @@ class _ServiceDetailsContent extends StatelessWidget {
     );
   }
 
-  // Options Menu (Three dots)
-  void _showOptionsMenu(BuildContext context, ServiceDetailsProvider provider) {
-    showModalBottomSheet(
-      context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (BuildContext context) {
-        return Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ListTile(
-                leading: const Icon(Icons.toggle_on, color: Color(0xFF00B4A6)),
-                title: Text(
-                  provider.isActive ? 'Deactivate Service' : 'Activate Service',
-                ),
-                onTap: () {
-                  provider.toggleStatus();
-                  Navigator.pop(context);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(
-                        'Service ${provider.isActive ? "activated" : "deactivated"}',
-                      ),
-                    ),
-                  );
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.share, color: Colors.blue),
-                title: const Text('Share Service'),
-                onTap: () {
-                  Navigator.pop(context);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Share functionality')),
-                  );
-                },
-              ),
-              const SizedBox(height: 10),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
   // Delete Confirmation Dialog
   Future<void> showDeleteDialog(
       ServiceDetailsProvider provider,
@@ -475,7 +427,9 @@ class _ServiceDetailsContent extends StatelessWidget {
                             provider.serviceDetails?.id ?? "" );
                         Navigator.pop(context);
                         Navigator.pushNamed(context, "/vendorServicesScreen");
-                        print("Service Deleted Id From Detail ${provider.serviceDetails?.id}");
+                        if (kDebugMode) {
+                          print("Service Deleted Id From Detail ${provider.serviceDetails?.id}");
+                        }
                       },
                     ),
                   ],

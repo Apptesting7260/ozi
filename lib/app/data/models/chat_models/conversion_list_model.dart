@@ -9,14 +9,14 @@ class ConversionListModel {
     if (json['data'] != null) {
       data = <ConversionListModelData>[];
       json['data'].forEach((v) {
-        data!.add(new ConversionListModelData.fromJson(v));
+        data!.add(ConversionListModelData.fromJson(v));
       });
     }
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['status'] = this.status;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['status'] = status;
     if (this.data != null) {
       data['data'] = this.data!.map((v) => v.toJson()).toList();
     }
@@ -114,14 +114,14 @@ class ConversionListModelData {
 
   ConversionListModelData.fromJson(Map<String, dynamic> json) {
     lastMessage = json['lastMessage'] != null
-        ? new LastMessage.fromJson(json['lastMessage'])
+        ? LastMessage.fromJson(json['lastMessage'])
         : null;
     sId = json['_id'];
     chatType = json['chat_type'];
     if (json['participants'] != null) {
       participants = <ConversionListModelParticipants>[];
       json['participants'].forEach((v) {
-        participants!.add(new ConversionListModelParticipants.fromJson(v));
+        participants!.add(ConversionListModelParticipants.fromJson(v));
       });
     }
     groupName = json['groupName']?.toString();
@@ -133,29 +133,29 @@ class ConversionListModelData {
     updatedAt = json['updatedAt']?.toString();
     iV = json['__v']?.toString();
     receiver = json['receiver'] != null
-        ? new ConversionListModelReceiver.fromJson(json['receiver'])
+        ? ConversionListModelReceiver.fromJson(json['receiver'])
         : null;
     unreadMsgCount = json['unreadMsgCount']?.toString();
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    if (this.lastMessage != null) {
-      data['lastMessage'] = this.lastMessage!.toJson();
+    final Map<String, dynamic> data = <String, dynamic>{};
+    if (lastMessage != null) {
+      data['lastMessage'] = lastMessage!.toJson();
     }
-    data['_id'] = this.sId;
-    data['chat_type'] = this.chatType;
-    if (this.participants != null) {
-      data['participants'] = this.participants!.map((v) => v.toJson()).toList();
+    data['_id'] = sId;
+    data['chat_type'] = chatType;
+    if (participants != null) {
+      data['participants'] = participants!.map((v) => v.toJson()).toList();
     }
-    data['activity'] = this.activity;
-    data['createdAt'] = this.createdAt;
-    data['updatedAt'] = this.updatedAt;
-    data['__v'] = this.iV;
-    if (this.receiver != null) {
-      data['receiver'] = this.receiver!.toJson();
+    data['activity'] = activity;
+    data['createdAt'] = createdAt;
+    data['updatedAt'] = updatedAt;
+    data['__v'] = iV;
+    if (receiver != null) {
+      data['receiver'] = receiver!.toJson();
     }
-    data['unreadMsgCount'] = this.unreadMsgCount;
+    data['unreadMsgCount'] = unreadMsgCount;
     return data;
   }
 }
@@ -174,10 +174,10 @@ class LastMessage {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['messageId'] = this.messageId;
-    data['text'] = this.text;
-    data['createdAt'] = this.createdAt;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['messageId'] = messageId;
+    data['text'] = text;
+    data['createdAt'] = createdAt;
     return data;
   }
 }
@@ -208,12 +208,12 @@ class ConversionListModelParticipants {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['user_id'] = this.userId;
-    data['isMuted'] = this.isMuted;
-    data['isDeleted'] = this.isDeleted;
-    data['_id'] = this.sId;
-    data['joinedAt'] = this.joinedAt;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['user_id'] = userId;
+    data['isMuted'] = isMuted;
+    data['isDeleted'] = isDeleted;
+    data['_id'] = sId;
+    data['joinedAt'] = joinedAt;
     return data;
   }
 }
@@ -237,12 +237,12 @@ class ConversionListModelReceiver {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['profile'] = this.profile;
-    data['email'] = this.email;
-    data['fullName'] = this.fullName;
-    data['id'] = this.id;
-    data['userName'] = this.userName;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['profile'] = profile;
+    data['email'] = email;
+    data['fullName'] = fullName;
+    data['id'] = id;
+    data['userName'] = userName;
     return data;
   }
 }

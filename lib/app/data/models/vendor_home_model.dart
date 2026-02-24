@@ -11,33 +11,33 @@ class VendorHomeModel {
   VendorHomeModel.fromJson(Map<String, dynamic> json) {
     status = json['status'];
     vendorStatus = json['vendor_status'] != null
-        ? new VendorHomeVendorStatus.fromJson(json['vendor_status'])
+        ? VendorHomeVendorStatus.fromJson(json['vendor_status'])
         : null;
     dashboard = json['dashboard'] != null
-        ? new VendorHomeDashboard.fromJson(json['dashboard'])
+        ? VendorHomeDashboard.fromJson(json['dashboard'])
         : null;
     if (json['requests'] != null) {
       requests = <VendorHomeRequests>[];
       json['requests'].forEach((v) {
-        requests!.add(new VendorHomeRequests.fromJson(v));
+        requests!.add(VendorHomeRequests.fromJson(v));
       });
       profile = json['vendor_profile'] != null
-          ? new VendorHomeProfile.fromJson(json['vendor_profile'])
+          ? VendorHomeProfile.fromJson(json['vendor_profile'])
           : null;
     }
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['status'] = this.status;
-    if (this.vendorStatus != null) {
-      data['vendor_status'] = this.vendorStatus!.toJson();
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['status'] = status;
+    if (vendorStatus != null) {
+      data['vendor_status'] = vendorStatus!.toJson();
     }
-    if (this.dashboard != null) {
-      data['dashboard'] = this.dashboard!.toJson();
+    if (dashboard != null) {
+      data['dashboard'] = dashboard!.toJson();
     }
-    if (this.requests != null) {
-      data['requests'] = this.requests!.map((v) => v.toJson()).toList();
+    if (requests != null) {
+      data['requests'] = requests!.map((v) => v.toJson()).toList();
     }
     return data;
   }
@@ -57,10 +57,10 @@ class VendorHomeVendorStatus {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['is_online'] = this.isOnline;
-    data['has_location'] = this.hasLocation;
-    data['has_service'] = this.hasService;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['is_online'] = isOnline;
+    data['has_location'] = hasLocation;
+    data['has_service'] = hasService;
     return data;
   }
 }
@@ -77,7 +77,7 @@ class VendorHomeProfile {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
+    final Map<String, dynamic> data = <String, dynamic>{};
     return data;
   }
 }
@@ -99,11 +99,11 @@ class VendorHomeDashboard {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['today_earnings'] = this.todayEarnings;
-    data['active_bookings'] = this.activeBookings;
-    data['wallet'] = this.wallet;
-    data['total_jobs'] = this.totalJobs;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['today_earnings'] = todayEarnings;
+    data['active_bookings'] = activeBookings;
+    data['wallet'] = wallet;
+    data['total_jobs'] = totalJobs;
     return data;
   }
 }
@@ -154,19 +154,19 @@ class VendorHomeRequests {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['booking_id'] = this.bookingId;
-    data['booking_code'] = this.bookingCode;
-    data['customer_id'] = this.customerId;
-    data['customer_name'] = this.customerName;
-    data['customer_phone'] = this.customerPhone;
-    data['service_date'] = this.serviceDate;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['booking_id'] = bookingId;
+    data['booking_code'] = bookingCode;
+    data['customer_id'] = customerId;
+    data['customer_name'] = customerName;
+    data['customer_phone'] = customerPhone;
+    data['service_date'] = serviceDate;
     // if (this.serviceTime != null) {
     //   data['service_time'] = this.serviceTime!.toJson();
     // }
-    data['address'] = this.address;
-    data['total_amount'] = this.totalAmount;
-    data['status'] = this.status;
+    data['address'] = address;
+    data['total_amount'] = totalAmount;
+    data['status'] = status;
     return data;
   }
 }
@@ -202,16 +202,16 @@ class VendorAllRequestsModel {
     if (json['requests'] != null) {
       requests = <VendorHomeRequests>[];
       json['requests'].forEach((v) {
-        requests!.add(new VendorHomeRequests.fromJson(v));
+        requests!.add(VendorHomeRequests.fromJson(v));
       });
     }
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['status'] = this.status;
-    if (this.requests != null) {
-      data['requests'] = this.requests!.map((v) => v.toJson()).toList();
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['status'] = status;
+    if (requests != null) {
+      data['requests'] = requests!.map((v) => v.toJson()).toList();
     }
     return data;
   }

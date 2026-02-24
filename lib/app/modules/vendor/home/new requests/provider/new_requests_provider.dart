@@ -1,7 +1,5 @@
-import 'package:flutter/material.dart';
-
+import '../../../../../core/appExports/app_export.dart';
 import '../../../../../core/constants/app_urls.dart';
-import '../../../../../core/utils/get_utils.dart';
 import '../../../../../data/models/vendor_home_model.dart';
 import '../../../../../data/network/network_api_services.dart';
 import '../../../../../data/response/api_response.dart';
@@ -45,11 +43,15 @@ class NewRequestsProvider extends ChangeNotifier {
 
 
   Future<void> getAllRequests()async {
-    print('getting categories');
+    if (kDebugMode) {
+      print('getting categories');
+    }
     setHomeModel(ApiResponse.loading());
     try {
       final response = await _apiService.getApi(AppUrls.vendorHome);
-      print(response);
+      if (kDebugMode) {
+        print(response);
+      }
       setHomeModel(ApiResponse.completed(VendorAllRequestsModel.fromJson(response)));
     } catch (e) {
       Get.showToast(e.toString(), type: ToastType.error);
@@ -85,7 +87,9 @@ class NewRequestsProvider extends ChangeNotifier {
         "booking_id" : bookingId,
         "action" : status
       },AppUrls.acceptRejectBooking);
-      print(response);
+      if (kDebugMode) {
+        print(response);
+      }
       _requestModel.data?.requests?.forEach((e){
         if(e.bookingId==bookingId){
           e.status = status;

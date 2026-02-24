@@ -1,5 +1,4 @@
 import 'package:ozi/app/core/appExports/app_export.dart';
-import 'package:ozi/app/core/utils/get_utils.dart';
 import 'package:ozi/app/data/repository/repository.dart';
 import 'package:ozi/app/modules/user/cart/view/model/couponmodel.dart';
 
@@ -25,7 +24,7 @@ class CupponProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      _couponsModel = await _repository.getgetCouponsApi();
+      _couponsModel = await _repository.getCouponsApi();
       // Removed automatic selection logic
     } catch (e) {
       Get.showToast(e.toString(), type: ToastType.error);
@@ -81,7 +80,7 @@ class CupponProvider extends ChangeNotifier {
       }
     } catch (e) {
       Get.showToast(
-        e.toString() ?? 'Something went wrong',
+        e.toString(),
         type: ToastType.error,
       );
       return false;

@@ -9,14 +9,14 @@ class getCupponsModel {
     if (json['data'] != null) {
       data = <Data>[];
       json['data'].forEach((v) {
-        data!.add(new Data.fromJson(v));
+        data!.add(Data.fromJson(v));
       });
     }
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['status'] = this.status;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['status'] = status;
     if (this.data != null) {
       data['data'] = this.data!.map((v) => v.toJson()).toList();
     }
@@ -72,19 +72,19 @@ class Data {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['id'] = this.id;
-    data['code'] = this.code;
-    data['type'] = this.type;
-    data['value'] = this.value;
-    data['min_cart_amount'] = this.minCartAmount;
-    data['max_discount'] = this.maxDiscount;
-    data['usage_limit'] = this.usageLimit;
-    data['used_count'] = this.usedCount;
-    data['expiry_date'] = this.expiryDate;
-    data['status'] = this.status;
-    data['created_at'] = this.createdAt;
-    data['updated_at'] = this.updatedAt;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['id'] = id;
+    data['code'] = code;
+    data['type'] = type;
+    data['value'] = value;
+    data['min_cart_amount'] = minCartAmount;
+    data['max_discount'] = maxDiscount;
+    data['usage_limit'] = usageLimit;
+    data['used_count'] = usedCount;
+    data['expiry_date'] = expiryDate;
+    data['status'] = status;
+    data['created_at'] = createdAt;
+    data['updated_at'] = updatedAt;
     return data;
   }
 }

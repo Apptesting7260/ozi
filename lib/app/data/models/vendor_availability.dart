@@ -12,11 +12,11 @@ class VendorAvailability {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['status'] = this.status;
-    data['vendor_id'] = this.vendorId;
-    if (this.vendorAvailability != null) {
-      data['vendor_availability'] = this.vendorAvailability;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['status'] = status;
+    data['vendor_id'] = vendorId;
+    if (vendorAvailability != null) {
+      data['vendor_availability'] = vendorAvailability;
     }
     return data;
   }

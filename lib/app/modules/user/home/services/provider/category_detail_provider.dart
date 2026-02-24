@@ -6,7 +6,7 @@ class CategoryDetailProvider extends ChangeNotifier {
 
   CategoryDetailProvider(this.category);
 
-  /// 🔥 SUBCATEGORIES FROM API
+  // SUBCATEGORIES FROM API
   List<Subcategories> get subcategories =>
       category.subcategories ?? [];
 }

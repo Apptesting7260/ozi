@@ -20,12 +20,12 @@ class EditProfileScreen extends StatelessWidget {
                 CustomAppBar(title: "Edit Profile"),
                 hBox(10),
 
-                /// PROFILE SECTION
+                // PROFILE SECTION
                 _profileSection(context),
 
                 hBox(30),
 
-                /// FIELDS
+                // FIELDS
                 _inputFields(),
 
                 hBox(30),

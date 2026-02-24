@@ -1,4 +1,3 @@
-import 'package:another_flushbar/flushbar.dart';
 import 'package:ozi/app/modules/user/cart/view/provider/cart_provider.dart';
 import 'package:ozi/app/modules/user/cart/view/copponscreen.dart';
 import 'package:ozi/app/modules/user/singleService/screen/singleservicescreen.dart';
@@ -7,7 +6,6 @@ import '../../../../core/appExports/app_export.dart';
 import '../../../../core/constants/app_urls.dart';
 import '../schedule_service/view/ScheduleServiceScreen.dart';
 import 'model/cart_items_model.dart';
-import 'model/couponmodel.dart' as model;
 
 class CartScreen extends StatefulWidget {
   const CartScreen({super.key});
@@ -123,7 +121,7 @@ class CartScreenContent extends StatelessWidget {
                 child: GestureDetector(
                   onTap: () async {
                     if (hasCoupon) {
-                      // Flushbar(
+                      // Flush bar(
                       //   message: 'Coupon already applied',
                       //   duration: const Duration(seconds: 2),
                       //   backgroundColor: AppColors.primary,
@@ -165,7 +163,9 @@ class CartScreenContent extends StatelessWidget {
                 GestureDetector(
                   behavior: HitTestBehavior.opaque,
                   onTap: () {
-                    print('Cancel icon tapped');
+                    if (kDebugMode) {
+                      print('Cancel icon tapped');
+                    }
                     cart.removeCoupon();
                   },
                   child: Padding(

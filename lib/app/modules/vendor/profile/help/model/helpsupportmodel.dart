@@ -10,22 +10,22 @@ class helpSupportModel {
     status = json['status'];
     massage = json['massage'] ?? json['message'];
     actions = json['actions'] != null
-        ? new Actions.fromJson(json['actions'])
+        ? Actions.fromJson(json['actions'])
         : null;
     if (json['data'] != null) {
       data = <Data>[];
       json['data'].forEach((v) {
-        data!.add(new Data.fromJson(v));
+        data!.add(Data.fromJson(v));
       });
     }
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['status'] = this.status;
-    data['massage'] = this.massage;
-    if (this.actions != null) {
-      data['actions'] = this.actions!.toJson();
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['status'] = status;
+    data['massage'] = massage;
+    if (actions != null) {
+      data['actions'] = actions!.toJson();
     }
     if (this.data != null) {
       data['data'] = this.data!.map((v) => v.toJson()).toList();
@@ -46,9 +46,9 @@ class Actions {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['email_us'] = this.emailUs;
-    data['call_us'] = this.callUs;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['email_us'] = emailUs;
+    data['call_us'] = callUs;
     return data;
   }
 }
@@ -83,14 +83,14 @@ class Data {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['id'] = this.id;
-    data['type'] = this.type;
-    data['question'] = this.question;
-    data['answer'] = this.answer;
-    data['is_active'] = this.isActive;
-    data['created_at'] = this.createdAt;
-    data['updated_at'] = this.updatedAt;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['id'] = id;
+    data['type'] = type;
+    data['question'] = question;
+    data['answer'] = answer;
+    data['is_active'] = isActive;
+    data['created_at'] = createdAt;
+    data['updated_at'] = updatedAt;
     return data;
   }
 }

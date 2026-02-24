@@ -124,18 +124,18 @@ class DefaultAddress {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['id'] = this.id;
-    data['user_id'] = this.userId;
-    data['address_type'] = this.addressType;
-    data['is_default'] = this.isDefault;
-    data['street_address'] = this.streetAddress;
-    data['apartment'] = this.apartment;
-    data['city'] = this.city;
-    data['zip_code'] = this.zipCode;
-    data['created_at'] = this.createdAt;
-    data['updated_at'] = this.updatedAt;
-    data['full_address'] = this.fullAddress;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['id'] = id;
+    data['user_id'] = userId;
+    data['address_type'] = addressType;
+    data['is_default'] = isDefault;
+    data['street_address'] = streetAddress;
+    data['apartment'] = apartment;
+    data['city'] = city;
+    data['zip_code'] = zipCode;
+    data['created_at'] = createdAt;
+    data['updated_at'] = updatedAt;
+    data['full_address'] = fullAddress;
     return data;
   }
 }

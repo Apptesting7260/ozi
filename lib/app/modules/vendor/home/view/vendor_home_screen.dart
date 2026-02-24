@@ -1,6 +1,5 @@
 import 'package:ozi/app/core/constants/app_urls.dart';
 import 'package:ozi/app/modules/vendor/home/provider/vendor_home_provider.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../core/appExports/app_export.dart';
 import '../../../../data/models/vendor_home_model.dart';

@@ -1,8 +1,7 @@
-import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:ozi/app/core/utils/get_utils.dart';
+import '../../../../../core/appExports/app_export.dart';
 import '../../../../../data/repository/repository.dart';
 import '../model/add_new_address_model.dart';
 
@@ -151,7 +150,9 @@ class AddAddressProvider extends ChangeNotifier {
         }
       }
     } catch (e) {
-      print("Unable to fetch address: $e");
+      if (kDebugMode) {
+        print("Unable to fetch address: $e");
+      }
     } finally {
       _isFetchingAddress = false;
       safeNotifyListeners();

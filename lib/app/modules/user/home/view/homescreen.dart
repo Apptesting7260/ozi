@@ -1,11 +1,9 @@
 import 'package:ozi/app/modules/user/cart/change%20address/view/ChangeAddressScreen.dart';
 import 'package:ozi/app/modules/user/cart/change%20address/provider/ChangeAddressProvider.dart';
-import 'package:ozi/app/modules/user/navigation%20tab/provider/navigation_provider.dart';
 import 'package:ozi/app/modules/vendor/home/notification/view/vendor_notifications_screen.dart';
 
 import '../../../../core/appExports/app_export.dart';
 import '../../../../core/constants/app_urls.dart';
-import '../../../../data/storage/user_preference.dart';
 import '../../../../shared/widgets/auth_guard.dart';
 import '../../../../shared/widgets/custom_image_path_helper.dart';
 import '../../../../shared/widgets/custom_shimmer_box.dart';
@@ -211,12 +209,16 @@ class HomeScreenView extends StatelessWidget {
 
   Widget _buildSearchBar(BuildContext context, HomeScreenProvider provider) {
     return CustomTextFormField(
-      onChanged: (val) => provider.setSearchQuery(val),
+      controller: provider.searchController,
+      onChanged: provider.setSearchQuery,
       hintText: "Search...",
-
       prefix: Padding(
-        padding: EdgeInsets.all(12.0),
-        child: CustomImage(path: ImageConstants.search, height: 20, width: 20),
+        padding: const EdgeInsets.all(12.0),
+        child: CustomImage(
+          path: ImageConstants.search,
+          height: 20,
+          width: 20,
+        ),
       ),
     );
   }
@@ -252,7 +254,7 @@ class HomeScreenView extends StatelessWidget {
       );
     }
 
-    // Check if location is null (only show this when not loading)
+    // Check if location is null ( only show this when not loading)
     if (provider.lat == null || provider.lng == null) {
       return Container(
         padding: EdgeInsets.all(20),

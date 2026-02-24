@@ -3,7 +3,6 @@ import 'package:ozi/app/core/utils/get_utils.dart';
 import '../../../../../data/repository/repository.dart';
 import '../../../../../data/storage/user_preference.dart';
 import '../model/cart_items_model.dart';
-import '../model/increase_cart_quantity_model.dart';
 
 class CartProvider with ChangeNotifier {
   final Repository _repository;
@@ -82,10 +81,12 @@ class CartProvider with ChangeNotifier {
       _errorMessage = e.toString();
       notifyListeners();
       Get.showToast(
-        e.toString() ?? 'Something went wrong',
+        e.toString(),
         type: ToastType.error,
       );
-      print('Error fetching cart items: $e');
+      if (kDebugMode) {
+        print('Error fetching cart items: $e');
+      }
     }
   }
 
@@ -105,9 +106,11 @@ class CartProvider with ChangeNotifier {
         response = await _repository.decreaseCartItemApi(cartId);
       }
 
-      print("Update Quantity Parsed Model: $response");
+      if (kDebugMode) {
+        print("Update Quantity Parsed Model: $response");
+      }
 
-      // 🎯 Correct model access
+      //  Correct model access
       if (response.status == true && response.data != null) {
         final newQty = response.data!.quantity ?? 1;
 
@@ -129,7 +132,7 @@ class CartProvider with ChangeNotifier {
       }
     } catch (e) {
       Get.showToast(
-        e.toString() ?? 'Something went wrong',
+        e.toString(),
         type: ToastType.error,
       );
       _errorMessage = "Failed to update quantity: $e";
@@ -160,12 +163,16 @@ class CartProvider with ChangeNotifier {
     try {
       final response = await _repository.removeCartItemApi(cartId);
 
-      print('Remove Item Response: $response');
+      if (kDebugMode) {
+        print('Remove Item Response: $response');
+      }
 
       // Check if API call was successful
       if (response != null && response['status'] == true) {
         // Item successfully removed, UI already updated
-        print('Item removed successfully');
+        if (kDebugMode) {
+          print('Item removed successfully');
+        }
       } else {
         throw Exception(response?['message'] ?? 'Failed to remove item');
       }
@@ -183,10 +190,12 @@ class CartProvider with ChangeNotifier {
       _errorMessage = 'Failed to remove item: ${e.toString()}';
       notifyListeners();
       Get.showToast(
-        e.toString() ?? 'Something went wrong',
+        e.toString(),
         type: ToastType.error,
       );
-      print('Error removing item: $e');
+      if (kDebugMode) {
+        print('Error removing item: $e');
+      }
     }
   }
 
@@ -210,12 +219,16 @@ class CartProvider with ChangeNotifier {
 
   Future<void> removeCoupon() async {
     final String? codeToRemove = _cupponCode ?? _appliedCouponCode;
-    print(
+    if (kDebugMode) {
+      print(
       'removeCoupon called, _cupponCode: $_cupponCode, _appliedCouponCode: $_appliedCouponCode',
     );
+    }
 
     if (codeToRemove == null) {
-      print('No coupon code or ID found to remove');
+      if (kDebugMode) {
+        print('No coupon code or ID found to remove');
+      }
       return;
     }
 

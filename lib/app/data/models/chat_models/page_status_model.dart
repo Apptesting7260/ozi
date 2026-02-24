@@ -89,7 +89,7 @@ class PageStatusModel {
     if (json['allParticipants'] != null) {
       allParticipants = <AllParticipants>[];
       json['allParticipants'].forEach((v) {
-        allParticipants!.add(new AllParticipants.fromJson(v));
+        allParticipants!.add(AllParticipants.fromJson(v));
       });
     }
     conversationName = json['conversation_name']?.toString();
@@ -97,15 +97,15 @@ class PageStatusModel {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['status'] = this.status;
-    data['message'] = this.message;
-    if (this.allParticipants != null) {
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['status'] = status;
+    data['message'] = message;
+    if (allParticipants != null) {
       data['allParticipants'] =
-          this.allParticipants!.map((v) => v.toJson()).toList();
+          allParticipants!.map((v) => v.toJson()).toList();
     }
-    data['conversation_name'] = this.conversationName;
-    data['conversation_image'] = this.conversationImage;
+    data['conversation_name'] = conversationName;
+    data['conversation_image'] = conversationImage;
     return data;
   }
 }
@@ -136,13 +136,13 @@ class AllParticipants {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['coverphoto'] = this.coverphoto;
-    data['email'] = this.email;
-    data['fullName'] = this.fullName;
-    data['id'] = this.id;
-    data['profile'] = this.profile;
-    data['userName'] = this.userName;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['coverphoto'] = coverphoto;
+    data['email'] = email;
+    data['fullName'] = fullName;
+    data['id'] = id;
+    data['profile'] = profile;
+    data['userName'] = userName;
     return data;
   }
 }

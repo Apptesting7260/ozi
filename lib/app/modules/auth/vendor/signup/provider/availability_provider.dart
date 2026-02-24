@@ -146,9 +146,13 @@ class AvailabilityProvider extends ChangeNotifier {
       Map<String,String> fields = {
         'availability': jsonEncode(formatAvailability(availability))
       };
-      print(fields);
+      if (kDebugMode) {
+        print(fields);
+      }
       final response = await _apiService.postApiMultiPart(AppUrls.saveAvailabilityVendor,fields,{});
-      print(response);
+      if (kDebugMode) {
+        print(response);
+      }
       if(isFromProfile==false){
         await UserPreference.saveStep('3');
         Navigator.push(
@@ -172,7 +176,7 @@ class AvailabilityProvider extends ChangeNotifier {
       final response = await _apiService.getApi(AppUrls.getAvailabilityVendor);
       VendorAvailability fetchedAvailability = VendorAvailability.fromJson(response);
       fetchedAvailability.vendorAvailability?.forEach((key, value) {
-        if (key != null && value != null && value.isNotEmpty) {
+        if (value != null && value.isNotEmpty) {
           List<TimeSlot> slots = [];
           value.forEach((e) {
             slots.add(
@@ -190,7 +194,9 @@ class AvailabilityProvider extends ChangeNotifier {
         }
       });
       notifyListeners();
-      print(response);
+      if (kDebugMode) {
+        print(response);
+      }
     } catch (e) {
       showCustomToast(navigatorKey.currentContext!, e.toString());
     }

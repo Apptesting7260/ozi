@@ -1,5 +1,3 @@
-import 'dart:async';
-import 'package:flutter/gestures.dart';
 import '../../../../core/appExports/app_export.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
 import '../../../../shared/widgets/custom_text_form_field.dart';

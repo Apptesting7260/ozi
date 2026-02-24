@@ -29,7 +29,7 @@ class _NavigationTabScreenState extends State<NavigationTabScreen> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build( BuildContext context ) {
     return PopScope(
       canPop: false,
       onPopInvokedWithResult: (didPop, result) {

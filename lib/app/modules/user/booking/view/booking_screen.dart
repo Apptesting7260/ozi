@@ -1,9 +1,7 @@
 import 'package:ozi/app/modules/user/singleService/screen/singleservicescreen.dart';
-
 import '../../../../core/appExports/app_export.dart';
 import '../booking details/view/booking_details_screen.dart';
 import '../provider/booking_provider.dart';
-import '../model/bookingmodel.dart';
 import '../model/bookingmodel.dart';
 
 class MyBookingsScreen extends StatelessWidget {
@@ -187,10 +185,12 @@ class MyBookingsScreen extends StatelessWidget {
     String address = "";
     if (booking.address != null) {
       List<String> parts = [];
-      if (booking.address?.streetAddress?.isNotEmpty == true)
+      if (booking.address?.streetAddress?.isNotEmpty == true) {
         parts.add(booking.address!.streetAddress!);
-      if (booking.address?.city?.isNotEmpty == true)
+      }
+      if (booking.address?.city?.isNotEmpty == true) {
         parts.add(booking.address!.city!);
+      }
       address = parts.join(", ");
     }
 
@@ -233,8 +233,9 @@ class MyBookingsScreen extends StatelessWidget {
     String lower = status.toLowerCase();
     if (lower.contains('complet')) return 'green';
     if (lower.contains('ongoing') || lower.contains('progress')) return 'blue';
-    if (lower.contains('confirm') || lower.contains('upcoming'))
+    if (lower.contains('confirm') || lower.contains('upcoming')) {
       return 'orange';
+    }
     if (lower.contains('cancel')) return 'red';
     return 'grey';
   }
@@ -614,7 +615,7 @@ class MyBookingsScreen extends StatelessWidget {
                 isLoading:
                     provider.isBookAgainLoading &&
                     provider.bookAgainBookingId == booking.bookingId,
-                onPressed: () => provider.bookAgain(booking.bookingId ?? 0),
+                onPressed: () => provider.bookAgain(booking.bookingId ?? 0,context),
               ),
             ),
         ],

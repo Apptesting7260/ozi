@@ -157,7 +157,6 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
         provider.helpModel?.data
             ?.where(
               (e) =>
-                  e != null &&
                   e.question != null &&
                   e.question!.trim().isNotEmpty &&
                   e.answer != null &&

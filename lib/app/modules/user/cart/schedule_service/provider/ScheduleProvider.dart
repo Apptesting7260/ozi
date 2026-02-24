@@ -3,7 +3,6 @@ import 'package:ozi/app/core/appExports/app_export.dart';
 import 'package:ozi/app/data/repository/repository.dart';
 import 'package:ozi/app/modules/user/cart/booking%20confirmed/view/BookingConfirmScreen.dart';
 import 'package:ozi/app/modules/user/cart/schedule_service/Model/bookservicemodel.dart';
-import 'package:ozi/app/data/response/api_response.dart';
 import '../../chnge payment method/provider/PaymentMethodProvider.dart';
 import '../Model/bookingcompletemodel.dart';
 
@@ -27,7 +26,7 @@ class ScheduleProvider extends ChangeNotifier {
   String? _selectedTime;
   BookServiceModel? _bookService;
   // Map<String, List<DaySlot>> _dayAvailability = {};
-  Map<String, List<DaySlot>> _dayAvailability = {};
+  final Map<String, List<DaySlot>> _dayAvailability = {};
 
   // Get next 4 days for quick selection
   List<DateTime> get quickDates {
@@ -172,10 +171,12 @@ class ScheduleProvider extends ChangeNotifier {
       notifyListeners();
     } catch (e) {
       Get.showToast(
-        e.toString() ?? 'Something went wrong',
+        e.toString(),
         type: ToastType.error,
       );
-      print('Error scheduling service: $e');
+      if (kDebugMode) {
+        print('Error scheduling service: $e');
+      }
     }
   }
 

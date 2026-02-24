@@ -31,7 +31,9 @@ class _MessageDetailsScreenState extends State<MessageDetailsScreen> {
   @override
   void initState() {
     super.initState();
-    print('conversion id is ${widget.conversionId}');
+    if (kDebugMode) {
+      print('conversion id is ${widget.conversionId}');
+    }
     messageDetailsProvider.changePageStatus(widget.conversionId,messageForSend: widget.messageForSend,dataLink: widget.dataLink);
     messageDetailsProvider.receivePersonalMessage();
     messageDetailsProvider.startScrollListener();
@@ -51,12 +53,6 @@ class _MessageDetailsScreenState extends State<MessageDetailsScreen> {
     super.dispose();
   }
 
-  void _onEmojiSelected(String emoji) {
-    messageDetailsProvider.controller.text += emoji;
-    messageDetailsProvider.controller.selection = TextSelection.fromPosition(
-      TextPosition(offset: messageDetailsProvider.controller.text.length),
-    );
-  }
 
   // void _toggleEmojiPicker() {
   //   FocusScope.of(navigatorKey.currentContext!).unfocus();
@@ -90,8 +86,8 @@ class _MessageDetailsScreenState extends State<MessageDetailsScreen> {
   @override
   Widget build(BuildContext context) {
     final now = DateTime.now();
-    final yesterday = now.subtract(Duration(days: 1));
-    final twoDaysAgo = now.subtract(Duration(days: 2));
+    final _ = now.subtract(Duration(days: 1));
+    final _ = now.subtract(Duration(days: 2));
 
     return ChangeNotifierProvider.value(
       value: messageDetailsProvider,
@@ -99,8 +95,7 @@ class _MessageDetailsScreenState extends State<MessageDetailsScreen> {
         builder: (context, value, child) {
           switch (value.messageListData.status) {
             case ApiStatus.loading:
-            case ApiStatus.loading:
-  return Scaffold(
+            return Scaffold(
     appBar: AppBar(
       backgroundColor: Colors.white,
       title: Row(
@@ -319,7 +314,7 @@ class _MessageDetailsScreenState extends State<MessageDetailsScreen> {
                 ),
               );
             default:
-              return Text('Error Occured');
+              return Text('Error Occurred');
           }
         },
       ),
@@ -345,7 +340,7 @@ class _MessageDetailsScreenState extends State<MessageDetailsScreen> {
         isSent
             ? const EdgeInsets.only(left: 40, bottom: 0)
             : const EdgeInsets.only(right: 40, bottom: 0);
-    final tick =
+    final _ =
         isSent
             ? Row(
               mainAxisSize: MainAxisSize.min,
@@ -371,11 +366,10 @@ class _MessageDetailsScreenState extends State<MessageDetailsScreen> {
 
     Widget content;
 
-    content =
-        SizedBox(); //Text(msg.text??'',style: AppFontStyle.text_16_300(context.titleColor),maxLines: 200,);
+    content = SizedBox(); //Text(msg.text??'',style: AppFontStyle.text_16_300(context.titleColor),maxLines: 200,);
 
     switch (
-    msg.dataLink!=null? "link" : msg.fileUrl!.length == 0
+    msg.dataLink!=null? "link" : msg.fileUrl!.isEmpty
         ? 'text' : getFileType(msg.fileUrl?[0] ?? '')) {
       case 'text':
         content = Text(
@@ -683,29 +677,7 @@ class _MessageDetailsScreenState extends State<MessageDetailsScreen> {
   //   return widgets;
   // }
 
-  String _formatDateLabel(DateTime date) {
-    final now = DateTime.now();
-    final today = DateTime(now.year, now.month, now.day);
-    final yesterday = today.subtract(Duration(days: 1));
 
-    if (date == today) return "Today";
-    if (date == yesterday) return "Yesterday";
-    return "${date.day}/${date.month}/${date.year}";
-  }
-
-  Widget _buildDateLabel(String date) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 12),
-        child: Text(
-          date,
-          style: AppFontStyle.text_16_300(
-            AppColors.primary,
-          ),
-        ),
-      ),
-    );
-  }
 
   String getFileType(String url) {
     // Convert to lowercase to make comparison case-insensitive
@@ -781,7 +753,7 @@ class _MessageDetailsScreenState extends State<MessageDetailsScreen> {
   //                                         .selectedMessage
   //                                         ?.text,
   //                                   );
-  //                                   messageDetailsProvider.rectionOnMessage(
+  //                                   messageDetailsProvider.reactionOnMessage(
   //                                     widget.conversionId,
   //                                     emoji,
   //                                   );
@@ -830,7 +802,7 @@ class _MessageDetailsScreenState extends State<MessageDetailsScreen> {
   //           height: 300,
   //           child: EmojiPicker(
   //             onEmojiSelected: (category, emoji) {
-  //               print("emoji select from pacakge : $emoji");
+  //               print("emoji select from package : $emoji");
   //               Navigator.pop(context);
   //             },
   //           ),
@@ -889,38 +861,40 @@ class _MessageDetailsScreenState extends State<MessageDetailsScreen> {
                       GestureDetector(
                         onTap: () {
                           Navigator.pop(context);
-                          print("emoji picked from popup : $emoji");
+                          if (kDebugMode) {
+                            print("emoji picked from popup : $emoji");
+                          }
                           provider.rectionOnMessage(widget.conversionId, emoji,msgId );
                           // controller.reactionMsgChat(emoji, msgId, index);
                         },
                         child: Text(emoji, style: TextStyle(fontSize: 24)),
                       ),
                     SizedBox(width: 10),
-                    GestureDetector(
-                      onTap: () {
-                        Navigator.pop(context);
-
-                        // _showEmojiBottomSheet(context: context, index: index);
-                      },
-                      child: Icon(
-                        Icons.add_circle_outline,
-                        size: 28,
-                        color: Colors.white,
-                      ),
-                    ),
+                    // GestureDetector(
+                    //                     //   onTap: () {
+                    //                     //     Navigator.pop(context);
+                    //                     //
+                    //                     //     // _showEmojiBottomSheet(context: context, index: index);
+                    //                     //   },
+                    //                     //   child: Icon(
+                    //                     //     Icons.add_circle_outline,
+                    //                     //     size: 28,
+                    //                     //     color: Colors.white,
+                    //                     //   ),
+                    //                     // ),
                   ],
                 ),
               ),
 
               Divider(color: Colors.grey),
-               if(msgText!=null)
-              _buildOption(context, "Copy", Icons.copy, () {
-                Navigator.pop(context);
-                // final String messageText =
-                // controller.msgListObj.data![index].message?.textmessage ??
-                // '';
-                Clipboard.setData(ClipboardData(text: msgText)).then((_) {
-                  ScaffoldMessenger.of(context).showSnackBar(
+              if(msgText != null)
+                _buildOption(context, "Copy", Icons.copy, () {
+                  Navigator.pop(context);
+                  // final String messageText =
+                  // controller.msgListObj.data![index].message?.text message ??
+                  // '';
+                  Clipboard.setData(ClipboardData(text: msgText)).then((_) {
+                    ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(content: Text("Copied to clipboard")),
                   );
                 });

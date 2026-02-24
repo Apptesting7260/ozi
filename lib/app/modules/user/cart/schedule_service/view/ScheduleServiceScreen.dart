@@ -28,7 +28,7 @@ class ScheduleServiceScreen extends StatelessWidget {
 }
 
 class _ScheduleServiceScreenContent extends StatelessWidget {
-  const _ScheduleServiceScreenContent({super.key});
+  const _ScheduleServiceScreenContent();
 
   @override
   Widget build(BuildContext context) {
@@ -482,7 +482,9 @@ class _ScheduleServiceScreenContent extends StatelessWidget {
                             addressProvider.selectedAddress == null)
                         ? null
                         : () {
-                            print("inside this onPresses");
+                            if (kDebugMode) {
+                              print("inside this onPresses");
+                            }
                             provider.bookServiceApi(
                               context: context,
                               addressId:
