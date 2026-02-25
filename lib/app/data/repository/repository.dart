@@ -294,9 +294,7 @@ class Repository {
 
   // **************************  Get Cart Items Api **************************//
   Future<CartItemsModel> getCartItemsApi() async {
-
     try {
-
       if (kDebugMode) {
         print('API Request URL: ${AppUrls.getCartItemsApi}');
       }
@@ -404,25 +402,49 @@ class Repository {
   }
 
   // **************************  GetCouponsDetails Api **************************//
-  Future<getCupponsModel> getCouponsApi() async {
+  // **************************  GetCouponsDetails Api **************************//
+  Future<getCupponsModel> getCouponsApi({
+    required String search,
+    required int page,
+    required int limit,
+  }) async {
     try {
-      final url = AppUrls.getCoupons;
-      if (kDebugMode) {
-        print('API Request URL: $url');
+      final Map<String, dynamic> params = {"page": page, "limit": limit};
+
+      // Only send search if not empty
+      if (search.isNotEmpty) {
+        params["search"] = search;
       }
 
-      dynamic response = await _apiService.getApi(url);
-      if (kDebugMode) {
-        print('API Response: $response');
-      }
+      final response = await _apiService.getApiWithPerms(
+        params,
+        AppUrls.getCoupons,
+      );
+
       return getCupponsModel.fromJson(response);
     } catch (e) {
-      if (kDebugMode) {
-        print('getBookingDetailsApi Error: $e');
-      }
       rethrow;
     }
   }
+  // Future<getCupponsModel> getCouponsApi() async {
+  //   try {
+  //     final url = AppUrls.getCoupons;
+  //     if (kDebugMode) {
+  //       print('API Request URL: $url');
+  //     }
+
+  //     dynamic response = await _apiService.getApi(url);
+  //     if (kDebugMode) {
+  //       print('API Response: $response');
+  //     }
+  //     return getCupponsModel.fromJson(response);
+  //   } catch (e) {
+  //     if (kDebugMode) {
+  //       print('getBookingDetailsApi Error: $e');
+  //     }
+  //     rethrow;
+  //   }
+  // }
 
   // **************************  GetAllBookings Api **************************//
   Future<bookingModel> getAllBookings(
