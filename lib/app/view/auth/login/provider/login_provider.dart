@@ -594,7 +594,11 @@ class LoginProvider extends ChangeNotifier {
                   builder: (_) => ChooseRoleScreen(userId: value['user']['id']),
                 ),
               );
-            } else if (value['stepCompleted'] == '1' &&
+            }
+            // else if (value['stepCompleted'] == '1'){
+            //
+            // }
+            else if (value['stepCompleted'] == '1' &&
                 value['role'] == 'vendor') {
               await saveLogin(value['role'], value['token']);
               Navigator.push(

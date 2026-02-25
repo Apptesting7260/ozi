@@ -101,26 +101,34 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   void _handleContinue() async {
+
+    print("Button pressed");
     final loginProvider = Provider.of<LoginProvider>(context, listen: false);
 
+    print("Button pressed 1");
     if (loginProvider.isLoading) return;
 
+    print("Button pressed 2");
     loginProvider.clearError();
 
+    print("Button pressed 3");
     // Validate phone number (provider will validate length based on country)
     final phoneNumber = _phoneController.text.trim();
     final countryCode = _selectedCountry?.phoneCode ?? '91';
 
+    print("Button pressed 4");
     final validationError = loginProvider.validatePhoneNumber(
       phoneNumber,
       countryCode,
     );
 
+    print("Button pressed 5");
     if (validationError != null) {
       _showSnackBar(validationError);
       return;
     }
 
+    print("Button pressed 6");
     // // Send OTP
     // final success = await loginProvider.sendOtp(
     //   phoneNumber: phoneNumber,
@@ -129,6 +137,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
     final success = await loginProvider.sendOtp("+$countryCode$phoneNumber");
 
+    print("Button pressed 7");
     if (success) {
       Navigator.push(
         context,
