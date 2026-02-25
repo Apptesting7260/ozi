@@ -134,7 +134,7 @@ class _LoginScreenState extends State<LoginScreen> {
     //   phoneNumber: phoneNumber,
     //   countryCode: '+$countryCode',
     // );
-
+  FocusScope.of(context).unfocus();
     final success = await loginProvider.sendOtp("+$countryCode$phoneNumber");
 
     print("Button pressed 7");

@@ -320,15 +320,20 @@ class LoginProvider extends ChangeNotifier {
   String? errorMessageFirebase;
 
   Future<bool> sendOtp(String phone) async {
+    print("inside send otp 1");
     Completer<bool> completer = Completer();
+    print("inside send otp 1");
 
-    _isLoading = true;
-    errorMessageFirebase = null;
+    _isLoading = true;    print("inside send otp 1");
+
+    errorMessageFirebase = null;    print("inside send otp 1");
+
     notifyListeners();
+    print("inside send otp 1");
 
     await _auth.verifyPhoneNumber(
       phoneNumber: phone,
-
+// timeout: Duration(seconds: 60),
       verificationCompleted: (PhoneAuthCredential credential) async {
         await _auth.signInWithCredential(credential);
       },
@@ -351,6 +356,7 @@ class LoginProvider extends ChangeNotifier {
         verificationId = verId;
       },
     );
+    print("inside send otp 1");
 
     return completer.future;
     // }
@@ -476,76 +482,6 @@ class LoginProvider extends ChangeNotifier {
       Get.showToast('Login failed. Please try again.', type: ToastType.error);
     }
   }
-  //using
-  // Future<void> signInWithGoogle(BuildContext context) async {
-  //   try {
-  //     CustomOverlayLoader.show(context);
-
-  //     final GoogleSignIn signIn = GoogleSignIn.instance; // It's now a singleton
-
-  //     // If you didn't initialize globally  in main.dart, do it here (but prefer main)
-  //     // await signIn.initialize(serverClientId: '...');
-
-  //     // Use authenticate() — it throws on cancel/error instead of returning null
-  //     final GoogleSignInAccount? googleUser = await signIn.authenticate(
-  //       scopeHint: ['email', 'profile'], // Optional, but good to include
-  //     );
-
-  //     if (googleUser == null) {
-  //       CustomOverlayLoader.hide();
-  //       return;
-  //     }
-
-  //     // Get the authentication details (idToken only!)
-  //     final GoogleSignInAuthentication googleAuth =
-  //         await googleUser.authentication;
-
-  //     debugPrint('Google user ID: ${googleUser.id}');
-  //     debugPrint(
-  //       'idToken: ${googleAuth.idToken}',
-  //     ); // ← This MUST be a long string like "eyJhbGciOi... . payload . signature"
-
-  //     if (googleAuth.idToken == null || googleAuth.idToken!.isEmpty) {
-  //       Get.showToast(
-  //         'Failed to retrieve Google ID token',
-  //         type: ToastType.error,
-  //       );
-  //       CustomOverlayLoader.hide();
-  //       return;
-  //     }
-
-  //     // Send the REAL idToken (JWT) to your backend
-  //     await socialLoginApi(
-  //       navigatorKey.currentContext!,
-  //       googleAuth.idToken!,
-  //       googleUser.id,
-  //     );
-
-  //     CustomOverlayLoader.hide();
-  //   } on GoogleSignInException catch (e) {
-  //     CustomOverlayLoader.hide();
-  //     if (e.code == GoogleSignInExceptionCode.canceled) {
-  //       return;
-  //     }
-  //     debugPrint('Google Sign-In error: ${e.code} – ${e.description}');
-  //     Get.showToast(
-  //       'Google Sign-In failed: ${e.description ?? "Unknown"}',
-  //       type: ToastType.error,
-  //     );
-  //   } on PlatformException catch (e) {
-  //     CustomOverlayLoader.hide();
-  //     debugPrint('Platform error: ${e.message}');
-  //     Get.showToast(
-  //       'Google Sign-In failed. Check configuration.',
-  //       type: ToastType.error,
-  //     );
-  //   } catch (e) {
-  //     CustomOverlayLoader.hide();
-  //     debugPrint('Unexpected error: $e');
-  //     Get.showToast('Login failed. Please try again.', type: ToastType.error);
-  //   }
-  // }
-
   bool _isLoader = false;
   bool get isLoader => _isLoader;
   updateLoading(bool value) {
