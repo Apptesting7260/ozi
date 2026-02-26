@@ -231,12 +231,12 @@ class VerificationProvider extends ChangeNotifier {
       };
 
       // Call your backend API
-      verifyOtp response = await verificationUser(requestData);
+      VerifyOtp response = await verificationUser(requestData);
 
       isLoading = false;
 
       if (response.status == true) {
-
+        await UserPreference.saveLoginStatus(response.isLoggedIn ?? false);
         await saveLogin(response.role, response.token);
         await UserPreference.saveUserId(response.userId ?? "");
         await UserPreference.saveStep(response.stepCompleted ?? "0");
@@ -368,13 +368,13 @@ class VerificationProvider extends ChangeNotifier {
 
   }
 
-  Future<verifyOtp> verificationUser(Map<String, dynamic> data) async {
+  Future<VerifyOtp> verificationUser(Map<String, dynamic> data) async {
     try {
       dynamic response = await _apiService.postApiWithoutToken(
         data,
         AppUrls.verificationFirebase,
       );
-      return verifyOtp.fromJson(response);
+      return VerifyOtp.fromJson(response);
     } catch (e) {
       throw Exception(e);
     }

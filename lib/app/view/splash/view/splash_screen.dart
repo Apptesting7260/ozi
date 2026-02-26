@@ -35,7 +35,7 @@ class _SplashScreenState extends State<SplashScreen> {
     String? role = await UserPreference.returnRole();
     String? step = await UserPreference.returnStep();
     String? userId = await UserPreference.returnUserId();
-    if (step != null && role != null) {
+    if (step != null && role != null && isLogin) {
       if (step == '0') {
         Navigator.pushReplacement(
           navigatorKey.currentContext!,

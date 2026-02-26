@@ -91,6 +91,8 @@ class ChooseRoleScreen extends StatelessWidget {
     final result = await provider.chooseRole(userId: userId??'');
 
     if (result?.status == true) {
+
+      await
       Navigator.push(
         context,
         MaterialPageRoute(
@@ -98,6 +100,8 @@ class ChooseRoleScreen extends StatelessWidget {
           ),
         ),
       );
+
+
 
     } else {
       ScaffoldMessenger.of(context).showSnackBar(

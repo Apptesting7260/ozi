@@ -50,14 +50,14 @@ class Repository {
     }
   }
 
-  //   //************************************************** Verification API **************************************************//
-  Future<verifyOtp> verificationUser(Map<String, dynamic> data) async {
+    //************************************************** Verification API **************************************************//
+  Future<VerifyOtp> verificationUser(Map<String, dynamic> data) async {
     try {
       dynamic response = await _apiService.postApiWithoutToken(
         data,
         AppUrls.verification,
       );
-      return verifyOtp.fromJson(response);
+      return VerifyOtp.fromJson(response);
     } catch (e) {
       throw Exception(e);
     }
