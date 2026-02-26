@@ -237,7 +237,7 @@ class VerificationProvider extends ChangeNotifier {
 
       if (response.status == true) {
         await UserPreference.saveLoginStatus(response.isLoggedIn ?? false);
-        await saveLogin(response.role, response.token);
+        await saveLogin(response.nextStep, response.token);
         await UserPreference.saveUserId(response.userId ?? "");
         await UserPreference.saveStep(response.stepCompleted ?? "0");
 
@@ -250,7 +250,7 @@ class VerificationProvider extends ChangeNotifier {
           final savedUserId = await UserPreference.returnUserId();
 
           print("========== AFTER SAVE ==========");
-          print("API Role: ${response.role}");
+          print("API Role: ${response.nextStep}");
           print("API Token: ${response.token}");
           print("API Step: ${response.stepCompleted}");
           print("API UserId: ${response.userId}");
