@@ -18,6 +18,8 @@ import 'package:ozi/app/shared/widgets/customoverlayloader.dart';
 import 'package:ozi/app/view/user_role/choose_your_role/view/choose_role.dart';
 import 'dart:convert';
 import '../../../../core/constants/app_urls.dart';
+import '../../../../data/Exception/app_exceptions.dart';
+import '../../../../data/models/otp_session.dart';
 import '../model/login_model.dart';
 import '../../../../modules/auth/vendor/signup/view/service_category.dart';
 
@@ -26,8 +28,11 @@ class LoginProvider extends ChangeNotifier {
   String? _errorMessage;
   LoginModel? _loginResponse;
   Repository _repository = Repository();
+
   bool get isLoading => _isLoading;
+
   String? get errorMessage => _errorMessage;
+
   LoginModel? get loginResponse => _loginResponse;
 
   static const Map<String, Map<String, dynamic>> countryPhoneConfig = {
@@ -257,15 +262,19 @@ class LoginProvider extends ChangeNotifier {
   };
 
   String? _loginErrorInvalidCredentialsMessage;
+
   String? get loginErrorInvalidCredentialsMessage =>
       _loginErrorInvalidCredentialsMessage;
+
   setloginErrorInvalidCredentialsMessage(String? value) {
     _loginErrorInvalidCredentialsMessage = value;
     notifyListeners();
   }
 
   String? _emailNotFoundMessage;
+
   String? get emailNotFoundMessage => _emailNotFoundMessage;
+
   setEmailNotFoundMessage(String? value) {
     _emailNotFoundMessage = value;
     notifyListeners();
@@ -318,9 +327,13 @@ class LoginProvider extends ChangeNotifier {
 
   String verificationId = '';
   String? errorMessageFirebase;
+  OtpSession? _otpSession;
+
+  OtpSession? get otpSession => _otpSession;
+
 
   Future<bool> sendOtp(String phone) async {
-    Completer<bool> completer = Completer();
+    final Completer<bool> completer = Completer();
 
     _isLoading = true;
     errorMessageFirebase = null;
@@ -328,20 +341,30 @@ class LoginProvider extends ChangeNotifier {
 
     await _auth.verifyPhoneNumber(
       phoneNumber: phone,
-
+      timeout: Duration(seconds: 60),
       verificationCompleted: (PhoneAuthCredential credential) async {
-        await _auth.signInWithCredential(credential);
+        try {
+          await _auth.signInWithCredential(credential);
+        } catch (_) {}
       },
 
       verificationFailed: (FirebaseAuthException e) {
         _isLoading = false;
-        errorMessageFirebase = e.message;
+        errorMessageFirebase = mapFirebaseError(e, flow: AuthFlowType.sendOtp);
         notifyListeners();
         completer.complete(false);
       },
 
       codeSent: (String verId, int? resendToken) {
-        verificationId = verId; // save globally
+        verificationId = verId;
+
+        // Create OTP session (60s expiry)
+        _otpSession = OtpSession(
+          verificationId: verId,
+          sentAt: DateTime.now(),
+          validFor: const Duration(seconds: 60),
+        );
+
         _isLoading = false;
         notifyListeners();
         completer.complete(true);
@@ -353,7 +376,6 @@ class LoginProvider extends ChangeNotifier {
     );
 
     return completer.future;
-    // }
   }
 
   Future<void> signInWithGoogle(BuildContext context) async {
@@ -476,6 +498,7 @@ class LoginProvider extends ChangeNotifier {
       Get.showToast('Login failed. Please try again.', type: ToastType.error);
     }
   }
+
   //using
   // Future<void> signInWithGoogle(BuildContext context) async {
   //   try {
@@ -547,7 +570,9 @@ class LoginProvider extends ChangeNotifier {
   // }
 
   bool _isLoader = false;
+
   bool get isLoader => _isLoader;
+
   updateLoading(bool value) {
     _isLoader = value;
     notifyListeners();

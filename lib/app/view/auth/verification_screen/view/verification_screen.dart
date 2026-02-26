@@ -102,6 +102,7 @@ class VerificationContent extends StatelessWidget {
                   if (provider.errorMessage != null) ...[
                     hBox(8),
                     Text(
+                      maxLines: 3,
                       provider.errorMessage!,
                       style: AppFontStyle.text_14_400(Colors.red),
                     ),
@@ -117,45 +118,50 @@ class VerificationContent extends StatelessWidget {
                         print("Error After send Otp : ${provider.errorMessage}");
                       }
 
-                      //     .then((success) {
-                      //   if (success && context.mounted) {
-                      //     Navigator.pushReplacement(
-                      //       context,
-                      //       MaterialPageRoute(
-                      //         builder: (_) => ChooseRoleScreen(userId: provider.userId,),
-                      //       ),
-                      //     );
-                      //   }
-                      // });
                     },
                   ),
                   hBox(24),
-                  Center(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          "Didn't receive code? ",
-                          style: AppFontStyle.text_14_400(AppColors.grey),
-                        ),
-                        GestureDetector(
-                          onTap: provider.resendTime > 0 || provider.isLoading
-                              ? null
-                              : () => provider.resendOtp(phone),
-                          child: Text(
-                            provider.resendTime > 0
-                                ? "Resend in ${provider.resendTime}s"
-                                : "Resend now",
-                            style: AppFontStyle.text_14_600(
-                              provider.resendTime > 0
-                                  ? AppColors.grey
-                                  : AppColors.darkText,
-                            ),
-                          ),
-                        ),
-                      ],
+        Center(
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                "Didn't receive code? ",
+                style: AppFontStyle.text_14_400(AppColors.grey),
+              ),
+              Builder(
+                builder: (_) {
+                  final bool isLoading = provider.isLoading;
+                  final bool isTimerActive = provider.resendTime > 0;
+                  final bool isEnabled = !isTimerActive && !isLoading;
+
+                  Color resendColor;
+
+                  if (isLoading) {
+                    resendColor = AppColors.grey;
+                  } else if (isTimerActive) {
+                    resendColor = AppColors.primary.withOpacity(0.6);
+                  } else {
+                    resendColor = AppColors.primary;
+                  }
+
+                  return InkWell(
+                    borderRadius: BorderRadius.circular(4),
+                    onTap: isEnabled
+                        ? () => provider.resendOtp(phone)
+                        : null,
+                    child: Text(
+                      isTimerActive
+                          ? "Resend in ${provider.resendTime}s"
+                          : "Resend now",
+                      style: AppFontStyle.text_14_600(resendColor),
                     ),
-                  ),
+                  );
+                },
+              ),
+            ],
+          ),
+        )
                 ],
               ),
             ),
