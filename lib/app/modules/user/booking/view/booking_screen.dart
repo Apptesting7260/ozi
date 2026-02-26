@@ -347,11 +347,13 @@ class MyBookingsScreen extends StatelessWidget {
                     context,
                     MaterialPageRoute(
                       builder: (context) => singleServiceScreen(
-                        serviceId: int.parse(
-                          provider.allBookings[index].services?[index].serviceId
-                                  .toString() ??
-                              "",
-                        ),
+                        serviceId:
+                            provider
+                                .allBookings[index]
+                                .services
+                                ?.firstOrNull
+                                ?.serviceId ??
+                            0,
                         isCart: false,
                       ),
                     ),
@@ -378,14 +380,22 @@ class MyBookingsScreen extends StatelessWidget {
                           context,
                           MaterialPageRoute(
                             builder: (context) => singleServiceScreen(
-                              serviceId: int.parse(
-                                provider
-                                        .allBookings[index]
-                                        .services?[index]
-                                        .serviceId
-                                        .toString() ??
-                                    "",
-                              ),
+                              serviceId:
+                                  provider
+                                      .allBookings[index]
+                                      .services
+                                      ?.firstOrNull
+                                      ?.serviceId ??
+                                  provider
+                                      .allBookings[index]
+                                      .firstService
+                                      ?.service
+                                      ?.id ??
+                                  provider
+                                      .allBookings[index]
+                                      .firstService
+                                      ?.serviceId ??
+                                  0,
                               isCart: false,
                             ),
                           ),
@@ -615,7 +625,8 @@ class MyBookingsScreen extends StatelessWidget {
                 isLoading:
                     provider.isBookAgainLoading &&
                     provider.bookAgainBookingId == booking.bookingId,
-                onPressed: () => provider.bookAgain(booking.bookingId ?? 0,context),
+                onPressed: () =>
+                    provider.bookAgain(booking.bookingId ?? 0, context),
               ),
             ),
         ],

@@ -669,6 +669,7 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
           item.serviceName ?? "Service",
           item.serviceItemTotal ?? item.unitPrice ?? '0',
           item.service?.serviceImage,
+          index: index,
           quantity: item.quantity,
           unitPrice: item.unitPrice,
         );
@@ -680,6 +681,7 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
     String title,
     String price,
     String? imagePath, {
+    required int index,
     int? quantity,
     String? unitPrice,
   }) {
@@ -690,10 +692,10 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
           context,
           MaterialPageRoute(
             builder: (context) => singleServiceScreen(
-              serviceId: int.parse(
-                provider.bookingDetails?.data?.items?[0].serviceId.toString() ??
-                    "",
-              ),
+              serviceId:
+                  provider.bookingDetails?.data?.items?[index].service?.id ??
+                  provider.bookingDetails?.data?.items?[index].serviceId ??
+                  0,
               isCart: false,
             ),
           ),

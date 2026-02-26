@@ -66,7 +66,6 @@ class BookingProvider extends ChangeNotifier {
 
   int _requestId = 0;
 
-
   setCurrentPage(int value) {
     _currentPage = value;
     notifyListeners();
@@ -120,10 +119,7 @@ class BookingProvider extends ChangeNotifier {
       }
     } catch (e) {
       _errorMessage = e.toString();
-      Get.showToast(
-        e.toString(),
-        type: ToastType.error,
-      );
+      Get.showToast(e.toString(), type: ToastType.error);
     }
 
     _isLoading = false;
@@ -145,10 +141,7 @@ class BookingProvider extends ChangeNotifier {
         _detailsErrorMessage = 'Failed to load booking details';
       }
     } catch (e) {
-      Get.showToast(
-        e.toString(),
-        type: ToastType.error,
-      );
+      Get.showToast(e.toString(), type: ToastType.error);
       _detailsErrorMessage = e.toString();
     } finally {
       _isDetailsLoading = false;
@@ -169,8 +162,8 @@ class BookingProvider extends ChangeNotifier {
     if (_isLoadingMore || !_hasMoreData) {
       if (kDebugMode) {
         print(
-        'Cannot load more - Loading: $_isLoadingMore, HasMore: $_hasMoreData',
-      );
+          'Cannot load more - Loading: $_isLoadingMore, HasMore: $_hasMoreData',
+        );
       }
       return;
     }
@@ -501,7 +494,7 @@ class BookingProvider extends ChangeNotifier {
   bool get isBookAgainLoading => _isBookAgainLoading;
   int? get bookAgainBookingId => _bookAgainBookingId;
 
-  Future<bool> bookAgain(int bookingId , BuildContext context) async {
+  Future<bool> bookAgain(int bookingId, BuildContext context) async {
     _isBookAgainLoading = true;
     _bookAgainBookingId = bookingId;
     notifyListeners();
@@ -531,7 +524,7 @@ class BookingProvider extends ChangeNotifier {
       //   e.toString(),
       //   type: ToastType.error,
       // );
-      _showErrorDialog(context, e.toString(),);
+      _showErrorDialog(context, e.toString());
 
       return false;
     } finally {
@@ -653,5 +646,4 @@ class BookingProvider extends ChangeNotifier {
       },
     );
   }
-
 }

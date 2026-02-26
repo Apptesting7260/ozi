@@ -95,7 +95,7 @@ class _singleServiceScreenState extends State<singleServiceScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  '\$${provider.totalAmount.toStringAsFixed(2)}',
+                  '\$${provider.serviceData?.data?.servicePrice}',
                   style: AppFontStyle.text_28_600(
                     AppColors.black,
                     fontFamily: AppFontFamily.bold,
@@ -303,10 +303,11 @@ class _singleServiceScreenState extends State<singleServiceScreen> {
         ),
         hBox(16),
         // Description
-        ReadMoreDescription(
-          text: serviceData.description ?? '',
+        Text(
+          serviceData.description ?? '',
+          maxLines: 10,
+          overflow: TextOverflow.ellipsis,
           style: AppFontStyle.text_13_400(AppColors.lightGrey3),
-          trimLines: 2,
         ),
       ],
     );
