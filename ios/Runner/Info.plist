@@ -45,12 +45,19 @@
         </dict>
     </array>
 
-    <!-- App Permissions -->
+    <!-- Google Maps API Key (optional if provided in AppDelegate.swift, but safe to include) -->
+    <key>GMSApiKey</key>
+    <string>AIzaSyApdA5sIEfZoPmhlWuAr5wTgyOXvhl9jsQ</string>
+
+    <!-- App Permissions / URL Schemes -->
     <key>LSApplicationQueriesSchemes</key>
     <array>
         <string>sms</string>
         <string>tel</string>
         <string>mailto</string>
+        <!-- Added for Google Maps SDK (opens Google Maps app or Chrome fallback) -->
+        <string>comgooglemaps</string>
+        <string>googlechromes</string>
     </array>
 
     <key>LSRequiresIPhoneOS</key>
