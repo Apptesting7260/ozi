@@ -1,5 +1,6 @@
 import 'package:ozi/app/modules/user/cart/change%20address/view/ChangeAddressScreen.dart';
 import 'package:ozi/app/modules/user/cart/change%20address/provider/ChangeAddressProvider.dart';
+import '../../../../core/utils/location_permission_helper.dart';
 import 'package:ozi/app/modules/vendor/home/notification/view/vendor_notifications_screen.dart';
 
 import '../../../../core/appExports/app_export.dart';
@@ -31,7 +32,6 @@ class _HomeScreenState extends State<HomeScreen> {
       }
     });
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -112,23 +112,27 @@ class HomeScreenView extends StatelessWidget {
               SizedBox(height: 4),
               GestureDetector(
                 onTap: () async {
-
                   final bool allowed = await AuthGuard.requireLogin(context);
-
                   if (!allowed) return;
 
-                  final result = await Navigator.push(
+                  if (await LocationPermissionHelper.handleLocationPermission(
                     context,
-                    MaterialPageRoute(
-                      builder: (context) =>
-                          const ChangeAddressScreen(isFromHome: true),
-                    ),
-                  );
-                  if (result != null) {
-                    provider.updateFromSelection(
-                      result as int,
-                      context.read<ChangeAddressProvider>(),
-                    );
+                  )) {
+                    if (context.mounted) {
+                      final result = await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              const ChangeAddressScreen(isFromHome: true),
+                        ),
+                      );
+                      if (result != null) {
+                        provider.updateFromSelection(
+                          result as int,
+                          context.read<ChangeAddressProvider>(),
+                        );
+                      }
+                    }
                   }
                 },
                 child: Row(
@@ -165,7 +169,7 @@ class HomeScreenView extends StatelessWidget {
         Row(
           children: [
             GestureDetector(
-              onTap: () async{
+              onTap: () async {
                 final bool allowed = await AuthGuard.requireLogin(context);
 
                 if (!allowed) return;
@@ -183,7 +187,7 @@ class HomeScreenView extends StatelessWidget {
             ),
             wBox(12),
             GestureDetector(
-              onTap: () async{
+              onTap: () async {
                 final bool allowed = await AuthGuard.requireLogin(context);
 
                 if (!allowed) return;
@@ -214,11 +218,7 @@ class HomeScreenView extends StatelessWidget {
       hintText: "Search...",
       prefix: Padding(
         padding: const EdgeInsets.all(12.0),
-        child: CustomImage(
-          path: ImageConstants.search,
-          height: 20,
-          width: 20,
-        ),
+        child: CustomImage(path: ImageConstants.search, height: 20, width: 20),
       ),
     );
   }

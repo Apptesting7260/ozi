@@ -44,6 +44,17 @@ class AddAddressProvider extends ChangeNotifier {
   String _errorMessage = '';
   String get errorMessage => _errorMessage;
 
+  bool _isLocationPermissionDenied = false;
+  bool get isLocationPermissionDenied => _isLocationPermissionDenied;
+
+  Future<void> checkLocationPermission() async {
+    LocationPermission permission = await Geolocator.checkPermission();
+    _isLocationPermissionDenied =
+        (permission == LocationPermission.denied ||
+        permission == LocationPermission.deniedForever);
+    safeNotifyListeners();
+  }
+
   // Google Map State
   GoogleMapController? mapController;
   LatLng? selectedLatLng;
@@ -84,6 +95,26 @@ class AddAddressProvider extends ChangeNotifier {
   // Move to Current Location
   Future<void> moveToCurrentLocation() async {
     try {
+      LocationPermission permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+        if (permission == LocationPermission.denied) {
+          _isLocationPermissionDenied = true;
+          _errorMessage = "Location permission denied";
+          safeNotifyListeners();
+          return;
+        }
+      }
+
+      if (permission == LocationPermission.deniedForever) {
+        _isLocationPermissionDenied = true;
+        _errorMessage = "Location permission permanently denied";
+        safeNotifyListeners();
+        return;
+      }
+
+      _isLocationPermissionDenied = false;
+
       Position position = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high,
       );
@@ -97,7 +128,7 @@ class AddAddressProvider extends ChangeNotifier {
         ),
       );
     } catch (e) {
-      _errorMessage = "Location permission denied";
+      _errorMessage = "Error fetching location: $e";
       safeNotifyListeners();
     }
   }
