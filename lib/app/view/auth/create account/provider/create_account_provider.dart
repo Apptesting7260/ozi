@@ -46,6 +46,12 @@ class CreateAccountProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  /// Mark email as verified when coming from Google sign-in (no OTP needed)
+  void setEmailVerifiedFromGoogle() {
+    _isEmailValid = true;
+    _isEmailVerified = true;
+  }
+
   Future<dynamic> emailSendApi(Map<String, dynamic> data) async {
     try {
       updateISLoading(true);

@@ -3,115 +3,128 @@ import '../../../../core/appExports/app_export.dart';
 import '../../../auth/create account/view/create_account_screen.dart';
 
 class ChooseRoleScreen extends StatelessWidget {
-  const ChooseRoleScreen( {super.key, this.userId});
+  const ChooseRoleScreen({
+    super.key,
+    this.userId,
+    this.firstName,
+    this.lastName,
+    this.email,
+  });
   final String? userId;
+  final String? firstName;
+  final String? lastName;
+  final String? email;
 
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
       create: (_) => RoleProvider(),
-      child: Consumer<RoleProvider>(builder: (context, provider, child) {
-        return Scaffold(
-          backgroundColor: AppColors.white,
-          body: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 50),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                hBox(30),
+      child: Consumer<RoleProvider>(
+        builder: (context, provider, child) {
+          return Scaffold(
+            backgroundColor: AppColors.white,
+            body: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 50),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  hBox(30),
 
-                Text(
-                  "Choose Your Role",
-                  style: AppFontStyle.text_28_600(
-                    AppColors.darkText,
-                    fontFamily: AppFontFamily.extraBold,
+                  Text(
+                    "Choose Your Role",
+                    style: AppFontStyle.text_28_600(
+                      AppColors.darkText,
+                      fontFamily: AppFontFamily.extraBold,
+                    ),
                   ),
-                ),
 
-                hBox(10),
+                  hBox(10),
 
-                Text(
-                  "Select how you want to use the app.",
-                  style: AppFontStyle.text_16_400(AppColors.grey),
-                ),
+                  Text(
+                    "Select how you want to use the app.",
+                    style: AppFontStyle.text_16_400(AppColors.grey),
+                  ),
 
-                hBox(30),
+                  hBox(30),
 
-                _roleTile(
-                  imagePath: ImageConstants.userIcon,
-                  text: "I'm a User",
-                  isSelected: provider.selectedRole == "user",
-                  onTap: () => provider.selectRole("user"),
-                ),
-                hBox(16),
-                _roleTile(
-                  imagePath: ImageConstants.vendorIcon,
-                  text: "I'm a Vendor",
-                  isSelected: provider.selectedRole == "vendor",
-                  onTap: () => provider.selectRole("vendor"),
-                ),
+                  _roleTile(
+                    imagePath: ImageConstants.userIcon,
+                    text: "I'm a User",
+                    isSelected: provider.selectedRole == "user",
+                    onTap: () => provider.selectRole("user"),
+                  ),
+                  hBox(16),
+                  _roleTile(
+                    imagePath: ImageConstants.vendorIcon,
+                    text: "I'm a Vendor",
+                    isSelected: provider.selectedRole == "vendor",
+                    onTap: () => provider.selectRole("vendor"),
+                  ),
 
-                hBox(30),
+                  hBox(30),
 
-                CustomButton(
-                  text: provider.isLoading ? "Please wait..." : "Continue",
-                  isLoading: provider.isLoading,
-                  onPressed: () async {
-                    if (!provider.hasSelectedRole) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text("Please select a role"),
-                        ),
-                      );
-                      return;
-                    }
+                  CustomButton(
+                    text: provider.isLoading ? "Please wait..." : "Continue",
+                    isLoading: provider.isLoading,
+                    onPressed: () async {
+                      if (!provider.hasSelectedRole) {
+                        // ScaffoldMessenger.of(context).showSnackBar(
+                        //   const SnackBar(
+                        //     content: Text("Please select a role"),
+                        //   ),
+                        // );
+                        Get.showToast(
+                          "Please select a role",
+                          type: ToastType.warning,
+                        );
+                        return;
+                      }
 
-                    _onContinuePressed(
-                      context,
-                      context.read<RoleProvider>(),
-                    );
-                  },
-                ),
-
-              ],
+                      _onContinuePressed(context, context.read<RoleProvider>());
+                    },
+                  ),
+                ],
+              ),
             ),
-          ),
-        );
-      },),
+          );
+        },
+      ),
     );
   }
 
-
   Future<void> _onContinuePressed(
-      BuildContext context,
-      RoleProvider provider,
-      ) async {
+    BuildContext context,
+    RoleProvider provider,
+  ) async {
     if (provider.isLoading) return;
 
-    final result = await provider.chooseRole(userId: userId??'');
+    final result = await provider.chooseRole(userId: userId ?? '');
 
     if (result?.status == true) {
-
-      await
-      Navigator.push(
+      await Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (_) => CreateAccountScreen(userId: userId??'',
+          builder: (_) => CreateAccountScreen(
+            userId: userId ?? '',
+            firstName: firstName,
+            lastName: lastName,
+            email: email,
           ),
         ),
       );
-
-
-
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            result?.message ??
-                provider.errorMessage ??
-                "Something went wrong",
-          ),
-        ),
+      // ScaffoldMessenger.of(context).showSnackBar(
+      //   SnackBar(
+      //     content: Text(
+      //       result?.message ??
+      //           provider.errorMessage ??
+      //           "Something went wrong",
+      //     ),
+      //   ),
+      // );
+      Get.showToast(
+        result?.message ?? provider.errorMessage ?? "Something went wrong",
+        type: ToastType.warning,
       );
     }
   }
@@ -145,20 +158,20 @@ class ChooseRoleScreen extends StatelessWidget {
           children: [
             isSvg
                 ? SvgPicture.asset(
-              imagePath,
-              height: 22,
-              width: 22,
-              colorFilter:  ColorFilter.mode(
-                AppColors.primary,
-                BlendMode.srcIn,
-              ),
-            )
+                    imagePath,
+                    height: 22,
+                    width: 22,
+                    colorFilter: ColorFilter.mode(
+                      AppColors.primary,
+                      BlendMode.srcIn,
+                    ),
+                  )
                 : Image.asset(
-              imagePath,
-              height: 22,
-              width: 22,
-              color: AppColors.primary,
-            ),
+                    imagePath,
+                    height: 22,
+                    width: 22,
+                    color: AppColors.primary,
+                  ),
             wBox(10),
             Text(
               text,
@@ -172,7 +185,6 @@ class ChooseRoleScreen extends StatelessWidget {
       ),
     );
   }
-
 }
 
 // class ChooseRoleContent extends StatelessWidget {

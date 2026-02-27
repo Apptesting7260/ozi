@@ -101,7 +101,6 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   void _handleContinue() async {
-
     print("Button pressed");
     final loginProvider = Provider.of<LoginProvider>(context, listen: false);
 
@@ -124,35 +123,38 @@ class _LoginScreenState extends State<LoginScreen> {
 
     print("Button pressed 5");
     if (validationError != null) {
-     // _showSnackBar(validationError);
+      // _showSnackBar(validationError);
       Get.showToast(validationError, type: ToastType.warning);
       return;
     }
-
-    final success = await loginProvider.sendOtp("+$countryCode$phoneNumber");
-
-    print("Button pressed 7");
-    if (success) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (_) => VerificationScreen(
-            phone: "+$countryCode $phoneNumber",
-            verificationId: loginProvider.verificationId,
+    try {
+      final success = await loginProvider.sendOtp("+$countryCode$phoneNumber");
+      print("Button pressed 7");
+      if (success) {
+        print("otp done at login");
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => VerificationScreen(
+              phone: "+$countryCode $phoneNumber",
+              verificationId: loginProvider.verificationId,
+            ),
           ),
-        ),
-      );
-    } else {
-      if (!success && mounted) {
-        Get.showToast(
-          loginProvider.errorMessageFirebase ??
-              "Failed to send OTP. Please try again.",
-          type: ToastType.warning,
         );
+      } else {
+        if (!success && mounted) {
+          print("object");
+          Get.showToast(
+            loginProvider.errorMessageFirebase ??
+                "Failed to send OTP. Please try again.",
+            type: ToastType.warning,
+          );
+        }
       }
+    } catch (e) {
+      print("otp send error at login : ${e.toString()}");
     }
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -316,11 +318,12 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     color: AppColors.lightGrey2,
                     isOutlined: true,
-                    onPressed: ()
-                    {
+                    onPressed: () {
                       Navigator.push(
                         navigatorKey.currentContext!,
-                        MaterialPageRoute(builder: (_) => NavigationTabScreen()),
+                        MaterialPageRoute(
+                          builder: (_) => NavigationTabScreen(),
+                        ),
                       );
                     },
                   ),

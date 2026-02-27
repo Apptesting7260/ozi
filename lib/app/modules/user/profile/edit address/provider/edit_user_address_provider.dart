@@ -203,21 +203,25 @@ class EditUserAddressProvider extends ChangeNotifier {
       print("Address ID : $_addressId");
     }
     if (_addressId == null) {
-      _showSnackBar(context, "Address ID not found", Colors.red);
+      Get.showToast("Address ID not found", type: ToastType.error);
+      // _showSnackBar(context, "Address ID not found", Colors.red);
       return false;
     }
 
     // Validation
     if (streetController.text.trim().isEmpty) {
-      _showSnackBar(context, "Please enter street address", Colors.red);
+      Get.showToast("Please enter street address", type: ToastType.error);
+      // _showSnackBar(context, "Please enter street address", Colors.red);
       return false;
     }
     if (cityController.text.trim().isEmpty) {
-      _showSnackBar(context, "Please enter city", Colors.red);
+      Get.showToast("Please enter city", type: ToastType.error);
+      // _showSnackBar(context, "Please enter city", Colors.red);
       return false;
     }
     if (zipController.text.trim().isEmpty) {
-      _showSnackBar(context, "Please enter ZIP code", Colors.red);
+      Get.showToast("Please enter ZIP code", type: ToastType.error);
+      // _showSnackBar(context, "Please enter ZIP code", Colors.red);
       return false;
     }
 

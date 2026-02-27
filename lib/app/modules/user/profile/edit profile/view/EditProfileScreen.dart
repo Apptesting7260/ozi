@@ -39,7 +39,7 @@ class EditProfileScreen extends StatelessWidget {
                   hBox(30),
 
                   // FIELDS
-                  _inputFields(provider , context),
+                  _inputFields(provider, context),
 
                   hBox(30),
 
@@ -80,21 +80,58 @@ class EditProfileScreen extends StatelessWidget {
                 shape: BoxShape.circle,
                 border: Border.all(color: AppColors.primary, width: 3),
               ),
+              // child:
               child: ClipOval(
                 child: provider.pickedImage != null
                     ? Image.file(
                         File(provider.pickedImage!.path),
                         fit: BoxFit.cover,
+                        height: 110,
+                        width: 110,
                       )
-                    : CustomImage(
-                        path: ImagePathHelper.getFullImageUrl(
-                          provider.networkImage,
-                          AppUrls.imageBaseUrl,
-                        ),
+                    : Image.network(
+                        "${AppUrls.imageBaseUrl}${provider.networkImage ?? ''}",
+                        height: 110,
+                        width: 110,
                         fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) {
+                          return Container(
+                            height: 110,
+                            width: 110,
+                            decoration: BoxDecoration(
+                              color: AppColors.lightGrey,
+                              shape: BoxShape.circle,
+                            ),
+                            child: Center(
+                              child: Text(
+                                provider.firstNameController.text.isNotEmpty
+                                    ? provider.firstNameController.text[0]
+                                          .toUpperCase()
+                                    : "?",
+                                style: AppFontStyle.text_28_600(
+                                  AppColors.darkText,
+                                ),
+                              ),
+                            ),
+                          );
+                        },
                       ),
               ),
             ),
+
+            //  ClipOval( child: provider.pickedImage != null
+            //       ? Image.file(
+            //           File(provider.pickedImage!.path),
+            //           fit: BoxFit.cover,
+            //         )
+            //       : CustomImage(
+            //           path: ImagePathHelper.getFullImageUrl(
+            //             provider.networkImage,
+            //             AppUrls.imageBaseUrl,
+            //           ),
+            //           fit: BoxFit.cover,
+            //         ),
+            // ),
 
             //+ CAMERA BUTTON
             GestureDetector(
@@ -161,7 +198,7 @@ class EditProfileScreen extends StatelessWidget {
     );
   }
 
-  Widget _inputFields(EditProfileProvider provider , BuildContext context) {
+  Widget _inputFields(EditProfileProvider provider, BuildContext context) {
     return Column(
       children: [
         CustomTextFormField(
@@ -209,8 +246,6 @@ class EditProfileScreen extends StatelessWidget {
         //     ),
         //   ),
         // ),
-
-
         CustomTextFormField(
           controller: provider.emailController,
           label: "Email Address",
@@ -231,57 +266,47 @@ class EditProfileScreen extends StatelessWidget {
             padding: const EdgeInsets.all(12),
             child: GestureDetector(
               onTap:
-              (provider.isEmailValid &&
-                  !provider.isEmailVerified &&
-                  !provider.isloading)
+                  (provider.isEmailValid &&
+                      !provider.isEmailVerified &&
+                      !provider.isloading)
                   ? () async {
-                try {
-                  final response = await provider
-                      .emailSendOtpApi({
-                    "email": provider.emailController.text
-                        .trim(),
-                  });
-                  if (response['status'] == true ||
-                      response['status'] == 200) {
-                    _showOtpDialog(context, provider);
-                  } else {
-                    Get.showToast(
-                      response['message'] ??
-                          "Something went wrong",
-                      type: ToastType.warning,
-                    );
-                  }
-                } catch (e) {
-                  Get.showToast(
-                    e.toString(),
-                    type: ToastType.error,
-                  );
-                }
-              }
+                      try {
+                        final response = await provider.emailSendOtpApi({
+                          "email": provider.emailController.text.trim(),
+                        });
+                        if (response['status'] == true ||
+                            response['status'] == 200) {
+                          _showOtpDialog(context, provider);
+                        } else {
+                          Get.showToast(
+                            response['message'] ?? "Something went wrong",
+                            type: ToastType.warning,
+                          );
+                        }
+                      } catch (e) {
+                        Get.showToast(e.toString(), type: ToastType.error);
+                      }
+                    }
                   : null,
               child: provider.isloading
                   ? SizedBox(
-                height: 18,
-                width: 18,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  color: AppColors.primary,
-                ),
-              )
+                      height: 18,
+                      width: 18,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: AppColors.primary,
+                      ),
+                    )
                   : provider.isEmailVerified
-                  ? Icon(
-                Icons.check_circle,
-                color: AppColors.green,
-                size: 20,
-              )
+                  ? Icon(Icons.check_circle, color: AppColors.primary, size: 20)
                   : Text(
-                "Verify",
-                style: AppFontStyle.text_14_400(
-                  provider.isEmailValid
-                      ? AppColors.primary
-                      : AppColors.grey,
-                ),
-              ),
+                      "Verify",
+                      style: AppFontStyle.text_14_400(
+                        provider.isEmailValid
+                            ? AppColors.primary
+                            : AppColors.grey,
+                      ),
+                    ),
             ),
           ),
           borderRadius: 60,
@@ -301,10 +326,7 @@ class EditProfileScreen extends StatelessWidget {
     );
   }
 
-  void _showOtpDialog(
-      BuildContext context,
-      EditProfileProvider provider,
-      ) {
+  void _showOtpDialog(BuildContext context, EditProfileProvider provider) {
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -314,7 +336,6 @@ class EditProfileScreen extends StatelessWidget {
     );
   }
 }
-
 
 class _OtpDialogContent extends StatefulWidget {
   final EditProfileProvider provider;
@@ -388,14 +409,14 @@ class _OtpDialogContentState extends State<_OtpDialogContent> {
             Text(
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
-              "Enter the 4-digit OTP sent to your email.",
+              "Enter the 6-digit OTP sent to your email.",
               textAlign: TextAlign.center,
               style: AppFontStyle.text_14_400(AppColors.grey),
             ),
             hBox(20),
             PinCodeTextField(
               appContext: context,
-              length: 4,
+              length: 6,
               onChanged: (value) {
                 otpCode = value;
                 if (errorMessage != null || successMessage != null) {
@@ -406,18 +427,18 @@ class _OtpDialogContentState extends State<_OtpDialogContent> {
                 }
               },
               keyboardType: TextInputType.number,
+              // enableActiveFill: true,
               pinTheme: PinTheme(
-                shape: PinCodeFieldShape.box,
-                borderRadius: BorderRadius.circular(12),
-                fieldHeight: 55,
-                fieldWidth: 50,
-                activeFillColor: AppColors.white,
-                inactiveFillColor: AppColors.white,
-                selectedFillColor: AppColors.white,
+                shape: PinCodeFieldShape.circle,
+                fieldHeight: 48,
+                fieldWidth: 48,
+                activeFillColor: AppColors.lightGrey2,
+                inactiveFillColor: AppColors.lightGrey2,
+                selectedFillColor: AppColors.lightGrey2,
                 activeColor: AppColors.primary,
-                inactiveColor: AppColors.borderColor,
+                inactiveColor: Colors.white24,
                 selectedColor: AppColors.primary,
-                borderWidth: 1.5,
+                borderWidth: 0,
               ),
             ),
             if (errorMessage != null) ...[
@@ -431,83 +452,62 @@ class _OtpDialogContentState extends State<_OtpDialogContent> {
               ),
             ],
             hBox(20),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                RichText(
-                  text: TextSpan(
-                    text: "Didn't receive the OTP? ",
-                    style: AppFontStyle.text_12_400(AppColors.grey),
-                    children: [
-                      if (isResending)
-                        WidgetSpan(
-                          alignment: PlaceholderAlignment.middle,
-                          child: Padding(
-                            padding: const EdgeInsets.only(left: 4),
-                            child: SizedBox(
-                              height: 12,
-                              width: 12,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 1.5,
-                                color: AppColors.primary,
-                              ),
-                            ),
-                          ),
-                        )
-                      else
-                        TextSpan(
-                          text: "Resend OTP",
-                          style: AppFontStyle.text_12_600(
-                            secondsRemaining == 0
-                                ? AppColors.primary
-                                : AppColors.grey,
-                          ).copyWith(decoration: TextDecoration.underline),
-                          recognizer: TapGestureRecognizer()
-                            ..onTap = secondsRemaining == 0
-                                ? () async {
-                              try {
-                                setState(() => isResending = true);
-                                final response = await widget.provider
-                                    .emailSendOtpApi({
-                                  "email": widget
-                                      .provider
-                                      .emailController
-                                      .text
+            if (secondsRemaining > 0)
+              Center(
+                child: Text(
+                  "Resend OTP in $timerText",
+                  style: AppFontStyle.text_12_400(AppColors.grey),
+                ),
+              )
+            else
+              Center(
+                child: isResending
+                    ? SizedBox(
+                        height: 16,
+                        width: 16,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 1.5,
+                          color: AppColors.primary,
+                        ),
+                      )
+                    : GestureDetector(
+                        onTap: () async {
+                          try {
+                            setState(() => isResending = true);
+                            final response = await widget.provider
+                                .emailSendOtpApi({
+                                  "email": widget.provider.emailController.text
                                       .trim(),
                                 });
-                                if (response['status'] == true ||
-                                    response['status'] == 200) {
-                                  startTimer(clearSuccess: false);
-                                  setState(() {
-                                    successMessage =
-                                    "OTP resent successfully";
-                                  });
-                                //  Navigator.pop(context);
-                                } else {
-                                  setState(() {
-                                    errorMessage =
-                                        response['message'] ??
-                                            "Failed to resend OTP";
-                                  });
-                                }
-                              } catch (e) {
-                                setState(() {
-                                  errorMessage = e.toString();
-                                });
-                              } finally {
-                                setState(() => isResending = false);
-                              }
-                            } : null,
+                            if (response['status'] == true ||
+                                response['status'] == 200) {
+                              startTimer(clearSuccess: false);
+                              setState(() {
+                                successMessage = "OTP resent successfully";
+                              });
+                            } else {
+                              setState(() {
+                                errorMessage =
+                                    response['message'] ??
+                                    "Failed to resend OTP";
+                              });
+                            }
+                          } catch (e) {
+                            setState(() {
+                              errorMessage = e.toString();
+                            });
+                          } finally {
+                            setState(() => isResending = false);
+                          }
+                        },
+                        child: Text(
+                          "Resend OTP",
+                          style: AppFontStyle.text_14_600(
+                            AppColors.primary,
+                          ).copyWith(decoration: TextDecoration.underline),
                         ),
-                    ],
-                  ),
-                ),
-                Text(
-                  timerText,
-                  style: AppFontStyle.text_12_600(AppColors.darkText),
-                ),
-              ],
-            ),
+                      ),
+              ),
             if (successMessage != null) ...[
               hBox(8),
               Align(
@@ -541,45 +541,43 @@ class _OtpDialogContentState extends State<_OtpDialogContent> {
                 Expanded(
                   child: widget.provider.otpLoading
                       ? Center(
-                    child: CircularProgressIndicator(
-                      color: AppColors.primary,
-                    ),
-                  )
+                          child: CircularProgressIndicator(
+                            color: AppColors.primary,
+                          ),
+                        )
                       : CustomButton(
-                    height: 50,
-                    onPressed: () async {
-                      if (otpCode.length == 4) {
-                        try {
-                          final response = await widget.provider
-                              .verifyEmailApi({
-                            "otp": otpCode,
-                          });
-                          if (response['status'] == true ||
-                              response['status'] == 200) {
-                            Navigator.pop(context);
-                            Get.showToast(
-                              "Email verified successfully",
-                              type: ToastType.success,
-                            );
-                          } else {
-                            setState(() {
-                              errorMessage =
-                                  response['message'] ?? "Invalid OTP";
-                            });
-                          }
-                        } catch (e) {
-                          setState(() {
-                            errorMessage = e.toString();
-                          });
-                        }
-                      } else {
-                        setState(() {
-                          errorMessage = "Please enter a 4-digit OTP";
-                        });
-                      }
-                    },
-                    text: "Verify",
-                  ),
+                          height: 50,
+                          onPressed: () async {
+                            if (otpCode.length == 6) {
+                              try {
+                                final response = await widget.provider
+                                    .verifyEmailApi({"otp": otpCode});
+                                if (response['status'] == true ||
+                                    response['status'] == 200) {
+                                  Navigator.pop(context);
+                                  Get.showToast(
+                                    "Email verified successfully",
+                                    type: ToastType.success,
+                                  );
+                                } else {
+                                  setState(() {
+                                    errorMessage =
+                                        response['message'] ?? "Invalid OTP";
+                                  });
+                                }
+                              } catch (e) {
+                                setState(() {
+                                  errorMessage = e.toString();
+                                });
+                              }
+                            } else {
+                              setState(() {
+                                errorMessage = "Please enter a 6-digit OTP";
+                              });
+                            }
+                          },
+                          text: "Verify",
+                        ),
                 ),
               ],
             ),

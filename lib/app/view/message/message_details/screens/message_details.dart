@@ -1,5 +1,3 @@
-
-
 import 'package:ozi/app/core/constants/app_urls.dart';
 import 'package:ozi/app/view/message/circular_profile_image.dart';
 
@@ -15,7 +13,7 @@ class MessageDetailsScreen extends StatefulWidget {
     super.key,
     required this.conversionId,
     this.messageForSend,
-    this.dataLink
+    this.dataLink,
   });
   final String conversionId;
   final String? messageForSend;
@@ -34,7 +32,11 @@ class _MessageDetailsScreenState extends State<MessageDetailsScreen> {
     if (kDebugMode) {
       print('conversion id is ${widget.conversionId}');
     }
-    messageDetailsProvider.changePageStatus(widget.conversionId,messageForSend: widget.messageForSend,dataLink: widget.dataLink);
+    messageDetailsProvider.changePageStatus(
+      widget.conversionId,
+      messageForSend: widget.messageForSend,
+      dataLink: widget.dataLink,
+    );
     messageDetailsProvider.receivePersonalMessage();
     messageDetailsProvider.startScrollListener();
     // messageDetailsProvider.focusNode.addListener(() {
@@ -52,7 +54,6 @@ class _MessageDetailsScreenState extends State<MessageDetailsScreen> {
 
     super.dispose();
   }
-
 
   // void _toggleEmojiPicker() {
   //   FocusScope.of(navigatorKey.currentContext!).unfocus();
@@ -95,126 +96,140 @@ class _MessageDetailsScreenState extends State<MessageDetailsScreen> {
         builder: (context, value, child) {
           switch (value.messageListData.status) {
             case ApiStatus.loading:
-            return Scaffold(
-    appBar: AppBar(
-      backgroundColor: Colors.white,
-      title: Row(
-        children: [
-          ShimmerBox(width: 45, height: 45, radius: 45),
-          SizedBox(width: 12),
-          ShimmerBox(width: 140, height: 20),
-        ],
-      ),
-    ),
-    body: Column(
-      children: [
-        Divider(height: 1),
-        Expanded(
-          child: ListView.builder(
-            padding: EdgeInsets.all(12),
-            itemCount: 12,
-            reverse: true,
-            itemBuilder: (context, index) {
-              bool isSender = index.isEven;
-
-              return Column(
-                crossAxisAlignment:
-                    isSender ? CrossAxisAlignment.end : CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment:
-                        isSender ? MainAxisAlignment.end : MainAxisAlignment.start,
+              return Scaffold(
+                appBar: AppBar(
+                  backgroundColor: Colors.white,
+                  title: Row(
                     children: [
-                      if (!isSender)
-                        Padding(
-                          padding: const EdgeInsets.only(right: 8),
-                          child: ShimmerBox(width: 32, height: 32, radius: 32),
-                        ),
-                      Container(
-                        padding: EdgeInsets.all(10),
-                        margin: EdgeInsets.symmetric(vertical: 8),
-                        decoration: BoxDecoration(
-                          color: Colors.grey.shade100,
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            ShimmerBox(
-                              width: Get.width() * 0.5,
-                              height: 14,
-                            ),
-                            SizedBox(height: 6),
-                            ShimmerBox(
-                              width: Get.width() * 0.35,
-                              height: 14,
-                            ),
-                          ],
-                        ),
-                      ),
+                      ShimmerBox(width: 45, height: 45, radius: 45),
+                      SizedBox(width: 12),
+                      ShimmerBox(width: 140, height: 20),
                     ],
                   ),
-                  Padding(
-                    padding: isSender
-                        ? const EdgeInsets.only(right: 10)
-                        : const EdgeInsets.only(left: 10),
-                    child: ShimmerBox(width: 60, height: 12, radius: 4),
-                  ),
-                ],
-              );
-            },
-          ),
-        ),
-
-        /// INPUT BAR SHIMMER
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 12),
-          child: Row(
-            children: [
-              Expanded(
-                child: ShimmerBox(
-                  width: double.infinity,
-                  height: 48,
-                  radius: 100,
                 ),
-              ),
-              SizedBox(width: 10),
-              ShimmerBox(width: 48, height: 48, radius: 100),
-            ],
-          ),
-        )
-      ],
-    ),
-  );
+                body: Column(
+                  children: [
+                    Divider(height: 1),
+                    Expanded(
+                      child: ListView.builder(
+                        padding: EdgeInsets.all(12),
+                        itemCount: 12,
+                        reverse: true,
+                        itemBuilder: (context, index) {
+                          bool isSender = index.isEven;
 
-              // return Scaffold(body: CustomLoader());
+                          return Column(
+                            crossAxisAlignment: isSender
+                                ? CrossAxisAlignment.end
+                                : CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                mainAxisAlignment: isSender
+                                    ? MainAxisAlignment.end
+                                    : MainAxisAlignment.start,
+                                children: [
+                                  if (!isSender)
+                                    Padding(
+                                      padding: const EdgeInsets.only(right: 8),
+                                      child: ShimmerBox(
+                                        width: 32,
+                                        height: 32,
+                                        radius: 32,
+                                      ),
+                                    ),
+                                  Container(
+                                    padding: EdgeInsets.all(10),
+                                    margin: EdgeInsets.symmetric(vertical: 8),
+                                    decoration: BoxDecoration(
+                                      color: Colors.grey.shade100,
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        ShimmerBox(
+                                          width: Get.width() * 0.5,
+                                          height: 14,
+                                        ),
+                                        SizedBox(height: 6),
+                                        ShimmerBox(
+                                          width: Get.width() * 0.35,
+                                          height: 14,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              Padding(
+                                padding: isSender
+                                    ? const EdgeInsets.only(right: 10)
+                                    : const EdgeInsets.only(left: 10),
+                                child: ShimmerBox(
+                                  width: 60,
+                                  height: 12,
+                                  radius: 4,
+                                ),
+                              ),
+                            ],
+                          );
+                        },
+                      ),
+                    ),
+
+                    /// INPUT BAR SHIMMER
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 15,
+                        vertical: 12,
+                      ),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: ShimmerBox(
+                              width: double.infinity,
+                              height: 48,
+                              radius: 100,
+                            ),
+                          ),
+                          SizedBox(width: 10),
+                          ShimmerBox(width: 48, height: 48, radius: 100),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              );
+
+            // return Scaffold(body: CustomLoader());
             case ApiStatus.completed:
               bool isGroup = (value.userData?.allParticipants?.length ?? 0) > 2;
               return Scaffold(
-                floatingActionButton:
-                    value.isNewMessageReceived
-                        ? Padding(
-                          padding: const EdgeInsets.only(bottom: 80.0),
-                          child: FloatingActionButton(
-                            onPressed: value.scrollToBottom,
-                            backgroundColor: AppColors.primary,
-                            child: Icon(
-                              Icons.arrow_downward,
-                              color: AppColors.white,
-                            ),
+                floatingActionButton: value.isNewMessageReceived
+                    ? Padding(
+                        padding: const EdgeInsets.only(bottom: 80.0),
+                        child: FloatingActionButton(
+                          onPressed: value.scrollToBottom,
+                          backgroundColor: AppColors.primary,
+                          child: Icon(
+                            Icons.arrow_downward,
+                            color: AppColors.white,
                           ),
-                        )
-                        : null,
+                        ),
+                      )
+                    : null,
                 appBar: AppBar(
                   scrolledUnderElevation: 0,
                   backgroundColor: AppColors.white,
                   leadingWidth: 23,
                   leading: InkWell(
-                    onTap: (){
+                    onTap: () {
                       Navigator.pop(context);
                     },
-                    child:Padding(padding: EdgeInsetsGeometry.only(left: 10),
-                    child: Icon(Icons.arrow_back_ios,color: Colors.black,),
+                    child: Padding(
+                      padding: EdgeInsetsGeometry.only(left: 10),
+                      child: Icon(Icons.arrow_back_ios, color: Colors.black),
                     ),
                   ),
                   // leading: InkWell(
@@ -230,8 +245,10 @@ class _MessageDetailsScreenState extends State<MessageDetailsScreen> {
                   title: Row(
                     children: [
                       CircularProfileImage(
-                          size: 45,
-                          imageUrl: '${AppUrls.imageBaseUrl}${value.userData?.conversationImage ?? ''}'),
+                        size: 45,
+                        imageUrl:
+                            '${AppUrls.imageBaseUrl}${value.userData?.conversationImage ?? ''}',
+                      ),
                       // CustomImage(
                       //   path: value.userData?.conversationImage ?? '',
                       //   // borderColor: Colors.transparent,
@@ -336,41 +353,42 @@ class _MessageDetailsScreenState extends State<MessageDetailsScreen> {
 
     bool isSent = msg.senderType == 'you';
     final align = isSent ? CrossAxisAlignment.end : CrossAxisAlignment.start;
-    final margin =
-        isSent
-            ? const EdgeInsets.only(left: 40, bottom: 0)
-            : const EdgeInsets.only(right: 40, bottom: 0);
-    final _ =
-        isSent
-            ? Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  Get.timeAgo(msg.createdAt ?? ''),
-                  style: AppFontStyle.text_14_300(AppColors.grey),
-                ),
-                SizedBox(width: 4),
-                Icon(
-                  Icons.done,
-                  size: 14,
-                  color: msg.status == 3 ? Colors.green : Colors.grey,
-                ),
-                // if (msg.status >= 2)
-                //   Icon(Icons.done, size: 14, color: msg.status == 3 ? Colors.green : Colors.grey),
-              ],
-            )
-            : Text(
-              Get.timeAgo(msg.createdAt ?? ''),
-              style: TextStyle(fontSize: 10, color: Colors.grey),
-            );
+    final margin = isSent
+        ? const EdgeInsets.only(left: 40, bottom: 0)
+        : const EdgeInsets.only(right: 40, bottom: 0);
+    final _ = isSent
+        ? Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                Get.timeAgo(msg.createdAt ?? ''),
+                style: AppFontStyle.text_14_300(AppColors.grey),
+              ),
+              SizedBox(width: 4),
+              Icon(
+                Icons.done,
+                size: 14,
+                color: msg.status == 3 ? Colors.green : Colors.grey,
+              ),
+              // if (msg.status >= 2)
+              //   Icon(Icons.done, size: 14, color: msg.status == 3 ? Colors.green : Colors.grey),
+            ],
+          )
+        : Text(
+            Get.timeAgo(msg.createdAt ?? ''),
+            style: TextStyle(fontSize: 10, color: Colors.grey),
+          );
 
     Widget content;
 
-    content = SizedBox(); //Text(msg.text??'',style: AppFontStyle.text_16_300(context.titleColor),maxLines: 200,);
+    content =
+        SizedBox(); //Text(msg.text??'',style: AppFontStyle.text_16_300(context.titleColor),maxLines: 200,);
 
-    switch (
-    msg.dataLink!=null? "link" : msg.fileUrl!.isEmpty
-        ? 'text' : getFileType(msg.fileUrl?[0] ?? '')) {
+    switch (msg.dataLink != null
+        ? "link"
+        : msg.fileUrl!.isEmpty
+        ? 'text'
+        : getFileType(msg.fileUrl?[0] ?? '')) {
       case 'text':
         content = Text(
           msg.text ?? '',
@@ -402,35 +420,29 @@ class _MessageDetailsScreenState extends State<MessageDetailsScreen> {
                 SizedBox(
                   width: Get.width() * 0.4,
                   height: 200,
-                  child:
-                      msg.mediaUploadLoading == true
-                          ? Container(
+                  child: msg.mediaUploadLoading == true
+                      ? Container(
+                          width: Get.width() * 0.4,
+                          height: 200,
+                          color: Colors.grey[300], // blank space placeholder
+                          child: Center(
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          ),
+                        )
+                      : CachedNetworkImage(
+                          imageUrl: msg.fileUrl?[0] ?? '',
+                          fit: BoxFit.fitWidth,
+                          placeholder: (context, url) => Container(
                             width: Get.width() * 0.4,
                             height: 200,
                             color: Colors.grey[300], // blank space placeholder
                             child: Center(
                               child: CircularProgressIndicator(strokeWidth: 2),
                             ),
-                          )
-                          : CachedNetworkImage(
-                            imageUrl: msg.fileUrl?[0] ?? '',
-                            fit: BoxFit.fitWidth,
-                            placeholder:
-                                (context, url) => Container(
-                                  width: Get.width() * 0.4,
-                                  height: 200,
-                                  color:
-                                      Colors
-                                          .grey[300], // blank space placeholder
-                                  child: Center(
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                    ),
-                                  ),
-                                ),
-                            errorWidget:
-                                (context, url, error) => Icon(Icons.error),
                           ),
+                          errorWidget: (context, url, error) =>
+                              Icon(Icons.error),
+                        ),
                 ),
                 if (msg.text != null) SizedBox(height: 5),
                 if (msg.text != null)
@@ -525,7 +537,11 @@ class _MessageDetailsScreenState extends State<MessageDetailsScreen> {
                     borderRadius: BorderRadius.circular(8),
                     child: CustomImage(path: '', width: 200, height: 200),
                   ),
-                  Icon(Icons.play_circle_fill, color: AppColors.white, size: 48),
+                  Icon(
+                    Icons.play_circle_fill,
+                    color: AppColors.white,
+                    size: 48,
+                  ),
                 ],
               ),
               SizedBox(height: 5),
@@ -540,7 +556,9 @@ class _MessageDetailsScreenState extends State<MessageDetailsScreen> {
         break;
 
       case 'audio':
-        content = Text('audio');//AudioMessageWidget(audioUrl: msg.fileUrl?[0] ?? '');
+        content = Text(
+          'audio',
+        ); //AudioMessageWidget(audioUrl: msg.fileUrl?[0] ?? '');
         break;
     }
 
@@ -553,24 +571,29 @@ class _MessageDetailsScreenState extends State<MessageDetailsScreen> {
         // _showReactionOverlay(context);
         _showMessageOptions(
           context: context,
-          index: index, provider: messageDetailsProvider, msgId: msg.sId??'',
-          msgText: msg.text, senderType: msg.senderType??''
+          index: index,
+          provider: messageDetailsProvider,
+          msgId: msg.sId ?? '',
+          msgText: msg.text,
+          senderType: msg.senderType ?? '',
           // isFile:
         );
       },
       child: Align(
         alignment: isSent ? Alignment.centerRight : Alignment.centerLeft,
         child: Column(
-          crossAxisAlignment:
-              isSent ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+          crossAxisAlignment: isSent
+              ? CrossAxisAlignment.end
+              : CrossAxisAlignment.start,
           children: [
             // Message bubble
             Column(
               crossAxisAlignment: align,
               children: [
                 Row(
-                  mainAxisAlignment:
-                      isSent ? MainAxisAlignment.end : MainAxisAlignment.start,
+                  mainAxisAlignment: isSent
+                      ? MainAxisAlignment.end
+                      : MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     if (isGroup && !isSent) ...[
@@ -587,7 +610,9 @@ class _MessageDetailsScreenState extends State<MessageDetailsScreen> {
                         margin: margin,
                         padding: const EdgeInsets.all(10),
                         decoration: BoxDecoration(
-                          color: isSent ? AppColors.blueShade : AppColors.greyShade,
+                          color: isSent
+                              ? AppColors.blueShade
+                              : AppColors.greyShade,
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: content,
@@ -605,7 +630,9 @@ class _MessageDetailsScreenState extends State<MessageDetailsScreen> {
                     child: Text(
                       msg.reactions!
                           .map((r) => r.reaction) // extract each reaction
-                          .where((r) => r != null && r.isNotEmpty) // filter out null/empty
+                          .where(
+                            (r) => r != null && r.isNotEmpty,
+                          ) // filter out null/empty
                           .join(' '), // join all reactions with space
                       style: const TextStyle(fontSize: 16),
                     ),
@@ -633,10 +660,10 @@ class _MessageDetailsScreenState extends State<MessageDetailsScreen> {
                       //     color: Colors.grey,
                       //   ),
                       // if (msg.status == 'seen')
-                        CustomImage(
-                          path: ImageConstants.pause,
-                          color: Colors.green,
-                        ),
+                      CustomImage(
+                        path: ImageConstants.pause,
+                        color: Colors.green,
+                      ),
                       if (msg.status == 'waiting') SizedBox.shrink(),
                     ],
                   ),
@@ -644,10 +671,9 @@ class _MessageDetailsScreenState extends State<MessageDetailsScreen> {
             ),
             const SizedBox(height: 2), // Space between bubble and time
             Padding(
-              padding:
-                  isSent
-                      ? const EdgeInsets.only(right: 10)
-                      : const EdgeInsets.only(left: 10),
+              padding: isSent
+                  ? const EdgeInsets.only(right: 10)
+                  : const EdgeInsets.only(left: 10),
               child: Text(
                 Get.timeAgo(msg.createdAt ?? ''),
                 style: AppFontStyle.text_14_300(AppColors.primary),
@@ -676,8 +702,6 @@ class _MessageDetailsScreenState extends State<MessageDetailsScreen> {
   //
   //   return widgets;
   // }
-
-
 
   String getFileType(String url) {
     // Convert to lowercase to make comparison case-insensitive
@@ -864,7 +888,11 @@ class _MessageDetailsScreenState extends State<MessageDetailsScreen> {
                           if (kDebugMode) {
                             print("emoji picked from popup : $emoji");
                           }
-                          provider.rectionOnMessage(widget.conversionId, emoji,msgId );
+                          provider.rectionOnMessage(
+                            widget.conversionId,
+                            emoji,
+                            msgId,
+                          );
                           // controller.reactionMsgChat(emoji, msgId, index);
                         },
                         child: Text(emoji, style: TextStyle(fontSize: 24)),
@@ -887,18 +915,20 @@ class _MessageDetailsScreenState extends State<MessageDetailsScreen> {
               ),
 
               Divider(color: Colors.grey),
-              if(msgText != null)
+              if (msgText != null)
                 _buildOption(context, "Copy", Icons.copy, () {
                   Navigator.pop(context);
                   // final String messageText =
                   // controller.msgListObj.data![index].message?.text message ??
                   // '';
                   Clipboard.setData(ClipboardData(text: msgText)).then((_) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text("Copied to clipboard")),
-                  );
-                });
-              }),
+                    //
+                    Get.showToast(
+                      "Copied to clipboard",
+                      type: ToastType.success,
+                    );
+                  });
+                }),
 
               // Message Options
               // if (controller.msgListObj.data![index].message?.file == null ||
@@ -914,11 +944,11 @@ class _MessageDetailsScreenState extends State<MessageDetailsScreen> {
               // _buildOption(context, "Edit", Icons.edit, () {}),
 
               // Delete Option
-              if(senderType == 'you')
-              _buildOption(context, "Delete", Icons.delete, () async {
-                Navigator.pop(context);
-                provider.deleteAMessage(msgId, widget.conversionId);
-              }, color: Colors.red),
+              if (senderType == 'you')
+                _buildOption(context, "Delete", Icons.delete, () async {
+                  Navigator.pop(context);
+                  provider.deleteAMessage(msgId, widget.conversionId);
+                }, color: Colors.red),
             ],
           ),
         );
@@ -965,17 +995,13 @@ class _MessageDetailsScreenState extends State<MessageDetailsScreen> {
               child: TextFormField(
                 controller: provider.controller,
                 focusNode: provider.focusNode,
-                style: AppFontStyle.text_18_400(
-                  AppColors.primary,
-                ),
+                style: AppFontStyle.text_18_400(AppColors.primary),
                 onTapOutside: (event) {
                   FocusManager.instance.primaryFocus!.unfocus();
                 },
                 decoration: InputDecoration(
                   hintText: "Type a message...",
-                  hintStyle: AppFontStyle.text_18_300(
-                    AppColors.hintText,
-                  ),
+                  hintStyle: AppFontStyle.text_18_300(AppColors.hintText),
                   border: InputBorder.none,
                   isDense: true,
 
@@ -1034,10 +1060,8 @@ class _MessageDetailsScreenState extends State<MessageDetailsScreen> {
                       //   ),
                       // ),
                       GestureDetector(
-                        onTap:
-                            () => provider.sendPersonalMessage(
-                              widget.conversionId,
-                            ),
+                        onTap: () =>
+                            provider.sendPersonalMessage(widget.conversionId),
                         child: Container(
                           width: 42,
                           height: 42,

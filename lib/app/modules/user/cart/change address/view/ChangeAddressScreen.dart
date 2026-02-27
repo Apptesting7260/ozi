@@ -21,8 +21,9 @@ class _ChangeAddressScreenState extends State<ChangeAddressScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final provider = context.read<ChangeAddressProvider>();
       provider.fetchUserAddresses();
-      provider
-          .useCurrentLocation(); // Default → current location fetched & selected
+      if (provider.selectedIndex == -1) {
+        provider.useCurrentLocation(); // Default only if nothing selected
+      }
     });
   }
 
@@ -64,14 +65,13 @@ class _ChangeAddressScreenState extends State<ChangeAddressScreen> {
                           // Saved addresses (if any)
                           ...List.generate(provider.addresses.length, (index) {
                             final address = provider.addresses[index];
-                            final uiIndex = index + 1; // 0 is current location
 
                             return Padding(
                               padding: const EdgeInsets.only(bottom: 12),
                               child: _addressTile(
                                 provider: provider,
-                                index: uiIndex,
-                                selected: provider.selectedIndex == uiIndex,
+                                index: index,
+                                selected: provider.selectedIndex == index,
                                 title: address.addressType ?? 'Other',
                                 tag: address.isDefault == 1 ? 'Default' : null,
                                 icon: provider.getIconForAddressType(

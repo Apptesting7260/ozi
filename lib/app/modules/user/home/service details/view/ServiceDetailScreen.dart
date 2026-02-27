@@ -1,5 +1,6 @@
 import 'package:ozi/app/modules/user/home/model/category_model.dart';
 import 'package:ozi/app/modules/user/navigation%20tab/view/navigation_tab_screen.dart';
+import 'package:ozi/app/modules/user/singleService/screen/singleservicescreen.dart';
 import '../../../../../core/appExports/app_export.dart';
 import '../../../../../core/constants/app_urls.dart';
 import '../../../../../shared/widgets/auth_guard.dart';
@@ -153,13 +154,14 @@ class ServiceDetailView extends StatelessWidget {
     final duration =
         '${serviceData.durationValue ?? 0} ${serviceData.durationType ?? 'Hours'}';
     final price = (serviceData.servicePrice ?? 0).toDouble();
+    final int serviceId = serviceData.id ?? 0;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // Vendor Header
         InkWell(
-          onTap: () async{
+          onTap: () async {
             final bool allowed = await AuthGuard.requireLogin(context);
 
             if (!allowed) return;
@@ -230,86 +232,92 @@ class ServiceDetailView extends StatelessWidget {
         ),
         hBox(16),
         // Service Details
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(12),
-              child: CachedNetworkImage(
-                imageUrl: getFullImageUrl(serviceData.serviceImage),
-                width: 100,
-                height: 100,
-                fit: BoxFit.cover,
-                placeholder: (_, __) => Container(
+        InkWell(
+          onTap: () async {
+            final result = await Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) =>
+                    singleServiceScreen(serviceId: serviceId, isCart: true),
+              ),
+            );
+            if (result == true) {
+              provider.refresh();
+            }
+          },
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: CachedNetworkImage(
+                  imageUrl: getFullImageUrl(serviceData.serviceImage),
                   width: 100,
                   height: 100,
-                  color: AppColors.lightGrey2,
-                ),
-                errorWidget: (_, __, ___) => Container(
-                  width: 100,
-                  height: 100,
-                  color: Colors.grey[200],
-                  child: Icon(Icons.image_not_supported),
+                  fit: BoxFit.cover,
+                  placeholder: (_, __) => Container(
+                    width: 100,
+                    height: 100,
+                    color: AppColors.lightGrey2,
+                  ),
+                  errorWidget: (_, __, ___) => Container(
+                    width: 100,
+                    height: 100,
+                    color: Colors.grey[200],
+                    child: Icon(Icons.image_not_supported),
+                  ),
                 ),
               ),
-            ),
-            wBox(16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    serviceData.serviceName ?? 'Service',
-                    style: AppFontStyle.text_16_600(
-                      AppColors.black,
-                      fontFamily: AppFontFamily.semiBold,
+              wBox(16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      serviceData.serviceName ?? 'Service',
+                      style: AppFontStyle.text_16_600(
+                        AppColors.black,
+                        fontFamily: AppFontFamily.semiBold,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
                     ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  hBox(4),
-                  Row(
-                    children: [
-                      Icon(
-                        Icons.access_time,
-                        size: 14,
-                        color: AppColors.lightGrey3,
-                      ),
-                      wBox(4),
-                      Text(
-                        duration,
-                        style: AppFontStyle.text_12_400(AppColors.lightGrey3),
-                      ),
-                    ],
-                  ),
-                  hBox(12),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        '\$${price.toStringAsFixed(2)}',
-                        style: AppFontStyle.text_18_600(
-                          AppColors.primary,
-                          fontFamily: AppFontFamily.bold,
+                    hBox(4),
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.access_time,
+                          size: 14,
+                          color: AppColors.lightGrey3,
                         ),
-                      ),
-                      provider.isInCart(serviceData.id ?? 0)
-                          ? _buildCounter(
-                              serviceData.id ?? 0,
-                              provider,
-                              context,
-                            )
-                          : _buildAddButton(
-                              serviceData.id ?? 0,
-                              provider,
-                              context,
-                            ),
-                    ],
-                  ),
-                ],
+                        wBox(4),
+                        Text(
+                          duration,
+                          style: AppFontStyle.text_12_400(AppColors.lightGrey3),
+                        ),
+                      ],
+                    ),
+                    hBox(12),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          '\$${price.toStringAsFixed(2)}',
+                          style: AppFontStyle.text_18_600(
+                            AppColors.primary,
+                            fontFamily: AppFontFamily.bold,
+                          ),
+                        ),
+                        provider.isInCart(serviceId)
+                            ? _buildCounter(serviceId, provider, context)
+                            : _buildAddButton(serviceId, provider, context),
+                      ],
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
         hBox(16),
         // Description
@@ -324,7 +332,7 @@ class ServiceDetailView extends StatelessWidget {
 
   Widget _buildViewButton(BuildContext context, ServiceData serviceData) {
     return InkWell(
-      onTap: () async{
+      onTap: () async {
         final bool allowed = await AuthGuard.requireLogin(context);
 
         if (!allowed) return;
@@ -438,9 +446,9 @@ class ServiceDetailView extends StatelessWidget {
       borderRadius: BorderRadius.circular(20),
       color: AppColors.primary,
       onPressed: () async {
-          final bool allowed = await AuthGuard.requireLogin(context);
+        final bool allowed = await AuthGuard.requireLogin(context);
 
-          if (!allowed) return;
+        if (!allowed) return;
         try {
           await provider.addToCart(serviceId);
         } catch (e) {
@@ -477,12 +485,16 @@ class ServiceDetailView extends StatelessWidget {
               try {
                 await provider.decrementQuantity(serviceId);
               } catch (e) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text('Failed to update quantity'),
-                    backgroundColor: Colors.red,
-                  ),
+                Get.showToast(
+                  "Failed to update quantity",
+                  type: ToastType.error,
                 );
+                // ScaffoldMessenger.of(context).showSnackBar(
+                //   SnackBar(
+                //     content: Text('Failed to update quantity'),
+                //     backgroundColor: Colors.red,
+                //   ),
+                // );
               }
             },
             child: Padding(
@@ -504,11 +516,9 @@ class ServiceDetailView extends StatelessWidget {
               try {
                 await provider.incrementQuantity(serviceId);
               } catch (e) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text('Failed to update quantity'),
-                    backgroundColor: Colors.red,
-                  ),
+                Get.showToast(
+                  "Failed to update quantity",
+                  type: ToastType.error,
                 );
               }
             },

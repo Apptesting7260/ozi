@@ -331,10 +331,11 @@ class LoginProvider extends ChangeNotifier {
 
   OtpSession? get otpSession => _otpSession;
 
-
   Future<bool> sendOtp(String phone) async {
     final Completer<bool> completer = Completer();
 
+    _isLoading = true;
+    errorMessageFirebase = null; // Clear any previous error
     notifyListeners();
     print("inside send otp 1");
 
@@ -344,29 +345,48 @@ class LoginProvider extends ChangeNotifier {
       verificationCompleted: (PhoneAuthCredential credential) async {
         try {
           await _auth.signInWithCredential(credential);
-        } catch (_) {}
+          print("otp send sucessully : $credential");
+        } catch (e) {
+          print("otp send sucessully catch : $credential");
+          print("otp send sucessully catch : ${e.toString()}");
+        }
       },
 
       verificationFailed: (FirebaseAuthException e) {
-        _isLoading = false;
-        errorMessageFirebase = mapFirebaseError(e, flow: AuthFlowType.sendOtp);
-        notifyListeners();
-        completer.complete(false);
+        // Only handle if codeSent hasn't already resolved this request
+        if (!completer.isCompleted) {
+          _isLoading = false;
+          errorMessageFirebase = mapFirebaseError(
+            e,
+            flow: AuthFlowType.sendOtp,
+          );
+          notifyListeners();
+          completer.complete(false);
+        } else {
+          // codeSent already fired — OTP was delivered, ignore this late error
+          print(
+            "verificationFailed fired after codeSent — ignoring: ${e.message}",
+          );
+        }
       },
 
       codeSent: (String verId, int? resendToken) {
-        verificationId = verId;
+        // Only handle if verificationFailed hasn't already resolved this request
+        if (!completer.isCompleted) {
+          verificationId = verId;
 
-        // Create OTP session (60s expiry)
-        _otpSession = OtpSession(
-          verificationId: verId,
-          sentAt: DateTime.now(),
-          validFor: const Duration(seconds: 60),
-        );
+          // Create OTP session (60s expiry)
+          _otpSession = OtpSession(
+            verificationId: verId,
+            sentAt: DateTime.now(),
+            validFor: const Duration(seconds: 60),
+          );
 
-        _isLoading = false;
-        notifyListeners();
-        completer.complete(true);
+          _isLoading = false;
+          errorMessageFirebase = null; // Ensure no stale error
+          notifyListeners();
+          completer.complete(true);
+        }
       },
 
       codeAutoRetrievalTimeout: (String verId) {
@@ -607,39 +627,46 @@ class LoginProvider extends ChangeNotifier {
       // Only interact with context if widget is still mounted
       if (context.mounted) {
         if (value['status'] == true) {
-          await UserPreference.saveToken(value['accessToken']);
-          await UserPreference.saveUserId(value['user']['id']);
-          await UserPreference.saveRefreshToken(value['user']['refreshToken']);
+          // Extract nested data from the response
+          final data = value['data'] ?? {};
+          final user = data['user'] ?? {};
+          final String apiToken = data['api_token']?.toString() ?? '';
+          final String userId = user['id']?.toString() ?? '';
+          final String? userRole = user['user_role']?.toString();
+          final int stepCompleted = (user['step_completed'] is int)
+              ? user['step_completed']
+              : int.tryParse(user['step_completed']?.toString() ?? '0') ?? 0;
+
+          await UserPreference.saveToken(apiToken);
+          await UserPreference.saveUserId(userId);
           await UserPreference.saveLoginStatus(true);
           if (navigatorKey.currentContext!.mounted) {
-            if (value['stepCompleted'] == '0') {
+            if (stepCompleted == 0 || userRole == null) {
               Navigator.pushReplacement(
                 navigatorKey.currentContext!,
                 MaterialPageRoute(
-                  builder: (_) => ChooseRoleScreen(userId: value['user']['id']),
+                  builder: (_) => ChooseRoleScreen(
+                    userId: userId,
+                    firstName: user['first_name']?.toString(),
+                    lastName: user['last_name']?.toString(),
+                    email: user['email']?.toString(),
+                  ),
                 ),
               );
-            }
-            // else if (value['stepCompleted'] == '1'){
-            //
-            // }
-            else if (value['stepCompleted'] == '1' &&
-                value['role'] == 'vendor') {
-              await saveLogin(value['role'], value['token']);
+            } else if (stepCompleted == 1 && userRole == 'vendor') {
+              await saveLogin(userRole, apiToken);
               Navigator.push(
                 navigatorKey.currentContext!,
                 MaterialPageRoute(builder: (_) => ServiceCategory()),
               );
-            } else if (value['stepCompleted'] == '2' &&
-                value['role'] == 'vendor') {
-              await saveLogin(value['role'], value['token']);
+            } else if (stepCompleted == 2 && userRole == 'vendor') {
+              await saveLogin(userRole, apiToken);
               Navigator.push(
                 navigatorKey.currentContext!,
                 MaterialPageRoute(builder: (_) => SetAvailabilityScreen(false)),
               );
-            } else if (value['stepCompleted'] == '3' &&
-                value['role'] == 'vendor') {
-              await saveLogin(value['role'], value['token']);
+            } else if (stepCompleted == 3 && userRole == 'vendor') {
+              await saveLogin(userRole, apiToken);
               Navigator.push(
                 navigatorKey.currentContext!,
                 MaterialPageRoute(
@@ -647,24 +674,20 @@ class LoginProvider extends ChangeNotifier {
                       IdentityVerificationScreen(isFromProfile: false),
                 ),
               );
+            } else {
+              loginWithSaveTokenRedirection(userRole, apiToken);
             }
-
-            Get.showToast(
-              value['message']?.toString() ?? 'Login Successfully',
-              type: ToastType.success,
-            );
-
-            // if (value['user']['is_profile_completed'] == true) {
-            //   Get.offAllNamed(Routes.home);
-            // } else {
-            //   Get.offAllNamed(Routes.completeProfile);
-            // }
-          } else {
-            Get.showToast(
-              value['message']?.toString() ?? 'Failed to login',
-              type: ToastType.error,
-            );
           }
+
+          Get.showToast(
+            value['message']?.toString() ?? 'Login Successfully',
+            type: ToastType.success,
+          );
+        } else {
+          Get.showToast(
+            value['message']?.toString() ?? 'Failed to login',
+            type: ToastType.error,
+          );
         }
       }
     } catch (error) {

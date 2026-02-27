@@ -400,11 +400,15 @@ class _singleServiceScreenState extends State<singleServiceScreen> {
               try {
                 await provider.decrementQuantity(serviceId);
               } catch (e) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Failed to update quantity'),
-                    backgroundColor: Colors.red,
-                  ),
+                // ScaffoldMessenger.of(context).showSnackBar(
+                //   const SnackBar(
+                //     content: Text('Failed to update quantity'),
+                //     backgroundColor: Colors.red,
+                //   ),
+                // );
+                Get.showToast(
+                  "Failed to update quantity",
+                  type: ToastType.error,
                 );
               }
             },
@@ -427,11 +431,15 @@ class _singleServiceScreenState extends State<singleServiceScreen> {
               try {
                 await provider.incrementQuantity(serviceId);
               } catch (e) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Failed to update quantity'),
-                    backgroundColor: Colors.red,
-                  ),
+                // ScaffoldMessenger.of(context).showSnackBar(
+                //   const SnackBar(
+                //     content: Text('Failed to update quantity'),
+                //     backgroundColor: Colors.red,
+                //   ),
+                // );
+                Get.showToast(
+                  "Failed to update quantity",
+                  type: ToastType.error,
                 );
               }
             },

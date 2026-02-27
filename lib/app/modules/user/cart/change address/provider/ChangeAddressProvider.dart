@@ -75,6 +75,10 @@ class ChangeAddressProvider extends ChangeNotifier {
 
   // ---------------- SELECT ----------------
   void selectAddress(int index) {
+    if (index == -2) {
+      selectCurrentLocation();
+      return;
+    }
     _isUsingCurrentLocation = false;
     if (index >= 0 && index < _addresses.length) {
       _selectedIndex = index;

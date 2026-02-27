@@ -58,9 +58,10 @@ class ProfileProvider extends ChangeNotifier {
         notifyListeners();
 
         if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(_errorMessage), backgroundColor: Colors.red),
-          );
+          // ScaffoldMessenger.of(context).showSnackBar(
+          //   SnackBar(content: Text(_errorMessage), backgroundColor: Colors.red),
+          // );
+          Get.showToast(_errorMessage, type: ToastType.error);
         }
       }
     } catch (e) {
@@ -69,10 +70,7 @@ class ProfileProvider extends ChangeNotifier {
       notifyListeners();
 
       if (context.mounted) {
-        Get.showToast(
-          e.toString(),
-          type: ToastType.error,
-        );
+        Get.showToast(e.toString(), type: ToastType.error);
       }
     }
   }
@@ -108,7 +106,6 @@ class ProfileProvider extends ChangeNotifier {
   //   }
   // }
   Future<void> fetchUserProfile() async {
-
     // 🔐 STEP 1: Check token first
     final token = await UserPreference.returnAccessToken();
     if (token == null || token.isEmpty) {
@@ -130,19 +127,14 @@ class ProfileProvider extends ChangeNotifier {
       notifyListeners();
 
       if (_userProfile?.status != true) {
-        _errorMessage =
-            _userProfile?.message ?? 'Failed to fetch profile';
+        _errorMessage = _userProfile?.message ?? 'Failed to fetch profile';
         notifyListeners();
       }
     } catch (e) {
       _isProfileLoading = false;
-      _errorMessage =
-          e.toString().replaceAll('Exception: ', '');
+      _errorMessage = e.toString().replaceAll('Exception: ', '');
 
-      Get.showToast(
-        _errorMessage,
-        type: ToastType.error,
-      );
+      Get.showToast(_errorMessage, type: ToastType.error);
 
       notifyListeners();
     }

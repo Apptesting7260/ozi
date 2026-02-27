@@ -534,12 +534,7 @@ class MyBookingsScreen extends StatelessWidget {
           ),
         );
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text("Failed to load booking details"),
-            backgroundColor: AppColors.red,
-          ),
-        );
+        Get.showToast("Failed to load booking details", type: ToastType.error);
       }
     }
 
