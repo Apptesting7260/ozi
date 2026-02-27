@@ -453,14 +453,17 @@ class _VendorHomeScreenState extends State<VendorHomeScreen> {
           ),
         ),
 
-        GestureDetector(
-          onTap:newRequestLength == 1 ? (){} :() {
+        newRequestLength != null && newRequestLength >= 2
+            ? GestureDetector(
+          onTap: () {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (_) => const NewRequestsScreen()),
+              MaterialPageRoute(
+                builder: (_) => const NewRequestsScreen(),
+              ),
             );
           },
-          child: newRequestLength == 1 ? SizedBox.shrink() : Row(
+          child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
@@ -468,10 +471,15 @@ class _VendorHomeScreenState extends State<VendorHomeScreen> {
                 style: AppFontStyle.text_14_500(AppColors.primary),
               ),
               const SizedBox(width: 4),
-              Icon(Icons.arrow_forward_ios, size: 14, color: AppColors.primary),
+              Icon(
+                Icons.arrow_forward_ios,
+                size: 14,
+                color: AppColors.primary,
+              ),
             ],
           ),
-        ),
+        )
+            : const SizedBox.shrink(),
       ],
     );
   }

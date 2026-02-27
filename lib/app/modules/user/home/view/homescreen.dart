@@ -27,6 +27,7 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
+       // context.read<AuthProvider>().loadStatus();
         context.read<ProfileProvider>().fetchUserProfile();
         context.read<HomeScreenProvider>().loadOnce();
       }
@@ -46,6 +47,7 @@ class HomeScreenView extends StatelessWidget {
   Widget build(BuildContext context) {
     final provider = context.watch<HomeScreenProvider>();
     // final profileProvider = context.watch<ProfileProvider>();
+    final isLoggedIn = context.watch<AuthGuestProvider>().isLoggedIn;
 
     return Scaffold(
       body: SafeArea(
@@ -66,7 +68,7 @@ class HomeScreenView extends StatelessWidget {
                   hBox(8),
                   _buildServiceGrid(context, provider),
                   hBox(10),
-                  _buildBecomeProviderCard(context, provider),
+                  isLoggedIn ? SizedBox.shrink() :_buildBecomeProviderCard(context, provider),
                   hBox(10),
                 ],
               ),
@@ -78,6 +80,15 @@ class HomeScreenView extends StatelessWidget {
   }
 
   Widget _buildHeader(BuildContext context, HomeScreenProvider provider) {
+    final isLoggedIn = context.watch<AuthGuestProvider>().isLoggedIn;
+    final profile = context.watch<ProfileProvider>();
+    final firstName = profile.firstName;
+
+    final displayName = (isLoggedIn &&
+        firstName != null &&
+        firstName.trim().isNotEmpty)
+        ? firstName
+        : "Guest";
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -93,7 +104,7 @@ class HomeScreenView extends StatelessWidget {
                       style: AppFontStyle.text_24_500(AppColors.black),
                     ),
                     TextSpan(
-                      text: context.watch<ProfileProvider>().firstName,
+                      text: displayName,
                       style: AppFontStyle.text_24_600(
                         AppColors.black,
                         fontFamily: AppFontFamily.bold,

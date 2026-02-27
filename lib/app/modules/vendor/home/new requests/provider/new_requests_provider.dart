@@ -59,50 +59,75 @@ class NewRequestsProvider extends ChangeNotifier {
     }
   }
 
-  bool _acceptRejectLoading = false;
-  bool get acceptRejectLoading => _acceptRejectLoading;
-  updateAcceptLoading(bool value,String bookingId,String status){
-    _acceptRejectLoading = value;
-    _requestModel.data?.requests?.forEach((e){
-      if(status=='accept'){
-        e.isLoadingAccept = value;
-      }else{
-        e.isLoadingReject = value;
-      }
-    });
-    notifyListeners();
-  }
+  final Set<String> _loadingBookings = {};
+
+  bool isBookingLoading(String bookingId) =>
+      _loadingBookings.contains(bookingId);
+
+
+
 
   String? currentBookingId;
   String? currentAction;
 
 
-  Future<void> acceptOrRejectRequest(String status,String bookingId)async {
-    if(_acceptRejectLoading) return;
-    currentBookingId = bookingId;
-    currentAction = status;
-    updateAcceptLoading(true,bookingId,status);
+  Future<bool> acceptOrRejectRequest(
+      String action,
+      String bookingId,
+      ) async {
+    if (_loadingBookings.contains(bookingId)) return false;
+
+    final requests = _requestModel.data?.requests;
+    if (requests == null) return false;
+
+    final index =
+    requests.indexWhere((e) => e.bookingId == bookingId);
+
+    if (index == -1) return false;
+
+    final request = requests[index];
+
+    // Start loading for this specific booking
+    _loadingBookings.add(bookingId);
+
+    if (action == 'accept') {
+      request.isLoadingAccept = true;
+    } else {
+      request.isLoadingReject = true;
+    }
+
+    notifyListeners();
+
     try {
-      final response = await _apiService.postApi({
-        "booking_id" : bookingId,
-        "action" : status
-      },AppUrls.acceptRejectBooking);
-      if (kDebugMode) {
-        print(response);
-      }
-      _requestModel.data?.requests?.forEach((e){
-        if(e.bookingId==bookingId){
-          e.status = status;
-        }
-      });
-      updateAcceptLoading(false,bookingId,status);
-      currentBookingId = null;
-      currentAction = null;
+      await _apiService.postApi(
+        {
+          "booking_id": bookingId,
+          "action": action,
+        },
+        AppUrls.acceptRejectBooking,
+      );
+
+      // Stop loading
+      request.isLoadingAccept = false;
+      request.isLoadingReject = false;
+
+      // Update status locally
+      request.status =
+      action == 'accept' ? 'confirmed' : 'rejected';
+
+      _loadingBookings.remove(bookingId);
+      notifyListeners();
+
+      return true;
     } catch (e) {
-      updateAcceptLoading(false,bookingId,status);
-      currentBookingId = null;
-      currentAction = null;
+      request.isLoadingAccept = false;
+      request.isLoadingReject = false;
+
+      _loadingBookings.remove(bookingId);
+      notifyListeners();
+
       Get.showToast(e.toString(), type: ToastType.error);
+      return false;
     }
   }
 

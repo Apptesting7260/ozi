@@ -66,7 +66,6 @@ class ServiceCategory extends StatelessWidget {
 
               ApiStatus.error =>
               const Center(child: Text('Something went wrong')),
-
               _ =>
               const SizedBox.shrink(),
             },

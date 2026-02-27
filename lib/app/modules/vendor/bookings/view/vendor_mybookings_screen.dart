@@ -2,6 +2,7 @@ import 'package:ozi/app/core/appExports/app_export.dart';
 import 'package:ozi/app/core/constants/app_urls.dart';
 import '../../../../data/models/all_bookings_model.dart';
 import '../../../../data/response/api_status.dart';
+import '../../home/new requests/provider/new_requests_provider.dart';
 import '../booking details/view/vendor_booking_details_screen.dart';
 import '../provider/vendor_mybookings_provider.dart';
 
@@ -23,6 +24,8 @@ class _MyBookingsContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<VendorMybookingsProvider>();
+    final newRequestProvider = context.watch<NewRequestsProvider>();
+
 
     return Scaffold(
       body: SafeArea(
@@ -111,6 +114,8 @@ class _MyBookingsContent extends StatelessWidget {
                                 ),
                               );
                             },
+                            onAccept: () =>  newRequestProvider.acceptOrRejectRequest('accept',booking.bookingCode??''),
+                            onReject:() =>  newRequestProvider.acceptOrRejectRequest('reject',booking.bookingCode??''),
                           );
                         },
                       ),
@@ -135,14 +140,19 @@ class _MyBookingsContent extends StatelessWidget {
 class _BookingCard extends StatelessWidget {
   final AllBookingsModelData booking;
   final VoidCallback onTap;
+  final VoidCallback onAccept;
+  final VoidCallback onReject;
 
    const _BookingCard({
     required this.booking,
     required this.onTap,
+     required this.onAccept,
+     required this.onReject,
   });
 
   @override
   Widget build(BuildContext context) {
+
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -257,10 +267,42 @@ class _BookingCard extends StatelessWidget {
              Divider(color: AppColors.darkDividerColor),
              SizedBox(height: 8),
 
-            Text(
-              "\$${booking.total??''}",
-              style:  AppFontStyle.text_16_500(AppColors.primary, fontFamily: AppFontFamily.medium),
-            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  "\$${booking.total ?? ''}",
+                  style: AppFontStyle.text_16_500(
+                    AppColors.primary,
+                    fontFamily: AppFontFamily.medium,
+                  ),
+                ),
+
+                if (booking.status == 'pending')
+                  Row(
+                    children: [
+                      CustomButton(
+                        height: 30,
+                        width: 80,
+                        text: "Reject",
+                        textStyle: AppFontStyle.text_14_500(AppColors.white),
+                        color: AppColors.red,
+                        onPressed: onReject,
+                      ),
+
+                      const SizedBox(width: 8),
+
+                      CustomButton(
+                        height: 30,
+                        width: 80,
+                        text: "Accept",
+                        onPressed: onAccept,
+                      ),
+                    ],
+                  ),
+              ],
+            )
+
           ],
         ),
       ),
@@ -285,6 +327,7 @@ class _InfoRowInline extends StatelessWidget {
           text,
           style:  TextStyle(fontSize: 12, color: AppColors.grey),
         ),
+
       ],
     );
   }

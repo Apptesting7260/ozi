@@ -20,3 +20,19 @@ class AuthGuard {
     return false;
   }
 }
+
+class AuthGuestProvider extends ChangeNotifier {
+  bool _isLoggedIn = false;
+
+  bool get isLoggedIn => _isLoggedIn;
+
+  Future<void> loadStatus() async {
+    _isLoggedIn = await UserPreference.returnIsLoggedIn() ?? false;
+    notifyListeners();
+  }
+
+  void updateLogin(bool value) {
+    _isLoggedIn = value;
+    notifyListeners();
+  }
+}

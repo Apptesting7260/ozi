@@ -158,6 +158,272 @@ class VendorHomeProvider extends ChangeNotifier {
   }
 
 
+  // latest code
+
+  // void _showPopup(BuildContext context) {
+  //   showDialog(
+  //     context: context,
+  //     barrierDismissible: false,
+  //     builder: (BuildContext context) {
+  //       return WillPopScope(
+  //         onWillPop: () async => false,
+  //         child: Dialog(
+  //           backgroundColor: Colors.transparent,
+  //           child: Container(
+  //             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 28),
+  //             decoration: BoxDecoration(
+  //               color:  Color.fromRGBO(207, 209, 212, 1), // light grey background
+  //               borderRadius: BorderRadius.circular(24),
+  //             ),
+  //             child: Column(
+  //               mainAxisSize: MainAxisSize.min,
+  //               children: [
+  //
+  //
+  //                 Text(
+  //                     "Service Unavailable",
+  //                     textAlign: TextAlign.center,
+  //                     style: AppFontStyle.text_22_600( Color.fromRGBO(28, 29, 33, 1))
+  //
+  //                 ),
+  //
+  //                 const SizedBox(height: 12),
+  //
+  //
+  //                 Text(
+  //                     "Please Add Service and refresh",
+  //                     textAlign: TextAlign.center,
+  //                     style:AppFontStyle.text_16_300( Color.fromRGBO(112, 108, 108, 1))
+  //
+  //                 ),
+  //
+  //                 const SizedBox(height: 28),
+  //
+  //
+  //                 Row(
+  //                   children: [
+  //
+  //
+  //                     Expanded(
+  //                       child: GestureDetector(
+  //                         onTap: () {
+  //                           if (kDebugMode) {
+  //                             print("Add pressed");
+  //                           }
+  //
+  //                           Navigator.push(
+  //                             context,
+  //                             MaterialPageRoute(
+  //                               builder: (context) =>
+  //                                   ServiceDetailsScreen(null, "Add Service"),
+  //                             ),
+  //                           ).then((value) {
+  //                             if (value == true) {
+  //                               Navigator.of(context).pop();
+  //                               getHomeData();
+  //                             }
+  //                           });
+  //                         },
+  //                         child: Container(
+  //                           height: 48,
+  //                           alignment: Alignment.center,
+  //                           decoration: BoxDecoration(
+  //                             borderRadius: BorderRadius.circular(30),
+  //                             border: Border.all(
+  //                               color: Colors.grey.shade400,
+  //                             ),
+  //                           ),
+  //                           child:  Text(
+  //                               "Add",
+  //                               style:AppFontStyle.text_16_600( Color.fromRGBO(112, 108, 108, 1))
+  //
+  //                           ),
+  //                         ),
+  //                       ),
+  //                     ),
+  //
+  //                     const SizedBox(width: 16),
+  //
+  //
+  //                     Expanded(
+  //                       child: GestureDetector(
+  //                         onTap: () {
+  //                           if (kDebugMode) {
+  //                             print("Refresh pressed");
+  //                           }
+  //                           Navigator.of(context).pop();
+  //                           getHomeData();
+  //                         },
+  //                         child: Container(
+  //                           height: 48,
+  //                           alignment: Alignment.center,
+  //                           decoration: BoxDecoration(
+  //                             color: AppColors.primary,
+  //                             borderRadius: BorderRadius.circular(30),
+  //                           ),
+  //                           child:  Text(
+  //                               "Refresh",
+  //                               style:AppFontStyle.text_16_600( Color.fromRGBO(255, 255, 255, 1))
+  //
+  //                           ),
+  //                         ),
+  //                       ),
+  //                     ),
+  //                   ],
+  //                 ),
+  //               ],
+  //             ),
+  //           ),
+  //         ),
+  //       );
+  //     },
+  //   );
+  // }
+  //
+  // Future<void> showLocationPopup(BuildContext context) async {
+  //   bool isAlreadyOpen = false;
+  //   Navigator.popUntil(context, (route) {
+  //     if (route.settings.name == 'location_popup') {
+  //       isAlreadyOpen = true;
+  //     }
+  //     return true;
+  //   });
+  //
+  //   if (isAlreadyOpen) return;
+  //
+  //   await showDialog(
+  //     context: context,
+  //     barrierDismissible: false,
+  //     builder: (context) {
+  //       return WillPopScope(
+  //         onWillPop: () async => false,
+  //         child: Dialog(
+  //           child: Container(
+  //             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 28),
+  //             decoration: BoxDecoration(
+  //               borderRadius: BorderRadius.circular(24),
+  //             ),
+  //             child: Column(
+  //               mainAxisSize: MainAxisSize.min,
+  //               children: [
+  //
+  //                 Text(
+  //                     'Location Required',
+  //                     textAlign: TextAlign.center,
+  //                     style: AppFontStyle.text_22_600( Color.fromRGBO(28, 29, 33, 1))
+  //                 ),
+  //
+  //                 const SizedBox(height: 12),
+  //
+  //
+  //                 Text(
+  //                     'Vendor location not available.\nPlease update your location.',
+  //                     textAlign: TextAlign.center,
+  //                     style:AppFontStyle.text_16_300( Color.fromRGBO(112, 108, 108, 1))
+  //                 ),
+  //
+  //                 const SizedBox(height: 28),
+  //
+  //
+  //                 Row(
+  //                   children: [
+  //
+  //                     Expanded(
+  //                       child: GestureDetector(
+  //                         onTap: () {
+  //                           Navigator.of(context).pop();
+  //                         },
+  //                         child: Container(
+  //                           height: 48,
+  //                           alignment: Alignment.center,
+  //                           decoration: BoxDecoration(
+  //                             color: Colors.transparent,
+  //                             borderRadius: BorderRadius.circular(30),
+  //                             border: Border.all(
+  //                               color: Colors.grey.shade400,
+  //                             ),
+  //                           ),
+  //                           child:  Text(
+  //                               'Cancel',
+  //                               style:AppFontStyle.text_16_600( Color.fromRGBO(112, 108, 108, 1))
+  //
+  //                           ),
+  //                         ),
+  //                       ),
+  //                     ),
+  //
+  //                     const SizedBox(width: 16),
+  //
+  //
+  //                     Expanded(
+  //                       child: GestureDetector(
+  //                         onTap: () async {
+  //                           try {
+  //                             final LatLng? result =
+  //                             await Navigator.pushNamed(
+  //                               context,
+  //                               '/locationPickerScreen',
+  //                             ) as LatLng?;
+  //
+  //                             if (result != null) {
+  //                               await updateLocationFromLatLng(result);
+  //                               Navigator.of(context).pop();
+  //                               await getHomeData();
+  //                             }
+  //                           } catch (e) {
+  //                             Get.showToast(e.toString(),
+  //                                 type: ToastType.error);
+  //                           }
+  //                         },
+  //                         child: Container(
+  //                           height: 48,
+  //                           alignment: Alignment.center,
+  //                           decoration: BoxDecoration(
+  //                             color: AppColors.primary, // green button
+  //                             borderRadius: BorderRadius.circular(30),
+  //                           ),
+  //                           child:  Text(
+  //                               'Update',
+  //                               style:AppFontStyle.text_16_600( Color.fromRGBO(255, 255, 255, 1))
+  //
+  //                           ),
+  //                         ),
+  //                       ),
+  //                     ),
+  //                   ],
+  //                 ),
+  //               ],
+  //             ),
+  //           ),
+  //         ),
+  //       );
+  //     },
+  //   );
+  // }
+
+// // Helper function to get current location
+//   Future<Position> _determinePosition() async {
+//     bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+//     if (!serviceEnabled) {
+//       return Future.error('Location services are disabled.');
+//     }
+//
+//     LocationPermission permission = await Geolocator.checkPermission();
+//     if (permission == LocationPermission.denied) {
+//       permission = await Geolocator.requestPermission();
+//       if (permission == LocationPermission.denied) {
+//         return Future.error('Location permissions are denied');
+//       }
+//     }
+//
+//     if (permission == LocationPermission.deniedForever) {
+//       return Future.error(
+//           'Location permissions are permanently denied, we cannot request permissions.');
+//     }
+//
+//     return await Geolocator.getCurrentPosition();
+//   }
+
   void _showPopup(BuildContext context) {
     showDialog(
       context: context,
@@ -208,9 +474,6 @@ class VendorHomeProvider extends ChangeNotifier {
     );
   }
 
-
-
-
   Future<void> showLocationPopup(BuildContext context) async {
     // Prevent showing multiple times by checking the top route
     bool isAlreadyOpen = false;
@@ -235,25 +498,6 @@ class VendorHomeProvider extends ChangeNotifier {
             content: const Text(
                 'Vendor location not available. Please update your location.'),
             actions: [
-              // ElevatedButton(
-              //   onPressed: () async {
-              //     try {
-              //       // // Get current location
-              //       // Position position = await _determinePosition();
-              //       // if (kDebugMode) {
-              //       //   print('Lat: ${position.latitude}, Lng: ${position.longitude}');
-              //       // }
-              //       // updateLocation(position);
-              //       // Navigator.of(context).pop();
-              //
-              //       Navigator.pushNamed(context, '/locationPickerScreen');
-              //       Navigator.of(context).pop();
-              //     } catch (e) {
-              //       Get.showToast(e.toString(), type: ToastType.error);
-              //     }
-              //   },
-              //   child: const Text('Update'),
-              // ),
               ElevatedButton(
                 onPressed: () async {
                   try {
@@ -286,29 +530,6 @@ class VendorHomeProvider extends ChangeNotifier {
       },
     );
   }
-
-// // Helper function to get current location
-//   Future<Position> _determinePosition() async {
-//     bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
-//     if (!serviceEnabled) {
-//       return Future.error('Location services are disabled.');
-//     }
-//
-//     LocationPermission permission = await Geolocator.checkPermission();
-//     if (permission == LocationPermission.denied) {
-//       permission = await Geolocator.requestPermission();
-//       if (permission == LocationPermission.denied) {
-//         return Future.error('Location permissions are denied');
-//       }
-//     }
-//
-//     if (permission == LocationPermission.deniedForever) {
-//       return Future.error(
-//           'Location permissions are permanently denied, we cannot request permissions.');
-//     }
-//
-//     return await Geolocator.getCurrentPosition();
-//   }
 
 }
 
