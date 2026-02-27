@@ -37,6 +37,7 @@ class Settingprovider with ChangeNotifier {
     try {
       final response = await _repository.deleteProfile();
       if (response != null && response['status'] == true) {
+        print("Account Delete suucess ");
         _isLoading = false;
         notifyListeners();
 

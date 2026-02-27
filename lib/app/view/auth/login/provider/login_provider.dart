@@ -18,6 +18,8 @@ import 'package:ozi/app/shared/widgets/customoverlayloader.dart';
 import 'package:ozi/app/view/user_role/choose_your_role/view/choose_role.dart';
 import 'dart:convert';
 import '../../../../core/constants/app_urls.dart';
+import '../../../../data/Exception/app_exceptions.dart';
+import '../../../../data/models/otp_session.dart';
 import '../model/login_model.dart';
 import '../../../../modules/auth/vendor/signup/view/service_category.dart';
 
@@ -26,8 +28,11 @@ class LoginProvider extends ChangeNotifier {
   String? _errorMessage;
   LoginModel? _loginResponse;
   Repository _repository = Repository();
+
   bool get isLoading => _isLoading;
+
   String? get errorMessage => _errorMessage;
+
   LoginModel? get loginResponse => _loginResponse;
 
   static const Map<String, Map<String, dynamic>> countryPhoneConfig = {
@@ -257,15 +262,19 @@ class LoginProvider extends ChangeNotifier {
   };
 
   String? _loginErrorInvalidCredentialsMessage;
+
   String? get loginErrorInvalidCredentialsMessage =>
       _loginErrorInvalidCredentialsMessage;
+
   setloginErrorInvalidCredentialsMessage(String? value) {
     _loginErrorInvalidCredentialsMessage = value;
     notifyListeners();
   }
 
   String? _emailNotFoundMessage;
+
   String? get emailNotFoundMessage => _emailNotFoundMessage;
+
   setEmailNotFoundMessage(String? value) {
     _emailNotFoundMessage = value;
     notifyListeners();
@@ -318,35 +327,43 @@ class LoginProvider extends ChangeNotifier {
 
   String verificationId = '';
   String? errorMessageFirebase;
+  OtpSession? _otpSession;
+
+  OtpSession? get otpSession => _otpSession;
+
 
   Future<bool> sendOtp(String phone) async {
-    print("inside send otp 1");
-    Completer<bool> completer = Completer();
-    print("inside send otp 1");
-
-    _isLoading = true;    print("inside send otp 1");
-
-    errorMessageFirebase = null;    print("inside send otp 1");
+    final Completer<bool> completer = Completer();
 
     notifyListeners();
     print("inside send otp 1");
 
     await _auth.verifyPhoneNumber(
       phoneNumber: phone,
-// timeout: Duration(seconds: 60),
+      timeout: Duration(seconds: 60),
       verificationCompleted: (PhoneAuthCredential credential) async {
-        await _auth.signInWithCredential(credential);
+        try {
+          await _auth.signInWithCredential(credential);
+        } catch (_) {}
       },
 
       verificationFailed: (FirebaseAuthException e) {
         _isLoading = false;
-        errorMessageFirebase = e.message;
+        errorMessageFirebase = mapFirebaseError(e, flow: AuthFlowType.sendOtp);
         notifyListeners();
         completer.complete(false);
       },
 
       codeSent: (String verId, int? resendToken) {
-        verificationId = verId; // save globally
+        verificationId = verId;
+
+        // Create OTP session (60s expiry)
+        _otpSession = OtpSession(
+          verificationId: verId,
+          sentAt: DateTime.now(),
+          validFor: const Duration(seconds: 60),
+        );
+
         _isLoading = false;
         notifyListeners();
         completer.complete(true);
@@ -359,7 +376,6 @@ class LoginProvider extends ChangeNotifier {
     print("inside send otp 1");
 
     return completer.future;
-    // }
   }
 
   Future<void> signInWithGoogle(BuildContext context) async {
@@ -482,8 +498,81 @@ class LoginProvider extends ChangeNotifier {
       Get.showToast('Login failed. Please try again.', type: ToastType.error);
     }
   }
+
+  //using
+  // Future<void> signInWithGoogle(BuildContext context) async {
+  //   try {
+  //     CustomOverlayLoader.show(context);
+
+  //     final GoogleSignIn signIn = GoogleSignIn.instance; // It's now a singleton
+
+  //     // If you didn't initialize globally  in main.dart, do it here (but prefer main)
+  //     // await signIn.initialize(serverClientId: '...');
+
+  //     // Use authenticate() — it throws on cancel/error instead of returning null
+  //     final GoogleSignInAccount? googleUser = await signIn.authenticate(
+  //       scopeHint: ['email', 'profile'], // Optional, but good to include
+  //     );
+
+  //     if (googleUser == null) {
+  //       CustomOverlayLoader.hide();
+  //       return;
+  //     }
+
+  //     // Get the authentication details (idToken only!)
+  //     final GoogleSignInAuthentication googleAuth =
+  //         await googleUser.authentication;
+
+  //     debugPrint('Google user ID: ${googleUser.id}');
+  //     debugPrint(
+  //       'idToken: ${googleAuth.idToken}',
+  //     ); // ← This MUST be a long string like "eyJhbGciOi... . payload . signature"
+
+  //     if (googleAuth.idToken == null || googleAuth.idToken!.isEmpty) {
+  //       Get.showToast(
+  //         'Failed to retrieve Google ID token',
+  //         type: ToastType.error,
+  //       );
+  //       CustomOverlayLoader.hide();
+  //       return;
+  //     }
+
+  //     // Send the REAL idToken (JWT) to your backend
+  //     await socialLoginApi(
+  //       navigatorKey.currentContext!,
+  //       googleAuth.idToken!,
+  //       googleUser.id,
+  //     );
+
+  //     CustomOverlayLoader.hide();
+  //   } on GoogleSignInException catch (e) {
+  //     CustomOverlayLoader.hide();
+  //     if (e.code == GoogleSignInExceptionCode.canceled) {
+  //       return;
+  //     }
+  //     debugPrint('Google Sign-In error: ${e.code} – ${e.description}');
+  //     Get.showToast(
+  //       'Google Sign-In failed: ${e.description ?? "Unknown"}',
+  //       type: ToastType.error,
+  //     );
+  //   } on PlatformException catch (e) {
+  //     CustomOverlayLoader.hide();
+  //     debugPrint('Platform error: ${e.message}');
+  //     Get.showToast(
+  //       'Google Sign-In failed. Check configuration.',
+  //       type: ToastType.error,
+  //     );
+  //   } catch (e) {
+  //     CustomOverlayLoader.hide();
+  //     debugPrint('Unexpected error: $e');
+  //     Get.showToast('Login failed. Please try again.', type: ToastType.error);
+  //   }
+  // }
+
   bool _isLoader = false;
+
   bool get isLoader => _isLoader;
+
   updateLoading(bool value) {
     _isLoader = value;
     notifyListeners();

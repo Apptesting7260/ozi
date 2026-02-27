@@ -1,26 +1,50 @@
-class verifyOtp {
+class VerifyOtp {
   bool? status;
   String? message;
   String? userId;
-  String? stepCompleted;
+  String? type;
+  bool? isRegistrationComplete;
+  bool? isLoggedIn;
+  String? nextStep;
   String? role;
   String? token;
+  String? stepCompleted;
 
-  verifyOtp({this.status, this.message,this.userId,this.stepCompleted});
+  VerifyOtp({
+    this.userId,
+    this.stepCompleted,
+    this.type,
+    this.token,
+    this.isLoggedIn,
+    this.isRegistrationComplete,
+    this.nextStep,
+    this.role,
+    this.status,
+    this.message,
+  });
 
-  verifyOtp.fromJson(Map<String, dynamic> json) {
+  VerifyOtp.fromJson(Map<String, dynamic> json) {
     status = json['status'];
     message = json['message'];
-    userId = json['data']['user_id']?.toString();
-    stepCompleted = json['data']['step_completed']?.toString();
-    role = json['data']['user_role']?.toString();
-    token = json['data']['api_token']?.toString();
+
+    if (json['data'] != null) {
+      final data = json['data'];
+
+      userId = data['user_id']?.toString();
+      type = data['type'];
+      isRegistrationComplete = data['is_registration_complete'];
+      isLoggedIn = data['is_logged_in'];
+      nextStep = data['next_step'];
+      role = data['user_role'];
+      token = data['api_token'];
+      stepCompleted = data['step_completed']?.toString();
+    }
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
-    data['status'] = status;
-    data['message'] = message;
-    return data;
+    return {
+      'status': status,
+      'message': message,
+    };
   }
 }

@@ -124,17 +124,11 @@ class _LoginScreenState extends State<LoginScreen> {
 
     print("Button pressed 5");
     if (validationError != null) {
-      _showSnackBar(validationError);
+     // _showSnackBar(validationError);
+      Get.showToast(validationError, type: ToastType.warning);
       return;
     }
 
-    print("Button pressed 6");
-    // // Send OTP
-    // final success = await loginProvider.sendOtp(
-    //   phoneNumber: phoneNumber,
-    //   countryCode: '+$countryCode',
-    // );
-  FocusScope.of(context).unfocus();
     final success = await loginProvider.sendOtp("+$countryCode$phoneNumber");
 
     print("Button pressed 7");
@@ -149,32 +143,16 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
       );
     } else {
-      if (mounted) {
-        _showSnackBar(loginProvider.errorMessage ?? 'Failed to send OTP');
+      if (!success && mounted) {
+        Get.showToast(
+          loginProvider.errorMessageFirebase ??
+              "Failed to send OTP. Please try again.",
+          type: ToastType.warning,
+        );
       }
     }
   }
 
-  void _handleSkip() {
-    final loginProvider = Provider.of<LoginProvider>(context, listen: false);
-
-    if (loginProvider.isLoading) return;
-
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (_) => ChooseRoleScreen()),
-    );
-  }
-
-  void _showSnackBar(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: Colors.red,
-        duration: const Duration(seconds: 3),
-      ),
-    );
-  }
 
   @override
   Widget build(BuildContext context) {

@@ -202,21 +202,27 @@ class CreateAccountScreen extends StatelessWidget {
                                 !value.isEmailVerified ||
                                 value.firstNameController.text.trim().isEmpty ||
                                 value.lastNameController.text.trim().isEmpty)
-                            ? null
+                            ? () {
+                              if (value.formKey.currentState?.validate() ??
+                                  false) {
+                                value.createAccount(userId, context);
+                              }
+                            }
                             : () {
                                 if (value.formKey.currentState?.validate() ??
                                     false) {
                                   value.createAccount(userId, context);
                                 }
                               },
-                        color:
-                            (value.isEmailVerified &&
-                                value.firstNameController.text
-                                    .trim()
-                                    .isNotEmpty &&
-                                value.lastNameController.text.trim().isNotEmpty)
-                            ? AppColors.primary
-                            : AppColors.primary.withOpacity(0.5),
+                        color: AppColors.primary,
+                        // color:
+                        //     (value.isEmailVerified &&
+                        //         value.firstNameController.text
+                        //             .trim()
+                        //             .isNotEmpty &&
+                        //         value.lastNameController.text.trim().isNotEmpty)
+                        //     ? AppColors.primary
+                        //     : AppColors.primary.withOpacity(0.5),
                         text: "Create Account",
                       ),
                     ],

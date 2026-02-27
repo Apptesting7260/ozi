@@ -13,8 +13,6 @@ class LoginDetailsScreen extends StatefulWidget {
 
 class _LoginDetailsScreenState extends State<LoginDetailsScreen> {
 
-
-
   @override
   void initState() {
     super.initState();
@@ -22,7 +20,6 @@ class _LoginDetailsScreenState extends State<LoginDetailsScreen> {
         Provider.of<LoginDetailsProvider>(context, listen: false)
             .fetchLoginDetails());
   }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -35,19 +32,15 @@ class _LoginDetailsScreenState extends State<LoginDetailsScreen> {
           child: Column(
             children: [
               const CustomAppBar(title: "Login Details"),
-
               Expanded(
                 child: Consumer<LoginDetailsProvider>(
                   builder: (context, provider, child) {
-
                     if (provider.isLoading) {
                       return const Center(child: CupertinoActivityIndicator());
                     }
-
                     if (provider.devices.isEmpty) {
                       return const Center(child: Text("No login details found"));
                     }
-
                     return ListView.separated(
                       padding: const EdgeInsets.symmetric(vertical: 10),
                       itemCount: provider.devices.length,
@@ -62,7 +55,7 @@ class _LoginDetailsScreenState extends State<LoginDetailsScreen> {
 
                         return _DeviceTile(
                           deviceName: device.deviceName ?? "",
-                          location: "New York, US · Now",
+                          location: device.loggedInAt ?? "",
                           isCurrent: device.isCurrentDevice ?? false,
                           onTap: () {
                             if (!provider.isLogoutLoading(device.id.toString())) {
@@ -86,10 +79,8 @@ class _LoginDetailsScreenState extends State<LoginDetailsScreen> {
                         );
                       },
                     );
-
                   },
                 )
-
               ),
             ],
           ),
@@ -211,7 +202,7 @@ class _LoginDetailsScreenState extends State<LoginDetailsScreen> {
           ),
           backgroundColor: AppColors.white,
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 22),
+            padding: const EdgeInsets.symmetric(horizontal:22, vertical:22),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [

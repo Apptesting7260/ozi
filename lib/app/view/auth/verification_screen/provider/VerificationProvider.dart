@@ -3,6 +3,7 @@ import '../../../../core/appExports/app_export.dart';
 import '../../../../core/constants/app_urls.dart';
 import '../../../../core/device info/get_device_Info.dart';
 import '../../../../core/push notification/push_notification.dart';
+import '../../../../data/Exception/app_exceptions.dart';
 import '../../../../data/network/network_api_services.dart';
 import '../../../../data/storage/user_preference.dart';
 import '../../../../modules/auth/vendor/signup/view/identity_verification_screen.dart';
@@ -17,14 +18,16 @@ class VerificationProvider extends ChangeNotifier {
 
   String verificationId;
 
-  VerificationProvider(this.verificationId);
-
+  VerificationProvider(this.verificationId) {
+    _otpSentAt = DateTime.now();
+    startTimer();
+  }
   final TextEditingController otpController = TextEditingController();
   final NetworkApiServices _apiService = NetworkApiServices();
  // String? token = PushNotificationService.fcmToken;
   int? _resendToken;
 
-  int resendTime = 55;
+  int resendTime = 60;
   Timer? timer;
   bool isLoading = false;
   String? errorMessage;
@@ -32,14 +35,18 @@ class VerificationProvider extends ChangeNotifier {
 
   void startTimer() {
     timer?.cancel();
-    resendTime = 55;
-    timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      if (resendTime > 0) {
-        resendTime--;
-        notifyListeners();
+
+    resendTime = otpSecondsRemaining;
+    notifyListeners();
+
+    timer = Timer.periodic(const Duration(seconds: 1), (t) {
+      if (isOtpExpired) {
+        resendTime = 0;
+        t.cancel();
       } else {
-        timer.cancel();
+        resendTime = otpSecondsRemaining;
       }
+      notifyListeners();
     });
   }
 
@@ -140,10 +147,32 @@ class VerificationProvider extends ChangeNotifier {
   // }
 
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  //String verificationId = '';
+  //String verificationId = '';//  OTP Session
+  DateTime? _otpSentAt;
+  final Duration _otpValidFor = const Duration(seconds: 60);
+
+  bool get isOtpExpired {
+    if (_otpSentAt == null) return true;
+    return DateTime.now().difference(_otpSentAt!) > _otpValidFor;
+  }
+
+  int get otpSecondsRemaining {
+    if (_otpSentAt == null) return 0;
+    final remaining =
+        _otpValidFor - DateTime.now().difference(_otpSentAt!);
+    return remaining.inSeconds > 0 ? remaining.inSeconds : 0;
+  }
+
 
   Future<void> verifyOtpMethod(String phone) async {
     if (isLoading) return;
+
+    if (isOtpExpired) {
+      errorMessage = "OTP expired. Please resend code.";
+      notifyListeners();
+      return;
+    }
+
     final deviceInfo = await getDeviceInfo();
 
     if (otpController.text.length != 6) {
@@ -202,19 +231,42 @@ class VerificationProvider extends ChangeNotifier {
       };
 
       // Call your backend API
-      verifyOtp response = await verificationUser(requestData);
+      VerifyOtp response = await verificationUser(requestData);
 
       isLoading = false;
 
       if (response.status == true) {
+        await UserPreference.saveLoginStatus(response.isLoggedIn ?? false);
+        await saveLogin(response.nextStep, response.token);
+        await UserPreference.saveUserId(response.userId ?? "");
+        await UserPreference.saveStep(response.stepCompleted ?? "0");
+
+        //  Debug Prints
+        if (kDebugMode) {
+          final savedLogin = await UserPreference.returnIsLoggedIn();
+          final savedToken = await UserPreference.returnAccessToken();
+          final savedRole = await UserPreference.returnRole();
+          final savedStep = await UserPreference.returnStep();
+          final savedUserId = await UserPreference.returnUserId();
+
+          print("========== AFTER SAVE ==========");
+          print("API Role: ${response.nextStep}");
+          print("API Token: ${response.token}");
+          print("API Step: ${response.stepCompleted}");
+          print("API UserId: ${response.userId}");
+          print("--------------------------------");
+          print("Saved isLogin: $savedLogin");
+          print("Saved Role: $savedRole");
+          print("Saved Token: $savedToken");
+          print("Saved Step: $savedStep");
+          print("Saved UserId: $savedUserId");
+          print("================================");
+        }
 
         await _auth.signOut();
-
         if (kDebugMode) {
           print("Successfully session clear =====================> ${_auth.currentUser}");
         }
-
-
               if (navigatorKey.currentContext!.mounted) {
                 if(response.stepCompleted=='0'){
                   Navigator.pushReplacement(
@@ -263,19 +315,14 @@ class VerificationProvider extends ChangeNotifier {
       }
     } on FirebaseAuthException catch (e) {
       isLoading = false;
-
-      if (e.code == 'invalid-verification-code') {
-        errorMessage = "Invalid OTP. Please try again.";
-      } else if (e.code == 'session-expired') {
-        errorMessage = "OTP expired. Please request again.";
-      } else {
-        errorMessage = e.message ?? "Verification failed.";
-      }
-
+      errorMessage = mapFirebaseError(
+        e,
+        flow: AuthFlowType.verifyOtp,
+      );
       notifyListeners();
     } catch (e) {
       isLoading = false;
-      errorMessage = "Something went wrong. Please try again.";
+      errorMessage = "We couldn't verify your OTP at the moment. Please try again.";
       notifyListeners();
     }
   }
@@ -283,13 +330,19 @@ class VerificationProvider extends ChangeNotifier {
 
 
 
-  Future<void> saveLogin(String? role,String? token)async {
-    if(role==null||token==null){
-      return;
+  Future<void> saveLogin(String? role, String? token) async {
+
+    if (role != null) {
+      await UserPreference.saveRole(role);
     }
+
+    // Save token only if available
+    if (token != null) {
+      await UserPreference.saveAccessToken(token);
+    }
+
+    // Always mark login true after OTP success
     await UserPreference.isLoggedIn(true);
-    await UserPreference.saveAccessToken(token);
-    await UserPreference.saveRole(role);
   }
 
   Future<void> loginWithSaveTokenRedirection(String? role,String? token) async {
@@ -315,13 +368,13 @@ class VerificationProvider extends ChangeNotifier {
 
   }
 
-  Future<verifyOtp> verificationUser(Map<String, dynamic> data) async {
+  Future<VerifyOtp> verificationUser(Map<String, dynamic> data) async {
     try {
       dynamic response = await _apiService.postApiWithoutToken(
         data,
         AppUrls.verificationFirebase,
       );
-      return verifyOtp.fromJson(response);
+      return VerifyOtp.fromJson(response);
     } catch (e) {
       throw Exception(e);
     }
@@ -346,13 +399,20 @@ class VerificationProvider extends ChangeNotifier {
 
         verificationFailed: (FirebaseAuthException e) {
           isLoading = false;
-          errorMessage = e.message ?? "Verification failed";
+          errorMessage = mapFirebaseError(
+            e,
+            flow: AuthFlowType.resendOtp,
+          );
           notifyListeners();
         },
 
         codeSent: (String newVerificationId, int? resendToken) {
           verificationId = newVerificationId;
           _resendToken = resendToken;
+
+          //  Reset OTP Session
+          _otpSentAt = DateTime.now();
+
           isLoading = false;
           startTimer();
           notifyListeners();

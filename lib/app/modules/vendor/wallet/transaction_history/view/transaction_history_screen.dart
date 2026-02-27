@@ -232,7 +232,6 @@ class _TransactionHistoryContentState extends State<_TransactionHistoryContent> 
                 borderRadius: 40,
                 onChanged: (value) {
                   if (_debounce?.isActive ?? false) _debounce!.cancel();
-
                   _debounce = Timer(const Duration(milliseconds: 500), () {
                     provider.updateSearch(value);
                   });
