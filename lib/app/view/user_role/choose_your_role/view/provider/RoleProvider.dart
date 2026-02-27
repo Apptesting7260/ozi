@@ -19,7 +19,7 @@ class RoleProvider extends ChangeNotifier {
 
   bool get hasSelectedRole => selectedRole != null;
 
-  Future<ChooseRoleModel?> chooseRole({required String userId}) async {
+  Future<ChooseRoleModel?>  chooseRole({required String userId}) async {
     if (kDebugMode) {
       print("in Choose Role 1");
     }

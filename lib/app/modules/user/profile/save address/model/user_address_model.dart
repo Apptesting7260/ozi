@@ -37,6 +37,8 @@ class Data {
   String? longitude;
   String? createdAt;
   String? updatedAt;
+  String? landmark;
+  String? state;
 
   Data({
     this.id,
@@ -51,6 +53,8 @@ class Data {
     this.longitude,
     this.createdAt,
     this.updatedAt,
+    this.landmark,
+    this.state,
   });
 
   Data.fromJson(Map<String, dynamic> json) {
@@ -66,6 +70,8 @@ class Data {
     longitude = (json['longitude'] ?? json['long'] ?? json['lng'])?.toString();
     createdAt = json['created_at'];
     updatedAt = json['updated_at'];
+    landmark = json['landmark'];
+    state = json['state'];
   }
 
   Map<String, dynamic> toJson() {

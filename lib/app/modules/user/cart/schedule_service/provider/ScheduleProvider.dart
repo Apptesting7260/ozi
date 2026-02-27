@@ -17,6 +17,9 @@ class ScheduleProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  bool _isLoading = false;
+  bool get isLoading => _isLoading;
+
   DateTime _selectedDate = DateTime(
     DateTime.now().year,
     DateTime.now().month,
@@ -155,6 +158,8 @@ class ScheduleProvider extends ChangeNotifier {
   }
 
   Future<void> scheduleService() async {
+    _isLoading = true;
+    notifyListeners();
     try {
       _bookService = await _repository.scheduleServiceApi();
 
@@ -170,13 +175,13 @@ class ScheduleProvider extends ChangeNotifier {
 
       notifyListeners();
     } catch (e) {
-      Get.showToast(
-        e.toString(),
-        type: ToastType.error,
-      );
+      Get.showToast(e.toString(), type: ToastType.error);
       if (kDebugMode) {
         print('Error scheduling service: $e');
       }
+    } finally {
+      _isLoading = false;
+      notifyListeners();
     }
   }
 

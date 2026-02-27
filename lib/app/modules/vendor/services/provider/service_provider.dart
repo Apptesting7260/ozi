@@ -212,7 +212,7 @@ class VendorServicesProvider extends ChangeNotifier {
         AppUrls.deleteServiceVendor.replaceAll("{serviceid}", serviceId),
       );
       if (kDebugMode) {
-        print(response);
+        print("Response of account delete:{response.toString()}");
       }
       _homeModel.data?.data?.removeWhere((e) => e.id == serviceId);
       notifyListeners();

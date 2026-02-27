@@ -84,9 +84,7 @@ class Data {
     address = json['address'] != null
         ? Address.fromJson(json['address'])
         : null;
-    vendor = json['vendor'] != null
-        ? Vendor.fromJson(json['vendor'])
-        : null;
+    vendor = json['vendor'] != null ? Vendor.fromJson(json['vendor']) : null;
     firstService = json['first_service'] != null
         ? FirstService.fromJson(json['first_service'])
         : null;

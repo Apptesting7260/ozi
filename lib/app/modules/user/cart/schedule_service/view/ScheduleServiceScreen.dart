@@ -7,6 +7,7 @@ import '../../change address/view/ChangeAddressScreen.dart';
 import '../../chnge payment method/provider/PaymentMethodProvider.dart';
 import '../../chnge payment method/view/ChangePaymentMethodScreen.dart';
 import '../provider/ScheduleProvider.dart';
+import '../../../../../core/utils/location_permission_helper.dart';
 
 class ScheduleServiceScreen extends StatelessWidget {
   const ScheduleServiceScreen({super.key});
@@ -16,7 +17,9 @@ class ScheduleServiceScreen extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(
-          create: (_) => ChangeAddressProvider()..fetchUserAddresses(),
+          create: (_) => ChangeAddressProvider()
+            ..fetchUserAddresses()
+            ..useCurrentLocation(),
         ),
         ChangeNotifierProvider(
           create: (_) => ScheduleProvider()..scheduleService(),
@@ -176,7 +179,9 @@ class _ScheduleServiceScreenContent extends StatelessWidget {
                     style: AppFontStyle.text_16_600(AppColors.black),
                   ),
                   hBox(16),
-                  times.isEmpty
+                  provider.isLoading
+                      ? _timeShimmer()
+                      : times.isEmpty
                       ? Center(
                           child: Text(
                             'No service available for this day',
@@ -239,28 +244,35 @@ class _ScheduleServiceScreenContent extends StatelessWidget {
                       ),
                       TextButton(
                         onPressed: () async {
-                          final selectedIndex = await Navigator.push<int>(
+                          if (await LocationPermissionHelper.handleLocationPermission(
                             context,
-                            MaterialPageRoute(
-                              builder: (_) => ChangeNotifierProvider.value(
-                                value: addressProvider,
-                                child: const ChangeAddressScreen(),
-                              ),
-                            ),
-                          );
-                          if (selectedIndex != null) {
-                            final addressProvider =
-                                Provider.of<ChangeAddressProvider>(
-                                  context,
-                                  listen: false,
-                                );
-                            addressProvider.selectAddress((selectedIndex));
+                          )) {
+                            if (context.mounted) {
+                              final selectedIndex = await Navigator.push<int>(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => ChangeNotifierProvider.value(
+                                    value: addressProvider,
+                                    child: const ChangeAddressScreen(),
+                                  ),
+                                ),
+                              );
+                              if (selectedIndex != null) {
+                                final addressProvider =
+                                    Provider.of<ChangeAddressProvider>(
+                                      context,
+                                      listen: false,
+                                    );
+                                addressProvider.selectAddress((selectedIndex));
+                              }
+                            }
                           }
                         },
                         child: Text(
-                          addressProvider.selectedAddress == null
-                              ? 'Add Address >'
-                              : 'Change Address >',
+                          // addressProvider.selectedAddress == null
+                          //     ? 'Add Address >'
+                          //     :
+                          'Change Address >',
                           style: AppFontStyle.text_14_500(
                             AppColors.primary,
                             fontFamily: AppFontFamily.medium,
@@ -277,11 +289,14 @@ class _ScheduleServiceScreenContent extends StatelessWidget {
                       border: Border.all(color: AppColors.containerBorder),
                     ),
                     child: Row(
-                      mainAxisAlignment: addressProvider.selectedAddress == null
+                      mainAxisAlignment:
+                          addressProvider.selectedAddress == null &&
+                              addressProvider.selectedIndex != -2
                           ? MainAxisAlignment.center
                           : MainAxisAlignment.start,
                       children: [
-                        if (addressProvider.selectedAddress != null) ...[
+                        if (addressProvider.selectedAddress != null ||
+                            addressProvider.selectedIndex == -2) ...[
                           Container(
                             padding: EdgeInsets.all(10),
                             decoration: BoxDecoration(
@@ -289,7 +304,8 @@ class _ScheduleServiceScreenContent extends StatelessWidget {
                               borderRadius: BorderRadius.circular(30),
                             ),
                             child: CustomImage(
-                              path: ImageConstants.home2,
+                              path: ImageConstants.location,
+
                               color: AppColors.black,
                             ),
                           ),
@@ -298,17 +314,22 @@ class _ScheduleServiceScreenContent extends StatelessWidget {
                         Expanded(
                           child: Column(
                             crossAxisAlignment:
-                                addressProvider.selectedAddress == null
+                                addressProvider.selectedAddress == null &&
+                                    addressProvider.selectedIndex != -2
                                 ? CrossAxisAlignment.center
                                 : CrossAxisAlignment.start,
                             children: [
                               Text(
-                                addressProvider.selectedAddress?.addressType !=
-                                            null &&
-                                        addressProvider
-                                            .selectedAddress!
-                                            .addressType!
-                                            .isNotEmpty
+                                addressProvider.selectedIndex == -2
+                                    ? 'Current Address'
+                                    : addressProvider
+                                                  .selectedAddress
+                                                  ?.addressType !=
+                                              null &&
+                                          addressProvider
+                                              .selectedAddress!
+                                              .addressType!
+                                              .isNotEmpty
                                     ? '${addressProvider.selectedAddress!.addressType![0].toUpperCase()}${addressProvider.selectedAddress!.addressType!.substring(1)}'
                                     : 'Address',
                                 style: AppFontStyle.text_14_600(
@@ -316,12 +337,17 @@ class _ScheduleServiceScreenContent extends StatelessWidget {
                                   fontFamily: AppFontFamily.semiBold,
                                 ),
                               ),
-                              if (addressProvider.selectedAddress != null) ...[
+                              if (addressProvider.selectedAddress != null ||
+                                  addressProvider.selectedIndex == -2) ...[
                                 SizedBox(height: 4),
                                 Text(
-                                  addressProvider.getFormattedAddress(
-                                    addressProvider.selectedAddress!,
-                                  ),
+                                  addressProvider.selectedIndex == -2
+                                      ? (addressProvider
+                                                .currentLocationAddress ??
+                                            "Detecting location...")
+                                      : addressProvider.getFormattedAddress(
+                                          addressProvider.selectedAddress!,
+                                        ),
                                   style: AppFontStyle.text_14_400(
                                     AppColors.grey,
                                   ),
@@ -479,7 +505,8 @@ class _ScheduleServiceScreenContent extends StatelessWidget {
                     isLoading: provider.isBookingLoading,
                     onPressed:
                         (provider.selectedTime == null ||
-                            addressProvider.selectedAddress == null)
+                            (addressProvider.selectedAddress == null &&
+                                addressProvider.selectedIndex != -2))
                         ? null
                         : () {
                             if (kDebugMode) {
@@ -529,6 +556,32 @@ class _ScheduleServiceScreenContent extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _timeShimmer() {
+    return GridView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 3,
+        crossAxisSpacing: 12,
+        mainAxisSpacing: 12,
+        childAspectRatio: 2.2,
+      ),
+      itemCount: 6,
+      itemBuilder: (context, index) {
+        return Shimmer.fromColors(
+          baseColor: Colors.grey.shade300,
+          highlightColor: Colors.grey.shade100,
+          child: Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(12),
+            ),
+          ),
+        );
+      },
     );
   }
 }
