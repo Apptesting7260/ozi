@@ -68,7 +68,7 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
                           GoogleMap(
                             initialCameraPosition: CameraPosition(
                               target:
-                                  provider.selectedLatLng ??
+                              provider.selectedLatLng ??
                                   provider.initialLocation,
                               zoom: 15,
                             ),
@@ -277,24 +277,24 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
                                 onPressed: provider.isLoading
                                     ? null
                                     : () async {
-                                        bool success = await provider
-                                            .addNewAddress(context);
-                                        if (success && context.mounted) {
-                                          context
-                                              .read<SavedAddressProvider>()
-                                              .fetchUserAddresses();
-                                          Navigator.pop(context, true);
-                                        }
-                                      },
+                                  bool success = await provider
+                                      .addNewAddress(context);
+                                  if (success && context.mounted) {
+                                    context
+                                        .read<SavedAddressProvider>()
+                                        .fetchUserAddresses();
+                                    Navigator.pop(context, true);
+                                  }
+                                },
                                 child: provider.isLoading
                                     ? SizedBox(
-                                        height: 20,
-                                        width: 20,
-                                        child: CircularProgressIndicator(
-                                          color: AppColors.white,
-                                          strokeWidth: 2,
-                                        ),
-                                      )
+                                  height: 20,
+                                  width: 20,
+                                  child: CircularProgressIndicator(
+                                    color: AppColors.white,
+                                    strokeWidth: 2,
+                                  ),
+                                )
                                     : null,
                               ),
                               hBox(20),
@@ -354,10 +354,8 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
     );
   }
 
-  void showCustomLocationBottomSheet(
-    BuildContext context,
-    AddAddressProvider provider,
-  ) {
+  void showCustomLocationBottomSheet(BuildContext context,
+      AddAddressProvider provider,) {
     final searchCtrl = TextEditingController(
       text: provider.streetAddressController.text.trim(),
     );
@@ -366,10 +364,8 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
     bool isClosed = false;
     Timer? debounceTimer;
 
-    Future<void> fetchSuggestions(
-      String input,
-      void Function(VoidCallback fn) setModalStateWrapper,
-    ) async {
+    Future<void> fetchSuggestions(String input,
+        void Function(VoidCallback fn) setModalStateWrapper,) async {
       if (isClosed || !context.mounted) return;
 
       setModalStateWrapper(() => isLoading = true);
@@ -378,18 +374,19 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
         final String baseUrl =
             'https://maps.googleapis.com/maps/api/place/autocomplete/json';
         final String locationParam = provider.selectedLatLng != null
-            ? '&location=${provider.selectedLatLng!.latitude},${provider.selectedLatLng!.longitude}&radius=50000&strictbounds=false'
+            ? '&location=${provider.selectedLatLng!.latitude},${provider
+            .selectedLatLng!.longitude}&radius=50000&strictbounds=false'
             : '';
 
         String effectiveInput = input.isEmpty ? "near" : input;
 
         final uri = Uri.parse(
           '$baseUrl?input=${Uri.encodeComponent(effectiveInput)}'
-          '&key=AIzaSyApdA5sIEfZoPmhlWuAr5wTgyOXvhl9jsQ'
-          '&components=country:in'
-          '&language=en'
-          '$locationParam'
-          '&types=geocode|establishment',
+              '&key=AIzaSyApdA5sIEfZoPmhlWuAr5wTgyOXvhl9jsQ'
+              '&components=country:in'
+              '&language=en'
+              '$locationParam'
+              '&types=geocode|establishment',
         );
 
         final response = await http.get(uri);
@@ -424,7 +421,6 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
         });
       }
     }
-
     bool isInitialFetchDone = false;
 
     showModalBottomSheet(
@@ -513,7 +509,7 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
                             debounceTimer?.cancel();
                             debounceTimer = Timer(
                               const Duration(milliseconds: 800),
-                              () {
+                                  () {
                                 if (isClosed || !sheetContext.mounted) return;
                                 fetchSuggestions(value, setModalState);
                               },
@@ -525,87 +521,89 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
                       Expanded(
                         child: isLoading && predictions.isEmpty
                             ? const Center(
-                                child: CircularProgressIndicator(
-                                  color: Colors.white,
-                                ),
-                              )
+                          child: CircularProgressIndicator(
+                            color: Colors.white,
+                          ),
+                        )
                             : predictions.isEmpty
                             ? Center(
-                                child: Text(
-                                  searchCtrl.text.isEmpty
-                                      ? "Showing nearby places..."
-                                      : "No results found – try different keyword",
-                                  style: TextStyle(
-                                    color: Colors.grey[400],
-                                    fontSize: 16,
-                                  ),
-                                ),
-                              )
+                          child: Text(
+                            searchCtrl.text.isEmpty
+                                ? "Showing nearby places..."
+                                : "No results found – try different keyword",
+                            style: TextStyle(
+                              color: Colors.grey[400],
+                              fontSize: 16,
+                            ),
+                          ),
+                        )
                             : ListView.builder(
-                                controller: scrollController,
-                                itemCount: predictions.length,
-                                itemBuilder: (ctx, i) {
-                                  final pred = predictions[i];
-                                  final main =
-                                      pred.description?.split(', ').first ??
-                                      pred.description ??
-                                      "Unknown";
-                                  final sub =
-                                      pred.description
-                                          ?.split(', ')
-                                          .skip(1)
-                                          .join(', ') ??
-                                      "";
+                          controller: scrollController,
+                          itemCount: predictions.length,
+                          itemBuilder: (ctx, i) {
+                            final pred = predictions[i];
+                            final main =
+                                pred.description
+                                    ?.split(', ')
+                                    .first ??
+                                    pred.description ??
+                                    "Unknown";
+                            final sub =
+                                pred.description
+                                    ?.split(', ')
+                                    .skip(1)
+                                    .join(', ') ??
+                                    "";
 
-                                  return ListTile(
-                                    key: ValueKey(
-                                      pred.placeId ??
-                                          pred.description ??
-                                          i.toString(),
-                                    ),
-                                    leading: const Icon(
-                                      Icons.location_on,
-                                      color: Colors.white70,
-                                      size: 28,
-                                    ),
-                                    title: Text(
-                                      main,
-                                      style: const TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                    subtitle: Text(
-                                      sub,
-                                      style: TextStyle(
-                                        color: Colors.grey[400],
-                                        fontSize: 13,
-                                      ),
-                                      maxLines: 2,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                    onTap: () async {
-                                      if (isClosed || !sheetContext.mounted)
-                                        return;
-
-                                      debounceTimer?.cancel();
-
-                                      // Copy description before closing/clearing anything
-                                      final selectedDescription =
-                                          pred.description ?? "";
-
-                                      // Close sheet first
-                                      Navigator.pop(sheetContext);
-
-                                      // Update provider after pop
-                                      provider.streetAddressController.text =
-                                          selectedDescription;
-                                      await provider.selectManualPlace(pred);
-                                    },
-                                  );
-                                },
+                            return ListTile(
+                              key: ValueKey(
+                                pred.placeId ??
+                                    pred.description ??
+                                    i.toString(),
                               ),
+                              leading: const Icon(
+                                Icons.location_on,
+                                color: Colors.white70,
+                                size: 28,
+                              ),
+                              title: Text(
+                                main,
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                              subtitle: Text(
+                                sub,
+                                style: TextStyle(
+                                  color: Colors.grey[400],
+                                  fontSize: 13,
+                                ),
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              onTap: () async {
+                                if (isClosed || !sheetContext.mounted)
+                                  return;
+
+                                debounceTimer?.cancel();
+
+                                // Copy description before closing/clearing anything
+                                final selectedDescription =
+                                    pred.description ?? "";
+
+                                // Close sheet first
+                                Navigator.pop(sheetContext);
+
+                                // Update provider after pop
+                                provider.streetAddressController.text =
+                                    selectedDescription;
+                                await provider.selectManualPlace(pred);
+                              },
+                            );
+                          },
+                        ),
                       ),
                     ],
                   ),
@@ -625,508 +623,5 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
       });
     });
   }
-  //   void showCustomLocationBottomSheet(
-  //     BuildContext context,
-  //     AddAddressProvider provider,
-  //   ) {
-  //     final TextEditingController searchCtrl = TextEditingController(
-  //       text: provider.streetAddressController.text
-  //           .trim(), // ← Auto-fill from main TextField
-  //     );
-
-  //     List<Prediction> predictions = [];
-  //     bool isLoading = false;
-
-  //     Timer? debounceTimer;
-  //     bool _isBottomSheetClosed = false;
-  //     // Fetch function
-  //     Future<void> fetchSuggestions(
-  //       String input,
-  //       void Function(VoidCallback) setModalState,
-  //     ) async {
-  //       if (!context.mounted || _isBottomSheetClosed) return;
-
-  //       setModalState(() => isLoading = true);
-
-  //       try {
-  //         final String baseUrl =
-  //             'https://maps.googleapis.com/maps/api/place/autocomplete/json';
-  //         final String locationParam = provider.selectedLatLng != null
-  //             ? '&location=${provider.selectedLatLng!.latitude},${provider.selectedLatLng!.longitude}&radius=50000&strictbounds=false'
-  //             : '';
-
-  //         // Agar input empty hai to default nearby ke liye kuch bias keyword add kar sakte ho
-  //         String effectiveInput = input.isEmpty
-  //             ? "near"
-  //             : input; // "near" ya "" try karo – better results
-
-  //         final uri = Uri.parse(
-  //           '$baseUrl?input=${Uri.encodeComponent(effectiveInput)}'
-  //           '&key=AIzaSyApdA5sIEfZoPmhlWuAr5wTgyOXvhl9jsQ'
-  //           '&components=country:in'
-  //           '&language=en'
-  //           '$locationParam'
-  //           '&types=geocode|establishment', // Addresses + places
-  //         );
-
-  //         print(
-  //           "Fetching URL: $uri",
-  //         ); // Debug – console mein check karo kya request ja rahi
-
-  //         final response = await http.get(uri);
-
-  //         if (!context.mounted) return;
-
-  //         if (response.statusCode == 200) {
-  //           final json = jsonDecode(response.body);
-  //           print(
-  //             "API Response: ${json['status']} - Predictions: ${json['predictions']?.length ?? 0}",
-  //           );
-
-  //           if (json['status'] == 'OK') {
-  //             final List<Prediction> newPreds = (json['predictions'] as List)
-  //                 .map((p) => Prediction.fromJson(p))
-  //                 .toList();
-  // if (_isBottomSheetClosed || !modalContext.mounted) return;
-  //             setModalState(() {
-  //               predictions = newPreds;
-  //               isLoading = false;
-  //             });
-  //           } else {
-  //             setModalState(() {
-  //               predictions = [];
-  //               isLoading = false;
-  //             });
-  //             print("API Error: ${json['error_message'] ?? 'Unknown'}");
-  //           }
-  //         } else {
-  //           print("HTTP Error: ${response.statusCode}");
-  //         }
-  //       } catch (e) {
-  //         print("Fetch error: $e");
-  //         if (context.mounted) {
-  //           setModalState(() {
-  //             predictions = [];
-  //             isLoading = false;
-  //           });
-  //         }
-  //       }
-  //     }
-
-  //     showModalBottomSheet(
-  //       context: context,
-  //       isScrollControlled: true,
-  //       backgroundColor: Colors.transparent,
-  //       builder: (modalContext) {
-  //         return StatefulBuilder(
-  //           builder: (modalContext, setModalState) {
-  //             // Open hone pe default fetch (nearby)
-  //             WidgetsBinding.instance.addPostFrameCallback((_) async {
-  //               if (modalContext.mounted) {
-  //                 await fetchSuggestions(
-  //                   searchCtrl.text,
-  //                   setModalState,
-  //                 ); // current text se start
-  //               }
-  //             });
-
-  //             return DraggableScrollableSheet(
-  //               initialChildSize: 0.92,
-  //               minChildSize: 0.55,
-  //               maxChildSize: 0.95,
-  //               expand: false,
-  //               builder: (context, scrollController) {
-  //                 return Container(
-  //                   decoration: const BoxDecoration(
-  //                     color: Color(0xFF1E1E1E),
-  //                     borderRadius: BorderRadius.vertical(
-  //                       top: Radius.circular(24),
-  //                     ),
-  //                   ),
-  //                   child: Column(
-  //                     children: [
-  //                       // Header
-  //                       Padding(
-  //                         padding: const EdgeInsets.fromLTRB(8, 16, 16, 8),
-  //                         child: Row(
-  //                           children: [
-  //                             IconButton(
-  //                               icon: const Icon(
-  //                                 Icons.arrow_back,
-  //                                 color: Colors.white,
-  //                               ),
-  //                               onPressed: () => Navigator.pop(modalContext),
-  //                             ),
-  //                             const SizedBox(width: 8),
-  //                             const Expanded(
-  //                               child: Text(
-  //                                 "Select delivery location",
-  //                                 style: TextStyle(
-  //                                   color: Colors.white,
-  //                                   fontSize: 18,
-  //                                   fontWeight: FontWeight.w600,
-  //                                 ),
-  //                               ),
-  //                             ),
-  //                           ],
-  //                         ),
-  //                       ),
-
-  //                       // Search field (auto-filled)
-  //                       Padding(
-  //                         padding: const EdgeInsets.symmetric(
-  //                           horizontal: 16,
-  //                           vertical: 8,
-  //                         ),
-  //                         child: TextField(
-  //                           controller: searchCtrl,
-  //                           autofocus: true,
-  //                           style: const TextStyle(color: Colors.white),
-  //                           decoration: InputDecoration(
-  //                             hintText: "Search area, street name, landmark...",
-  //                             hintStyle: TextStyle(color: Colors.grey[400]),
-  //                             prefixIcon: const Icon(
-  //                               Icons.search,
-  //                               color: Colors.white70,
-  //                             ),
-  //                             filled: true,
-  //                             fillColor: Colors.grey[850],
-  //                             border: OutlineInputBorder(
-  //                               borderRadius: BorderRadius.circular(12),
-  //                               borderSide: BorderSide.none,
-  //                             ),
-  //                           ),
-  //                           onChanged: (value) {
-  //                             debounceTimer?.cancel();
-  //                             debounceTimer = Timer(
-  //                               const Duration(milliseconds: 600),
-  //                               () {
-  //                                 if (modalContext.mounted) {
-  //                                   fetchSuggestions(value, setModalState);
-  //                                 }
-  //                               },
-  //                             );
-  //                           },
-  //                         ),
-  //                       ),
-
-  //                       Expanded(
-  //                         child: isLoading
-  //                             ? const Center(
-  //                                 child: CircularProgressIndicator(
-  //                                   color: Colors.white,
-  //                                 ),
-  //                               )
-  //                             : predictions.isEmpty
-  //                             ? Center(
-  //                                 child: Text(
-  //                                   searchCtrl.text.isEmpty
-  //                                       ? "Showing nearby places..."
-  //                                       : "No results found – try different keyword",
-  //                                   style: TextStyle(
-  //                                     color: Colors.grey[400],
-  //                                     fontSize: 16,
-  //                                   ),
-  //                                 ),
-  //                               )
-  //                             : ListView.builder(
-  //                                 controller: scrollController,
-  //                                 itemCount: predictions.length,
-  //                                 itemBuilder: (ctx, i) {
-  //                                   final pred = predictions[i];
-  //                                   final main =
-  //                                       pred.description?.split(', ').first ??
-  //                                       pred.description ??
-  //                                       "Unknown";
-  //                                   final sub =
-  //                                       pred.description
-  //                                           ?.split(', ')
-  //                                           .skip(1)
-  //                                           .join(', ') ??
-  //                                       "";
-
-  //                                   return ListTile(
-  //                                     key: ValueKey(
-  //                                       pred.placeId ??
-  //                                           pred.description ??
-  //                                           i.toString(),
-  //                                     ),
-  //                                     leading: const Icon(
-  //                                       Icons.location_on,
-  //                                       color: Colors.white70,
-  //                                       size: 28,
-  //                                     ),
-  //                                     title: Text(
-  //                                       main,
-  //                                       style: const TextStyle(
-  //                                         color: Colors.white,
-  //                                         fontSize: 16,
-  //                                         fontWeight: FontWeight.w500,
-  //                                       ),
-  //                                     ),
-  //                                     subtitle: Text(
-  //                                       sub,
-  //                                       style: TextStyle(
-  //                                         color: Colors.grey[400],
-  //                                         fontSize: 13,
-  //                                       ),
-  //                                       maxLines: 2,
-  //                                       overflow: TextOverflow.ellipsis,
-  //                                     ),
-  //                                     onTap: () async {
-  //                                       if (!modalContext.mounted) return;
-  //                                       provider.streetAddressController.text =
-  //                                           pred.description ?? "";
-  //                                       await provider.selectManualPlace(pred);
-  //                                       if (modalContext.mounted) {
-  //                                         Navigator.pop(modalContext);
-  //                                       }
-  //                                     },
-  //                                   );
-  //                                 },
-  //                               ),
-  //                       ),
-  //                     ],
-  //                   ),
-  //                 );
-  //               },
-  //             );
-  //           },
-  //         );
-  //       },
-  //     ).whenComplete(() {
-  //       _isBottomSheetClosed = true;
-  //       searchCtrl.dispose();
-  //       debounceTimer?.cancel();
-  //       debounceTimer = null;
-  //     });
-  //   }
-
-  //   AddAddressProvider provider,
-  // ) {
-  //   final TextEditingController searchCtrl = TextEditingController();
-  //   final List<Prediction> predictions = []; // local state for suggestions
-  //   bool isLoading = false;
-
-  //   // Debounce timer
-  //   Timer? debounceTimer;
-
-  //   showModalBottomSheet(
-  //     context: context,
-  //     isScrollControlled: true,
-  //     backgroundColor: Colors.transparent,
-  //     builder: (context) {
-  //       return StatefulBuilder(
-  //         builder: (context, setModalState) {
-  //           return DraggableScrollableSheet(
-  //             initialChildSize: 0.92,
-  //             minChildSize: 0.55,
-  //             maxChildSize: 0.95,
-  //             expand: false,
-  //             builder: (context, scrollController) {
-  //               return Container(
-  //                 decoration: const BoxDecoration(
-  //                   color: Color(0xFF1E1E1E), // dark background like screenshot
-  //                   borderRadius: BorderRadius.vertical(
-  //                     top: Radius.circular(24),
-  //                   ),
-  //                 ),
-  //                 child: Column(
-  //                   children: [
-  //                     // Header
-  //                     Padding(
-  //                       padding: const EdgeInsets.fromLTRB(8, 16, 16, 8),
-  //                       child: Row(
-  //                         children: [
-  //                           IconButton(
-  //                             icon: const Icon(
-  //                               Icons.arrow_back,
-  //                               color: Colors.white,
-  //                             ),
-  //                             onPressed: () => Navigator.pop(context),
-  //                           ),
-  //                           const SizedBox(width: 8),
-  //                           const Expanded(
-  //                             child: Text(
-  //                               "Select delivery location",
-  //                               style: TextStyle(
-  //                                 color: Colors.white,
-  //                                 fontSize: 18,
-  //                                 fontWeight: FontWeight.w600,
-  //                               ),
-  //                             ),
-  //                           ),
-  //                         ],
-  //                       ),
-  //                     ),
-
-  //                     // Search field
-  //                     Padding(
-  //                       padding: const EdgeInsets.symmetric(
-  //                         horizontal: 16,
-  //                         vertical: 8,
-  //                       ),
-  //                       child: TextField(
-  //                         controller: searchCtrl,
-  //                         autofocus: true,
-  //                         style: const TextStyle(color: Colors.white),
-  //                         decoration: InputDecoration(
-  //                           hintText: "Search area, street name, landmark...",
-  //                           hintStyle: TextStyle(color: Colors.grey[400]),
-  //                           prefixIcon: const Icon(
-  //                             Icons.search,
-  //                             color: Colors.white70,
-  //                           ),
-  //                           filled: true,
-  //                           fillColor: Colors.grey[850],
-  //                           border: OutlineInputBorder(
-  //                             borderRadius: BorderRadius.circular(12),
-  //                             borderSide: BorderSide.none,
-  //                           ),
-  //                           contentPadding: const EdgeInsets.symmetric(
-  //                             vertical: 4,
-  //                           ),
-  //                         ),
-  //                         onChanged: (value) {
-  //                           if (debounceTimer?.isActive ?? false) {
-  //                             debounceTimer!.cancel();
-  //                           }
-
-  //                           debounceTimer = Timer(
-  //                             const Duration(milliseconds: 500),
-  //                             () async {
-  //                               if (value.trim().isEmpty) {
-  //                                 setModalState(() {
-  //                                   predictions.clear();
-  //                                   isLoading = false;
-  //                                 });
-  //                                 return;
-  //                               }
-
-  //                               setModalState(() => isLoading = true);
-
-  //                               try {
-  //                                 final uri = Uri.parse(
-  //                                   'https://maps.googleapis.com/maps/api/place/autocomplete/json'
-  //                                   '?input=${Uri.encodeComponent(value)}'
-  //                                   '&key=AIzaSyApdA5sIEfZoPmhlWuAr5wTgyOXvhl9jsQ'
-  //                                   '&components=country:in'
-  //                                   '&language=en'
-  //                                   '${provider.selectedLatLng != null ? '&location=${provider.selectedLatLng!.latitude},${provider.selectedLatLng!.longitude}&radius=50000' : ''}',
-  //                                 );
-
-  //                                 final response = await http.get(uri);
-  //                                 if (response.statusCode == 200) {
-  //                                   final json = jsonDecode(response.body);
-
-  //                                   if (json['status'] == 'OK') {
-  //                                     final List<Prediction> newPreds =
-  //                                         (json['predictions'] as List)
-  //                                             .map(
-  //                                               (p) => Prediction.fromJson(p),
-  //                                             )
-  //                                             .toList();
-
-  //                                     setModalState(() {
-  //                                       predictions.clear();
-  //                                       predictions.addAll(newPreds);
-  //                                       isLoading = false;
-  //                                     });
-  //                                   } else {
-  //                                     setModalState(() {
-  //                                       predictions.clear();
-  //                                       isLoading = false;
-  //                                     });
-  //                                   }
-  //                                 }
-  //                               } catch (e) {
-  //                                 print("Autocomplete error: $e");
-  //                                 setModalState(() {
-  //                                   predictions.clear();
-  //                                   isLoading = false;
-  //                                 });
-  //                               }
-  //                             },
-  //                           );
-  //                         },
-  //                       ),
-  //                     ),
-
-  //                     // Results or loading
-  //                     Expanded(
-  //                       child: isLoading
-  //                           ? const Center(
-  //                               child: CircularProgressIndicator(
-  //                                 color: Colors.white,
-  //                               ),
-  //                             )
-  //                           : predictions.isEmpty
-  //                           ? Center(
-  //                               child: Text(
-  //                                 searchCtrl.text.isEmpty
-  //                                     ? "Start typing to search"
-  //                                     : "No results found",
-  //                                 style: TextStyle(
-  //                                   color: Colors.grey[400],
-  //                                   fontSize: 16,
-  //                                 ),
-  //                               ),
-  //                             )
-  //                           : ListView.builder(
-  //                               controller: scrollController,
-  //                               itemCount: predictions.length,
-  //                               itemBuilder: (ctx, i) {
-  //                                 final pred = predictions[i];
-  //                                 return ListTile(
-  //                                   leading: const Icon(
-  //                                     Icons.location_on,
-  //                                     color: Colors.white70,
-  //                                     size: 28,
-  //                                   ),
-  //                                   title: Text(
-  //                                     pred.description?.split(', ').first ??
-  //                                         "Unknown",
-  //                                     style: const TextStyle(
-  //                                       color: Colors.white,
-  //                                       fontSize: 16,
-  //                                       fontWeight: FontWeight.w500,
-  //                                     ),
-  //                                   ),
-  //                                   subtitle: Text(
-  //                                     pred.description
-  //                                             ?.split(', ')
-  //                                             .skip(1)
-  //                                             .join(', ') ??
-  //                                         "",
-  //                                     style: TextStyle(
-  //                                       color: Colors.grey[400],
-  //                                       fontSize: 13,
-  //                                     ),
-  //                                     maxLines: 2,
-  //                                     overflow: TextOverflow.ellipsis,
-  //                                   ),
-  //                                   onTap: () async {
-  //                                     // Select this place
-  //                                     await provider.selectManualPlace(pred);
-  //                                     if (context.mounted) {
-  //                                       Navigator.pop(context);
-  //                                     }
-  //                                   },
-  //                                 );
-  //                               },
-  //                             ),
-  //                     ),
-  //                   ],
-  //                 ),
-  //               );
-  //             },
-  //           );
-  //         },
-  //       );
-  //     },
-  //   ).whenComplete(() {
-  //     searchCtrl.dispose();
-  //     debounceTimer?.cancel();
-  //   });
-  // }
 }
+

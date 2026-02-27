@@ -60,6 +60,7 @@ dependencies:
   uuid: any
   flutter_google_places_hoc081098: ^2.0.0
   http: ^1.6.0
+  google_places_autocomplete: ^2.1.2
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -94,6 +95,3 @@ flutter:
     - family: Onest-SemiBold
       fonts:
         - asset: assets/fonts/Onest-SemiBold.ttf
-
-
-

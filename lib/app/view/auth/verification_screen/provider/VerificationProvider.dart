@@ -11,6 +11,7 @@ import '../../../../modules/auth/vendor/signup/view/service_category.dart';
 import '../../../../modules/auth/vendor/signup/view/set_availability.dart';
 import '../../../../modules/user/navigation tab/view/navigation_tab_screen.dart';
 import '../../../../modules/vendor/navigation tab/view/vendor_navigation_tab_screen.dart';
+import '../../../../shared/widgets/auth_guard.dart';
 import '../../../user_role/choose_your_role/view/choose_role.dart';
 import '../model/verify_otp.dart';
 
@@ -240,6 +241,9 @@ class VerificationProvider extends ChangeNotifier {
         await saveLogin(response.nextStep, response.token);
         await UserPreference.saveUserId(response.userId ?? "");
         await UserPreference.saveStep(response.stepCompleted ?? "0");
+        navigatorKey.currentContext!
+            .read<AuthGuestProvider>()
+            .updateLogin(true);
 
         //  Debug Prints
         if (kDebugMode) {
@@ -262,6 +266,8 @@ class VerificationProvider extends ChangeNotifier {
           print("Saved UserId: $savedUserId");
           print("================================");
         }
+
+
 
         await _auth.signOut();
         if (kDebugMode) {

@@ -337,7 +337,6 @@ class LoginProvider extends ChangeNotifier {
     _isLoading = true;
     errorMessageFirebase = null; // Clear any previous error
     notifyListeners();
-    print("inside send otp 1");
 
     await _auth.verifyPhoneNumber(
       phoneNumber: phone,
@@ -393,7 +392,6 @@ class LoginProvider extends ChangeNotifier {
         verificationId = verId;
       },
     );
-    print("inside send otp 1");
 
     return completer.future;
   }

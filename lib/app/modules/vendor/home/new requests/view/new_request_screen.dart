@@ -3,6 +3,7 @@ import 'package:ozi/app/data/response/api_status.dart';
 import '../../../../../core/appExports/app_export.dart';
 import '../../../../../data/models/vendor_home_model.dart';
 import '../../../../../shared/widgets/custom_app_bar.dart';
+import '../../../bookings/booking details/view/vendor_booking_details_screen.dart';
 import '../../request_card/view/request_card_view.dart';
 import '../provider/new_requests_provider.dart';
 
@@ -60,11 +61,29 @@ class NewRequestsScreen extends StatelessWidget {
                             itemBuilder: (context, index) {
                               VendorHomeRequests request = provider.requestModel.data!.requests![index];
                               return RequestCard(
-                                  onAccept: () {
-                                    provider.acceptOrRejectRequest('accept',request.bookingId??'');
+                                  onAccept: () async {
+                                    final success =
+                                    await provider.acceptOrRejectRequest(
+                                      'accept',
+                                      request.bookingId ?? '',
+                                    );
+
+                                    if (success && context.mounted) {
+                                      Navigator.of(context).push(
+                                        MaterialPageRoute(
+                                          builder: (_) => VendorBookingDetailsScreen(
+                                            bookingId: request.bookingId.toString(),
+                                          ),
+                                        ),
+                                      );
+                                    }
                                   },
-                                  onReject: () {
-                                    provider.acceptOrRejectRequest('reject',request.bookingId??'');
+
+                                  onReject: () async {
+                                    await provider.acceptOrRejectRequest(
+                                      'reject',
+                                      request.bookingId ?? '',
+                                    );
                                   },
                                   request: request
                               );

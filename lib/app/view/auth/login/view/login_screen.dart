@@ -104,41 +104,34 @@ class _LoginScreenState extends State<LoginScreen> {
     print("Button pressed");
     final loginProvider = Provider.of<LoginProvider>(context, listen: false);
 
-    print("Button pressed 1");
     if (loginProvider.isLoading) return;
 
-    print("Button pressed 2");
     loginProvider.clearError();
 
-    print("Button pressed 3");
     // Validate phone number (provider will validate length based on country)
     final phoneNumber = _phoneController.text.trim();
     final countryCode = _selectedCountry?.phoneCode ?? '91';
 
-    print("Button pressed 4");
     final validationError = loginProvider.validatePhoneNumber(
       phoneNumber,
       countryCode,
     );
 
-    print("Button pressed 5");
     if (validationError != null) {
       // _showSnackBar(validationError);
       Get.showToast(validationError, type: ToastType.warning);
       return;
     }
-    try {
-      final success = await loginProvider.sendOtp("+$countryCode$phoneNumber");
-      print("Button pressed 7");
-      if (success) {
-        print("otp done at login");
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) => VerificationScreen(
-              phone: "+$countryCode $phoneNumber",
-              verificationId: loginProvider.verificationId,
-            ),
+
+    final success = await loginProvider.sendOtp("+$countryCode$phoneNumber");
+
+    if (success) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => VerificationScreen(
+            phone: "+$countryCode $phoneNumber",
+            verificationId: loginProvider.verificationId,
           ),
         );
       } else {
