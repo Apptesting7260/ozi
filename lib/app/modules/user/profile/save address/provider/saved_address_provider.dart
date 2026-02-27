@@ -137,6 +137,11 @@ class SavedAddressProvider extends ChangeNotifier {
 
   // Select an address
   void selectAddress(int index) {
+    if (index == -2) {
+      _selectedIndex = -2;
+      notifyListeners();
+      return;
+    }
     if (index >= 0 && index < _addresses.length) {
       _selectedIndex = index;
       notifyListeners();
@@ -198,11 +203,9 @@ class SavedAddressProvider extends ChangeNotifier {
         notifyListeners();
 
         if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(response.message ?? "Address deleted"),
-              backgroundColor: Colors.green,
-            ),
+          Get.showToast(
+            response.message ?? "Address deleted",
+            type: ToastType.success,
           );
         }
       } else {

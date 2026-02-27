@@ -37,7 +37,7 @@ void main() async {
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
   ]);
-
+  //
   if (WebViewPlatform.instance == null) {
     if (Platform.isAndroid) {
       WebViewPlatform.instance = AndroidWebViewPlatform();

@@ -1,4 +1,5 @@
 import 'package:flutter_google_places_hoc081098/google_maps_webservice_places.dart';
+import 'package:geocoding/geocoding.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart' as http;
 import 'package:ozi/app/modules/user/profile/save%20address/provider/saved_address_provider.dart';
@@ -17,12 +18,30 @@ class AddAddressScreen extends StatefulWidget {
 class _AddAddressScreenState extends State<AddAddressScreen> {
   LatLng? _lastCameraPosition;
 
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   // Move to current location on start
+  //   WidgetsBinding.instance.addPostFrameCallback((_) {
+  //     context.read<AddAddressProvider>().moveToCurrentLocation();
+  //   });
+  // }
   @override
   void initState() {
     super.initState();
-    // Move to current location on start
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<AddAddressProvider>().moveToCurrentLocation();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      try {
+        await setLocaleIdentifier("en_IN"); // or "en_US" or "hi_IN" etc.
+      } catch (e) {
+        debugPrint("setLocaleIdentifier failed: $e");
+      }
+      await context.read<AddAddressProvider>().moveToCurrentLocation();
+      // Extra safety: agar upar wala fail bhi ho jaye to bhi try karo
+      if (context.read<AddAddressProvider>().selectedLatLng != null) {
+        await context.read<AddAddressProvider>().onCameraIdle(
+          context.read<AddAddressProvider>().selectedLatLng!,
+        );
+      }
     });
   }
 
@@ -218,6 +237,35 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
                                     ImageConstants.location,
                                     2,
                                     provider.selectedType == 2,
+                                  ),
+                                ],
+                              ),
+                              hBox(20),
+                              Row(
+                                children: [
+                                  SizedBox(
+                                    height: 24,
+                                    width: 24,
+                                    child: Checkbox(
+                                      value: provider.isDefaultAddress,
+                                      onChanged: provider.toggleDefaultAddress,
+                                      activeColor: AppColors.primary,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(4),
+                                      ),
+                                    ),
+                                  ),
+                                  wBox(10),
+                                  GestureDetector(
+                                    onTap: () => provider.toggleDefaultAddress(
+                                      !provider.isDefaultAddress,
+                                    ),
+                                    child: Text(
+                                      "Set as default address",
+                                      style: AppFontStyle.text_14_500(
+                                        AppColors.black,
+                                      ),
+                                    ),
                                   ),
                                 ],
                               ),

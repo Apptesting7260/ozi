@@ -1,6 +1,7 @@
 import 'package:ozi/app/modules/user/Reviews%20Section/screens/allreviewsscreen.dart';
 import 'package:ozi/app/modules/user/home/model/category_model.dart';
 import 'package:ozi/app/modules/user/navigation%20tab/view/navigation_tab_screen.dart';
+import 'package:ozi/app/modules/user/singleService/screen/singleservicescreen.dart';
 import '../../../../../core/appExports/app_export.dart';
 import '../../../../../core/constants/app_urls.dart';
 import '../../../../../data/response/api_status.dart';
@@ -358,97 +359,111 @@ class VendorDetailView extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(15),
-              child: CachedNetworkImage(
-                imageUrl: "${AppUrls.imageBaseUrl}${service.serviceImage}",
-                width: 100.w,
-                height: 100.w,
-                fit: BoxFit.cover,
-                placeholder: (context, url) => Container(
+        GestureDetector(
+          onTap: () {
+            final result = Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) =>
+                    singleServiceScreen(serviceId: service.id!, isCart: true),
+              ),
+            );
+            if (result == true) {
+              provider.refresh();
+            }
+          },
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(15),
+                child: CachedNetworkImage(
+                  imageUrl: "${AppUrls.imageBaseUrl}${service.serviceImage}",
                   width: 100.w,
                   height: 100.w,
-                  color: AppColors.lightGrey,
-                ),
-                errorWidget: (context, url, error) => Container(
-                  width: 100.w,
-                  height: 100.w,
-                  color: AppColors.lightGrey,
-                  child: Icon(Icons.image, color: AppColors.lightGrey2),
+                  fit: BoxFit.cover,
+                  placeholder: (context, url) => Container(
+                    width: 100.w,
+                    height: 100.w,
+                    color: AppColors.lightGrey,
+                  ),
+                  errorWidget: (context, url, error) => Container(
+                    width: 100.w,
+                    height: 100.w,
+                    color: AppColors.lightGrey,
+                    child: Icon(Icons.image, color: AppColors.lightGrey2),
+                  ),
                 ),
               ),
-            ),
-            wBox(16.w),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    service.serviceName ?? "",
-                    style: AppFontStyle.text_16_600(
-                      AppColors.black,
-                      fontFamily: AppFontFamily.semiBold,
+              wBox(16.w),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      service.serviceName ?? "",
+                      style: AppFontStyle.text_16_600(
+                        AppColors.black,
+                        fontFamily: AppFontFamily.semiBold,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
                     ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  hBox(4.h),
-                  Row(
-                    children: [
-                      Icon(
-                        Icons.access_time,
-                        size: 16.w,
-                        color: AppColors.lightGrey3,
-                      ),
-                      wBox(4.w),
-                      Text(
-                        "${service.durationValue} ${service.durationType}",
-                        style: AppFontStyle.text_14_400(AppColors.lightGrey3),
-                      ),
-                    ],
-                  ),
-                  hBox(12.h),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        "\$${service.servicePrice}",
-                        style: AppFontStyle.text_18_600(
-                          AppColors.primary,
-                          fontFamily: AppFontFamily.bold,
+                    hBox(4.h),
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.access_time,
+                          size: 16.w,
+                          color: AppColors.lightGrey3,
                         ),
-                      ),
-                      provider.isInCart(service.id ?? 0)
-                          ? _buildCounter(service.id ?? 0, provider, context)
-                          : CustomButton(
-                              text: "Add",
-                              width: 80.w,
-                              height: 35.h,
-                              borderRadius: BorderRadius.circular(20),
-                              color: AppColors.primary,
-                              textStyle: AppFontStyle.text_14_600(
-                                Colors.white,
-                                fontFamily: AppFontFamily.bold,
-                              ),
-                              onPressed: () async {
-                                if (service.id != null) {
-                                  try {
-                                    await provider.addToCart(service.id!);
-                                  } catch (e) {
-                                    _showErrorDialog(context, e.toString());
+                        wBox(4.w),
+                        Text(
+                          "${service.durationValue} ${service.durationType}",
+                          style: AppFontStyle.text_14_400(AppColors.lightGrey3),
+                        ),
+                      ],
+                    ),
+                    hBox(12.h),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          "\$${service.servicePrice}",
+                          style: AppFontStyle.text_18_600(
+                            AppColors.primary,
+                            fontFamily: AppFontFamily.bold,
+                          ),
+                        ),
+                        provider.isInCart(service.id ?? 0)
+                            ? _buildCounter(service.id ?? 0, provider, context)
+                            : CustomButton(
+                                text: "Add",
+                                width: 80.w,
+                                height: 35.h,
+                                borderRadius: BorderRadius.circular(20),
+                                color: AppColors.primary,
+                                textStyle: AppFontStyle.text_14_600(
+                                  Colors.white,
+                                  fontFamily: AppFontFamily.bold,
+                                ),
+                                onPressed: () async {
+                                  if (service.id != null) {
+                                    try {
+                                      await provider.addToCart(service.id!);
+                                    } catch (e) {
+                                      _showErrorDialog(context, e.toString());
+                                    }
                                   }
-                                }
-                              },
-                            ),
-                    ],
-                  ),
-                ],
+                                },
+                              ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
         hBox(16.h),
         ReadMoreDescription(
@@ -533,11 +548,9 @@ class VendorDetailView extends StatelessWidget {
               try {
                 await provider.decrementQuantity(serviceId);
               } catch (e) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text('Failed to update quantity'),
-                    backgroundColor: Colors.red,
-                  ),
+                Get.showToast(
+                  "Failed to update quantity",
+                  type: ToastType.error,
                 );
               }
             },
@@ -560,11 +573,9 @@ class VendorDetailView extends StatelessWidget {
               try {
                 await provider.incrementQuantity(serviceId);
               } catch (e) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text('Failed to update quantity'),
-                    backgroundColor: Colors.red,
-                  ),
+                Get.showToast(
+                  "Failed to update quantity",
+                  type: ToastType.error,
                 );
               }
             },

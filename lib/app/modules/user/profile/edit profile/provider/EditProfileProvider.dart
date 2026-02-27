@@ -54,12 +54,17 @@ class EditProfileProvider extends ChangeNotifier {
   File? get selectedFile =>
       pickedImage != null ? File(pickedImage!.path) : null;
 
+  String _originalVerifiedEmail = '';
 
   void populateProfileData(dynamic userData) {
     if (userData != null) {
       firstNameController.text = userData.firstName ?? '';
       lastNameController.text = userData.lastName ?? '';
       emailController.text = userData.email ?? '';
+
+      // Store the original email as the verified email
+      _originalVerifiedEmail = (userData.email ?? '').toString().trim();
+      _isEmailVerified = _originalVerifiedEmail.isNotEmpty;
 
       if (userData.proImg != null && userData.proImg.toString().isNotEmpty) {
         networkImage = userData.proImg;
@@ -91,33 +96,33 @@ class EditProfileProvider extends ChangeNotifier {
 
       // VALIDATE RESPONSE PROPERLY
       if (response.status == true) {
-
         final profileProvider = Provider.of<ProfileProvider>(
           context,
           listen: false,
         );
         await profileProvider.fetchUserProfile();
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(response.message ?? "Profile Updated")),
+        Get.showToast(
+          response.message ?? "Profile Updated",
+          type: ToastType.success,
         );
+        // ScaffoldMessenger.of(context).showSnackBar(
+        //   SnackBar(content: Text(response.message ?? "Profile Updated")),
+        // );
 
         Navigator.pop(context);
       } else {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text("Profile Update Failed")));
+        Get.showToast("Profile Update Failed", type: ToastType.error);
+        // ScaffoldMessenger.of(
+        //   context,
+        // ).showSnackBar(SnackBar(content: Text("Profile Update Failed")));
       }
     } catch (e) {
       _isUpdating = false;
       notifyListeners();
-      Get.showToast(
-        e.toString(),
-        type: ToastType.error,
-      );
+      Get.showToast(e.toString(), type: ToastType.error);
     }
   }
-
 
   // Email Verification
 
@@ -161,9 +166,10 @@ class EditProfileProvider extends ChangeNotifier {
           response['message']?.toString().toLowerCase().contains('success') ==
               true) {
         _isEmailVerified = true;
+        // Update the original verified email to the newly verified one
+        _originalVerifiedEmail = emailController.text.trim();
       }
       notifyListeners();
-      // Navigator.pop(navigatorKey.currentContext!);
       return response;
     } catch (e) {
       _otpLoading = false;
@@ -172,16 +178,15 @@ class EditProfileProvider extends ChangeNotifier {
     }
   }
 
-
   void validateEmail(String val) {
     _isEmailValid = RegExp(
       r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
     ).hasMatch(val.trim());
-    _isEmailVerified = false; // Reset verification on change
+    // If user typed back the original verified email, show verified icon
+    // Otherwise, reset verification
+    _isEmailVerified = val.trim() == _originalVerifiedEmail;
     notifyListeners();
   }
-
-
 
   @override
   void dispose() {

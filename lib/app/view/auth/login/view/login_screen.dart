@@ -101,6 +101,7 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   void _handleContinue() async {
+    print("Button pressed");
     final loginProvider = Provider.of<LoginProvider>(context, listen: false);
 
     if (loginProvider.isLoading) return;
@@ -117,7 +118,7 @@ class _LoginScreenState extends State<LoginScreen> {
     );
 
     if (validationError != null) {
-     // _showSnackBar(validationError);
+      // _showSnackBar(validationError);
       Get.showToast(validationError, type: ToastType.warning);
       return;
     }
@@ -132,19 +133,21 @@ class _LoginScreenState extends State<LoginScreen> {
             phone: "+$countryCode $phoneNumber",
             verificationId: loginProvider.verificationId,
           ),
-        ),
-      );
-    } else {
-      if (!success && mounted) {
-        Get.showToast(
-          loginProvider.errorMessageFirebase ??
-              "Failed to send OTP. Please try again.",
-          type: ToastType.warning,
         );
+      } else {
+        if (!success && mounted) {
+          print("object");
+          Get.showToast(
+            loginProvider.errorMessageFirebase ??
+                "Failed to send OTP. Please try again.",
+            type: ToastType.warning,
+          );
+        }
       }
+    } catch (e) {
+      print("otp send error at login : ${e.toString()}");
     }
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -308,11 +311,12 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     color: AppColors.lightGrey2,
                     isOutlined: true,
-                    onPressed: ()
-                    {
+                    onPressed: () {
                       Navigator.push(
                         navigatorKey.currentContext!,
-                        MaterialPageRoute(builder: (_) => NavigationTabScreen()),
+                        MaterialPageRoute(
+                          builder: (_) => NavigationTabScreen(),
+                        ),
                       );
                     },
                   ),

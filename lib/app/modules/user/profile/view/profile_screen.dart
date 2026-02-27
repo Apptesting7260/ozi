@@ -104,6 +104,8 @@ class ProfileScreenView extends StatelessWidget {
                                         profileProvider.profileImage.isNotEmpty
                                         ? profileProvider.profileImage
                                         : "",
+                                    fullName: profileProvider.fullName,
+
                                     size: 90,
                                   ),
                                   hBox(14),
@@ -331,7 +333,13 @@ class ProfileScreenView extends StatelessWidget {
     );
   }
 
-  Widget profileAvatarStatic({required String imageUrl, double size = 95}) {
+  Widget profileAvatarStatic({
+    required String imageUrl,
+    required String fullName,
+    double size = 95,
+  }) {
+    final hasImage = imageUrl.isNotEmpty;
+
     return Container(
       alignment: Alignment.center,
       child: Container(
@@ -342,17 +350,39 @@ class ProfileScreenView extends StatelessWidget {
           border: Border.all(color: AppColors.primary, width: 3),
         ),
         child: ClipOval(
-          child: CustomImage(
-            path: ImagePathHelper.getFullImageUrl(
-              imageUrl,
-              AppUrls.imageBaseUrl,
-            ),
-            fit: BoxFit.cover,
-            // errorWidget: Icon(
-            //   Icons.person,
-            //   size: size * 0.5,
-            //   color: AppColors.grey,
-            // ),
+          child: hasImage
+              ? Image.network(
+                  ImagePathHelper.getFullImageUrl(
+                    imageUrl,
+                    AppUrls.imageBaseUrl,
+                  ),
+                  fit: BoxFit.cover,
+                  height: size,
+                  width: size,
+                  errorBuilder: (_, __, ___) =>
+                      _buildInitialAvatar(fullName, size),
+                )
+              : _buildInitialAvatar(fullName, size),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildInitialAvatar(String fullName, double size) {
+    return Container(
+      height: size,
+      width: size,
+      decoration: BoxDecoration(
+        color: AppColors.primary.withOpacity(0.1),
+        shape: BoxShape.circle,
+      ),
+      child: Center(
+        child: Text(
+          fullName.isNotEmpty ? fullName[0].toUpperCase() : "?",
+          style: TextStyle(
+            fontSize: size * 0.4,
+            fontWeight: FontWeight.bold,
+            color: AppColors.primary,
           ),
         ),
       ),

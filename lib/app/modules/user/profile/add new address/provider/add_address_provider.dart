@@ -47,6 +47,14 @@ class AddAddressProvider extends ChangeNotifier {
   bool _isLocationPermissionDenied = false;
   bool get isLocationPermissionDenied => _isLocationPermissionDenied;
 
+  bool _isDefaultAddress = false;
+  bool get isDefaultAddress => _isDefaultAddress;
+
+  void toggleDefaultAddress(bool? value) {
+    _isDefaultAddress = value ?? false;
+    safeNotifyListeners();
+  }
+
   Future<void> checkLocationPermission() async {
     LocationPermission permission = await Geolocator.checkPermission();
     _isLocationPermissionDenied =
@@ -138,6 +146,9 @@ class AddAddressProvider extends ChangeNotifier {
     if (_isFetchingAddress) return;
     _updateMarker(latLng);
     await _updateLocationAndAddress(latLng);
+    if (streetAddressController.text.trim().length < 12) {
+      await _tryGooglePlacesReverseGeocode(latLng);
+    }
   }
 
   // Helper to update the marker position
@@ -156,6 +167,41 @@ class AddAddressProvider extends ChangeNotifier {
   }
 
   // Common function for address fetching
+  // Future<void> _updateLocationAndAddress(LatLng latLng) async {
+  //   if (_disposed || _isFetchingAddress) return;
+
+  //   _isFetchingAddress = true;
+  //   safeNotifyListeners();
+
+  //   try {
+  //     List<Placemark> placemarks = await placemarkFromCoordinates(
+  //       latLng.latitude,
+  //       latLng.longitude,
+  //     );
+
+  //     if (placemarks.isNotEmpty && !_disposed) {
+  //       Placemark place = placemarks.first;
+
+  //       streetAddressController.text =
+  //           "${place.street ?? ''} ${place.subLocality ?? ''}".trim();
+  //       cityController.text = place.locality ?? '';
+  //       zipCodeController.text = place.postalCode ?? '';
+  //       countryController.text = place.country ?? '';
+
+  //       if (cityController.text.isEmpty) {
+  //         cityController.text = place.subAdministrativeArea ?? '';
+  //       }
+  //     }
+  //   } catch (e) {
+  //     if (kDebugMode) {
+  //       print("Unable to fetch address: $e");
+  //     }
+  //   } finally {
+  //     _isFetchingAddress = false;
+  //     safeNotifyListeners();
+  //   }
+  // }
+
   Future<void> _updateLocationAndAddress(LatLng latLng) async {
     if (_disposed || _isFetchingAddress) return;
 
@@ -163,31 +209,72 @@ class AddAddressProvider extends ChangeNotifier {
     safeNotifyListeners();
 
     try {
+      // Optional: Set desired locale once (you can also call this in initState or earlier)
+      // Best place: call it once when provider initializes or app starts
+      // await setLocaleIdentifier("en_IN");   // Uncomment if you want India-English style
+
       List<Placemark> placemarks = await placemarkFromCoordinates(
         latLng.latitude,
         latLng.longitude,
       );
 
       if (placemarks.isNotEmpty && !_disposed) {
-        Placemark place = placemarks.first;
-
-        streetAddressController.text =
-            "${place.street ?? ''} ${place.subLocality ?? ''}".trim();
-        cityController.text = place.locality ?? '';
-        zipCodeController.text = place.postalCode ?? '';
-        countryController.text = place.country ?? '';
-
-        if (cityController.text.isEmpty) {
-          cityController.text = place.subAdministrativeArea ?? '';
+        // Pick the most useful placemark (first is usually good, but we try to improve)
+        Placemark? bestPlace;
+        for (var place in placemarks) {
+          if ((place.thoroughfare?.isNotEmpty ?? false) ||
+              (place.subThoroughfare?.isNotEmpty ?? false)) {
+            bestPlace = place;
+            break;
+          }
         }
+        bestPlace ??= placemarks.first;
+
+        String fullStreetAddress =
+            [
+                  bestPlace.name,
+                  bestPlace.subThoroughfare,
+                  bestPlace.thoroughfare,
+                  bestPlace.subLocality,
+                  bestPlace.locality,
+                  bestPlace.subAdministrativeArea,
+                ]
+                .where((s) => s != null && s.isNotEmpty)
+                .cast<String>()
+                .fold<List<String>>([], (acc, s) {
+                  if (acc.every(
+                    (existing) =>
+                        !existing.contains(s) && !s.contains(existing),
+                  )) {
+                    acc.add(s);
+                  }
+                  return acc;
+                })
+                .join(', ')
+                .trim();
+
+        if (fullStreetAddress.isEmpty) {
+          fullStreetAddress = bestPlace.name ?? 'Unknown location';
+        }
+
+        // Update controllers (no 'mounted' check needed here)
+        streetAddressController.text = fullStreetAddress;
+        cityController.text =
+            bestPlace.locality ?? bestPlace.subAdministrativeArea ?? '';
+        zipCodeController.text = bestPlace.postalCode ?? '';
+        countryController.text = bestPlace.country ?? 'India';
+
+        // Optional: you can also fill apartment / landmark if useful
+        // apartmentController.text = bestPlace.name ?? '';
       }
     } catch (e) {
-      if (kDebugMode) {
-        print("Unable to fetch address: $e");
-      }
+      debugPrint("Reverse geocoding error: $e");
+      // Optionally show toast / error to user
     } finally {
       _isFetchingAddress = false;
-      safeNotifyListeners();
+      if (!_disposed) {
+        safeNotifyListeners();
+      }
     }
   }
 
@@ -205,6 +292,27 @@ class AddAddressProvider extends ChangeNotifier {
     return null;
   }
 
+  Future<void> _tryGooglePlacesReverseGeocode(LatLng latLng) async {
+    try {
+      final places = GoogleMapsPlaces(apiKey: AddAddressProvider.kGoogleApiKey);
+
+      final response = await places.searchNearbyWithRadius(
+        Location(lat: latLng.latitude, lng: latLng.longitude),
+        50, // 50 meters radius
+        type: "street_address|premise|establishment",
+      );
+
+      if (response.isOkay && response.results.isNotEmpty) {
+        final best = response.results.first;
+        streetAddressController.text = best.formattedAddress ?? "";
+        // ya fir best.name + best.vicinity use kar sakte ho
+        safeNotifyListeners();
+      }
+    } catch (e) {
+      debugPrint("Google nearby reverse failed: $e");
+    }
+  }
+
   // Add new address
   Future<bool> addNewAddress(BuildContext context) async {
     String? validationError = validateForm();
@@ -213,9 +321,7 @@ class AddAddressProvider extends ChangeNotifier {
       safeNotifyListeners();
 
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(validationError), backgroundColor: Colors.red),
-        );
+        Get.showToast(validationError, type: ToastType.error);
       }
       return false;
     }
@@ -224,11 +330,9 @@ class AddAddressProvider extends ChangeNotifier {
       _errorMessage = 'Please select a location on the map';
       safeNotifyListeners();
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Please select a location on the map'),
-            backgroundColor: Colors.red,
-          ),
+        Get.showToast(
+          "Please select a location on the map",
+          type: ToastType.error,
         );
       }
       return false;
@@ -248,7 +352,7 @@ class AddAddressProvider extends ChangeNotifier {
         'address_type': addressType,
         'latitude': selectedLatLng?.latitude.toString(),
         'longitude': selectedLatLng?.longitude.toString(),
-        'is_default': 0,
+        'is_default': _isDefaultAddress ? 1 : 0,
       };
 
       dynamic response = await _repository.addNewUserAddressApi(requestData);
@@ -259,13 +363,9 @@ class AddAddressProvider extends ChangeNotifier {
 
       if (addressModel.status == true) {
         if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                addressModel.message ?? 'Address added successfully',
-              ),
-              backgroundColor: Colors.green,
-            ),
+          Get.showToast(
+            addressModel.message ?? 'Address added successfully',
+            type: ToastType.success,
           );
         }
         clearForm();
@@ -364,8 +464,9 @@ class AddAddressProvider extends ChangeNotifier {
         if (types.contains("country")) country = comp.longName;
       }
 
-      streetAddressController.text = "${street.trim()} ${subLocality.trim()}"
-          .trim();
+      streetAddressController.text =
+          detail.result.formattedAddress ??
+          "${street.trim()} ${subLocality.trim()}".trim();
       cityController.text = city;
       zipCodeController.text = postal;
       countryController.text = country;
@@ -428,8 +529,9 @@ class AddAddressProvider extends ChangeNotifier {
       if (types.contains("country")) country = comp.longName;
     }
 
-    streetAddressController.text = "${street.trim()} ${subLocality.trim()}"
-        .trim();
+    streetAddressController.text =
+        detail.result.formattedAddress ??
+        "${street.trim()} ${subLocality.trim()}".trim();
     cityController.text = city;
     zipCodeController.text = postal;
     countryController.text = country;
@@ -452,6 +554,7 @@ class AddAddressProvider extends ChangeNotifier {
     markers.clear();
     selectedLatLng = null;
     _selectedType = 0;
+    _isDefaultAddress = false;
     _errorMessage = '';
     safeNotifyListeners();
   }

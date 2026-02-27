@@ -298,8 +298,10 @@ class _SavedAddressScreenState extends State<SavedAddressScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<SavedAddressProvider>().fetchUserAddresses();
-      // By default select index 0 (Current Location)
-      context.read<SavedAddressProvider>().selectAddress(0);
+      // By default select -2 (Current Location) if nothing selected
+      if (context.read<SavedAddressProvider>().selectedIndex == -1) {
+        context.read<SavedAddressProvider>().selectAddress(-2);
+      }
     });
   }
 
@@ -340,8 +342,8 @@ class _SavedAddressScreenState extends State<SavedAddressScreen> {
                         // ───────────────────────────────────────────────
                         _addressTile(
                           provider: provider,
-                          index: 0,
-                          selected: provider.selectedIndex == 0,
+                          index: -2,
+                          selected: provider.selectedIndex == -2,
                           title: "Current Location",
                           tag: "Live",
                           icon: "assets/images/proicons--location 2.png",
@@ -350,7 +352,7 @@ class _SavedAddressScreenState extends State<SavedAddressScreen> {
                               provider.currentAddress ??
                               "Using GPS • Fetching your location...",
                           onTap: () {
-                            provider.selectAddress(0);
+                            provider.selectAddress(-2);
                           },
                           onEdit: () {}, // no edit for current location
                           onDelete: () {}, // no delete for current location
@@ -363,22 +365,21 @@ class _SavedAddressScreenState extends State<SavedAddressScreen> {
                         // Saved addresses from API (starting from index 1)
                         // ───────────────────────────────────────────────
                         ...List.generate(provider.addresses.length, (i) {
-                          final realIndex = i + 1; // because 0 = current
                           final address = provider.addresses[i];
 
                           return Padding(
                             padding: const EdgeInsets.only(bottom: 12),
                             child: _addressTile(
                               provider: provider,
-                              index: realIndex,
-                              selected: provider.selectedIndex == realIndex,
+                              index: i,
+                              selected: provider.selectedIndex == i,
                               title: address.addressType ?? 'Other',
                               tag: address.isDefault == 1 ? 'Default' : null,
                               icon: provider.getIconForAddressType(
                                 address.addressType,
                               ),
                               address: provider.getFormattedAddress(address),
-                              onTap: () => provider.selectAddress(realIndex),
+                              onTap: () => provider.selectAddress(i),
                               onEdit: () {
                                 provider.setEditingAddress(address);
                                 Navigator.pushNamed(
