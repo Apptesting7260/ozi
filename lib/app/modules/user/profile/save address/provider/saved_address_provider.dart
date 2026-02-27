@@ -1,3 +1,6 @@
+import 'package:geocoding/geocoding.dart';
+import 'package:geolocator/geolocator.dart';
+
 import '../../../../../core/appExports/app_export.dart';
 import '../../../../../data/repository/repository.dart';
 import '../model/user_address_model.dart';
@@ -32,12 +35,74 @@ class SavedAddressProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  Position? _currentPosition;
+  Position? get currentPosition => _currentPosition;
+
+  String _currentAddress = "Fetching current location...";
+  String get currentAddress => _currentAddress;
+
+  // New method to fetch current location
+  Future<void> fetchCurrentLocation() async {
+    try {
+      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) {
+        _currentAddress = "Location services disabled";
+        notifyListeners();
+        return;
+      }
+
+      LocationPermission permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+        if (permission == LocationPermission.denied) {
+          _currentAddress = "Location permission denied";
+          notifyListeners();
+          return;
+        }
+      }
+
+      if (permission == LocationPermission.deniedForever) {
+        _currentAddress = "Location permission permanently denied";
+        notifyListeners();
+        return;
+      }
+
+      _currentPosition = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high,
+      );
+
+      // Reverse geocoding for readable address
+      List<Placemark> placemarks = await placemarkFromCoordinates(
+        _currentPosition!.latitude,
+        _currentPosition!.longitude,
+      );
+
+      if (placemarks.isNotEmpty) {
+        Placemark place = placemarks[0];
+        _currentAddress = [
+          place.street,
+          place.subLocality,
+          place.locality,
+          place.postalCode,
+          place.country,
+        ].where((e) => e?.isNotEmpty == true).join(", ");
+      } else {
+        _currentAddress =
+            "Current Location (${_currentPosition!.latitude.toStringAsFixed(4)}, ${_currentPosition!.longitude.toStringAsFixed(4)})";
+      }
+    } catch (e) {
+      _currentAddress = "Unable to fetch current location";
+      print("Current location error: $e");
+    }
+    notifyListeners();
+  }
+
   // Fetch user addresses
   Future<void> fetchUserAddresses() async {
     _isLoading = true;
     _errorMessage = '';
     notifyListeners();
-
+    await fetchCurrentLocation();
     try {
       dynamic response = await _repository.getUserAddressApi();
 
@@ -62,10 +127,7 @@ class SavedAddressProvider extends ChangeNotifier {
     } catch (e) {
       _isLoading = false;
       _errorMessage = e.toString().replaceAll('Exception: ', '');
-      Get.showToast(
-        e.toString(),
-        type: ToastType.error,
-      );
+      Get.showToast(e.toString(), type: ToastType.error);
       notifyListeners();
       if (kDebugMode) {
         print('Error fetching addresses: $_errorMessage');
@@ -152,10 +214,7 @@ class SavedAddressProvider extends ChangeNotifier {
       }
 
       if (context.mounted) {
-        Get.showToast(
-          e.toString(),
-          type: ToastType.error,
-        );
+        Get.showToast(e.toString(), type: ToastType.error);
       }
     }
   }

@@ -8,6 +8,7 @@ import '../../../auth/vendor/signup/view/identity_verification_screen.dart';
 import '../address map/view/location_picker.dart';
 import '../edit profile/provider/EditProfileProvider.dart';
 import '../edit profile/view/EditProfileScreen.dart';
+import '../../../../core/utils/location_permission_helper.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -149,7 +150,8 @@ class ProfileScreenView extends StatelessWidget {
                                 ),
                               ),
                             ),
-                            if (profileProvider.userProfile?.data?.userRole == 'vendor')
+                            if (profileProvider.userProfile?.data?.userRole ==
+                                'vendor')
                               _profileTile(
                                 icon: ImageConstants.calendor,
                                 title: "Availability",
@@ -180,9 +182,12 @@ class ProfileScreenView extends StatelessWidget {
                                       builder: (context) =>
                                           IdentityVerificationScreen(
                                             isFromProfile: true,
-                                            docImg: userData?.vendorDetail?.governmentIdImage ,
-                                            certificateImg:
-                                            userData?.vendorDetail?.certificate
+                                            docImg: userData
+                                                ?.vendorDetail
+                                                ?.governmentIdImage,
+                                            certificateImg: userData
+                                                ?.vendorDetail
+                                                ?.certificate,
                                           ),
                                     ),
                                   );
@@ -199,7 +204,7 @@ class ProfileScreenView extends StatelessWidget {
                                     context,
                                     MaterialPageRoute(
                                       builder: (context) =>
-                                          MapPickerPage(isFromProfile: true,),
+                                          MapPickerPage(isFromProfile: true),
                                     ),
                                   );
 
@@ -229,10 +234,18 @@ class ProfileScreenView extends StatelessWidget {
                               _profileTile(
                                 icon: ImageConstants.location,
                                 title: "Saved Addresses",
-                                onTap: () => Navigator.pushNamed(
-                                  context,
-                                  AppRoutes.savedAddressScreen,
-                                ),
+                                onTap: () async {
+                                  if (await LocationPermissionHelper.handleLocationPermission(
+                                    context,
+                                  )) {
+                                    if (context.mounted) {
+                                      Navigator.pushNamed(
+                                        context,
+                                        AppRoutes.savedAddressScreen,
+                                      );
+                                    }
+                                  }
+                                },
                               ),
                             // if (profileProvider.userProfile?.data?.userRole ==
                             //     'user')

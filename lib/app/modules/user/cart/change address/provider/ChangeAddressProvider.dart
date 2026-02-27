@@ -63,10 +63,7 @@ class ChangeAddressProvider extends ChangeNotifier {
         _selectedIndex = defaultIndex != -1 ? defaultIndex : 0;
       }
     } catch (e) {
-      Get.showToast(
-        e.toString(),
-        type: ToastType.error,
-      );
+      Get.showToast(e.toString(), type: ToastType.error);
       _errorMessage = e.toString();
       _addresses = [];
       _selectedIndex = -1;
@@ -166,6 +163,15 @@ class ChangeAddressProvider extends ChangeNotifier {
       return _addresses[_selectedIndex];
     }
     return null;
+  }
+  // ---------------- SELECT ----------------
+
+  void selectCurrentLocation() {
+    _selectedIndex = -2;
+    notifyListeners();
+    if (_currentLocationAddress == null) {
+      useCurrentLocation();
+    }
   }
 
   // ---------------- FORMAT ----------------

@@ -335,9 +335,8 @@ class LoginProvider extends ChangeNotifier {
   Future<bool> sendOtp(String phone) async {
     final Completer<bool> completer = Completer();
 
-    _isLoading = true;
-    errorMessageFirebase = null;
     notifyListeners();
+    print("inside send otp 1");
 
     await _auth.verifyPhoneNumber(
       phoneNumber: phone,
@@ -374,6 +373,7 @@ class LoginProvider extends ChangeNotifier {
         verificationId = verId;
       },
     );
+    print("inside send otp 1");
 
     return completer.future;
   }
@@ -619,7 +619,11 @@ class LoginProvider extends ChangeNotifier {
                   builder: (_) => ChooseRoleScreen(userId: value['user']['id']),
                 ),
               );
-            } else if (value['stepCompleted'] == '1' &&
+            }
+            // else if (value['stepCompleted'] == '1'){
+            //
+            // }
+            else if (value['stepCompleted'] == '1' &&
                 value['role'] == 'vendor') {
               await saveLogin(value['role'], value['token']);
               Navigator.push(

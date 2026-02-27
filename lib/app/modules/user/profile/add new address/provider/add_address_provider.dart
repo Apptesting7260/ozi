@@ -1,5 +1,7 @@
+import 'package:flutter_google_places_hoc081098/flutter_google_places_hoc081098.dart';
+import 'package:flutter_google_places_hoc081098/google_maps_webservice_places.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:geocoding/geocoding.dart';
+import 'package:geocoding/geocoding.dart' hide Location;
 import 'package:geolocator/geolocator.dart';
 import '../../../../../core/appExports/app_export.dart';
 import '../../../../../data/repository/repository.dart';
@@ -9,7 +11,6 @@ class AddAddressProvider extends ChangeNotifier {
   final _repository = Repository();
   bool _disposed = false;
   bool _isFetchingAddress = false;
-
   @override
   void dispose() {
     _disposed = true;
@@ -42,6 +43,17 @@ class AddAddressProvider extends ChangeNotifier {
 
   String _errorMessage = '';
   String get errorMessage => _errorMessage;
+
+  bool _isLocationPermissionDenied = false;
+  bool get isLocationPermissionDenied => _isLocationPermissionDenied;
+
+  Future<void> checkLocationPermission() async {
+    LocationPermission permission = await Geolocator.checkPermission();
+    _isLocationPermissionDenied =
+        (permission == LocationPermission.denied ||
+        permission == LocationPermission.deniedForever);
+    safeNotifyListeners();
+  }
 
   // Google Map State
   GoogleMapController? mapController;
@@ -83,6 +95,26 @@ class AddAddressProvider extends ChangeNotifier {
   // Move to Current Location
   Future<void> moveToCurrentLocation() async {
     try {
+      LocationPermission permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+        if (permission == LocationPermission.denied) {
+          _isLocationPermissionDenied = true;
+          _errorMessage = "Location permission denied";
+          safeNotifyListeners();
+          return;
+        }
+      }
+
+      if (permission == LocationPermission.deniedForever) {
+        _isLocationPermissionDenied = true;
+        _errorMessage = "Location permission permanently denied";
+        safeNotifyListeners();
+        return;
+      }
+
+      _isLocationPermissionDenied = false;
+
       Position position = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high,
       );
@@ -96,7 +128,7 @@ class AddAddressProvider extends ChangeNotifier {
         ),
       );
     } catch (e) {
-      _errorMessage = "Location permission denied";
+      _errorMessage = "Error fetching location: $e";
       safeNotifyListeners();
     }
   }
@@ -248,6 +280,167 @@ class AddAddressProvider extends ChangeNotifier {
       Get.showToast(e.toString(), type: ToastType.error);
       return false;
     }
+  }
+
+  static const String kGoogleApiKey = "AIzaSyApdA5sIEfZoPmhlWuAr5wTgyOXvhl9jsQ";
+
+  Future<void> showLocationSearch(BuildContext context) async {
+    Prediction? prediction = await PlacesAutocomplete.show(
+      context: context,
+      apiKey: kGoogleApiKey,
+      mode: Mode.overlay,
+      language: "en",
+      components: [Component(Component.country, "in")],
+      hint: "Search area, street name, landmark...",
+      location: selectedLatLng != null
+          ? Location(
+              lat: selectedLatLng!.latitude,
+              lng: selectedLatLng!.longitude,
+            )
+          : null,
+      radius: 50000, // suggestions nearby bias
+      offset: 0,
+    );
+
+    if (prediction != null && prediction.placeId != null) {
+      await _processSelectedPlace(prediction, context);
+    }
+  }
+
+  Future<void> selectManualPlace(Prediction prediction) async {
+    if (prediction.placeId == null) return;
+
+    final places = GoogleMapsPlaces(
+      apiKey: "AIzaSyApdA5sIEfZoPmhlWuAr5wTgyOXvhl9jsQ",
+    );
+    PlacesDetailsResponse detail = await places.getDetailsByPlaceId(
+      prediction.placeId!,
+      fields: ["address_components", "geometry", "formatted_address"],
+    );
+    if (!detail.isOkay || detail.result.geometry == null) return;
+
+    final lat = detail.result.geometry!.location.lat;
+    final lng = detail.result.geometry!.location.lng;
+    final newLatLng = LatLng(lat, lng);
+
+    // Update marker (if you have one)
+    _updateMarker(newLatLng);
+    try {
+      final detail = await places.getDetailsByPlaceId(
+        prediction.placeId!,
+        fields: ["address_components", "geometry", "formatted_address"],
+      );
+
+      if (!detail.isOkay || detail.result.geometry == null) return;
+
+      final lat = detail.result.geometry!.location.lat;
+      final lng = detail.result.geometry!.location.lng;
+      final newLatLng = LatLng(lat, lng);
+
+      // Update map
+      await mapController?.animateCamera(
+        CameraUpdate.newCameraPosition(
+          CameraPosition(target: newLatLng, zoom: 17),
+        ),
+      );
+
+      _updateMarker(newLatLng);
+
+      // Fill fields
+      String street = "",
+          subLocality = "",
+          city = "",
+          postal = "",
+          country = "";
+
+      for (var comp in detail.result.addressComponents) {
+        final types = comp.types;
+        if (types.contains("street_number") || types.contains("route")) {
+          street += "${comp.longName} ";
+        }
+        if (types.contains("sublocality")) subLocality = comp.longName;
+        if (types.contains("locality")) city = comp.longName;
+        if (types.contains("postal_code")) postal = comp.longName;
+        if (types.contains("country")) country = comp.longName;
+      }
+
+      streetAddressController.text = "${street.trim()} ${subLocality.trim()}"
+          .trim();
+      cityController.text = city;
+      zipCodeController.text = postal;
+      countryController.text = country;
+
+      apartmentController.text =
+          prediction.description?.split(', ').skip(1).take(2).join(', ') ?? "";
+
+      safeNotifyListeners();
+    } catch (e) {
+      if (kDebugMode) {
+        print("Error in selectManualPlace: $e");
+      }
+    }
+  }
+
+  Future<void> _processSelectedPlace(
+    Prediction prediction,
+    BuildContext context,
+  ) async {
+    final places = GoogleMapsPlaces(apiKey: kGoogleApiKey);
+    PlacesDetailsResponse detail = await places.getDetailsByPlaceId(
+      prediction.placeId!,
+      fields: ["address_components", "geometry", "formatted_address"],
+    );
+
+    if (!detail.isOkay || detail.result.geometry == null) {
+      // Optional: show error toast
+      return;
+    }
+
+    final lat = detail.result.geometry!.location.lat;
+    final lng = detail.result.geometry!.location.lng;
+    final newLatLng = LatLng(lat, lng);
+
+    // Map update (existing map safe rahega)
+    await mapController?.animateCamera(
+      CameraUpdate.newCameraPosition(
+        CameraPosition(target: newLatLng, zoom: 17),
+      ),
+    );
+
+    // Marker if needed (central pin already handle kar raha hai)
+    _updateMarker(newLatLng);
+
+    // Fields fill
+    String street = "";
+    String subLocality = "";
+    String city = "";
+    String postal = "";
+    String country = "";
+
+    for (var comp in detail.result.addressComponents) {
+      final types = comp.types;
+      if (types.contains("street_number") || types.contains("route")) {
+        street += "${comp.longName} ";
+      }
+      if (types.contains("sublocality")) subLocality = comp.longName;
+      if (types.contains("locality")) city = comp.longName;
+      if (types.contains("postal_code")) postal = comp.longName;
+      if (types.contains("country")) country = comp.longName;
+    }
+
+    streetAddressController.text = "${street.trim()} ${subLocality.trim()}"
+        .trim();
+    cityController.text = city;
+    zipCodeController.text = postal;
+    countryController.text = country;
+
+    // Landmark / extra info
+    apartmentController.text =
+        prediction.description ??
+        prediction.description?.split(', ').skip(1).take(2).join(', ') ??
+        "";
+
+    safeNotifyListeners();
   }
 
   void clearForm() {
