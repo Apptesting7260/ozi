@@ -133,19 +133,17 @@ class _LoginScreenState extends State<LoginScreen> {
             phone: "+$countryCode $phoneNumber",
             verificationId: loginProvider.verificationId,
           ),
+        ),
+      );
+    } else {
+      if (!success && mounted) {
+        print("object");
+        Get.showToast(
+          loginProvider.errorMessageFirebase ??
+              "Failed to send OTP. Please try again.",
+          type: ToastType.warning,
         );
-      } else {
-        if (!success && mounted) {
-          print("object");
-          Get.showToast(
-            loginProvider.errorMessageFirebase ??
-                "Failed to send OTP. Please try again.",
-            type: ToastType.warning,
-          );
-        }
       }
-    } catch (e) {
-      print("otp send error at login : ${e.toString()}");
     }
   }
 

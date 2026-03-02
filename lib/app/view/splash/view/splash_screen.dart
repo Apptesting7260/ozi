@@ -37,9 +37,25 @@ class _SplashScreenState extends State<SplashScreen> {
     String? userId = await UserPreference.returnUserId();
     if (step != null && isLogin) {
       if (step == '0') {
+        String? firstName = await UserPreference.returnFirstName();
+        String? lastName = await UserPreference.returnLastName();
+        String? email = await UserPreference.returnEmail();
+        String? phoneNumber = await UserPreference.returnMobile();
+        bool isMobileVerified =
+            await UserPreference.returnIsMobileVerified() ?? false;
+
         Navigator.pushReplacement(
           navigatorKey.currentContext!,
-          MaterialPageRoute(builder: (_) => ChooseRoleScreen(userId: userId)),
+          MaterialPageRoute(
+            builder: (_) => ChooseRoleScreen(
+              userId: userId,
+              firstName: firstName,
+              lastName: lastName,
+              email: email,
+              phoneNumber: phoneNumber,
+              isMobileVerified: isMobileVerified,
+            ),
+          ),
         );
       } else if (step == '1' && role == 'vendor') {
         Navigator.push(
@@ -60,7 +76,7 @@ class _SplashScreenState extends State<SplashScreen> {
         );
       } else {
         loginWithSaveTokenRedirection(role, token);
-            }
+      }
       // if(role=='user'){
       //   Navigator.push(
       //     navigatorKey.currentContext!,

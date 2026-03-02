@@ -4,17 +4,22 @@ import '../../../../shared/widgets/custom_text_form_field.dart';
 import '../provider/create_account_provider.dart';
 
 class CreateAccountScreen extends StatelessWidget {
+  final String userId;
+  final String? firstName;
+  final String? lastName;
+  final String? email;
+  final String? phoneNumber;
+  final bool isMobileVerified;
+
   const CreateAccountScreen({
     super.key,
     required this.userId,
     this.firstName,
     this.lastName,
     this.email,
+    this.phoneNumber,
+    this.isMobileVerified = false,
   });
-  final String userId;
-  final String? firstName;
-  final String? lastName;
-  final String? email;
 
   bool get isGoogleSignUp => email != null && email!.isNotEmpty;
 
@@ -29,6 +34,12 @@ class CreateAccountScreen extends StatelessWidget {
         if (email != null && email!.isNotEmpty) {
           provider.emailController.text = email!;
           provider.setEmailVerifiedFromGoogle();
+        }
+        if (phoneNumber != null) {
+          provider.setMobileData(
+            mobile: phoneNumber!,
+            isVerified: isMobileVerified,
+          );
         }
         return provider;
       },
@@ -232,6 +243,97 @@ class CreateAccountScreen extends StatelessWidget {
                         },
                       ),
 
+                      hBox(16),
+
+                      /// MOBILE NUMBER
+                      CustomTextFormField(
+                        controller: value.mobileController,
+                        label: "Mobile Number",
+                        hintText: "Enter mobile number",
+                        textInputType: TextInputType.phone,
+                        enabled: !value.isMobileVerified,
+                        prefix: Padding(
+                          padding: const EdgeInsets.all(12),
+                          child: Icon(
+                            Icons.phone,
+                            size: 20,
+                            color: AppColors.grey,
+                          ),
+                        ),
+                        onChanged: (val) {
+                          value.updateUI();
+                        },
+                        suffix: value.isMobileVerified
+                            ? Padding(
+                                padding: const EdgeInsets.all(12),
+                                child: Icon(
+                                  Icons.check_circle,
+                                  color: AppColors.green,
+                                  size: 20,
+                                ),
+                              )
+                            : Padding(
+                                padding: const EdgeInsets.all(12),
+                                child: GestureDetector(
+                                  onTap:
+                                      (value.mobileController.text.length >=
+                                              10 &&
+                                          !value.isloading)
+                                      ? () async {
+                                          final phone = value
+                                              .mobileController
+                                              .text
+                                              .trim();
+                                          final fullPhone =
+                                              phone.startsWith("+")
+                                              ? phone
+                                              : "+91$phone";
+                                          final success = await value
+                                              .sendMobileOtp(fullPhone);
+                                          if (success) {
+                                            _showMobileOtpDialog(
+                                              context,
+                                              value,
+                                              userId,
+                                            );
+                                          }
+                                        }
+                                      : null,
+                                  child: value.isloading
+                                      ? SizedBox(
+                                          height: 18,
+                                          width: 18,
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 2,
+                                            color: AppColors.primary,
+                                          ),
+                                        )
+                                      : Text(
+                                          "Verify",
+                                          style: AppFontStyle.text_14_400(
+                                            value
+                                                        .mobileController
+                                                        .text
+                                                        .length >=
+                                                    10
+                                                ? AppColors.primary
+                                                : AppColors.grey,
+                                          ),
+                                        ),
+                                ),
+                              ),
+                        borderRadius: 60,
+                        validator: (val) {
+                          if (val == null || val.trim().isEmpty) {
+                            return "Mobile number is required";
+                          }
+                          if (val.trim().length < 10) {
+                            return "Enter a valid mobile number";
+                          }
+                          return null;
+                        },
+                      ),
+
                       hBox(30),
 
                       CustomButton(
@@ -239,14 +341,10 @@ class CreateAccountScreen extends StatelessWidget {
                         onPressed:
                             (value.loading ||
                                 !value.isEmailVerified ||
+                                !value.isMobileVerified ||
                                 value.firstNameController.text.trim().isEmpty ||
                                 value.lastNameController.text.trim().isEmpty)
-                            ? () {
-                                if (value.formKey.currentState?.validate() ??
-                                    false) {
-                                  value.createAccount(userId, context);
-                                }
-                              }
+                            ? null
                             : () {
                                 if (value.formKey.currentState?.validate() ??
                                     false) {
@@ -285,6 +383,20 @@ class CreateAccountScreen extends StatelessWidget {
       barrierDismissible: false,
       builder: (context) {
         return _OtpDialogContent(provider: provider, userId: userId);
+      },
+    );
+  }
+
+  void _showMobileOtpDialog(
+    BuildContext context,
+    CreateAccountProvider provider,
+    String userId,
+  ) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        return _MobileOtpDialogContent(provider: provider, userId: userId);
       },
     );
   }
@@ -361,13 +473,11 @@ class _OtpDialogContentState extends State<_OtpDialogContent> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              "Enter the 4-digit OTP sent to your email.",
+              "Enter the 6-digit OTP sent to your email.",
               textAlign: TextAlign.center,
               style: AppFontStyle.text_14_400(AppColors.grey),
             ),
-            hBox(20),
+            hBox(30),
             PinCodeTextField(
               appContext: context,
               length: 6,
@@ -381,15 +491,16 @@ class _OtpDialogContentState extends State<_OtpDialogContent> {
                 }
               },
               keyboardType: TextInputType.number,
+              enableActiveFill: true,
               pinTheme: PinTheme(
                 shape: PinCodeFieldShape.circle,
                 fieldHeight: 48,
                 fieldWidth: 48,
-                activeFillColor: AppColors.lightGrey2,
-                inactiveFillColor: AppColors.lightGrey2,
-                selectedFillColor: AppColors.lightGrey2,
+                activeFillColor: AppColors.fieldBgColor,
+                inactiveFillColor: AppColors.fieldBgColor,
+                selectedFillColor: AppColors.fieldBgColor,
                 activeColor: AppColors.primary,
-                inactiveColor: Colors.white24,
+                inactiveColor: Colors.transparent,
                 selectedColor: AppColors.primary,
                 borderWidth: 0,
               ),
@@ -404,7 +515,7 @@ class _OtpDialogContentState extends State<_OtpDialogContent> {
                 ),
               ),
             ],
-            hBox(20),
+            hBox(30),
             if (secondsRemaining > 0)
               Center(
                 child: Text(
@@ -431,7 +542,9 @@ class _OtpDialogContentState extends State<_OtpDialogContent> {
                                 .emailSendApi({
                                   "email": widget.provider.emailController.text
                                       .trim(),
+                                  "user_id": widget.userId,
                                 });
+
                             if (response['status'] == true ||
                                 response['status'] == 200) {
                               startTimer(clearSuccess: false);
@@ -501,7 +614,7 @@ class _OtpDialogContentState extends State<_OtpDialogContent> {
                       : CustomButton(
                           height: 50,
                           onPressed: () async {
-                            if (otpCode.length == 4) {
+                            if (otpCode.length == 6) {
                               try {
                                 final response = await widget.provider
                                     .verifyEmailApi({
@@ -533,7 +646,7 @@ class _OtpDialogContentState extends State<_OtpDialogContent> {
                               }
                             } else {
                               setState(() {
-                                errorMessage = "Please enter a 4-digit OTP";
+                                errorMessage = "Please enter a 6-digit OTP";
                               });
                             }
                           },
@@ -544,6 +657,100 @@ class _OtpDialogContentState extends State<_OtpDialogContent> {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _MobileOtpDialogContent extends StatefulWidget {
+  final CreateAccountProvider provider;
+  final String userId;
+
+  const _MobileOtpDialogContent({required this.provider, required this.userId});
+
+  @override
+  State<_MobileOtpDialogContent> createState() =>
+      _MobileOtpDialogContentState();
+}
+
+class _MobileOtpDialogContentState extends State<_MobileOtpDialogContent> {
+  String otpCode = "";
+  String? errorMessage;
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      title: Text(
+        "Mobile OTP",
+        textAlign: TextAlign.center,
+        style: AppFontStyle.text_20_600(AppColors.darkText),
+      ),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            "Enter the 6-digit OTP sent to your phone.",
+            textAlign: TextAlign.center,
+            style: AppFontStyle.text_14_400(AppColors.grey),
+          ),
+          hBox(30),
+          PinCodeTextField(
+            appContext: context,
+            length: 6,
+            onChanged: (v) => otpCode = v,
+            keyboardType: TextInputType.number,
+            enableActiveFill: true,
+            pinTheme: PinTheme(
+              shape: PinCodeFieldShape.box,
+              borderRadius: BorderRadius.circular(8),
+              fieldHeight: 45,
+              fieldWidth: 40,
+              activeFillColor: AppColors.fieldBgColor,
+              inactiveFillColor: AppColors.fieldBgColor,
+              selectedFillColor: AppColors.fieldBgColor,
+              activeColor: AppColors.primary,
+              inactiveColor: Colors.transparent,
+              selectedColor: AppColors.primary,
+              borderWidth: 0,
+            ),
+          ),
+          if (errorMessage != null)
+            Text(errorMessage!, style: AppFontStyle.text_12_400(AppColors.red)),
+          hBox(30),
+          Row(
+            children: [
+              Expanded(
+                child: CustomButton(
+                  height: 45,
+                  text: "Cancel",
+                  color: AppColors.grey,
+                  onPressed: () => Navigator.pop(context),
+                ),
+              ),
+              wBox(10),
+              Expanded(
+                child: CustomButton(
+                  height: 45,
+                  text: "Verify",
+                  isLoading: widget.provider.otpLoading,
+                  onPressed: () async {
+                    if (otpCode.length == 6) {
+                      final success = await widget.provider.verifyMobileOtp(
+                        otpCode,
+                      );
+                      if (success) {
+                        Navigator.pop(context);
+                      } else {
+                        setState(() => errorMessage = "Invalid OTP");
+                      }
+                    }
+                  },
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }

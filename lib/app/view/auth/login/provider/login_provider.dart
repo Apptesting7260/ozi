@@ -635,9 +635,20 @@ class LoginProvider extends ChangeNotifier {
               ? user['step_completed']
               : int.tryParse(user['step_completed']?.toString() ?? '0') ?? 0;
 
-          await UserPreference.saveToken(apiToken);
+          await UserPreference.saveAccessToken(apiToken);
           await UserPreference.saveUserId(userId);
-          await UserPreference.saveLoginStatus(true);
+          if (userRole != null) await UserPreference.saveRole(userRole);
+          await UserPreference.saveIsLoggedIn(true);
+          await UserPreference.saveStep(stepCompleted.toString());
+          await UserPreference.saveFirstName(
+            user['first_name']?.toString() ?? '',
+          );
+          await UserPreference.saveLastName(
+            user['last_name']?.toString() ?? '',
+          );
+          await UserPreference.saveEmail(user['email']?.toString() ?? '');
+          await UserPreference.saveMobile(user['mobile']?.toString() ?? '');
+          await UserPreference.saveIsMobileVerified(false);
           if (navigatorKey.currentContext!.mounted) {
             if (stepCompleted == 0 || userRole == null) {
               Navigator.pushReplacement(
@@ -648,6 +659,8 @@ class LoginProvider extends ChangeNotifier {
                     firstName: user['first_name']?.toString(),
                     lastName: user['last_name']?.toString(),
                     email: user['email']?.toString(),
+                    phoneNumber: user['mobile']?.toString(),
+                    isMobileVerified: false,
                   ),
                 ),
               );

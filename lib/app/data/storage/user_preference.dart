@@ -22,14 +22,19 @@ class UserPreference {
     secureStorage.write(key: "refresh_token", value: token);
   }
 
-  static saveLoginStatus(bool isLogin) async {
+  static saveIsLoggedIn(bool value) async {
     SharedPreferences pref = await SharedPreferences.getInstance();
-    pref.setBool("isLogin", isLogin);
+    pref.setBool("isLoggedIn", value);
+    // Also set isLogin for compatibility if needed, but we should migrate to isLoggedIn
+    pref.setBool("isLogin", value);
   }
 
-  static isLoggedIn(bool step) async {
-    SharedPreferences pref = await SharedPreferences.getInstance();
-    pref.setBool("isLoggedIn", step);
+  static saveLoginStatus(bool isLogin) async {
+    await saveIsLoggedIn(isLogin);
+  }
+
+  static isLoggedIn(bool value) async {
+    await saveIsLoggedIn(value);
   }
 
   static Future<bool?> returnIsLoggedIn() async {
@@ -77,6 +82,56 @@ class UserPreference {
     return userId;
   }
 
+  static saveFirstName(String firstName) async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    pref.setString("firstName", firstName);
+  }
+
+  static Future<String?> returnFirstName() async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    return pref.getString("firstName");
+  }
+
+  static saveLastName(String lastName) async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    pref.setString("lastName", lastName);
+  }
+
+  static Future<String?> returnLastName() async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    return pref.getString("lastName");
+  }
+
+  static saveEmail(String email) async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    pref.setString("email", email);
+  }
+
+  static Future<String?> returnEmail() async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    return pref.getString("email");
+  }
+
+  static saveMobile(String mobile) async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    pref.setString("mobile", mobile);
+  }
+
+  static Future<String?> returnMobile() async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    return pref.getString("mobile");
+  }
+
+  static saveIsMobileVerified(bool isVerified) async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    pref.setBool("isMobileVerified", isVerified);
+  }
+
+  static Future<bool?> returnIsMobileVerified() async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    return pref.getBool("isMobileVerified");
+  }
+
   static clearSharedPreference() async {
     SharedPreferences pref = await SharedPreferences.getInstance();
     pref.remove('accessToken');
@@ -84,5 +139,10 @@ class UserPreference {
     pref.remove('role');
     pref.remove('step');
     pref.remove('userid');
+    pref.remove('firstName');
+    pref.remove('lastName');
+    pref.remove('email');
+    pref.remove('mobile');
+    pref.remove('isMobileVerified');
   }
 }

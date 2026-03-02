@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:ozi/app/core/device%20info/get_device_Info.dart';
 import 'package:ozi/app/core/push%20notification/push_notification.dart';
 
@@ -18,6 +19,7 @@ class CreateAccountProvider with ChangeNotifier {
   TextEditingController firstNameController = TextEditingController();
   TextEditingController lastNameController = TextEditingController();
   TextEditingController emailController = TextEditingController();
+  TextEditingController mobileController = TextEditingController();
 
   final Repository _repository = Repository();
 
@@ -29,6 +31,12 @@ class CreateAccountProvider with ChangeNotifier {
 
   bool _isloading = false;
   bool get isloading => _isloading;
+
+  bool _isMobileVerified = false;
+  bool get isMobileVerified => _isMobileVerified;
+
+  String _verificationId = '';
+  String get verificationId => _verificationId;
 
   updateISLoading(bool value) {
     _isloading = value;
@@ -50,6 +58,73 @@ class CreateAccountProvider with ChangeNotifier {
   void setEmailVerifiedFromGoogle() {
     _isEmailValid = true;
     _isEmailVerified = true;
+  }
+
+  void setMobileData({required String mobile, required bool isVerified}) {
+    mobileController.text = mobile;
+    _isMobileVerified = isVerified;
+    notifyListeners();
+  }
+
+  Future<bool> sendMobileOtp(String phone) async {
+    final Completer<bool> completer = Completer();
+    updateISLoading(true);
+
+    await FirebaseAuth.instance.verifyPhoneNumber(
+      phoneNumber: phone,
+      timeout: const Duration(seconds: 60),
+      verificationCompleted: (PhoneAuthCredential credential) async {
+        try {
+          await FirebaseAuth.instance.signInWithCredential(credential);
+          _isMobileVerified = true;
+          notifyListeners();
+        } catch (e) {
+          debugPrint("Auto-verification failed: $e");
+        }
+      },
+      verificationFailed: (FirebaseAuthException e) {
+        updateISLoading(false);
+        completer.complete(false);
+        Get.showToast(
+          e.message ?? "Verification failed",
+          type: ToastType.error,
+        );
+      },
+      codeSent: (String verId, int? resendToken) {
+        _verificationId = verId;
+        updateISLoading(false);
+        completer.complete(true);
+      },
+      codeAutoRetrievalTimeout: (String verId) {
+        _verificationId = verId;
+      },
+    );
+
+    return completer.future;
+  }
+
+  Future<bool> verifyMobileOtp(String otp) async {
+    try {
+      _otpLoading = true;
+      notifyListeners();
+
+      PhoneAuthCredential credential = PhoneAuthProvider.credential(
+        verificationId: _verificationId,
+        smsCode: otp,
+      );
+
+      await FirebaseAuth.instance.signInWithCredential(credential);
+
+      _isMobileVerified = true;
+      _otpLoading = false;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _otpLoading = false;
+      notifyListeners();
+      Get.showToast("Invalid OTP", type: ToastType.error);
+      return false;
+    }
   }
 
   Future<dynamic> emailSendApi(Map<String, dynamic> data) async {
@@ -113,6 +188,7 @@ class CreateAccountProvider with ChangeNotifier {
         "first_name": firstNameController.text.trim(),
         "last_name": lastNameController.text.trim(),
         "email": emailController.text.trim(),
+        "mobile": mobileController.text.trim(),
         "fcm_token": PushNotificationService.fcmToken ?? "",
         "device_name": deviceInfo["device_name"] ?? "",
         "device_type": deviceInfo["device_type"] ?? "",
@@ -153,6 +229,14 @@ class CreateAccountProvider with ChangeNotifier {
     await UserPreference.saveRole(role);
     await UserPreference.saveUserId(userId);
     await UserPreference.saveStep('1');
+
+    // Clear temporary data after successful registration
+    final SharedPreferences pref = await SharedPreferences.getInstance();
+    await pref.remove('firstName');
+    await pref.remove('lastName');
+    await pref.remove('email');
+    await pref.remove('mobile');
+    await pref.remove('isMobileVerified');
     if (role == 'user') {
       Navigator.push(
         navigatorKey.currentContext!,
@@ -193,6 +277,7 @@ class CreateAccountProvider with ChangeNotifier {
     firstNameController.dispose();
     lastNameController.dispose();
     emailController.dispose();
+    mobileController.dispose();
     super.dispose();
   }
 }

@@ -3,17 +3,22 @@ import '../../../../core/appExports/app_export.dart';
 import '../../../auth/create account/view/create_account_screen.dart';
 
 class ChooseRoleScreen extends StatelessWidget {
+  final String? userId;
+  final String? firstName;
+  final String? lastName;
+  final String? email;
+  final String? phoneNumber;
+  final bool isMobileVerified;
+
   const ChooseRoleScreen({
     super.key,
     this.userId,
     this.firstName,
     this.lastName,
     this.email,
+    this.phoneNumber,
+    this.isMobileVerified = false,
   });
-  final String? userId;
-  final String? firstName;
-  final String? lastName;
-  final String? email;
 
   @override
   Widget build(BuildContext context) {
@@ -109,6 +114,8 @@ class ChooseRoleScreen extends StatelessWidget {
             firstName: firstName,
             lastName: lastName,
             email: email,
+            phoneNumber: phoneNumber,
+            isMobileVerified: isMobileVerified,
           ),
         ),
       );

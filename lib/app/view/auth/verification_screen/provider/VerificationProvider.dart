@@ -16,7 +16,6 @@ import '../../../user_role/choose_your_role/view/choose_role.dart';
 import '../model/verify_otp.dart';
 
 class VerificationProvider extends ChangeNotifier {
-
   String verificationId;
 
   VerificationProvider(this.verificationId) {
@@ -25,7 +24,7 @@ class VerificationProvider extends ChangeNotifier {
   }
   final TextEditingController otpController = TextEditingController();
   final NetworkApiServices _apiService = NetworkApiServices();
- // String? token = PushNotificationService.fcmToken;
+  // String? token = PushNotificationService.fcmToken;
   int? _resendToken;
 
   int resendTime = 60;
@@ -159,11 +158,9 @@ class VerificationProvider extends ChangeNotifier {
 
   int get otpSecondsRemaining {
     if (_otpSentAt == null) return 0;
-    final remaining =
-        _otpValidFor - DateTime.now().difference(_otpSentAt!);
+    final remaining = _otpValidFor - DateTime.now().difference(_otpSentAt!);
     return remaining.inSeconds > 0 ? remaining.inSeconds : 0;
   }
-
 
   Future<void> verifyOtpMethod(String phone) async {
     if (isLoading) return;
@@ -194,38 +191,40 @@ class VerificationProvider extends ChangeNotifier {
       );
 
       // Sign in with Firebase
-      UserCredential userCredential = await FirebaseAuth.instance.signInWithCredential(credential);
+      UserCredential userCredential = await FirebaseAuth.instance
+          .signInWithCredential(credential);
 
-     // String? idToken = await FirebaseAuth.instance.currentUser?.getIdToken();
+      // String? idToken = await FirebaseAuth.instance.currentUser?.getIdToken();
       User? user = userCredential.user;
-
 
       if (user == null) {
         if (kDebugMode) {
-          print("Firebase User =========================================================> $user");
+          print(
+            "Firebase User =========================================================> $user",
+          );
         }
         throw Exception("Firebase user is null");
       }
 
       // Get Firebase ID token
-       String idToken = (await user.getIdToken())!;
+      String idToken = (await user.getIdToken())!;
 
-          String countryCode = "+91";
-          String mobile = phone;
+      String countryCode = "+91";
+      String mobile = phone;
 
-          if (phone.startsWith("+")) {
-            int spaceIndex = phone.indexOf(" ");
-            if (spaceIndex > 0) {
-              countryCode = phone.substring(0, spaceIndex);
-              mobile = phone.substring(spaceIndex + 1);
-            }
-          }
+      if (phone.startsWith("+")) {
+        int spaceIndex = phone.indexOf(" ");
+        if (spaceIndex > 0) {
+          countryCode = phone.substring(0, spaceIndex);
+          mobile = phone.substring(spaceIndex + 1);
+        }
+      }
 
       //  Prepare backend request
       Map<String, dynamic> requestData = {
         "country_code": countryCode,
         "mobile": mobile,
-        "fcm_token":PushNotificationService.fcmToken ?? "",
+        "fcm_token": PushNotificationService.fcmToken ?? "",
         "id_token": idToken,
         "device_name": deviceInfo["device_name"] ?? "",
         "device_type": deviceInfo["device_type"] ?? "",
@@ -241,9 +240,11 @@ class VerificationProvider extends ChangeNotifier {
         await saveLogin(response.nextStep, response.token);
         await UserPreference.saveUserId(response.userId ?? "");
         await UserPreference.saveStep(response.stepCompleted ?? "0");
-        navigatorKey.currentContext!
-            .read<AuthGuestProvider>()
-            .updateLogin(true);
+        await UserPreference.saveMobile(phone);
+        await UserPreference.saveIsMobileVerified(true);
+        navigatorKey.currentContext!.read<AuthGuestProvider>().updateLogin(
+          true,
+        );
 
         //  Debug Prints
         if (kDebugMode) {
@@ -267,77 +268,71 @@ class VerificationProvider extends ChangeNotifier {
           print("================================");
         }
 
-
-
         await _auth.signOut();
         if (kDebugMode) {
-          print("Successfully session clear =====================> ${_auth.currentUser}");
+          print(
+            "Successfully session clear =====================> ${_auth.currentUser}",
+          );
         }
-              if (navigatorKey.currentContext!.mounted) {
-                if(response.stepCompleted=='0'){
-                  Navigator.pushReplacement(
-                    navigatorKey.currentContext!,
-                    MaterialPageRoute(
-                      builder: (_) => ChooseRoleScreen(userId: response.userId,),
-                    ),
-                  );
-                }else if(response.stepCompleted=='1'&&response.role=='vendor'){
-                  await saveLogin(response.role,response.token);
-                  Navigator.push(
-                    navigatorKey.currentContext!,
-                    MaterialPageRoute(
-                      builder: (_) => ServiceCategory(),
-                    ),
-                  );
-                }else if(response.stepCompleted=='2'&&response.role=='vendor'){
-                  await saveLogin(response.role,response.token);
-                  Navigator.push(
-                    navigatorKey.currentContext!,
-                    MaterialPageRoute(
-                      builder: (_) => SetAvailabilityScreen(false),
-                    ),
-                  );
-                }else if(response.stepCompleted=='3'&&response.role=='vendor'){
-                  await saveLogin(response.role,response.token);
-                  Navigator.push(
-                    navigatorKey.currentContext!,
-                    MaterialPageRoute(
-                      builder: (_) => IdentityVerificationScreen(isFromProfile: false,),
-                    ),
-                  );
-                }
-
-          else {
-            loginWithSaveTokenRedirection(
-                response.role, response.token);
+        if (navigatorKey.currentContext!.mounted) {
+          if (response.stepCompleted == '0') {
+            Navigator.pushReplacement(
+              navigatorKey.currentContext!,
+              MaterialPageRoute(
+                builder: (_) => ChooseRoleScreen(
+                  userId: response.userId,
+                  phoneNumber: phone,
+                  isMobileVerified: true,
+                ),
+              ),
+            );
+          } else if (response.stepCompleted == '1' &&
+              response.role == 'vendor') {
+            await saveLogin(response.role, response.token);
+            Navigator.push(
+              navigatorKey.currentContext!,
+              MaterialPageRoute(builder: (_) => ServiceCategory()),
+            );
+          } else if (response.stepCompleted == '2' &&
+              response.role == 'vendor') {
+            await saveLogin(response.role, response.token);
+            Navigator.push(
+              navigatorKey.currentContext!,
+              MaterialPageRoute(builder: (_) => SetAvailabilityScreen(false)),
+            );
+          } else if (response.stepCompleted == '3' &&
+              response.role == 'vendor') {
+            await saveLogin(response.role, response.token);
+            Navigator.push(
+              navigatorKey.currentContext!,
+              MaterialPageRoute(
+                builder: (_) =>
+                    IdentityVerificationScreen(isFromProfile: false),
+              ),
+            );
+          } else {
+            loginWithSaveTokenRedirection(response.role, response.token);
           }
         }
 
         notifyListeners();
       } else {
-        errorMessage =
-            response.message ?? "Login failed. Please try again.";
+        errorMessage = response.message ?? "Login failed. Please try again.";
         notifyListeners();
       }
     } on FirebaseAuthException catch (e) {
       isLoading = false;
-      errorMessage = mapFirebaseError(
-        e,
-        flow: AuthFlowType.verifyOtp,
-      );
+      errorMessage = mapFirebaseError(e, flow: AuthFlowType.verifyOtp);
       notifyListeners();
     } catch (e) {
       isLoading = false;
-      errorMessage = "We couldn't verify your OTP at the moment. Please try again.";
+      errorMessage =
+          "We couldn't verify your OTP at the moment. Please try again.";
       notifyListeners();
     }
   }
 
-
-
-
   Future<void> saveLogin(String? role, String? token) async {
-
     if (role != null) {
       await UserPreference.saveRole(role);
     }
@@ -351,27 +346,25 @@ class VerificationProvider extends ChangeNotifier {
     await UserPreference.isLoggedIn(true);
   }
 
-  Future<void> loginWithSaveTokenRedirection(String? role,String? token) async {
-    if(role==null||token==null){
+  Future<void> loginWithSaveTokenRedirection(
+    String? role,
+    String? token,
+  ) async {
+    if (role == null || token == null) {
       return;
     }
-    await saveLogin(role,token);
-    if(role=='user'){
+    await saveLogin(role, token);
+    if (role == 'user') {
       Navigator.push(
         navigatorKey.currentContext!,
-        MaterialPageRoute(
-          builder: (_) =>   NavigationTabScreen(),
-        ),
+        MaterialPageRoute(builder: (_) => NavigationTabScreen()),
       );
-    }else if(role=='vendor'){
+    } else if (role == 'vendor') {
       Navigator.push(
         navigatorKey.currentContext!,
-        MaterialPageRoute(
-          builder: (_) =>   VendorNavigationTabScreen(),
-        ),
+        MaterialPageRoute(builder: (_) => VendorNavigationTabScreen()),
       );
     }
-
   }
 
   Future<VerifyOtp> verificationUser(Map<String, dynamic> data) async {
@@ -405,10 +398,7 @@ class VerificationProvider extends ChangeNotifier {
 
         verificationFailed: (FirebaseAuthException e) {
           isLoading = false;
-          errorMessage = mapFirebaseError(
-            e,
-            flow: AuthFlowType.resendOtp,
-          );
+          errorMessage = mapFirebaseError(e, flow: AuthFlowType.resendOtp);
           notifyListeners();
         },
 
