@@ -119,8 +119,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
     if (validationError != null) {
       // _showSnackBar(validationError);
-      Get.showToast(validationError, type: ToastType.warning);
-      return;
+      Get.showToast(validationError, type: ToastType.warning); return;
     }
 
     final success = await loginProvider.sendOtp("+$countryCode$phoneNumber");
@@ -201,18 +200,18 @@ class _LoginScreenState extends State<LoginScreen> {
                           onTap: loginProvider.isLoading
                               ? null
                               : () {
-                                  showCountryPicker(
-                                    context: context,
-                                    showPhoneCode: true,
-                                    onSelect: (Country country) {
-                                      setState(() {
-                                        _selectedCountry = country;
-                                        _phoneController.clear();
-                                        _updateMaxPhoneLength();
-                                      });
-                                    },
-                                  );
-                                },
+                            showCountryPicker(
+                              context: context,
+                              showPhoneCode: true,
+                              onSelect: (Country country) {
+                                setState(() {
+                                  _selectedCountry = country;
+                                  _phoneController.clear();
+                                  _updateMaxPhoneLength();
+                                });
+                              },
+                            );
+                          },
                           child: Row(
                             children: [
                               Text(
@@ -243,7 +242,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             decoration: InputDecoration(
                               border: InputBorder.none,
                               hintText:
-                                  "Phone Number ($_maxPhoneLength digits)",
+                              "Phone Number ($_maxPhoneLength digits)",
                               hintStyle: AppFontStyle.text_16_400(
                                 AppColors.grey,
                               ),
@@ -298,6 +297,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     isLoading: loginProvider.isLoading,
                     onPressed: _handleContinue,
                   ),
+
 
                   hBox(14),
 
