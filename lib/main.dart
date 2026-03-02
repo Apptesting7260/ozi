@@ -21,6 +21,7 @@ import 'app/modules/user/profile/login details/provider/login_details_provider.d
 import 'app/modules/user/profile/save address/provider/saved_address_provider.dart';
 import 'app/modules/user/profile/view/profile_provider/profile_provider.dart';
 import 'app/modules/vendor/home/new requests/provider/new_requests_provider.dart';
+import 'app/modules/vendor/home/provider/vendor_home_provider.dart';
 import 'app/modules/vendor/services/provider/service_provider.dart';
 import 'app/routes/app_routes.dart';
 import 'app/view/message/provider/message_provider.dart';
@@ -79,6 +80,7 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => LoginProvider()),
+        ChangeNotifierProvider(create: (_) => VendorHomeProvider()),
         ChangeNotifierProvider(create: (_) => SplashProvider()),
         ChangeNotifierProvider(create: (_) => VendorNavigationProvider()),
         ChangeNotifierProvider(create: (_) => NavigationProvider()),

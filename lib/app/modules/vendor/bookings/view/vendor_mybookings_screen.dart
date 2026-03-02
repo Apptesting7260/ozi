@@ -89,7 +89,7 @@ class _MyBookingsContent extends StatelessWidget {
               ApiStatus.completed =>
                   Expanded(
                     child: RefreshIndicator(
-                      onRefresh: provider.getAllBookings,
+                      onRefresh: provider.refreshBookings,
                       child:provider.homeModel.data?.data==null ||provider.homeModel.data!.data!.isEmpty
                           ? Center(
                         child: Text(
@@ -114,8 +114,38 @@ class _MyBookingsContent extends StatelessWidget {
                                 ),
                               );
                             },
-                            onAccept: () =>  newRequestProvider.acceptOrRejectRequest('accept',booking.bookingCode??''),
-                            onReject:() =>  newRequestProvider.acceptOrRejectRequest('reject',booking.bookingCode??''),
+                              onAccept: () async {
+                                final success =
+                                await newRequestProvider.acceptOrRejectRequest(
+                                  'accept',
+                                  booking.id ?? '',
+                                );
+
+                                if (kDebugMode) {
+                                  print("Accept Is Working ==================> $success");
+                                }
+
+                                if (success && context.mounted) {
+                                  Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: (_) => VendorBookingDetailsScreen(
+                                        bookingId: booking.id.toString(),
+                                      ),
+                                    ),
+                                  );
+                                }
+                              },
+
+                            onReject: () async {
+                              await newRequestProvider.acceptOrRejectRequest('reject', booking.id ?? '');
+                              await provider.refreshBookings();
+                              // final success = await newRequestProvider.acceptOrRejectRequest(
+                              //     'reject', booking.id ?? '');
+                              //c
+                              // if (success) {
+                              //   provider.refreshBookings();
+                              // }
+                            },
                           );
                         },
                       ),
@@ -153,8 +183,9 @@ class _BookingCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
 
-    return GestureDetector(
+    return InkWell(
       onTap: onTap,
+      borderRadius: BorderRadius.circular(16),
       child: Container(
         margin:  EdgeInsets.only(bottom: 14),
         padding:  EdgeInsets.all(14),
