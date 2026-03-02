@@ -132,6 +132,16 @@ class UserPreference {
     return pref.getBool("isMobileVerified");
   }
 
+  static saveIsRoleSelected(bool isSelected) async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    pref.setBool("isRoleSelected", isSelected);
+  }
+
+  static Future<bool?> returnIsRoleSelected() async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    return pref.getBool("isRoleSelected");
+  }
+
   static clearSharedPreference() async {
     SharedPreferences pref = await SharedPreferences.getInstance();
     pref.remove('accessToken');
@@ -144,5 +154,6 @@ class UserPreference {
     pref.remove('email');
     pref.remove('mobile');
     pref.remove('isMobileVerified');
+    pref.remove('isRoleSelected');
   }
 }

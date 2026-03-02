@@ -22,9 +22,7 @@ class FetchDataException extends AppExceptions {
 
 class UnauthenticatedException extends AppExceptions {
   UnauthenticatedException([String? message])
-      : super(message, "Token has been invalidated. Please login again.") {
-    
-
+    : super(message, "Token has been invalidated. Please login again.") {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _handleLogout();
     });
@@ -38,26 +36,21 @@ class UnauthenticatedException extends AppExceptions {
       Navigator.pushNamedAndRemoveUntil(
         context,
         AppRoutes.login,
-            (route) => false,
+        (route) => false,
       );
     }
   }
 }
 
-enum AuthFlowType {
-  sendOtp,
-  verifyOtp,
-  resendOtp,
-}
+enum AuthFlowType { sendOtp, verifyOtp, resendOtp }
 
 String mapFirebaseError(
-    FirebaseAuthException e, {
-      required AuthFlowType flow,
-      int otpTimeoutSeconds = 60,
-    }) {
+  FirebaseAuthException e, {
+  required AuthFlowType flow,
+  int otpTimeoutSeconds = 60,
+}) {
   switch (e.code) {
-
-  // PHONE INPUT ERRORS
+    // PHONE INPUT ERRORS
 
     case 'invalid-phone-number':
       return "Invalid phone number.";
@@ -65,7 +58,7 @@ String mapFirebaseError(
     case 'missing-phone-number':
       return "Phone number is required.";
 
-  // OTP VERIFICATION ERRORS
+    // OTP VERIFICATION ERRORS
 
     case 'invalid-verification-code':
       return "Incorrect OTP.";
@@ -76,7 +69,7 @@ String mapFirebaseError(
     case 'invalid-verification-id':
       return "Session expired. Request a new OTP.";
 
-  // RATE LIMIT / TEMP BLOCK
+    // RATE LIMIT / TEMP BLOCK
 
     case 'too-many-requests':
       return "Too many attempts. Temporarily restricted. Try again later.";
@@ -84,7 +77,7 @@ String mapFirebaseError(
     case 'quota-exceeded':
       return "OTP limit reached. Try again later.";
 
-  // SYSTEM / NETWORK
+    // SYSTEM / NETWORK
 
     case 'network-request-failed':
       return "No internet connection.";
@@ -95,7 +88,7 @@ String mapFirebaseError(
     case 'captcha-check-failed':
       return "Verification failed. Try again.";
 
-  // DEFAULT (FLOW AWARE)
+    // DEFAULT (FLOW AWARE)
 
     default:
       switch (flow) {

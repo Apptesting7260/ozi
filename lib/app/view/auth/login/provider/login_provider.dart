@@ -635,10 +635,14 @@ class LoginProvider extends ChangeNotifier {
               ? user['step_completed']
               : int.tryParse(user['step_completed']?.toString() ?? '0') ?? 0;
 
+          final bool isRoleSelected = user['is_role_selected'] ?? false;
+          final bool isMobileVerified = user['is_mobile_verified'] ?? false;
+
           await UserPreference.saveAccessToken(apiToken);
           await UserPreference.saveUserId(userId);
           if (userRole != null) await UserPreference.saveRole(userRole);
           await UserPreference.saveIsLoggedIn(true);
+          await UserPreference.saveIsRoleSelected(isRoleSelected);
           await UserPreference.saveStep(stepCompleted.toString());
           await UserPreference.saveFirstName(
             user['first_name']?.toString() ?? '',
@@ -648,7 +652,7 @@ class LoginProvider extends ChangeNotifier {
           );
           await UserPreference.saveEmail(user['email']?.toString() ?? '');
           await UserPreference.saveMobile(user['mobile']?.toString() ?? '');
-          await UserPreference.saveIsMobileVerified(false);
+          await UserPreference.saveIsMobileVerified(isMobileVerified);
           if (navigatorKey.currentContext!.mounted) {
             if (stepCompleted == 0 || userRole == null) {
               Navigator.pushReplacement(

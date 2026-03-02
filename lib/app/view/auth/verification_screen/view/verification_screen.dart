@@ -5,14 +5,15 @@ import '../provider/VerificationProvider.dart';
 
 class VerificationScreen extends StatelessWidget {
   final String phone;
+  final String countryCode;
   final String verificationId;
 
   const VerificationScreen({
     super.key,
     required this.phone,
+    required this.countryCode,
     required this.verificationId,
   });
-
 
   @override
   Widget build(BuildContext context) {
@@ -22,16 +23,19 @@ class VerificationScreen extends StatelessWidget {
         provider.startTimer();
         return provider;
       },
-      child: VerificationContent(phone: phone),
+      child: VerificationContent(phone: phone, countryCode: countryCode),
     );
-
   }
 }
 
 class VerificationContent extends StatelessWidget {
   final String phone;
-
-  const VerificationContent({super.key, required this.phone});
+  final String countryCode;
+  const VerificationContent({
+    super.key,
+    required this.phone,
+    required this.countryCode,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -112,56 +116,57 @@ class VerificationContent extends StatelessWidget {
                     text: provider.isLoading ? "Verifying..." : "Verify",
                     onPressed: () {
                       if (provider.isLoading) return;
-                      provider.verifyOtpMethod(phone);
+                      provider.verifyOtpMethod(phone, countryCode);
 
                       if (kDebugMode) {
-                        print("Error After send Otp : ${provider.errorMessage}");
+                        print(
+                          "Error After send Otp : ${provider.errorMessage}",
+                        );
                       }
-
                     },
                   ),
                   hBox(24),
-        Center(
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                "Didn't receive code? ",
-                style: AppFontStyle.text_14_400(AppColors.grey),
-              ),
-              Builder(
-                builder: (_) {
-                  final bool isLoading = provider.isLoading;
-                  final bool isTimerActive = provider.resendTime > 0;
-                  final bool isEnabled = !isTimerActive && !isLoading;
+                  Center(
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          "Didn't receive code? ",
+                          style: AppFontStyle.text_14_400(AppColors.grey),
+                        ),
+                        Builder(
+                          builder: (_) {
+                            final bool isLoading = provider.isLoading;
+                            final bool isTimerActive = provider.resendTime > 0;
+                            final bool isEnabled = !isTimerActive && !isLoading;
 
-                  Color resendColor;
+                            Color resendColor;
 
-                  if (isLoading) {
-                    resendColor = AppColors.grey;
-                  } else if (isTimerActive) {
-                    resendColor = AppColors.primary.withOpacity(0.6);
-                  } else {
-                    resendColor = AppColors.primary;
-                  }
+                            if (isLoading) {
+                              resendColor = AppColors.grey;
+                            } else if (isTimerActive) {
+                              resendColor = AppColors.primary.withOpacity(0.6);
+                            } else {
+                              resendColor = AppColors.primary;
+                            }
 
-                  return InkWell(
-                    borderRadius: BorderRadius.circular(4),
-                    onTap: isEnabled
-                        ? () => provider.resendOtp(phone)
-                        : null,
-                    child: Text(
-                      isTimerActive
-                          ? "Resend in ${provider.resendTime}s"
-                          : "Resend now",
-                      style: AppFontStyle.text_14_600(resendColor),
+                            return InkWell(
+                              borderRadius: BorderRadius.circular(4),
+                              onTap: isEnabled
+                                  ? () => provider.resendOtp(phone)
+                                  : null,
+                              child: Text(
+                                isTimerActive
+                                    ? "Resend in ${provider.resendTime}s"
+                                    : "Resend now",
+                                style: AppFontStyle.text_14_600(resendColor),
+                              ),
+                            );
+                          },
+                        ),
+                      ],
                     ),
-                  );
-                },
-              ),
-            ],
-          ),
-        )
+                  ),
                 ],
               ),
             ),

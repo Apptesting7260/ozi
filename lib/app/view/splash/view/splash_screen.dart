@@ -9,6 +9,7 @@ import '../../user_role/choose_your_role/view/choose_role.dart';
 import '../../welcome/view/welcome_screen.dart';
 import '../provider/splash_provider.dart';
 import '../widget/logo.dart';
+import '../../auth/create account/view/create_account_screen.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -35,8 +36,20 @@ class _SplashScreenState extends State<SplashScreen> {
     String? role = await UserPreference.returnRole();
     String? step = await UserPreference.returnStep();
     String? userId = await UserPreference.returnUserId();
-    if (step != null && isLogin) {
-      if (step == '0') {
+    bool isRoleSelected = await UserPreference.returnIsRoleSelected() ?? false;
+
+    if (kDebugMode) {
+      print("========== SPLASH AUTH INIT ==========");
+      print("isLogin: $isLogin");
+      print("isRoleSelected: $isRoleSelected");
+      print("step: $step");
+      print("role: $role");
+      print("userId: $userId");
+      print("======================================");
+    }
+
+    if (isLogin) {
+      if (!isRoleSelected) {
         String? firstName = await UserPreference.returnFirstName();
         String? lastName = await UserPreference.returnLastName();
         String? email = await UserPreference.returnEmail();
@@ -49,6 +62,27 @@ class _SplashScreenState extends State<SplashScreen> {
           MaterialPageRoute(
             builder: (_) => ChooseRoleScreen(
               userId: userId,
+              firstName: firstName,
+              lastName: lastName,
+              email: email,
+              phoneNumber: phoneNumber,
+              isMobileVerified: isMobileVerified,
+            ),
+          ),
+        );
+      } else if (step == '0') {
+        String? firstName = await UserPreference.returnFirstName();
+        String? lastName = await UserPreference.returnLastName();
+        String? email = await UserPreference.returnEmail();
+        String? phoneNumber = await UserPreference.returnMobile();
+        bool isMobileVerified =
+            await UserPreference.returnIsMobileVerified() ?? false;
+
+        Navigator.pushReplacement(
+          navigatorKey.currentContext!,
+          MaterialPageRoute(
+            builder: (_) => CreateAccountScreen(
+              userId: userId ?? "",
               firstName: firstName,
               lastName: lastName,
               email: email,

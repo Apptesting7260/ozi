@@ -23,6 +23,10 @@ class CreateAccountScreen extends StatelessWidget {
 
   bool get isGoogleSignUp => email != null && email!.isNotEmpty;
 
+  int _maxLen(CreateAccountProvider value) {
+    return value.getExpectedPhoneLength(value.selectedCountry.phoneCode);
+  }
+
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
@@ -246,92 +250,145 @@ class CreateAccountScreen extends StatelessWidget {
                       hBox(16),
 
                       /// MOBILE NUMBER
-                      CustomTextFormField(
-                        controller: value.mobileController,
-                        label: "Mobile Number",
-                        hintText: "Enter mobile number",
-                        textInputType: TextInputType.phone,
-                        enabled: !value.isMobileVerified,
-                        prefix: Padding(
-                          padding: const EdgeInsets.all(12),
-                          child: Icon(
-                            Icons.phone,
-                            size: 20,
-                            color: AppColors.grey,
-                          ),
-                        ),
-                        onChanged: (val) {
-                          value.updateUI();
-                        },
-                        suffix: value.isMobileVerified
-                            ? Padding(
-                                padding: const EdgeInsets.all(12),
-                                child: Icon(
-                                  Icons.check_circle,
-                                  color: AppColors.green,
-                                  size: 20,
-                                ),
-                              )
-                            : Padding(
-                                padding: const EdgeInsets.all(12),
-                                child: GestureDetector(
-                                  onTap:
-                                      (value.mobileController.text.length >=
-                                              10 &&
-                                          !value.isloading)
-                                      ? () async {
-                                          final phone = value
-                                              .mobileController
-                                              .text
-                                              .trim();
-                                          final fullPhone =
-                                              phone.startsWith("+")
-                                              ? phone
-                                              : "+91$phone";
-                                          final success = await value
-                                              .sendMobileOtp(fullPhone);
-                                          if (success) {
-                                            _showMobileOtpDialog(
-                                              context,
-                                              value,
-                                              userId,
-                                            );
-                                          }
-                                        }
-                                      : null,
-                                  child: value.isloading
-                                      ? SizedBox(
-                                          height: 18,
-                                          width: 18,
-                                          child: CircularProgressIndicator(
-                                            strokeWidth: 2,
-                                            color: AppColors.primary,
-                                          ),
-                                        )
-                                      : Text(
-                                          "Verify",
-                                          style: AppFontStyle.text_14_400(
-                                            value
-                                                        .mobileController
-                                                        .text
-                                                        .length >=
-                                                    10
-                                                ? AppColors.primary
-                                                : AppColors.grey,
-                                          ),
-                                        ),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          CustomTextFormField(
+                            controller: value.mobileController,
+                            label: "Mobile Number",
+                            hintText: "Enter ${_maxLen(value)} digits",
+                            textInputType: TextInputType.phone,
+                            enabled: true, // Always allow editing
+                            inputFormatters: [
+                              FilteringTextInputFormatter.digitsOnly,
+                              LengthLimitingTextInputFormatter(_maxLen(value)),
+                            ],
+                            prefix: Padding(
+                              padding: const EdgeInsets.only(
+                                left: 14,
+                                right: 8,
+                              ),
+                              child: InkWell(
+                                onTap: value.isloading
+                                    ? null
+                                    : () {
+                                        showCountryPicker(
+                                          context: context,
+                                          showPhoneCode: true,
+                                          onSelect: (Country country) {
+                                            value.updateCountry(country);
+                                            value.mobileController.clear();
+                                          },
+                                        );
+                                      },
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    // wBox(8),
+                                    Text(
+                                      "+${value.selectedCountry.phoneCode}",
+                                      style: AppFontStyle.text_16_600(
+                                        AppColors.primary,
+                                      ),
+                                    ),
+                                    Icon(
+                                      Icons.keyboard_arrow_down,
+                                      size: 16,
+                                      color: AppColors.grey,
+                                    ),
+                                    wBox(8),
+                                    Container(
+                                      height: 20,
+                                      width: 1,
+                                      color: AppColors.grey.withOpacity(0.3),
+                                    ),
+                                  ],
                                 ),
                               ),
-                        borderRadius: 60,
-                        validator: (val) {
-                          if (val == null || val.trim().isEmpty) {
-                            return "Mobile number is required";
-                          }
-                          if (val.trim().length < 10) {
-                            return "Enter a valid mobile number";
-                          }
-                          return null;
-                        },
+                            ),
+                            onChanged: (val) {
+                              // If they edit the number, reset verification status
+                              if (value.isMobileVerified) {
+                                value.resetMobileVerification();
+                              }
+                              value.updateUI();
+                            },
+                            suffix: value.isMobileVerified
+                                ? Padding(
+                                    padding: const EdgeInsets.all(12),
+                                    child: Icon(
+                                      Icons.check_circle,
+                                      color: AppColors.green,
+                                      size: 20,
+                                    ),
+                                  )
+                                : Padding(
+                                    padding: const EdgeInsets.all(12),
+                                    child: GestureDetector(
+                                      onTap:
+                                          (value.mobileController.text.length ==
+                                                  _maxLen(value) &&
+                                              !value.isloading)
+                                          ? () async {
+                                              final phone = value
+                                                  .mobileController
+                                                  .text
+                                                  .trim();
+                                              final fullPhone =
+                                                  "+${value.selectedCountry.phoneCode}$phone";
+                                              final success = await value
+                                                  .sendMobileOtp(fullPhone);
+                                              if (success) {
+                                                _showMobileOtpDialog(
+                                                  context,
+                                                  value,
+                                                  userId,
+                                                );
+                                              }
+                                            }
+                                          : null,
+                                      child: value.isloading
+                                          ? SizedBox(
+                                              height: 18,
+                                              width: 18,
+                                              child: CircularProgressIndicator(
+                                                strokeWidth: 2,
+                                                color: AppColors.primary,
+                                              ),
+                                            )
+                                          : Text(
+                                              "Verify",
+                                              style: AppFontStyle.text_14_400(
+                                                value
+                                                            .mobileController
+                                                            .text
+                                                            .length ==
+                                                        _maxLen(value)
+                                                    ? AppColors.primary
+                                                    : AppColors.grey,
+                                              ),
+                                            ),
+                                    ),
+                                  ),
+                            borderRadius: 60,
+                            validator: (val) {
+                              if (val == null || val.trim().isEmpty) {
+                                return "Mobile number is required";
+                              }
+                              if (val.trim().length != _maxLen(value)) {
+                                return "Enter exactly ${_maxLen(value)} digits";
+                              }
+                              return null;
+                            },
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(left: 16, top: 4),
+                            child: Text(
+                              "Required: ${_maxLen(value)} digits for ${value.getCountryName(value.selectedCountry.phoneCode)}",
+                              style: AppFontStyle.text_12_400(AppColors.grey),
+                            ),
+                          ),
+                        ],
                       ),
 
                       hBox(30),
@@ -511,6 +568,8 @@ class _OtpDialogContentState extends State<_OtpDialogContent> {
                 alignment: Alignment.centerLeft,
                 child: Text(
                   errorMessage!,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                   style: AppFontStyle.text_12_400(AppColors.red),
                 ),
               ),
@@ -690,7 +749,9 @@ class _MobileOtpDialogContentState extends State<_MobileOtpDialogContent> {
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(
-            "Enter the 6-digit OTP sent to your phone.",
+            "Enter the 6-digit OTP sent to your phone number.",
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
             textAlign: TextAlign.center,
             style: AppFontStyle.text_14_400(AppColors.grey),
           ),
@@ -698,11 +759,17 @@ class _MobileOtpDialogContentState extends State<_MobileOtpDialogContent> {
           PinCodeTextField(
             appContext: context,
             length: 6,
-            onChanged: (v) => otpCode = v,
+            onChanged: (v) {
+              otpCode = v;
+              // OTP type karte waqt purana error clear kar do
+              if (errorMessage != null) {
+                setState(() => errorMessage = null);
+              }
+            },
             keyboardType: TextInputType.number,
             enableActiveFill: true,
             pinTheme: PinTheme(
-              shape: PinCodeFieldShape.box,
+              shape: PinCodeFieldShape.circle,
               borderRadius: BorderRadius.circular(8),
               fieldHeight: 45,
               fieldWidth: 40,
@@ -715,8 +782,16 @@ class _MobileOtpDialogContentState extends State<_MobileOtpDialogContent> {
               borderWidth: 0,
             ),
           ),
-          if (errorMessage != null)
-            Text(errorMessage!, style: AppFontStyle.text_12_400(AppColors.red)),
+          if (errorMessage != null) ...[
+            hBox(12),
+            Text(
+              errorMessage!,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign.center,
+              style: AppFontStyle.text_12_400(AppColors.red),
+            ),
+          ],
           hBox(30),
           Row(
             children: [
@@ -724,7 +799,8 @@ class _MobileOtpDialogContentState extends State<_MobileOtpDialogContent> {
                 child: CustomButton(
                   height: 45,
                   text: "Cancel",
-                  color: AppColors.grey,
+                  textStyle: AppFontStyle.text_16_600(AppColors.black),
+                  color: AppColors.lightGrey,
                   onPressed: () => Navigator.pop(context),
                 ),
               ),
@@ -735,15 +811,23 @@ class _MobileOtpDialogContentState extends State<_MobileOtpDialogContent> {
                   text: "Verify",
                   isLoading: widget.provider.otpLoading,
                   onPressed: () async {
-                    if (otpCode.length == 6) {
-                      final success = await widget.provider.verifyMobileOtp(
-                        otpCode,
-                      );
-                      if (success) {
-                        Navigator.pop(context);
-                      } else {
-                        setState(() => errorMessage = "Invalid OTP");
-                      }
+                    if (otpCode.length != 6) {
+                      setState(() {
+                        errorMessage = "Please enter 6-digit OTP";
+                      });
+                      return;
+                    }
+
+                    final error = await widget.provider.verifyMobileOtp(
+                      otpCode,
+                    );
+
+                    if (error == null) {
+                      Navigator.pop(context);
+                    } else {
+                      setState(() {
+                        errorMessage = error;
+                      });
                     }
                   },
                 ),
