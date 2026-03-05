@@ -10,10 +10,10 @@ class CartProvider with ChangeNotifier {
   CartProvider({required Repository repository}) : _repository = repository;
 
   List<CartItem> _items = [];
-  int _subtotal = 0;
-  int _serviceFee = 0;
-  int _discount = 0;
-  int _total = 0;
+  double _subtotal = 0;
+  double _serviceFee = 0;
+  double _discount = 0;
+  double _total = 0;
   bool _isLoading = false;
   String? _errorMessage;
   String? _appliedCouponCode;
@@ -23,16 +23,15 @@ class CartProvider with ChangeNotifier {
   List<CartItem> get items => _items;
   int get itemCount =>
       _items.fold(0, (sum, item) => sum + (item.quantity ?? 0));
-  int get subtotal => _subtotal;
-  int get serviceFee => _serviceFee;
-  int get discount => _discount;
-  int get total => _total;
+  double get subtotal => _subtotal;
+  double get serviceFee => _serviceFee;
+  double get discount => _discount;
+  double get total => _total;
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
   String? get appliedCouponCode => _appliedCouponCode;
 
   Future<void> fetchCartItems() async {
-
     // 🔐 STEP 1: Check token first
     final token = await UserPreference.returnAccessToken();
     if (token == null || token.isEmpty) {
@@ -53,10 +52,10 @@ class CartProvider with ChangeNotifier {
 
         //  Summary
         final summary = response.data!.summary;
-        _subtotal = summary?.subtotal ?? 0;
-        _serviceFee = summary?.serviceFee ?? 0;
-        _discount = summary?.discount ?? 0;
-        _total = summary?.total ?? 0;
+        _subtotal = summary?.subtotal ?? 0.0;
+        _serviceFee = summary?.serviceFee ?? 0.0;
+        _discount = summary?.discount ?? 0.0;
+        _total = summary?.total ?? 0.0;
         //  Applied Coupon from API
         _appliedCouponCode = summary?.appliedCuppon;
         _cupponCode = summary?.cupponId;
@@ -80,10 +79,7 @@ class CartProvider with ChangeNotifier {
       _appliedCouponCode = null;
       _errorMessage = e.toString();
       notifyListeners();
-      Get.showToast(
-        e.toString(),
-        type: ToastType.error,
-      );
+      Get.showToast(e.toString(), type: ToastType.error);
       if (kDebugMode) {
         print('Error fetching cart items: $e');
       }
@@ -116,13 +112,13 @@ class CartProvider with ChangeNotifier {
 
         _items[index].quantity = newQty;
 
-        final price = _items[index].servicePrice ?? 0;
-        _items[index].serviceItemTotal = (price * newQty) as int?;
+        final double price = _items[index].servicePrice ?? 0.0;
+        _items[index].serviceItemTotal = price * newQty;
 
         // Recalculate totals
         _subtotal = _items.fold(
-          0,
-          (sum, item) => sum + (item.serviceItemTotal ?? 0),
+          0.0,
+          (sum, item) => sum + (item.serviceItemTotal ?? 0.0),
         );
         _total = _subtotal + _serviceFee - _discount;
 
@@ -131,10 +127,7 @@ class CartProvider with ChangeNotifier {
         throw Exception(response.message ?? "Failed to update quantity");
       }
     } catch (e) {
-      Get.showToast(
-        e.toString(),
-        type: ToastType.error,
-      );
+      Get.showToast(e.toString(), type: ToastType.error);
       _errorMessage = "Failed to update quantity: $e";
       notifyListeners();
     }
@@ -153,8 +146,8 @@ class CartProvider with ChangeNotifier {
 
     // Recalculate totals optimistically
     _subtotal = _items.fold(
-      0,
-      (sum, item) => sum + (item.serviceItemTotal ?? 0),
+      0.0,
+      (sum, item) => sum + (item.serviceItemTotal ?? 0.0),
     );
     _total = _subtotal + _serviceFee;
 
@@ -182,17 +175,14 @@ class CartProvider with ChangeNotifier {
 
       // Recalculate totals after reverting
       _subtotal = _items.fold(
-        0,
-        (sum, item) => sum + (item.serviceItemTotal ?? 0),
+        0.0,
+        (sum, item) => sum + (item.serviceItemTotal ?? 0.0),
       );
       _total = _subtotal + _serviceFee;
 
       _errorMessage = 'Failed to remove item: ${e.toString()}';
       notifyListeners();
-      Get.showToast(
-        e.toString(),
-        type: ToastType.error,
-      );
+      Get.showToast(e.toString(), type: ToastType.error);
       if (kDebugMode) {
         print('Error removing item: $e');
       }
@@ -221,8 +211,8 @@ class CartProvider with ChangeNotifier {
     final String? codeToRemove = _cupponCode ?? _appliedCouponCode;
     if (kDebugMode) {
       print(
-      'removeCoupon called, _cupponCode: $_cupponCode, _appliedCouponCode: $_appliedCouponCode',
-    );
+        'removeCoupon called, _cupponCode: $_cupponCode, _appliedCouponCode: $_appliedCouponCode',
+      );
     }
 
     if (codeToRemove == null) {

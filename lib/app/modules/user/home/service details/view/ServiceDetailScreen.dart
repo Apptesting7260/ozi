@@ -540,7 +540,7 @@ class ServiceDetailView extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(
-            '\$${provider.totalAmount.toStringAsFixed(2)}',
+            '\$${provider.subtotal.toStringAsFixed(2)}',
             style: AppFontStyle.text_28_600(
               AppColors.black,
               fontFamily: AppFontFamily.bold,

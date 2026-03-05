@@ -50,7 +50,7 @@ class Repository {
     }
   }
 
-    //************************************************** Verification API **************************************************//
+  //************************************************** Verification API **************************************************//
   Future<VerifyOtp> verificationUser(Map<String, dynamic> data) async {
     try {
       dynamic response = await _apiService.postApiWithoutToken(
@@ -508,6 +508,28 @@ class Repository {
       return IncreaseCartQuantityModel.fromJson(response);
     } catch (e) {
       dev.log('Error in increaseCartItemApi: $e');
+      throw Exception(e);
+    }
+  }
+
+  Future<dynamic> checkMobileExistsApi(
+    String mobile,
+    String countryCode,
+  ) async {
+    try {
+      final url = AppUrls.checkMobileExists;
+      final data = {'mobile': mobile, 'country_code': countryCode};
+
+      dev.log('Check Mobile Exists API URL: $url');
+      dev.log('Check Mobile Exists Data: $data');
+
+      dynamic response = await _apiService.postApi(data, url);
+
+      dev.log('Check Mobile Exists Raw Response: $response');
+
+      return response;
+    } catch (e) {
+      // Get.snackbar("Error", e.toString());
       throw Exception(e);
     }
   }

@@ -95,7 +95,7 @@ class _singleServiceScreenState extends State<singleServiceScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  '\$${provider.serviceData?.data?.servicePrice}',
+                  '\$${provider.subtotalAmount.toStringAsFixed(2)}',
                   style: AppFontStyle.text_28_600(
                     AppColors.black,
                     fontFamily: AppFontFamily.bold,

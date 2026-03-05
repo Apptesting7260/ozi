@@ -57,10 +57,10 @@ class CartItem {
   String? serviceId;
   String? serviceName;
   String? serviceImage;
-  int? servicePrice;
+  double? servicePrice;
   String? activeStatus;
   int? quantity;
-  int? serviceItemTotal;
+  double? serviceItemTotal;
   bool? isservicedeleted;
 
   CartItem({
@@ -80,12 +80,14 @@ class CartItem {
     serviceId = json['service_id']?.toString();
     serviceName = json['service_name']?.toString();
     serviceImage = json['service_image']?.toString();
-    servicePrice = int.tryParse(json['service_price']?.toString() ?? "0");
+    servicePrice = num.tryParse(
+      json['service_price']?.toString() ?? "0",
+    )?.toDouble();
     activeStatus = json['status']?.toString();
     quantity = json['quantity'];
-    serviceItemTotal = int.tryParse(
+    serviceItemTotal = num.tryParse(
       json['service_item_total']?.toString() ?? "0",
-    );
+    )?.toDouble();
     // Handle both boolean and various truthy values from API (like 1 or "true")
     final deletedValue = json['is_service_deleted'];
     if (deletedValue is bool) {
@@ -115,10 +117,10 @@ class CartItem {
 
 class Summary {
   int? itemsCount;
-  int? subtotal;
-  int? serviceFee;
-  int? total;
-  int? discount;
+  double? subtotal;
+  double? serviceFee;
+  double? total;
+  double? discount;
   String? appliedCuppon;
   String? cupponId;
 
@@ -134,12 +136,14 @@ class Summary {
 
   Summary.fromJson(Map<String, dynamic> json) {
     itemsCount = int.tryParse(json['items_count']?.toString() ?? "0");
-    subtotal = int.tryParse(json['subtotal']?.toString() ?? "0");
-    serviceFee = int.tryParse(json['service_fee']?.toString() ?? "0");
-    total = int.tryParse(json['total']?.toString() ?? "0");
-    discount = int.tryParse(json['discount']?.toString() ?? "0");
+    subtotal = num.tryParse(json['subtotal']?.toString() ?? "0")?.toDouble();
+    serviceFee = num.tryParse(
+      json['service_fee']?.toString() ?? "0",
+    )?.toDouble();
+    total = num.tryParse(json['total']?.toString() ?? "0")?.toDouble();
+    discount = num.tryParse(json['discount']?.toString() ?? "0")?.toDouble();
     // Fallback if discount is not directly provided
-    if (discount == 0 &&
+    if ((discount == null || discount == 0) &&
         subtotal != null &&
         serviceFee != null &&
         total != null) {

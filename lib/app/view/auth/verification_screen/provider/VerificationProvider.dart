@@ -210,21 +210,21 @@ class VerificationProvider extends ChangeNotifier {
       // Get Firebase ID token
       String idToken = (await user.getIdToken())!;
 
-      String countryCode = "+91";
-      String mobile = phone;
+      // String countryCode = "+91";
+      // String mobile = phone;
 
-      if (phone.startsWith("+")) {
-        int spaceIndex = phone.indexOf(" ");
-        if (spaceIndex > 0) {
-          countryCode = phone.substring(0, spaceIndex);
-          mobile = phone.substring(spaceIndex + 1);
-        }
-      }
+      // if (phone.startsWith("+")) {
+      //   int spaceIndex = phone.indexOf(" ");
+      //   if (spaceIndex > 0) {
+      //     countryCode = phone.substring(0, spaceIndex);
+      //     mobile = phone.substring(spaceIndex + 1);
+      //   }
+      // }
 
       //  Prepare backend request
       Map<String, dynamic> requestData = {
         "country_code": countryCode,
-        "mobile": mobile,
+        "mobile": phone,
         "fcm_token": PushNotificationService.fcmToken ?? "",
         "id_token": idToken,
         "device_name": deviceInfo["device_name"] ?? "",
@@ -345,8 +345,7 @@ class VerificationProvider extends ChangeNotifier {
       notifyListeners();
     } catch (e) {
       isLoading = false;
-      errorMessage =
-          "We couldn't verify your OTP at the moment. Please try again.";
+      errorMessage = e.toString();
       notifyListeners();
     }
   }

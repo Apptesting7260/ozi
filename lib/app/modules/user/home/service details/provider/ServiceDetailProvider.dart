@@ -107,16 +107,16 @@ class ServiceDetailProvider extends ChangeNotifier {
 
   // Cart summary fields
   List<CartItem> _items = [];
-  int _subtotal = 0;
-  int _serviceFee = 0;
-  int _discount = 0;
-  int _total = 0;
+  double _subtotal = 0;
+  double _serviceFee = 0;
+  double _discount = 0;
+  double _total = 0;
 
   List<CartItem> get items => _items;
-  int get subtotal => _subtotal;
-  int get serviceFee => _serviceFee;
-  int get discount => _discount;
-  int get total => _total;
+  double get subtotal => _subtotal;
+  double get serviceFee => _serviceFee;
+  double get discount => _discount;
+  double get total => _total;
   int get cartCount =>
       _items.fold(0, (sum, item) => sum + (item.quantity ?? 0));
 
@@ -134,10 +134,10 @@ class ServiceDetailProvider extends ChangeNotifier {
       if (response.status == true && response.data != null) {
         _items = response.data!.items ?? [];
         final summary = response.data!.summary;
-        _subtotal = summary?.subtotal ?? 0;
-        _serviceFee = summary?.serviceFee ?? 0;
-        _discount = summary?.discount ?? 0;
-        _total = summary?.total ?? 0;
+        _subtotal = summary?.subtotal ?? 0.0;
+        _serviceFee = summary?.serviceFee ?? 0.0;
+        _discount = summary?.discount ?? 0.0;
+        _total = summary?.total ?? 0.0;
 
         // Sync _cartItems (Map) with fetched items
         _cartItems.clear();
@@ -323,6 +323,9 @@ class ServiceDetailProvider extends ChangeNotifier {
   }
 
   double get totalAmount {
+    // If we have a calculated _total from summary, use it
+    if (_total > 0) return _total;
+
     if (_items.isNotEmpty) {
       double total = 0;
       for (var item in _items) {
@@ -386,8 +389,8 @@ class ServiceDetailProvider extends ChangeNotifier {
 
     // Recalculate totals optimistically
     _subtotal = _items.fold(
-      0,
-      (sum, item) => sum + (item.serviceItemTotal ?? 0),
+      0.0,
+      (sum, item) => sum + (item.serviceItemTotal ?? 0.0),
     );
     _total = _subtotal + _serviceFee;
 
@@ -425,10 +428,7 @@ class ServiceDetailProvider extends ChangeNotifier {
 
       _errorMessage = 'Failed to remove item: ${e.toString()}';
       notifyListeners();
-      Get.showToast(
-        e.toString(),
-        type: ToastType.error,
-      );
+      Get.showToast(e.toString(), type: ToastType.error);
       if (kDebugMode) {
         print('Error removing item: $e');
       }
@@ -441,8 +441,8 @@ class ServiceDetailProvider extends ChangeNotifier {
 
     // Store state for potential rollback
     final originalQty = _items[index].quantity ?? 0;
-    final int price = _items[index].servicePrice ?? 0;
-    final originalItemTotal = _items[index].serviceItemTotal ?? 0;
+    final double price = _items[index].servicePrice ?? 0.0;
+    final originalItemTotal = _items[index].serviceItemTotal ?? 0.0;
     final originalSubtotal = _subtotal;
     final originalTotal = _total;
 
@@ -464,8 +464,8 @@ class ServiceDetailProvider extends ChangeNotifier {
 
     // Recalculate totals
     _subtotal = _items.fold(
-      0,
-      (sum, item) => sum + (item.serviceItemTotal ?? 0),
+      0.0,
+      (sum, item) => sum + (item.serviceItemTotal ?? 0.0),
     );
     _total = _subtotal + _serviceFee - _discount;
 
@@ -493,8 +493,8 @@ class ServiceDetailProvider extends ChangeNotifier {
             _cartItems[svcId] = confirmedQty;
           }
           _subtotal = _items.fold(
-            0,
-            (sum, item) => sum + (item.serviceItemTotal ?? 0),
+            0.0,
+            (sum, item) => sum + (item.serviceItemTotal ?? 0.0),
           );
           _total = _subtotal + _serviceFee - _discount;
           notifyListeners();
@@ -512,10 +512,7 @@ class ServiceDetailProvider extends ChangeNotifier {
       _subtotal = originalSubtotal;
       _total = originalTotal;
 
-      Get.showToast(
-        e.toString(),
-        type: ToastType.error,
-      );
+      Get.showToast(e.toString(), type: ToastType.error);
       _errorMessage = "Failed to update quantity: $e";
       notifyListeners();
     }

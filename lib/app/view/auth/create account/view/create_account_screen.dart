@@ -277,7 +277,7 @@ class CreateAccountScreen extends StatelessWidget {
                                           showPhoneCode: true,
                                           onSelect: (Country country) {
                                             value.updateCountry(country);
-                                            value.mobileController.clear();
+                                            // value.mobileController.clear();
                                           },
                                         );
                                       },
@@ -311,6 +311,9 @@ class CreateAccountScreen extends StatelessWidget {
                               if (value.isMobileVerified) {
                                 value.resetMobileVerification();
                               }
+                              if (value.mobileError != null) {
+                                value.setMobileError(null);
+                              }
                               value.updateUI();
                             },
                             suffix: value.isMobileVerified
@@ -330,20 +333,35 @@ class CreateAccountScreen extends StatelessWidget {
                                                   _maxLen(value) &&
                                               !value.isloading)
                                           ? () async {
-                                              final phone = value
-                                                  .mobileController
-                                                  .text
-                                                  .trim();
-                                              final fullPhone =
-                                                  "+${value.selectedCountry.phoneCode}$phone";
-                                              final success = await value
-                                                  .sendMobileOtp(fullPhone);
-                                              if (success) {
-                                                _showMobileOtpDialog(
-                                                  context,
-                                                  value,
-                                                  userId,
+                                              final exists = await value
+                                                  .checkMobileExists();
+                                              if (exists) {
+                                                final phone = value
+                                                    .mobileController
+                                                    .text
+                                                    .trim();
+                                                final fullPhone =
+                                                    "+${value.selectedCountry.phoneCode}$phone";
+                                                final verificationId =
+                                                    await value.sendMobileOtp(
+                                                      fullPhone,
+                                                    );
+                                                print(
+                                                  "Verification id : $verificationId",
                                                 );
+                                                if (verificationId != '') {
+                                                  print(
+                                                    "Verification id : $verificationId",
+                                                  );
+                                                  value.updateOtpLoading(false);
+                                                  _showMobileOtpDialog(
+                                                    context,
+                                                    value,
+                                                    userId,
+                                                    verificationId,
+                                                    fullPhone,
+                                                  );
+                                                }
                                               }
                                             }
                                           : null,
@@ -371,6 +389,7 @@ class CreateAccountScreen extends StatelessWidget {
                                     ),
                                   ),
                             borderRadius: 60,
+                            errorText: value.mobileError,
                             validator: (val) {
                               if (val == null || val.trim().isEmpty) {
                                 return "Mobile number is required";
@@ -448,12 +467,19 @@ class CreateAccountScreen extends StatelessWidget {
     BuildContext context,
     CreateAccountProvider provider,
     String userId,
+    String verificationID,
+    String mobileNumber,
   ) {
     showDialog(
       context: context,
       barrierDismissible: false,
       builder: (context) {
-        return _MobileOtpDialogContent(provider: provider, userId: userId);
+        return _MobileOtpDialogContent(
+          provider: provider,
+          userId: userId,
+          verificationID: verificationID,
+          mobileNumber: mobileNumber,
+        );
       },
     );
   }
@@ -724,8 +750,16 @@ class _OtpDialogContentState extends State<_OtpDialogContent> {
 class _MobileOtpDialogContent extends StatefulWidget {
   final CreateAccountProvider provider;
   final String userId;
+  final String verificationID;
 
-  const _MobileOtpDialogContent({required this.provider, required this.userId});
+  String? mobileNumber;
+
+  _MobileOtpDialogContent({
+    required this.provider,
+    required this.userId,
+    required this.verificationID,
+    required this.mobileNumber,
+  });
 
   @override
   State<_MobileOtpDialogContent> createState() =>
@@ -733,8 +767,35 @@ class _MobileOtpDialogContent extends StatefulWidget {
 }
 
 class _MobileOtpDialogContentState extends State<_MobileOtpDialogContent> {
+  TextEditingController otpController = TextEditingController();
   String otpCode = "";
   String? errorMessage;
+  int _resendSeconds = 60;
+  Timer? _timer;
+  String? mobileNumber;
+  @override
+  void initState() {
+    super.initState();
+    _startTimer();
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  void _startTimer() {
+    _resendSeconds = 60;
+    _timer?.cancel();
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (_resendSeconds == 0) {
+        timer.cancel();
+      } else {
+        setState(() => _resendSeconds--);
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -757,6 +818,7 @@ class _MobileOtpDialogContentState extends State<_MobileOtpDialogContent> {
           ),
           hBox(30),
           PinCodeTextField(
+            controller: otpController,
             appContext: context,
             length: 6,
             onChanged: (v) {
@@ -792,6 +854,32 @@ class _MobileOtpDialogContentState extends State<_MobileOtpDialogContent> {
               style: AppFontStyle.text_12_400(AppColors.red),
             ),
           ],
+          hBox(12),
+          // Timer / Resend row
+          if (_resendSeconds > 0)
+            Text(
+              "Resend OTP in ${_resendSeconds}s",
+              textAlign: TextAlign.center,
+              style: AppFontStyle.text_12_400(AppColors.grey),
+            )
+          else
+            GestureDetector(
+              onTap: () async {
+                setState(() => errorMessage = null);
+                setState(() => otpController.clear());
+                _startTimer();
+                await widget.provider.sendMobileOtp(
+                  widget.mobileNumber!,
+                ); // call your resend method
+              },
+              child: widget.provider.otpLoading
+                  ? CircularProgressIndicator(color: AppColors.primary)
+                  : Text(
+                      "Resend OTP",
+                      textAlign: TextAlign.center,
+                      style: AppFontStyle.text_12_400(AppColors.primary),
+                    ),
+            ),
           hBox(30),
           Row(
             children: [
@@ -823,8 +911,14 @@ class _MobileOtpDialogContentState extends State<_MobileOtpDialogContent> {
                     );
 
                     if (error == null) {
+                      // Only pop and show success if there's NO error
                       Navigator.pop(context);
+                      Get.showToast(
+                        "Mobile number verified successfully",
+                        type: ToastType.success,
+                      );
                     } else {
+                      // Show error message if verification failed
                       setState(() {
                         errorMessage = error;
                       });

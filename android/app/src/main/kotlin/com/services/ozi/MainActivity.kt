@@ -1,4 +1,4 @@
-package com.example.ozi
+package com.services.ozi
 
 import io.flutter.embedding.android.FlutterFragmentActivity
 

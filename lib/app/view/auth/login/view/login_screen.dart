@@ -130,7 +130,7 @@ class _LoginScreenState extends State<LoginScreen> {
         context,
         MaterialPageRoute(
           builder: (_) => VerificationScreen(
-            phone: "+$countryCode$phoneNumber",
+            phone: "$phoneNumber",
             countryCode: countryCode,
             verificationId: loginProvider.verificationId,
           ),
@@ -208,7 +208,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                     onSelect: (Country country) {
                                       setState(() {
                                         _selectedCountry = country;
-                                        _phoneController.clear();
+                                        // _phoneController.clear();
                                         _updateMaxPhoneLength();
                                       });
                                     },

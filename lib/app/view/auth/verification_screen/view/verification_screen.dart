@@ -116,7 +116,9 @@ class VerificationContent extends StatelessWidget {
                     text: provider.isLoading ? "Verifying..." : "Verify",
                     onPressed: () {
                       if (provider.isLoading) return;
-                      provider.verifyOtpMethod(phone, countryCode);
+                      print("phone on verification : $phone");
+                      print("countryCode on verification : $countryCode");
+                      provider.verifyOtpMethod(phone, ("+$countryCode"));
 
                       if (kDebugMode) {
                         print(

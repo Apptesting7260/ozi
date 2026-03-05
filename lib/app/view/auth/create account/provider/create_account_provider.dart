@@ -305,6 +305,14 @@ class CreateAccountProvider with ChangeNotifier {
   bool _isMobileVerified = false;
   bool get isMobileVerified => _isMobileVerified;
 
+  String? _mobileError;
+  String? get mobileError => _mobileError;
+
+  void setMobileError(String? error) {
+    _mobileError = error;
+    notifyListeners();
+  }
+
   String _verificationId = '';
   String get verificationId => _verificationId;
 
@@ -330,6 +338,11 @@ class CreateAccountProvider with ChangeNotifier {
 
   bool _otpLoading = false;
   bool get otpLoading => _otpLoading;
+
+  updateOtpLoading(bool value) {
+    _otpLoading = value;
+    notifyListeners();
+  }
 
   void validateEmail(String val) {
     _isEmailValid = RegExp(
@@ -372,25 +385,71 @@ class CreateAccountProvider with ChangeNotifier {
     }
   }
 
-  Future<bool> sendMobileOtp(String phone) async {
-    final Completer<bool> completer = Completer();
+  /// Checks if the mobile number already exists on the server.
+  /// Returns `true`  → number is NOT taken (safe to send OTP).
+  /// Returns `false` → number IS taken (mobileError is set on the field).
+  Future<bool> checkMobileExists() async {
+    try {
+      updateISLoading(true);
+      final mobile = mobileController.text.trim();
+      final countryCode = "+${selectedCountry.phoneCode}";
+
+      final response = await _repository.checkMobileExistsApi(
+        mobile,
+        countryCode,
+      );
+
+      updateISLoading(false);
+
+      // status == true  → mobile already registered → show error
+      if (response['status'] == true) {
+        return true;
+      } else {
+        setMobileError(
+          response['message'] ??
+              'This mobile number is already registered. Please use a different number.',
+        );
+      }
+
+      // Mobile is free – clear any previous error
+      setMobileError(null);
+      return true;
+    } catch (e) {
+      updateISLoading(false);
+      setMobileError('${e.toString()}');
+      return false;
+    }
+  }
+
+  Future<String> sendMobileOtp(String phone) async {
+    print("Phone number : $phone");
+    final Completer<String> completer = Completer();
     updateISLoading(true);
 
     await FirebaseAuth.instance.verifyPhoneNumber(
       phoneNumber: phone,
       timeout: const Duration(seconds: 60),
       verificationCompleted: (PhoneAuthCredential credential) async {
+        print("Credentials value :${credential.verificationId}");
         try {
           await FirebaseAuth.instance.signInWithCredential(credential);
           _isMobileVerified = true;
           notifyListeners();
+          if (!completer.isCompleted) {
+            completer.complete(credential.verificationId ?? "");
+          }
         } catch (e) {
           debugPrint("Auto-verification failed: $e");
+          if (!completer.isCompleted) {
+            completer.completeError(e);
+          }
         }
       },
       verificationFailed: (FirebaseAuthException e) {
         updateISLoading(false);
-        completer.complete(false);
+        if (!completer.isCompleted) {
+          completer.complete("");
+        }
 
         String msg = "Phone verification failed.";
 
@@ -405,12 +464,17 @@ class CreateAccountProvider with ChangeNotifier {
         Get.showToast(msg, type: ToastType.error);
       },
       codeSent: (String verId, int? resendToken) {
-        _verificationId = verId;
         updateISLoading(false);
-        completer.complete(true);
+        _verificationId = verId;
+        if (!completer.isCompleted) {
+          completer.complete(verId);
+        }
       },
       codeAutoRetrievalTimeout: (String verId) {
         _verificationId = verId;
+        if (!completer.isCompleted) {
+          completer.complete(verId);
+        }
       },
     );
 
@@ -422,115 +486,51 @@ class CreateAccountProvider with ChangeNotifier {
       _otpLoading = true;
       notifyListeners();
 
+      debugPrint("Verifying OTP: $otp for verificationId: $_verificationId");
+
       final credential = PhoneAuthProvider.credential(
         verificationId: _verificationId,
         smsCode: otp,
       );
 
-      final auth = FirebaseAuth.instance;
-      final currentUser = auth.currentUser;
+      // Just validate the OTP by signing in temporarily, then sign back out
+      final authResult = await FirebaseAuth.instance.signInWithCredential(
+        credential,
+      );
 
-      User? user;
-
-      if (currentUser != null) {
-        try {
-          final linkResult = await currentUser.linkWithCredential(credential);
-          user = linkResult.user;
-          debugPrint("Phone linked successfully to existing user");
-        } on FirebaseAuthException catch (e) {
-          if (e.code == 'credential-already-in-use') {
-            _otpLoading = false;
-            notifyListeners();
-            return "This phone number is already in use.\nPlease use a different number.";
-          } else if (e.code == 'provider-already-linked') {
-            debugPrint("Phone already linked to this account");
-            user = currentUser;
-          } else if (e.code == 'user-mismatch') {
-            _otpLoading = false;
-            notifyListeners();
-            return "This OTP does not belong to the entered phone number.";
-          } else {
-            rethrow;
-          }
-        }
-      } else {
-        // Normal phone registration (no prior sign-in)
-        final signInResult = await auth.signInWithCredential(credential);
-        user = signInResult.user;
-        debugPrint("New phone sign-in successful");
+      if (authResult.user == null) {
+        throw Exception("OTP validation failed");
       }
 
-      if (user == null) {
-        throw Exception("Firebase user not found after verification");
-      }
+      // Sign out immediately — we only needed to verify the OTP
+      await FirebaseAuth.instance.signOut();
 
-      // ───────────────────────────────
-      //     Backend call (same as login)
-      // ───────────────────────────────
-      final idToken = await user.getIdToken();
-
-      final deviceInfo = await getDeviceInfo();
-
-      // Phone number format handle (same as your login flow)
-      String countryCode = "+${selectedCountry.phoneCode}";
-      String mobile = mobileController.text.trim();
-
-      Map<String, dynamic> requestData = {
-        "country_code": countryCode,
-        "mobile": mobile,
-        "fcm_token": PushNotificationService.fcmToken ?? "",
-        "id_token": idToken,
-        "device_name": deviceInfo["device_name"] ?? "",
-        "device_type": deviceInfo["device_type"] ?? "",
-        if (emailController.text.trim().isNotEmpty)
-          "email": emailController.text.trim(),
-      };
-
-      VerifyOtp response = await verificationUser(requestData);
-
+      _isMobileVerified = true;
       _otpLoading = false;
-
-      if (response.status == true) {
-        await UserPreference.saveLoginStatus(response.isLoggedIn ?? false);
-        await UserPreference.saveIsRoleSelected(
-          response.isRoleSelected ?? false,
-        );
-        await saveLogin(response.nextStep, response.token);
-        await UserPreference.saveUserId(response.userId ?? "");
-        await UserPreference.saveStep(response.stepCompleted ?? "0");
-        await UserPreference.saveMobile("$countryCode$mobile");
-        await UserPreference.saveIsMobileVerified(true);
-
-        navigatorKey.currentContext?.read<AuthGuestProvider>()?.updateLogin(
-          true,
-        );
-
-        _isMobileVerified = true;
-        notifyListeners();
-        return null; // success
-      } else {
-        return response.message ??
-            "Server verification failed. Please try again.";
-      }
+      notifyListeners();
+      return null; // success
     } on FirebaseAuthException catch (e) {
       _otpLoading = false;
       notifyListeners();
+      debugPrint(
+        "FirebaseAuthException in verifyMobileOtp: ${e.code} - ${e.message}",
+      );
 
-      switch (e.code) {
-        case 'invalid-verification-code':
-        case 'invalid-verification-id':
-          return "Incorrect OTP entered.";
-        case 'session-expired':
-          return "Session expired. Please request a new OTP.";
-        case 'too-many-requests':
-          return "Too many attempts. Please try again later.";
-        default:
-          return "Verification failed. Please try again.";
+      if (e.code == 'invalid-verification-code') {
+        return "The OTP entered is incorrect. Please try again.";
+      } else if (e.code == 'session-expired') {
+        return "The verification session has expired. Please resend the OTP.";
+      } else if (e.code == 'too-many-requests') {
+        return "Too many attempts. Please try again later.";
+      } else if (e.code == 'invalid-verification-id') {
+        return "Verification ID has expired. Please resend the OTP.";
       }
+
+      return e.message ?? "Verification failed. Please try again.";
     } catch (e) {
       _otpLoading = false;
       notifyListeners();
-      debugPrint("verifyMobileOtp error: $e");
+      debugPrint("General error in verifyMobileOtp: $e");
       return "Something went wrong. Please try again.";
     }
   }
