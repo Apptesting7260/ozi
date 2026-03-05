@@ -24,7 +24,6 @@ class _MyBookingsContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<VendorMybookingsProvider>();
-    final newRequestProvider = context.watch<NewRequestsProvider>();
 
 
     return Scaffold(
@@ -48,7 +47,7 @@ class _MyBookingsContent extends StatelessWidget {
               child: ListView.builder(
                 scrollDirection: Axis.horizontal,
                 padding:  EdgeInsets.symmetric(horizontal: 16),
-                itemCount: provider.tabs.length,
+                itemCount: provider.tabConfig.length,
                 itemBuilder: (_, index) {
                   final selected = provider.selectedTab == index;
                   return GestureDetector(
@@ -67,7 +66,7 @@ class _MyBookingsContent extends StatelessWidget {
                       ),
                       child: Center(
                         child: Text(
-                          provider.tabs[index],
+                            provider.tabConfig[index]["label"],
                           style: AppFontStyle.text_12_500(
                             selected ? AppColors.white : AppColors.grey,
                             fontFamily: AppFontFamily.medium
@@ -93,7 +92,7 @@ class _MyBookingsContent extends StatelessWidget {
                       child:provider.homeModel.data?.data==null ||provider.homeModel.data!.data!.isEmpty
                           ? Center(
                         child: Text(
-                          "No ${provider.tabs[provider.selectedTab].toLowerCase()} bookings",
+                          "No ${provider.tabConfig[provider.selectedTab]["label"].toLowerCase()} bookings",
                           style:  TextStyle(
                             fontSize: 14,
                             color: AppColors.grey,
@@ -107,44 +106,40 @@ class _MyBookingsContent extends StatelessWidget {
                           final booking = provider.homeModel.data!.data![index];
                           return _BookingCard(
                             booking: booking,
-                            onTap: () {
-                              Navigator.of(context).push(
+                            isAcceptLoading: provider.isAcceptLoading(booking.id.toString()),
+                            isRejectLoading: provider.isRejectLoading(booking.id.toString()),
+                            onTap: () async {
+                              final result = await Navigator.of(context).push<bool>(
                                 MaterialPageRoute(
-                                  builder: (_) => VendorBookingDetailsScreen( bookingId: booking.id.toString(),),
+                                  builder: (_) => VendorBookingDetailsScreen(
+                                    bookingId: booking.id.toString(),
+                                  ),
                                 ),
                               );
+
+                              if (result == true && context.mounted) {
+                                await provider.refreshBookings();
+                              }
                             },
-                              onAccept: () async {
-                                final success =
-                                await newRequestProvider.acceptOrRejectRequest(
-                                  'accept',
-                                  booking.id ?? '',
-                                );
+                            onAccept: () async {
+                              final success = await provider.acceptOrRejectRequest(
+                                'accept',
+                                booking.id.toString(),
+                              );
 
-                                if (kDebugMode) {
-                                  print("Accept Is Working ==================> $success");
-                                }
-
-                                if (success && context.mounted) {
-                                  Navigator.of(context).push(
-                                    MaterialPageRoute(
-                                      builder: (_) => VendorBookingDetailsScreen(
-                                        bookingId: booking.id.toString(),
-                                      ),
-                                    ),
-                                  );
-                                }
-                              },
-
+                              if (success) {
+                                await provider.refreshBookings();
+                              }
+                            },
                             onReject: () async {
-                              await newRequestProvider.acceptOrRejectRequest('reject', booking.id ?? '');
-                              await provider.refreshBookings();
-                              // final success = await newRequestProvider.acceptOrRejectRequest(
-                              //     'reject', booking.id ?? '');
-                              //c
-                              // if (success) {
-                              //   provider.refreshBookings();
-                              // }
+                              final success = await provider.acceptOrRejectRequest(
+                                'reject',
+                                booking.id.toString(),
+                              );
+
+                              if (success) {
+                                await provider.refreshBookings();
+                              }
                             },
                           );
                         },
@@ -173,13 +168,17 @@ class _BookingCard extends StatelessWidget {
   final VoidCallback onAccept;
   final VoidCallback onReject;
 
-   const _BookingCard({
+  final bool isAcceptLoading;
+  final bool isRejectLoading;
+
+  const _BookingCard({
     required this.booking,
     required this.onTap,
-     required this.onAccept,
-     required this.onReject,
+    required this.onAccept,
+    required this.onReject,
+    required this.isAcceptLoading,
+    required this.isRejectLoading,
   });
-
   @override
   Widget build(BuildContext context) {
 
@@ -318,7 +317,17 @@ class _BookingCard extends StatelessWidget {
                         text: "Reject",
                         textStyle: AppFontStyle.text_14_500(AppColors.white),
                         color: AppColors.red,
-                        onPressed: onReject,
+                        onPressed: isRejectLoading ? null : onReject,
+                        child: isRejectLoading
+                            ? SizedBox(
+                          height: 16,
+                          width: 16,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: AppColors.white,
+                          ),
+                        )
+                            : null,
                       ),
 
                       const SizedBox(width: 8),
@@ -327,7 +336,17 @@ class _BookingCard extends StatelessWidget {
                         height: 30,
                         width: 80,
                         text: "Accept",
-                        onPressed: onAccept,
+                        onPressed: isAcceptLoading ? null : onAccept,
+                        child: isAcceptLoading
+                            ? SizedBox(
+                          height: 16,
+                          width: 16,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: AppColors.white,
+                          ),
+                        )
+                            : null,
                       ),
                     ],
                   ),

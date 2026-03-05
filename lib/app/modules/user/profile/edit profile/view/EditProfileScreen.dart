@@ -1,10 +1,8 @@
 import 'package:pin_code_fields/pin_code_fields.dart';
-
 import '../../../../../core/appExports/app_export.dart';
 import '../../../../../core/constants/app_urls.dart';
 import '../../../../../shared/widgets/custom_app_bar.dart';
 import '../../../../../shared/widgets/custom_bottom_shit.dart';
-import '../../../../../shared/widgets/custom_image_path_helper.dart';
 import '../../../../../shared/widgets/custom_text_form_field.dart';
 import '../../view/profile_provider/profile_provider.dart';
 import '../provider/EditProfileProvider.dart';
@@ -90,7 +88,7 @@ class EditProfileScreen extends StatelessWidget {
                         width: 110,
                       )
                     : Image.network(
-                        "${AppUrls.imageBaseUrl}${provider.networkImage ?? ''}",
+                        "${AppUrls.imageBaseUrl}${provider.networkImage}",
                         height: 110,
                         width: 110,
                         fit: BoxFit.cover,
@@ -427,18 +425,18 @@ class _OtpDialogContentState extends State<_OtpDialogContent> {
                 }
               },
               keyboardType: TextInputType.number,
-              // enableActiveFill: true,
+               enableActiveFill: true,
               pinTheme: PinTheme(
                 shape: PinCodeFieldShape.circle,
                 fieldHeight: 48,
                 fieldWidth: 48,
-                activeFillColor: AppColors.lightGrey2,
-                inactiveFillColor: AppColors.lightGrey2,
-                selectedFillColor: AppColors.lightGrey2,
+                activeFillColor: AppColors.fieldBgColor,
+                inactiveFillColor: AppColors.fieldBgColor,
+                selectedFillColor: AppColors.fieldBgColor,
                 activeColor: AppColors.primary,
-                inactiveColor: Colors.white24,
+                inactiveColor: Colors.transparent,
                 selectedColor: AppColors.primary,
-                borderWidth: 0,
+                borderWidth: 1.5,
               ),
             ),
             if (errorMessage != null) ...[

@@ -1,5 +1,3 @@
-import 'package:flutter/services.dart';
-import 'package:ozi/app/view/user_role/choose_your_role/view/choose_role.dart';
 import '../../../../core/appExports/app_export.dart';
 import '../../../../modules/user/navigation tab/view/navigation_tab_screen.dart';
 import '../../verification_screen/view/verification_screen.dart';
@@ -101,7 +99,9 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   void _handleContinue() async {
-    print("Button pressed");
+    if (kDebugMode) {
+      print("Button pressed");
+    }
     final loginProvider = Provider.of<LoginProvider>(context, listen: false);
 
     if (loginProvider.isLoading) return;
@@ -136,7 +136,9 @@ class _LoginScreenState extends State<LoginScreen> {
       );
     } else {
       if (!success && mounted) {
-        print("object");
+        if (kDebugMode) {
+          print("object");
+        }
         Get.showToast(
           loginProvider.errorMessageFirebase ??
               "Failed to send OTP. Please try again.",
@@ -253,7 +255,9 @@ class _LoginScreenState extends State<LoginScreen> {
                               // Optional: Show real-time validation
                               if (value.length == _maxPhoneLength) {
                                 // Valid length reached
-                                print('✅ Valid phone number length');
+                                if (kDebugMode) {
+                                  print('✅ Valid phone number length');
+                                }
                               }
                             },
                           ),
@@ -356,7 +360,9 @@ class _LoginScreenState extends State<LoginScreen> {
                       _socialButton(
                         imagePath: "assets/images/Google.png",
                         onTap: () {
-                          print("click on googlie");
+                          if (kDebugMode) {
+                            print("click on google");
+                          }
                           loginProvider.signInWithGoogle(context);
                         },
                       ),
