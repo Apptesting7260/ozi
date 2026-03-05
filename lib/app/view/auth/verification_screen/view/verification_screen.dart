@@ -89,8 +89,8 @@ class VerificationContent extends StatelessWidget {
                     enableActiveFill: true,
                     pinTheme: PinTheme(
                       shape: PinCodeFieldShape.circle,
-                      fieldHeight: 55,
-                      fieldWidth: 55,
+                      fieldHeight: 50,
+                      fieldWidth: 50,
                       inactiveColor: Colors.transparent,
                       selectedColor: Colors.transparent,
                       activeColor: Colors.transparent,

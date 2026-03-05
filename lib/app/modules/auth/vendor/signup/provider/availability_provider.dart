@@ -22,6 +22,15 @@ class AvailabilityProvider extends ChangeNotifier {
   }
 
 
+  bool _pageLoading = false;
+  bool get pageLoading => _pageLoading;
+
+  void updatePageLoading(bool value) {
+    _pageLoading = value;
+    notifyListeners();
+  }
+
+
   final NetworkApiServices _apiService = NetworkApiServices();
 
   final Map<String, DayAvailability> availability = {
@@ -172,6 +181,7 @@ class AvailabilityProvider extends ChangeNotifier {
   }
 
   Future<void> getAvailability()async {
+    updatePageLoading(true);
     try {
       final response = await _apiService.getApi(AppUrls.getAvailabilityVendor);
       VendorAvailability fetchedAvailability = VendorAvailability.fromJson(response);
@@ -199,6 +209,9 @@ class AvailabilityProvider extends ChangeNotifier {
       }
     } catch (e) {
       showCustomToast(navigatorKey.currentContext!, e.toString());
+    }
+    finally {
+      updatePageLoading(false);
     }
   }
 

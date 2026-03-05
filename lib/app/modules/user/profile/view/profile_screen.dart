@@ -408,13 +408,15 @@ class ProfileScreenView extends StatelessWidget {
         child: Row(
           children: [
             SizedBox(
-              height: 32,
-              width: 32,
+              height: 24,
+              width: 24,
               child: Center(
                 child: CustomImage(
                   path: icon,
                   color: AppColors.primary,
                   fit: BoxFit.contain,
+                  height: 24,
+                  width: 24,
                 ),
               ),
             ),

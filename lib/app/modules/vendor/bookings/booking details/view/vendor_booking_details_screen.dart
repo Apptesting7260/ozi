@@ -224,8 +224,9 @@ class VendorBookingDetailsScreen extends StatelessWidget {
                                   CustomButton(
                                     isLoading: provider.completeJobLoading,
                                     text: 'Complete Job',
-                                    onPressed: () {
-
+                                    onPressed: provider.completeJobLoading
+                                        ? null
+                                        : () async {
                                       final data = provider.homeModel.data?.data;
                                       final isCashPayment = data?.paymentMethod == 'cash';
                                       final isCollected = provider.isCashCollected;
@@ -233,7 +234,6 @@ class VendorBookingDetailsScreen extends StatelessWidget {
                                       if (isCashPayment && !isCollected) {
                                         ScaffoldMessenger.of(context).showSnackBar(
                                           const SnackBar(
-
                                             showCloseIcon: true,
                                             closeIconColor: Colors.white,
                                             content: Text(
@@ -245,9 +245,12 @@ class VendorBookingDetailsScreen extends StatelessWidget {
                                         return;
                                       }
 
+                                      final success =
+                                      await provider.completeTheJob(bookingId);
 
-                                      // Proceed to complete job
-                                      provider.completeTheJob(bookingId);
+                                      if (success && context.mounted) {
+                                        Navigator.pop(context, true);
+                                      }
                                     },
                                   ),
 

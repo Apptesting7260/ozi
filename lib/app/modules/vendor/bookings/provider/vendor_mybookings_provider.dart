@@ -32,12 +32,27 @@ class VendorMybookingsProvider extends ChangeNotifier {
 
   int selectedTab = 0;
 
-  final List<String> tabs = [
-    "All",
-    "Ongoing",
-    "Upcoming",
-    "Completed",
-    "Cancelled",
+  final List<Map<String, dynamic>> tabConfig = [
+    {
+      "label": "All",
+      "status": null,
+    },
+    {
+      "label": "Ongoing",
+      "status": ["ongoing", "confirmed"],
+    },
+    {
+      "label": "Upcoming",
+      "status": ["pending"],
+    },
+    {
+      "label": "Completed",
+      "status": ["completed"],
+    },
+    {
+      "label": "Cancelled",
+      "status": ["cancelled", "rejected"],
+    },
   ];
 
   // ================= CORE METHODS =================
@@ -89,14 +104,76 @@ class VendorMybookingsProvider extends ChangeNotifier {
     }
   }
 
+  final Set<String> _loadingActions = {};
+
+  bool isAcceptLoading(String bookingId) {
+    return _loadingActions.contains('${bookingId}_accept');
+  }
+
+  bool isRejectLoading(String bookingId) {
+    return _loadingActions.contains('${bookingId}_reject');
+  }
+
+  Future<bool> acceptOrRejectRequest(
+      String action,
+      String bookingId,
+      ) async {
+    final key = '${bookingId}_$action';
+
+    if (_loadingActions.contains(key)) return false;
+
+    try {
+      _loadingActions.add(key);
+      notifyListeners();
+
+      await _apiService.postApi(
+        {
+          "booking_id": bookingId,
+          "action": action,
+        },
+        AppUrls.acceptRejectBooking,
+      );
+
+      // Update status locally
+      final bookings = _homeModel.data?.data;
+
+      if (bookings != null) {
+        final index =
+        bookings.indexWhere((b) => b.id.toString() == bookingId);
+
+        if (index != -1) {
+          bookings[index].status =
+          action == 'accept' ? 'confirmed' : 'rejected';
+        }
+      }
+
+      _loadingActions.remove(key);
+      notifyListeners();
+
+      return true;
+    } catch (e) {
+      _loadingActions.remove(key);
+      notifyListeners();
+
+      Get.showToast(e.toString(), type: ToastType.error);
+      return false;
+    }
+  }
+
+
   String _buildUrl() {
     String url = AppUrls.vendorMyBookings.replaceAll(
       '{page}',
       _currentPage.toString(),
     );
 
-    if (selectedTab != 0) {
-      url += '&status=${tabs[selectedTab].toLowerCase()}';
+    final List<String>? statuses =
+    tabConfig[selectedTab]["status"];
+
+    if (statuses != null && statuses.isNotEmpty) {
+      for (var s in statuses) {
+        url += '&status=$s';
+      }
     }
 
     return url;

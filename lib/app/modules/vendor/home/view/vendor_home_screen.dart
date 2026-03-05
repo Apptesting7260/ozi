@@ -23,139 +23,143 @@ class _VendorHomeScreenState extends State<VendorHomeScreen> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) {
-        context.read<ProfileProvider>().fetchUserProfile();
-      }
+
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (!mounted) return;
+
+      final homeProvider = context.read<VendorHomeProvider>();
+
+      await homeProvider.getHomeData();
+      homeProvider.checkForUpdateLocationAndIsServiceAvailable();
+
+      context.read<ProfileProvider>().fetchUserProfile();
+
     });
   }
 
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (_) => VendorHomeProvider(),
-      child: Consumer<VendorHomeProvider>(
-        builder: (context, value, child) {
-          return Scaffold(
-            backgroundColor: AppColors.white,
-            body: SafeArea(
-              child: RefreshIndicator(
-                onRefresh: () async {
-                  value.getHomeData();
-                },
-                child: switch (value.homeModel.status) {
-                  ApiStatus.loading => const Center(
-                    child: CircularProgressIndicator(),
-                  ),
+    return Consumer<VendorHomeProvider>(
+      builder: (context, value, child) {
+        return Scaffold(
+          backgroundColor: AppColors.white,
+          body: SafeArea(
+            child: RefreshIndicator(
+              onRefresh: () async {
+                value.getHomeData();
+              },
+              child: switch (value.homeModel.status) {
+                ApiStatus.loading => const Center(
+                  child: CircularProgressIndicator(),
+                ),
 
-                  ApiStatus.completed => SingleChildScrollView(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        SafeArea(child: SizedBox(height: 10)),
+                ApiStatus.completed => SingleChildScrollView(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      SafeArea(child: SizedBox(height: 10)),
 
-                        // ---------------- HEADER ----------------
-                        _header(context),
+                      // ---------------- HEADER ----------------
+                      _header(context),
 
-                        hBox(20),
+                      hBox(20),
 
-                        // ---------------- ONLINE STATUS ----------------
-                        _onlineStatus(),
+                      // ---------------- ONLINE STATUS ----------------
+                      _onlineStatus(),
 
-                        hBox(20),
+                      hBox(20),
 
-                        // ---------------- STATS ----------------
-                        _statsGrid(),
+                      // ---------------- STATS ----------------
+                      _statsGrid(),
 
-                        hBox(24),
+                      hBox(24),
 
-                        // ---------------- NEW REQUESTS ----------------
-                        _sectionHeader(context: context, title: "New Requests",newRequestLength:value.homeModel.data?.requests?.length ),
+                      // ---------------- NEW REQUESTS ----------------
+                      _sectionHeader(context: context, title: "New Requests",newRequestLength:value.homeModel.data?.requests?.length ),
 
-                        hBox(12),
-                        value.homeModel.data?.requests == null ||
-                                value.homeModel.data?.requests?.length == 0
-                            ? SizedBox(
-                                height: MediaQuery.of(context).size.height * 0.2,
-                                child: Center(
-                                  child: Text(
-                                    "No new requests available",
-                                    style: AppFontStyle.text_16_500(
-                                      AppColors.grey,
-                                    ),
+                      hBox(12),
+                      value.homeModel.data?.requests == null ||
+                              value.homeModel.data?.requests?.length == 0
+                          ? SizedBox(
+                              height: MediaQuery.of(context).size.height * 0.2,
+                              child: Center(
+                                child: Text(
+                                  "No new requests available",
+                                  style: AppFontStyle.text_16_500(
+                                    AppColors.grey,
                                   ),
                                 ),
-                              )
-                            : ListView.builder(
-                                itemCount:
-                                    value.homeModel.data?.requests?.length ?? 0,
-                                physics: NeverScrollableScrollPhysics(),
-                                shrinkWrap: true,
-                                itemBuilder: (context, index) {
-                                  VendorHomeRequests request =
-                                      value.homeModel.data!.requests![index];
-                                  // return RequestCard(
-                                  //   onAccept: () {
-                                  //     value.acceptOrRejectRequest(
-                                  //       'accept',
-                                  //       request.bookingId ?? '',
-                                  //     );
-                                  //   },
-                                  //   onReject: () {
-                                  //     value.acceptOrRejectRequest(
-                                  //       'reject',
-                                  //       request.bookingId ?? '',
-                                  //     );
-                                  //   },
-                                  //   request: request,
-                                  // );
-                                  return RequestCard(
-                                    onAccept: () {
-                                      value.acceptOrRejectRequest(
-                                        'accept',
-                                        request.bookingId ?? '',
-                                      );
-                                    },
-                                    onReject: () {
-                                      _showRejectWarning(
-                                        context,
-                                            () {
-                                          value.acceptOrRejectRequest(
-                                            'reject',
-                                            request.bookingId ?? '',
-                                          );
-                                        },
-                                      );
-                                    },
-                                    request: request,
-                                  );
-
-
-                                  // _requestCard(
-                                  //   statusColor: AppColors.purple,
-                                  //   request:request
-                                  // );
-                                },
                               ),
+                            )
+                          : ListView.builder(
+                              itemCount:
+                                  value.homeModel.data?.requests?.length ?? 0,
+                              physics: NeverScrollableScrollPhysics(),
+                              shrinkWrap: true,
+                              itemBuilder: (context, index) {
+                                VendorHomeRequests request =
+                                    value.homeModel.data!.requests![index];
+                                // return RequestCard(
+                                //   onAccept: () {
+                                //     value.acceptOrRejectRequest(
+                                //       'accept',
+                                //       request.bookingId ?? '',
+                                //     );
+                                //   },
+                                //   onReject: () {
+                                //     value.acceptOrRejectRequest(
+                                //       'reject',
+                                //       request.bookingId ?? '',
+                                //     );
+                                //   },
+                                //   request: request,
+                                // );
+                                return RequestCard(
+                                  onAccept: () {
+                                    value.acceptOrRejectRequest(
+                                      'accept',
+                                      request.bookingId ?? '',
+                                    );
+                                  },
+                                  onReject: () {
+                                    _showRejectWarning(
+                                      context,
+                                          () {
+                                        value.acceptOrRejectRequest(
+                                          'reject',
+                                          request.bookingId ?? '',
+                                        );
+                                      },
+                                    );
+                                  },
+                                  request: request,
+                                );
 
-                        hBox(20),
-                      ],
-                    ),
+
+                                // _requestCard(
+                                //   statusColor: AppColors.purple,
+                                //   request:request
+                                // );
+                              },
+                            ),
+
+                      hBox(20),
+                    ],
                   ),
+                ),
 
-                  ApiStatus.error => const Center(
-                    child: Text('Something went wrong'),
-                  ),
+                ApiStatus.error => const Center(
+                  child: Text('Something went wrong'),
+                ),
 
-                  _ => const SizedBox.shrink(),
-                },
-              ),
+                _ => const SizedBox.shrink(),
+              },
             ),
-          );
-        },
-      ),
+          ),
+        );
+      },
     );
   }
 
@@ -483,173 +487,4 @@ class _VendorHomeScreenState extends State<VendorHomeScreen> {
       ],
     );
   }
-
-  // Widget _newRequestCard(VendorHomeRequests request) {
-  // Widget _requestCard({
-  //   required Color statusColor,
-  //    required VendorHomeRequests request,
-  // }) {
-  //   return Consumer<VendorHomeProvider>(
-  //     builder: (context,provider,_) {
-  //       return Container(
-  //         padding: const EdgeInsets.all(16),
-  //         decoration: BoxDecoration(
-  //           color: AppColors.white,
-  //           borderRadius: BorderRadius.circular(16),
-  //           boxShadow: [
-  //             BoxShadow(
-  //               color: Colors.black.withValues(alpha: .05),
-  //               blurRadius: 10,
-  //             ),
-  //           ],
-  //         ),
-  //         child: Column(
-  //           children: [
-  //             Row(
-  //               children: [
-  //         Container(
-  //           height: 36,
-  //           width: 36,
-  //         decoration: BoxDecoration(
-  //           shape: BoxShape.circle,
-  //           border: Border.all(
-  //             color: AppColors.primary,
-  //             width: 2,
-  //           ),
-  //         ),
-  //         child: ClipRRect(
-  //           borderRadius: BorderRadius.circular(36),
-  //           child: CustomImage(
-  //             path: "${AppUrls.imageBaseUrl}${request.customerImage??''}",
-  //             height: 36,
-  //             width: 36,
-  //           ),
-  //         ),
-  //       ),
-  //
-  //       wBox(10),
-  //                 Expanded(
-  //                   child: Column(
-  //                     crossAxisAlignment: CrossAxisAlignment.start,
-  //                     children: [
-  //                       Text(
-  //                         request.customerName??'',
-  //                         style: AppFontStyle.text_14_600(AppColors.darkText),
-  //                       ),
-  //                       Text(
-  //                         request.bookingCode??'',
-  //                         style: AppFontStyle.text_12_400(AppColors.grey),
-  //                       ),
-  //                     ],
-  //                   ),
-  //                 ),
-  //                 Container(
-  //                   padding:
-  //                   const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-  //                   decoration: BoxDecoration(
-  //                     color: statusColor.withValues(alpha: 0.1),
-  //                     borderRadius: BorderRadius.circular(20),
-  //                   ),
-  //                   child: Text(
-  //                     request.status?.toUpperCase()??'',
-  //                     style: AppFontStyle.text_12_500(statusColor),
-  //                   ),
-  //                 ),
-  //               ],
-  //             ),
-  //
-  //             hBox(12),
-  //
-  //             Row(
-  //               children: [
-  //                 Icon(Icons.calendar_today, size: 14, color: AppColors.grey),
-  //                 wBox(6),
-  //                 Text(Get.getFormattedDate(request.serviceDate??''), style: AppFontStyle.text_12_400(AppColors.grey)),
-  //                 wBox(12),
-  //                 Icon(Icons.access_time, size: 14, color: AppColors.grey),
-  //                 wBox(6),
-  //                 Text('${request.serviceTime?.from?.toString()} - ${request.serviceTime?.to?.toString()}', style: AppFontStyle.text_12_400(AppColors.grey)),
-  //               ],
-  //             ),
-  //
-  //             hBox(8),
-  //
-  //             Row(
-  //               children: [
-  //                 Icon(Icons.location_on_outlined,
-  //                     size: 14, color: AppColors.grey),
-  //                 wBox(6),
-  //                 Expanded(
-  //                   child: Text(
-  //                     request.address??'',
-  //                     style: AppFontStyle.text_12_400(AppColors.grey),
-  //                     maxLines: 10,
-  //                   ),
-  //                 ),
-  //               ],
-  //             ),
-  //
-  //             hBox(14),
-  //             Divider(thickness: 1, color: AppColors.black.withValues(alpha: 0.10), ),
-  //             hBox(14),
-  //
-  //             Row(
-  //               children: [
-  //                 Text(
-  //                   "\$${request.totalAmount??''}",
-  //                   style: AppFontStyle.text_14_600(AppColors.primary),
-  //                 ),
-  //                 const Spacer(),
-  //
-  //                 if (request.status=='pending') ...[
-  //                   CustomButton(
-  //                     isLoading: provider.acceptRejectLoading&&provider.currentBookingId==request.bookingId&&provider.currentAction=='reject',
-  //                     height: 40,
-  //                     width: 90,
-  //                     // isOutlined: true,
-  //                     text: "Reject",
-  //                     textStyle: AppFontStyle.text_14_500(AppColors.white),
-  //                     color: AppColors.red,
-  //                     onPressed: () {
-  //                       provider.acceptOrRejectRequest('reject',request.bookingId??'');
-  //                     },
-  //                   ),
-  //                   wBox(10),
-  //                   CustomButton(
-  //                     isLoading: provider.acceptRejectLoading&&provider.currentBookingId==request.bookingId&&provider.currentAction=='accept',
-  //                     height: 40,
-  //                     width: 90,
-  //                     text: "Accept",
-  //                     onPressed: () {
-  //                       provider.acceptOrRejectRequest('accept',request.bookingId??'');
-  //                     },
-  //                   ),
-  //                 ] else
-  //                   GestureDetector(
-  //                     onTap: () async {
-  //                       final Uri launchUri = Uri(
-  //                         scheme: 'tel',
-  //                         path: request.customerPhone,
-  //                       );
-  //                       await launchUrl(launchUri);
-  //                     },
-  //                     child: Container(
-  //                       height: 36,
-  //                       width: 36,
-  //                       decoration: BoxDecoration(
-  //                         color: AppColors.primary,
-  //                         shape: BoxShape.circle,
-  //                       ),
-  //                       child:
-  //                       Icon(Icons.call, color: Colors.white, size: 18),
-  //                     ),
-  //                   ),
-  //               ],
-  //             ),
-  //           ],
-  //         ),
-  //       );
-  //     }
-  //   );
-  // }
 }
