@@ -60,7 +60,7 @@ String mapFirebaseError(
   // PHONE INPUT ERRORS
 
     case 'invalid-phone-number':
-      return "Invalid phone number.";
+      return "Please enter a valid phone number.";
 
     case 'missing-phone-number':
       return "Phone number is required.";
@@ -68,43 +68,64 @@ String mapFirebaseError(
   // OTP VERIFICATION ERRORS
 
     case 'invalid-verification-code':
-      return "Incorrect OTP.";
+      return "The OTP you entered is incorrect.";
 
     case 'session-expired':
-      return "OTP expired after $otpTimeoutSeconds seconds. Request a new one.";
+      return "OTP expired after $otpTimeoutSeconds seconds. Please request a new one.";
 
     case 'invalid-verification-id':
-      return "Session expired. Request a new OTP.";
+      return "Session expired. Please request a new OTP.";
+
+    case 'code-expired':
+      return "OTP has expired. Please request a new one.";
 
   // RATE LIMIT / TEMP BLOCK
 
     case 'too-many-requests':
-      return "Too many attempts. Temporarily restricted. Try again later.";
+      return "Too many attempts. Please try again later.";
 
     case 'quota-exceeded':
-      return "OTP limit reached. Try again later.";
-
-  // SYSTEM / NETWORK
-
-    case 'network-request-failed':
-      return "No internet connection.";
-
-    case 'app-not-authorized':
-      return "Authentication not allowed.";
+      return "OTP request limit reached. Please try again later.";
 
     case 'captcha-check-failed':
-      return "Verification failed. Try again.";
+      return "Verification failed. Please try again.";
 
-  // DEFAULT (FLOW AWARE)
+  // NETWORK / SYSTEM
+
+    case 'network-request-failed':
+      return "No internet connection. Please check your network.";
+
+    case 'app-not-authorized':
+      return "Authentication service is not available right now.";
+
+    case 'internal-error':
+      return "Something went wrong. Please try again.";
+
+    case 'invalid-app-credential':
+      return "App verification failed. Please restart the app.";
+
+    case 'missing-verification-code':
+      return "Please enter the OTP code.";
+
+    case 'missing-verification-id':
+      return "Verification session expired. Please request a new OTP.";
+
+  // DEFAULT FLOW AWARE MESSAGE
 
     default:
-      switch (flow) {
-        case AuthFlowType.sendOtp:
-          return "Failed to send OTP. Try again.";
-        case AuthFlowType.verifyOtp:
-          return "OTP verification failed. Try again.";
-        case AuthFlowType.resendOtp:
-          return "Failed to resend OTP. Try again.";
-      }
+      return _defaultFlowMessage(flow);
+  }
+}
+
+String _defaultFlowMessage(AuthFlowType flow) {
+  switch (flow) {
+    case AuthFlowType.sendOtp:
+      return "Failed to send OTP. Please try again.";
+
+    case AuthFlowType.verifyOtp:
+      return "OTP verification failed. Please try again.";
+
+    case AuthFlowType.resendOtp:
+      return "Failed to resend OTP. Please try again.";
   }
 }

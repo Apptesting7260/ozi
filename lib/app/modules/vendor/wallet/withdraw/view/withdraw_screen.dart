@@ -80,44 +80,47 @@ class _WithdrawContent extends StatelessWidget {
                       AppFontStyle.text_16_600(AppColors.primary),
                     ),
                     borderRadius: 40,
+                    textInputType: TextInputType.number,
                   ),
 
                   hBox(16),
 
-                  Wrap(
-                    spacing: 10,
-                    children: provider.quickAmounts.map((amt) {
-                      final selected =
-                          provider.selectedAmount == amt;
-                      return GestureDetector(
-                        onTap: () => provider.selectAmount(amt),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 18, vertical: 10),
-                          decoration: BoxDecoration(
-                            color: selected
-                                ? AppColors.primary
-                                .withValues(alpha: 0.1)
-                                : AppColors.white,
-                            borderRadius:
-                            BorderRadius.circular(20),
-                            border: Border.all(
+                  Center(
+                    child: Wrap(
+                      spacing: 8,
+                      children: provider.quickAmounts.map((amt) {
+                        final selected =
+                            provider.selectedAmount == amt;
+                        return GestureDetector(
+                          onTap: () => provider.selectAmount(amt),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 12, vertical: 8),
+                            decoration: BoxDecoration(
                               color: selected
                                   ? AppColors.primary
-                                  : AppColors.black,
+                                  .withValues(alpha: 0.1)
+                                  : AppColors.white,
+                              borderRadius:
+                              BorderRadius.circular(20),
+                              border: Border.all(
+                                color: selected
+                                    ? AppColors.primary
+                                    : AppColors.black,
+                              ),
+                            ),
+                            child: Text(
+                              "\$$amt",
+                              style: AppFontStyle.text_14_600(
+                                selected
+                                    ? AppColors.primary
+                                    : AppColors.darkText,
+                              ),
                             ),
                           ),
-                          child: Text(
-                            "\$$amt",
-                            style: AppFontStyle.text_14_600(
-                              selected
-                                  ? AppColors.primary
-                                  : AppColors.darkText,
-                            ),
-                          ),
-                        ),
-                      );
-                    }).toList(),
+                        );
+                      }).toList(),
+                    ),
                   ),
 
                   hBox(20),
@@ -152,8 +155,7 @@ class _WithdrawContent extends StatelessWidget {
                         // );
                         Get.showToast("Withdrawal Failed", type: ToastType.error);
                       }
-                    }
-                        : null,
+                    } : null,
 
                   ),
 

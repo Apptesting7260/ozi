@@ -9,9 +9,9 @@ import '../../../../data/response/api_response.dart';
 class VendorHomeProvider extends ChangeNotifier {
   final NetworkApiServices _apiService = NetworkApiServices();
 
-  VendorHomeProvider() {
-    getHomeData();
-  }
+  // VendorHomeProvider() {
+  //   getHomeData();
+  // }
 
   ApiResponse<VendorHomeModel> _homeModel = ApiResponse.loading();
 
@@ -40,22 +40,7 @@ class VendorHomeProvider extends ChangeNotifier {
 
       setHomeModel(ApiResponse.completed(VendorHomeModel.fromJson(response)));
 
-      // ---- SAFE POPUP TRIGGER ----
-      if (_homeModel.data?.vendorStatus?.hasLocation == false &&
-          !_locationPopupShown) {
-        _locationPopupShown = true;
 
-        Future.microtask(() {
-          showLocationPopup(navigatorKey.currentContext!);
-        });
-      } else if (_homeModel.data?.vendorStatus?.hasService == false &&
-          !_servicePopupShown) {
-        _servicePopupShown = true;
-
-        Future.microtask(() {
-          _showPopup(navigatorKey.currentContext!);
-        });
-      }
     } catch (e) {
       Get.showToast(e.toString(), type: ToastType.error);
       setHomeModel(ApiResponse.error('Internal Server Error'));
@@ -85,10 +70,11 @@ class VendorHomeProvider extends ChangeNotifier {
     }
   }
 
-  checkForUpdateLocationAndIsServiceAvailable() {
+  void checkForUpdateLocationAndIsServiceAvailable() {
     if (_homeModel.data?.vendorStatus?.hasLocation == false) {
       showLocationPopup(navigatorKey.currentContext!);
-    } else if (_homeModel.data?.vendorStatus?.hasService == false) {
+    }
+    else if (_homeModel.data?.vendorStatus?.hasService == false) {
       _showPopup(navigatorKey.currentContext!);
     }
   }
@@ -246,6 +232,7 @@ class VendorHomeProvider extends ChangeNotifier {
                                 ).then((value) {
                                   if (value == true) {
                                     Navigator.of(context).pop();
+                                    checkForUpdateLocationAndIsServiceAvailable();
                                     getHomeData();
                                   }
                                 });
@@ -401,7 +388,9 @@ class VendorHomeProvider extends ChangeNotifier {
                               if (result != null) {
                                 await updateLocationFromLatLng(result);
                                 Navigator.of(context).pop();
-                                await getHomeData();
+
+                                await getHomeData(showScreenLoader: false);
+                                checkForUpdateLocationAndIsServiceAvailable();
                               }
                             } catch (e) {
                               Get.showToast(

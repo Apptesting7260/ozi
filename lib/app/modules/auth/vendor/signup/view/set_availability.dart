@@ -44,7 +44,7 @@ class _SetAvailabilityContent extends StatelessWidget {
         ),
       ),
 
-      body: SafeArea(
+      body:provider.pageLoading ? Center(child: CircularProgressIndicator()) : SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

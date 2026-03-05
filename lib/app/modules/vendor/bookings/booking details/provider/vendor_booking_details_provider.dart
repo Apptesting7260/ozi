@@ -103,20 +103,48 @@ class VendorBookingDetailsProvider extends ChangeNotifier {
   }
 
 
-  Future<void> completeTheJob(String bookingId)async {
-    if(_completeJobLoading) return;
+  Future<bool> completeTheJob(String bookingId) async {
+    if (_completeJobLoading) return false;
+
+    updateCompleteJobLoading(true);
+
     try {
-      updateOtpVerifyLoading(true);
-      final _ = await _apiService.postApi({
-        "booking_id":bookingId
-      },AppUrls.completeJob);
-      getAllBookings(bookingId);
-      updateCompleteJobLoading(false);
+      await _apiService.postApi({
+        "booking_id": bookingId
+      }, AppUrls.completeJob);
+
+      await getAllBookings(bookingId);
+
+      return true;
     } catch (e) {
       Get.showToast(e.toString(), type: ToastType.error);
+      return false;
+    } finally {
       updateCompleteJobLoading(false);
     }
   }
+
+  // Future<bool> completeTheJob(String bookingId) async {
+  //   try {
+  //     updateCompleteJobLoading(true);
+  //
+  //     await _apiService.postApi(
+  //       {
+  //         "booking_id": bookingId,
+  //       },
+  //       AppUrls.completeBooking,
+  //     );
+  //
+  //     updateCompleteJobLoading(false);
+  //
+  //     return true; // ✅ Success
+  //   } catch (e) {
+  //     updateCompleteJobLoading(false);
+  //
+  //     Get.showToast(e.toString(), type: ToastType.error);
+  //     return false; // ❌ Failed
+  //   }
+  // }
 
 
   bool isCashCollected = false;
