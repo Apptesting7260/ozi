@@ -515,7 +515,10 @@ class _ScheduleServiceScreenContent extends StatelessWidget {
                             provider.bookServiceApi(
                               context: context,
                               addressId:
-                                  addressProvider.selectedAddress?.id ?? 0,
+                                  addressProvider.selectedAddress?.id
+                                      .toString() ??
+                                  addressProvider.currentLocationAddress
+                                      .toString(),
                               paymentMethod:
                                   provider.selectedPaymentMethod?.title
                                       .trim()

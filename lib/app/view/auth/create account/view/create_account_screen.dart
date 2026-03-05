@@ -258,7 +258,7 @@ class CreateAccountScreen extends StatelessWidget {
                             label: "Mobile Number",
                             hintText: "Enter ${_maxLen(value)} digits",
                             textInputType: TextInputType.phone,
-                            enabled: true, // Always allow editing
+                            enabled: !value.isMobileVerified,
                             inputFormatters: [
                               FilteringTextInputFormatter.digitsOnly,
                               LengthLimitingTextInputFormatter(_maxLen(value)),
@@ -269,7 +269,8 @@ class CreateAccountScreen extends StatelessWidget {
                                 right: 8,
                               ),
                               child: InkWell(
-                                onTap: value.isloading
+                                onTap:
+                                    (value.isloading || value.isMobileVerified)
                                     ? null
                                     : () {
                                         showCountryPicker(
