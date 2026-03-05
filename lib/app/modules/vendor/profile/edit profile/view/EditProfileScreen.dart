@@ -427,7 +427,7 @@ class _OtpDialogContentState extends State<_OtpDialogContent> {
                 }
               },
               keyboardType: TextInputType.number,
-              // enableActiveFill: true,
+              enableActiveFill: true,
               pinTheme: PinTheme(
                 shape: PinCodeFieldShape.circle,
                 fieldHeight: 48,
