@@ -73,7 +73,9 @@ class _ChangeAddressScreenState extends State<ChangeAddressScreen> {
                                 index: index,
                                 selected: provider.selectedIndex == index,
                                 title: address.addressType ?? 'Other',
-                                tag: address.isDefault == 1 ? 'Default' : null,
+                                tag: address.isDefault == true
+                                    ? 'Default'
+                                    : null,
                                 icon: provider.getIconForAddressType(
                                   address.addressType,
                                 ),

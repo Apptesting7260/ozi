@@ -477,15 +477,24 @@ class LoginProvider extends ChangeNotifier {
         'Firebase ID token (prefix): ${firebaseIdToken.substring(0, 20)}...',
       );
 
-      await socialLoginApi(
+      await checkSocialUserApi(
         navigatorKey.currentContext!,
-        firebaseIdToken,
         googleUser.id,
+        googleUser.email,
+        firebaseIdToken,
         issuedAt.toString(),
         firstName,
         lastName,
-        googleUser.email,
       );
+      // socialLoginApi(
+      //   navigatorKey.currentContext!,
+      //   firebaseIdToken,
+      //   googleUser.id,
+      //   issuedAt.toString(),
+      //   firstName,
+      //   lastName,
+      //   googleUser.email,
+      // );
 
       CustomOverlayLoader.hide();
     } on FirebaseAuthException catch (e) {
@@ -517,76 +526,6 @@ class LoginProvider extends ChangeNotifier {
     }
   }
 
-  //using
-  // Future<void> signInWithGoogle(BuildContext context) async {
-  //   try {
-  //     CustomOverlayLoader.show(context);
-
-  //     final GoogleSignIn signIn = GoogleSignIn.instance; // It's now a singleton
-
-  //     // If you didn't initialize globally  in main.dart, do it here (but prefer main)
-  //     // await signIn.initialize(serverClientId: '...');
-
-  //     // Use authenticate() — it throws on cancel/error instead of returning null
-  //     final GoogleSignInAccount? googleUser = await signIn.authenticate(
-  //       scopeHint: ['email', 'profile'], // Optional, but good to include
-  //     );
-
-  //     if (googleUser == null) {
-  //       CustomOverlayLoader.hide();
-  //       return;
-  //     }
-
-  //     // Get the authentication details (idToken only!)
-  //     final GoogleSignInAuthentication googleAuth =
-  //         await googleUser.authentication;
-
-  //     debugPrint('Google user ID: ${googleUser.id}');
-  //     debugPrint(
-  //       'idToken: ${googleAuth.idToken}',
-  //     ); // ← This MUST be a long string like "eyJhbGciOi... . payload . signature"
-
-  //     if (googleAuth.idToken == null || googleAuth.idToken!.isEmpty) {
-  //       Get.showToast(
-  //         'Failed to retrieve Google ID token',
-  //         type: ToastType.error,
-  //       );
-  //       CustomOverlayLoader.hide();
-  //       return;
-  //     }
-
-  //     // Send the REAL idToken (JWT) to your backend
-  //     await socialLoginApi(
-  //       navigatorKey.currentContext!,
-  //       googleAuth.idToken!,
-  //       googleUser.id,
-  //     );
-
-  //     CustomOverlayLoader.hide();
-  //   } on GoogleSignInException catch (e) {
-  //     CustomOverlayLoader.hide();
-  //     if (e.code == GoogleSignInExceptionCode.canceled) {
-  //       return;
-  //     }
-  //     debugPrint('Google Sign-In error: ${e.code} – ${e.description}');
-  //     Get.showToast(
-  //       'Google Sign-In failed: ${e.description ?? "Unknown"}',
-  //       type: ToastType.error,
-  //     );
-  //   } on PlatformException catch (e) {
-  //     CustomOverlayLoader.hide();
-  //     debugPrint('Platform error: ${e.message}');
-  //     Get.showToast(
-  //       'Google Sign-In failed. Check configuration.',
-  //       type: ToastType.error,
-  //     );
-  //   } catch (e) {
-  //     CustomOverlayLoader.hide();
-  //     debugPrint('Unexpected error: $e');
-  //     Get.showToast('Login failed. Please try again.', type: ToastType.error);
-  //   }
-  // }
-
   bool _isLoader = false;
 
   bool get isLoader => _isLoader;
@@ -594,6 +533,169 @@ class LoginProvider extends ChangeNotifier {
   updateLoading(bool value) {
     _isLoader = value;
     notifyListeners();
+  }
+
+  Future<void> checkSocialUserApi(
+    BuildContext context,
+    String googleId,
+    String email,
+    String idToken,
+    String utcTime,
+    String firstName,
+    String lastName,
+  ) async {
+    try {
+      final value = await _repository.checkSocialUser(googleId, email);
+
+      if (value['is_deleted'] == true) {
+        showAccountCheckerPopup(
+          context,
+          googleId,
+          email,
+          idToken,
+          utcTime,
+          firstName,
+          lastName,
+        );
+      } else {
+        socialLoginApi(
+          context,
+          idToken,
+          googleId,
+          utcTime,
+          firstName,
+          lastName,
+          email,
+        );
+      }
+    } catch (e) {
+      socialLoginApi(
+        context,
+        idToken,
+        googleId,
+        utcTime,
+        firstName,
+        lastName,
+        email,
+      );
+      debugPrint('Error in checkSocialUserApi: $e');
+    }
+  }
+
+  Future<bool?> showAccountCheckerPopup(
+    BuildContext context,
+    String googleId,
+    String email,
+    String idToken,
+    String utcTime,
+    String firstName,
+    String lastName,
+  ) async {
+    return await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        return WillPopScope(
+          onWillPop: () async => false,
+          child: Dialog(
+            insetPadding: const EdgeInsets.symmetric(horizontal: 24),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(24),
+            ),
+            child: Container(
+              width: 382,
+              height: 257,
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 28),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(24),
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    'Restore Your Account',
+                    textAlign: TextAlign.center,
+                    style: AppFontStyle.text_22_600(
+                      Color.fromRGBO(28, 29, 33, 1),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    maxLines: 3,
+                    'Would you like to restore your previous account and continue where you left off?',
+                    textAlign: TextAlign.center,
+                    style: AppFontStyle.text_16_300(
+                      Color.fromRGBO(112, 108, 108, 1),
+                    ),
+                  ),
+                  const SizedBox(height: 28),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: GestureDetector(
+                          onTap: () {
+                            Navigator.pop(context, false);
+                            Get.showToast(
+                              "Account restoration cancelled. You cannot continue with this Email.",
+                              type: ToastType.warning,
+                            );
+                          },
+                          child: Container(
+                            height: 48,
+                            alignment: Alignment.center,
+                            decoration: BoxDecoration(
+                              color: Colors.transparent,
+                              borderRadius: BorderRadius.circular(30),
+                              border: Border.all(color: Colors.grey.shade400),
+                            ),
+                            child: Text(
+                              'Cancel',
+                              style: AppFontStyle.text_16_600(
+                                Color.fromRGBO(112, 108, 108, 1),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: GestureDetector(
+                          onTap: () async {
+                            socialLoginApi(
+                              context,
+                              idToken,
+                              googleId,
+                              utcTime,
+                              firstName,
+                              lastName,
+                              email,
+                            );
+                          },
+                          child: Container(
+                            height: 48,
+                            alignment: Alignment.center,
+                            decoration: BoxDecoration(
+                              color: AppColors.primary,
+                              borderRadius: BorderRadius.circular(30),
+                            ),
+                            child: Text(
+                              'Restore',
+                              style: AppFontStyle.text_16_600(
+                                Color.fromRGBO(255, 255, 255, 1),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
   }
 
   Future<void> socialLoginApi(

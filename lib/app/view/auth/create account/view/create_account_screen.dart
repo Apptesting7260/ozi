@@ -774,6 +774,7 @@ class _MobileOtpDialogContentState extends State<_MobileOtpDialogContent> {
   int _resendSeconds = 60;
   Timer? _timer;
   String? mobileNumber;
+  bool isResending = false;
   @override
   void initState() {
     super.initState();
@@ -824,7 +825,6 @@ class _MobileOtpDialogContentState extends State<_MobileOtpDialogContent> {
             length: 6,
             onChanged: (v) {
               otpCode = v;
-              // OTP type karte waqt purana error clear kar do
               if (errorMessage != null) {
                 setState(() => errorMessage = null);
               }
@@ -864,23 +864,39 @@ class _MobileOtpDialogContentState extends State<_MobileOtpDialogContent> {
               style: AppFontStyle.text_12_400(AppColors.grey),
             )
           else
-            GestureDetector(
-              onTap: () async {
-                setState(() => errorMessage = null);
-                setState(() => otpController.clear());
-                _startTimer();
-                await widget.provider.sendMobileOtp(
-                  widget.mobileNumber!,
-                ); // call your resend method
-              },
-              child: widget.provider.otpLoading
-                  ? CircularProgressIndicator(color: AppColors.primary)
-                  : Text(
+            isResending
+                ? SizedBox(
+                    height: 16,
+                    width: 16,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 1.5,
+                      color: AppColors.primary,
+                    ),
+                  )
+                : GestureDetector(
+                    onTap: () async {
+                      setState(() {
+                        errorMessage = null;
+                        otpController.clear();
+                        isResending = true;
+                      });
+                      try {
+                        await widget.provider.sendMobileOtp(
+                          widget.mobileNumber!,
+                        );
+                        _startTimer();
+                      } finally {
+                        if (mounted) {
+                          setState(() => isResending = false);
+                        }
+                      }
+                    },
+                    child: Text(
                       "Resend OTP",
                       textAlign: TextAlign.center,
                       style: AppFontStyle.text_12_400(AppColors.primary),
                     ),
-            ),
+                  ),
           hBox(30),
           Row(
             children: [
@@ -900,6 +916,13 @@ class _MobileOtpDialogContentState extends State<_MobileOtpDialogContent> {
                   text: "Verify",
                   isLoading: widget.provider.otpLoading,
                   onPressed: () async {
+                    if (_resendSeconds == 0) {
+                      setState(() {
+                        errorMessage = "OTP Expired. Please resend OTP.";
+                      });
+                      return;
+                    }
+
                     if (otpCode.length != 6) {
                       setState(() {
                         errorMessage = "Please enter 6-digit OTP";

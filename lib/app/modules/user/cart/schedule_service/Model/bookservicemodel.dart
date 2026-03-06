@@ -86,7 +86,7 @@ class DefaultAddress {
   int? id;
   int? userId;
   String? addressType;
-  int? isDefault;
+  bool? isDefault;
   String? streetAddress;
   String? apartment;
   String? city;

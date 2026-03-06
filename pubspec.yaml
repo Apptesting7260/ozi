@@ -61,6 +61,10 @@ dependencies:
   flutter_google_places_hoc081098: ^2.0.0
   http: ^1.6.0
   google_places_autocomplete: ^2.1.2
+
+dependency_overrides:
+  google_maps_flutter_android: 2.14.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

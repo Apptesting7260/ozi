@@ -27,7 +27,7 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
-       // context.read<AuthProvider>().loadStatus();
+        // context.read<AuthProvider>().loadStatus();
         context.read<ProfileProvider>().fetchUserProfile();
         context.read<HomeScreenProvider>().loadOnce();
       }
@@ -68,7 +68,9 @@ class HomeScreenView extends StatelessWidget {
                   hBox(8),
                   _buildServiceGrid(context, provider),
                   hBox(10),
-                  isLoggedIn ? SizedBox.shrink() :_buildBecomeProviderCard(context, provider),
+                  isLoggedIn
+                      ? SizedBox.shrink()
+                      : _buildBecomeProviderCard(context, provider),
                   hBox(10),
                 ],
               ),
@@ -84,9 +86,8 @@ class HomeScreenView extends StatelessWidget {
     final profile = context.watch<ProfileProvider>();
     final firstName = profile.firstName;
 
-    final displayName = (isLoggedIn &&
-        firstName != null &&
-        firstName.trim().isNotEmpty)
+    final displayName =
+        (isLoggedIn && firstName != null && firstName.trim().isNotEmpty)
         ? firstName
         : "Guest";
     return Row(

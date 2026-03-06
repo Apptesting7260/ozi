@@ -574,6 +574,26 @@ class Repository {
     }
   }
 
+  Future<dynamic> checkSocialUser(String googleId, String email) async {
+    try {
+      final url = AppUrls.checkSocialUser;
+
+      dev.log('Check Social User API URL: $url');
+
+      dynamic response = await _apiService.postApi({
+        "google_id": googleId,
+        "email": email,
+      }, url);
+
+      dev.log('Check Social User Raw Response: $response');
+
+      return response;
+    } catch (e) {
+      dev.log('Error in checkSocialUser: $e');
+      throw Exception(e);
+    }
+  }
+
   // ********************************************* GetProfile Api ***********************************************//
   Future<dynamic> getProfileApi() async {
     try {

@@ -57,6 +57,7 @@ class AppUrls {
   static const String verifyProfileEmail = "$baseUrl/verify-change-email-otp";
   static const String fetchLatLong = "$baseUrl/get-vendor-location";
   static const String checkMobileExists = "$baseUrl/check-mobile-exists";
+  static const String checkSocialUser = "$baseUrl/check-social-user";
   // Vendor APIs
   static const String getAllCategories = "$baseUrl/get-all-categories";
   static const String saveCategoryForVendor = "$baseUrl/vendor-categories";

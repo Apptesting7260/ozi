@@ -14,15 +14,21 @@ class EditUserAddressScreen extends StatefulWidget {
 
 class _EditUserAddressScreenState extends State<EditUserAddressScreen> {
   LatLng? _lastCameraPosition;
+  bool _isInitCalled = false;
 
   @override
-  void initState() {
-    super.initState();
-
-    final savedProvider = context.read<SavedAddressProvider>();
-    final editProvider = context.read<EditUserAddressProvider>();
-
-    editProvider.init(savedProvider.editingAddress);
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_isInitCalled) {
+      _isInitCalled = true;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        final savedProvider = context.read<SavedAddressProvider>();
+        final editProvider = context.read<EditUserAddressProvider>();
+        editProvider.reset();
+        editProvider.init(savedProvider.editingAddress);
+      });
+    }
   }
 
   @override

@@ -28,6 +28,7 @@ import '../view/auth/verification_screen/view/verification_screen.dart';
 import '../view/message/message_details/screens/message_details.dart';
 import '../view/splash/view/splash_screen.dart';
 import '../view/welcome/view/welcome_screen.dart';
+import '../modules/user/booking/booking details/view/booking_details_screen.dart';
 
 class AppRoutes {
   static const String splashScreen = '/splashScreen';
@@ -39,6 +40,7 @@ class AppRoutes {
   static const String serviceDetailScreen = '/serviceDetailScreen';
   static const String bookingSummaryScreen = '/bookingSummaryScreen';
   static const String bookingConfirmationScreen = '/bookingConfirmationScreen';
+  static const String bookingDetailsScreen = '/bookingDetailsScreen';
   static const String navigationTab = '/navigationTab';
   static const String profile = '/profile';
   static const String cart = '/cart';
@@ -140,6 +142,13 @@ class AppRoutes {
           builder: (context) => ServiceDetailScreen(
             service: setting.arguments as dynamic,
             categoryId: setting.arguments as int,
+          ),
+        );
+      case bookingDetailsScreen:
+        return MaterialPageRoute(
+          builder: (context) => BookingDetailsScreen(
+            bookingData: setting.arguments as Map<String, dynamic>,
+            tabIndex: 0,
           ),
         );
 

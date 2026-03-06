@@ -52,26 +52,27 @@ class AllBookingsModelData {
   User? user;
   Address? address;
 
-  AllBookingsModelData(
-      {this.id,
-        this.bookingCode,
-        this.userId,
-        this.vendorId,
-        this.addressId,
-        this.paymentMethod,
-        this.serviceDate,
-        this.serviceDay,
-        this.serviceTime,
-        this.subtotal,
-        this.serviceFee,
-        this.total,
-        this.status,
-        this.serviceStartOtp,
-        this.vendorActionAt,
-        this.createdAt,
-        this.updatedAt,
-        this.user,
-        this.address});
+  AllBookingsModelData({
+    this.id,
+    this.bookingCode,
+    this.userId,
+    this.vendorId,
+    this.addressId,
+    this.paymentMethod,
+    this.serviceDate,
+    this.serviceDay,
+    this.serviceTime,
+    this.subtotal,
+    this.serviceFee,
+    this.total,
+    this.status,
+    this.serviceStartOtp,
+    this.vendorActionAt,
+    this.createdAt,
+    this.updatedAt,
+    this.user,
+    this.address,
+  });
 
   AllBookingsModelData.fromJson(Map<String, dynamic> json) {
     id = json['id']?.toString();
@@ -93,8 +94,9 @@ class AllBookingsModelData {
     createdAt = json['created_at']?.toString();
     updatedAt = json['updated_at']?.toString();
     user = json['user'] != null ? User.fromJson(json['user']) : null;
-    address =
-    json['address'] != null ? Address.fromJson(json['address']) : null;
+    address = json['address'] != null
+        ? Address.fromJson(json['address'])
+        : null;
   }
 
   Map<String, dynamic> toJson() {
@@ -162,20 +164,21 @@ class User {
   String? createdAt;
   String? updatedAt;
 
-  User(
-      {this.id,
-        this.firstName,
-        this.lastName,
-        this.email,
-        this.proImg,
-        this.countryCode,
-        this.mobile,
-        this.userRole,
-        this.isMobileVerified,
-        this.status,
-        this.stepCompleted,
-        this.createdAt,
-        this.updatedAt});
+  User({
+    this.id,
+    this.firstName,
+    this.lastName,
+    this.email,
+    this.proImg,
+    this.countryCode,
+    this.mobile,
+    this.userRole,
+    this.isMobileVerified,
+    this.status,
+    this.stepCompleted,
+    this.createdAt,
+    this.updatedAt,
+  });
 
   User.fromJson(Map<String, dynamic> json) {
     id = json['id']?.toString();
@@ -216,7 +219,7 @@ class Address {
   String? id;
   String? userId;
   String? addressType;
-  String? isDefault;
+  bool? isDefault;
   String? streetAddress;
   String? apartment;
   String? city;
@@ -225,24 +228,25 @@ class Address {
   String? updatedAt;
   String? fullAddress;
 
-  Address(
-      {this.id,
-        this.userId,
-        this.addressType,
-        this.isDefault,
-        this.streetAddress,
-        this.apartment,
-        this.city,
-        this.zipCode,
-        this.createdAt,
-        this.updatedAt,
-        this.fullAddress});
+  Address({
+    this.id,
+    this.userId,
+    this.addressType,
+    this.isDefault,
+    this.streetAddress,
+    this.apartment,
+    this.city,
+    this.zipCode,
+    this.createdAt,
+    this.updatedAt,
+    this.fullAddress,
+  });
 
   Address.fromJson(Map<String, dynamic> json) {
     id = json['id']?.toString();
     userId = json['user_id']?.toString();
     addressType = json['address_type']?.toString();
-    isDefault = json['is_default']?.toString();
+    isDefault = json['is_default'];
     streetAddress = json['street_address']?.toString();
     apartment = json['apartment']?.toString();
     city = json['city']?.toString();

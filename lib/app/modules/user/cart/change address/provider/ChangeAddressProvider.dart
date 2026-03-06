@@ -59,7 +59,7 @@ class ChangeAddressProvider extends ChangeNotifier {
       _addresses = model.data ?? [];
 
       if (_addresses.isNotEmpty && _selectedIndex == -1) {
-        final defaultIndex = _addresses.indexWhere((e) => e.isDefault == 1);
+        final defaultIndex = _addresses.indexWhere((e) => e.isDefault == true);
         _selectedIndex = defaultIndex != -1 ? defaultIndex : 0;
       }
     } catch (e) {
