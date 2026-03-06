@@ -333,10 +333,10 @@ class LoginProvider extends ChangeNotifier {
   OtpSession? get otpSession => _otpSession;
 
   Future<bool> handleContinue(
-      BuildContext context,
-      String phone,
-      String regionCode,
-      ) async {
+    BuildContext context,
+    String phone,
+    String regionCode,
+  ) async {
     final body = {"country_code": "+$regionCode", "mobile": phone};
 
     try {
@@ -350,11 +350,10 @@ class LoginProvider extends ChangeNotifier {
       final canRestore = response.data?.canRestore == true;
 
       if (isDeleted) {
-
         if (canRestore) {
           _setLoading(false);
 
-          final bool? restore = await showAccountCheckerPopup(context);
+          final bool? restore = await showAccountCheckerPopupOtp(context);
 
           if (restore != true) {
             restoreCancelled = true;
@@ -369,7 +368,6 @@ class LoginProvider extends ChangeNotifier {
       }
 
       return await sendOtp("+$regionCode$phone");
-
     } catch (e) {
       if (kDebugMode) {
         print("HANDLE CONTINUE ERROR: $e");
@@ -925,7 +923,7 @@ class LoginProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<bool?> showAccountCheckerPopup(BuildContext context) async {
+  Future<bool?> showAccountCheckerPopupOtp(BuildContext context) async {
     return await showDialog<bool>(
       context: context,
       barrierDismissible: false,
@@ -1031,5 +1029,4 @@ class LoginProvider extends ChangeNotifier {
     _loginResponse = null;
     notifyListeners();
   }
-
 }
