@@ -198,7 +198,7 @@ class ScheduleProvider extends ChangeNotifier {
 
   Future<bool> bookServiceApi({
     required BuildContext context,
-    required int addressId,
+    required String addressId,
     required String paymentMethod,
   }) async {
     try {

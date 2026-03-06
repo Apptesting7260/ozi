@@ -22,7 +22,15 @@ class LocationPickerProvider extends ChangeNotifier {
 
   void setController(GoogleMapController controller) {
     _mapController = controller;
-    fetchLatLong();
+    // If we haven't successfully moved to GPS yet, and we don't have an API LatLng, fetch it
+    if (apiLatLng == null && address.isEmpty) {
+      fetchLatLong();
+    } else if (selectedLatLng != const LatLng(28.6139, 77.2090)) {
+      // If we already have a custom location (e.g. from GPS), move to it
+      _mapController?.animateCamera(
+        CameraUpdate.newLatLngZoom(selectedLatLng, 16),
+      );
+    }
   }
 
   // Fetch lat long from API always
@@ -62,13 +70,15 @@ class LocationPickerProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final placemarks =
-      await placemarkFromCoordinates(latLng.latitude, latLng.longitude);
+      final placemarks = await placemarkFromCoordinates(
+        latLng.latitude,
+        latLng.longitude,
+      );
 
       final place = placemarks.first;
 
       address =
-      '${place.street ?? ''}, ${place.subLocality ?? ''}, ${place.locality ?? ''}';
+          '${place.street ?? ''}, ${place.subLocality ?? ''}, ${place.locality ?? ''}';
     } catch (_) {
       address = 'Unable to fetch address';
     }
@@ -90,44 +100,49 @@ class LocationPickerProvider extends ChangeNotifier {
   // Move to current location
   Future<void> moveToCurrentLocation(BuildContext context) async {
     try {
+      debugPrint("Starting current location fetch...");
       bool serviceEnabled;
       LocationPermission permission;
 
-      //  Check if location service is enabled
       serviceEnabled = await Geolocator.isLocationServiceEnabled();
       if (!serviceEnabled) {
-        throw Exception('Location services are disabled.');
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Location services are disabled.')),
+          );
+        }
+        return;
       }
 
-      //  Check permission
       permission = await Geolocator.checkPermission();
-
       if (permission == LocationPermission.denied) {
         permission = await Geolocator.requestPermission();
-
         if (permission == LocationPermission.denied) {
-          _showPermissionDialog(context);
+          if (context.mounted) _showPermissionDialog(context);
           return;
         }
       }
 
       if (permission == LocationPermission.deniedForever) {
-        _showOpenSettingsDialog(context);
+        if (context.mounted) _showOpenSettingsDialog(context);
         return;
       }
 
-      // If granted → get position
       Position position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high,
+        desiredAccuracy: LocationAccuracy.best,
       );
 
-      // Move camera
       final latLng = LatLng(position.latitude, position.longitude);
+      debugPrint("Current location fetched: $latLng");
 
-      _mapController?.animateCamera(
-        CameraUpdate.newLatLngZoom(latLng, 16),
-      );
+      selectedLatLng = latLng;
+      notifyListeners();
 
+      if (_mapController != null) {
+        _mapController!.animateCamera(CameraUpdate.newLatLngZoom(latLng, 16));
+      }
+
+      await getAddress(latLng);
     } catch (e) {
       debugPrint("Location error: $e");
     }
@@ -147,19 +162,16 @@ class LocationPickerProvider extends ChangeNotifier {
     }
   }
 
-
   Future<void> updateLocationFromLatLng(LatLng latLng) async {
     try {
       final _ = await _apiService.postApi({
         "latitude": latLng.latitude,
         "longitude": latLng.longitude,
       }, AppUrls.vendorUpdateLocation);
-
     } catch (e) {
       Get.showToast(e.toString(), type: ToastType.error);
     }
   }
-
 
   void _showPermissionDialog(BuildContext context) {
     showDialog(
@@ -181,7 +193,6 @@ class LocationPickerProvider extends ChangeNotifier {
       ),
     );
   }
-
 
   void _showOpenSettingsDialog(BuildContext context) {
     showDialog(

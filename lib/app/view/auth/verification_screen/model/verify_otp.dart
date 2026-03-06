@@ -9,6 +9,7 @@ class VerifyOtp {
   String? role;
   String? token;
   String? stepCompleted;
+  bool? isRoleSelected;
 
   VerifyOtp({
     this.userId,
@@ -21,6 +22,7 @@ class VerifyOtp {
     this.role,
     this.status,
     this.message,
+    this.isRoleSelected,
   });
 
   VerifyOtp.fromJson(Map<String, dynamic> json) {
@@ -34,6 +36,7 @@ class VerifyOtp {
       type = data['type'];
       isRegistrationComplete = data['is_registration_complete'];
       isLoggedIn = data['is_logged_in'];
+      isRoleSelected = data['is_role_selected'];
       nextStep = data['next_step'];
       role = data['user_role'];
       token = data['api_token'];
@@ -42,9 +45,6 @@ class VerifyOtp {
   }
 
   Map<String, dynamic> toJson() {
-    return {
-      'status': status,
-      'message': message,
-    };
+    return {'status': status, 'message': message};
   }
 }

@@ -25,7 +25,7 @@ class SavedAddressProvider extends ChangeNotifier {
   Data? get editingAddress => _editingAddress;
 
   Data? get defaultAddress => _addresses.firstWhere(
-    (addr) => addr.isDefault == 1,
+    (addr) => addr.isDefault == true,
     orElse: () => _addresses.isNotEmpty ? _addresses[0] : Data(),
   );
 
@@ -114,7 +114,7 @@ class SavedAddressProvider extends ChangeNotifier {
         // Set default selected index to the default address
         if (_addresses.isNotEmpty) {
           int defaultIndex = _addresses.indexWhere(
-            (addr) => addr.isDefault == 1,
+            (addr) => addr.isDefault == true,
           );
           _selectedIndex = defaultIndex != -1 ? defaultIndex : 0;
         }

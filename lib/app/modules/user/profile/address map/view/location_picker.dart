@@ -1,4 +1,3 @@
-
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../../../../../core/appExports/app_export.dart';
 import '../provider/location_picker_provider.dart';
@@ -12,6 +11,18 @@ class MapPickerPage extends StatefulWidget {
 }
 
 class _MapPickerPageState extends State<MapPickerPage> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final provider = Provider.of<LocationPickerProvider>(
+        context,
+        listen: false,
+      );
+      provider.moveToCurrentLocation(context);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Consumer<LocationPickerProvider>(
@@ -44,17 +55,11 @@ class _MapPickerPageState extends State<MapPickerPage> {
 
               // Center pin
               const Center(
-                child:
-                Icon(Icons.location_pin, size: 42, color: Colors.red),
+                child: Icon(Icons.location_pin, size: 42, color: Colors.red),
               ),
 
               // Info banner
-              Positioned(
-                top: 16,
-                left: 16,
-                right: 16,
-                child: _infoBanner(),
-              ),
+              Positioned(top: 16, left: 16, right: 16, child: _infoBanner()),
 
               // Bottom panel
               Positioned(
@@ -104,7 +109,7 @@ class _MapPickerPageState extends State<MapPickerPage> {
                             ),
                             content: Text(
                               'Drag the map or use the buttons to position the pin on your location. '
-                                  'You can also use the current location button.',
+                              'You can also use the current location button.',
                               maxLines: null,
                               overflow: TextOverflow.visible,
                               softWrap: true,
@@ -115,14 +120,12 @@ class _MapPickerPageState extends State<MapPickerPage> {
                             ),
                             actions: [
                               TextButton(
-                                onPressed: () =>
-                                    Navigator.pop(context),
+                                onPressed: () => Navigator.pop(context),
                                 child: Text(
                                   'Got it',
                                   style: AppFontStyle.text_14_400(
                                     AppColors.primary,
-                                    fontFamily:
-                                    AppFontFamily.semiBold,
+                                    fontFamily: AppFontFamily.semiBold,
                                   ),
                                 ),
                               ),
@@ -157,11 +160,7 @@ class _MapPickerPageState extends State<MapPickerPage> {
           onTap: onTap,
           child: Padding(
             padding: const EdgeInsets.all(12),
-            child: Icon(
-              icon,
-              size: 22,
-              color: Colors.black,
-            ),
+            child: Icon(icon, size: 22, color: Colors.black),
           ),
         ),
       ),
@@ -170,9 +169,7 @@ class _MapPickerPageState extends State<MapPickerPage> {
 
   Widget _infoBanner() {
     return Card(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
         padding: const EdgeInsets.all(12),
         child: Row(
@@ -194,19 +191,14 @@ class _MapPickerPageState extends State<MapPickerPage> {
     );
   }
 
-  Widget _bottomPanel(
-      BuildContext context, LocationPickerProvider provider) {
+  Widget _bottomPanel(BuildContext context, LocationPickerProvider provider) {
     return Container(
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius:
-        const BorderRadius.vertical(top: Radius.circular(20)),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
         boxShadow: [
-          BoxShadow(
-            blurRadius: 12,
-            color: Colors.black.withOpacity(0.08),
-          ),
+          BoxShadow(blurRadius: 12, color: Colors.black.withOpacity(0.08)),
         ],
       ),
       child: Column(
@@ -223,42 +215,43 @@ class _MapPickerPageState extends State<MapPickerPage> {
           const SizedBox(height: 6),
           provider.isLoadingAddress
               ? Row(
-            children: const [
-              SizedBox(
-                height: 14,
-                width: 14,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                ),
-              ),
-              SizedBox(width: 8),
-            ],
-          )
+                  children: const [
+                    SizedBox(
+                      height: 14,
+                      width: 14,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    ),
+                    SizedBox(width: 8),
+                  ],
+                )
               : Text(
-            provider.address.isEmpty
-                ? 'Move map to select address'
-                : provider.address,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-            style: AppFontStyle.text_15_500(
-              AppColors.black,
-              fontFamily: AppFontFamily.semiBold,
-            ),
-          ),
+                  provider.address.isEmpty
+                      ? 'Move map to select address'
+                      : provider.address,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppFontStyle.text_15_500(
+                    AppColors.black,
+                    fontFamily: AppFontFamily.semiBold,
+                  ),
+                ),
           const SizedBox(height: 16),
           GestureDetector(
-            onTap: widget.isFromProfile == true ? () async{
-            final _ = await provider.updateLocationFromLatLng(provider.selectedLatLng);
-             if (kDebugMode) {
-               print("Post Api Hit ==================================> ${provider.selectedLatLng}");
-             }
-              Navigator.pop(context);
-            } : () {
-              Navigator.pop(
-                context,
-                provider.selectedLatLng,
-              );
-            },
+            onTap: widget.isFromProfile == true
+                ? () async {
+                    final _ = await provider.updateLocationFromLatLng(
+                      provider.selectedLatLng,
+                    );
+                    if (kDebugMode) {
+                      print(
+                        "Post Api Hit ==================================> ${provider.selectedLatLng}",
+                      );
+                    }
+                    Navigator.pop(context);
+                  }
+                : () {
+                    Navigator.pop(context, provider.selectedLatLng);
+                  },
             child: Container(
               color: AppColors.primary,
               width: double.infinity,

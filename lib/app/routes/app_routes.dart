@@ -1,7 +1,3 @@
-
-
-
-
 import 'package:ozi/app/modules/user/profile/address%20map/view/location_picker.dart';
 import 'package:ozi/app/modules/user/profile/login%20details/view/login_details.dart';
 import 'package:ozi/app/modules/vendor/home/view/vendor_home_screen.dart';
@@ -32,9 +28,9 @@ import '../view/auth/verification_screen/view/verification_screen.dart';
 import '../view/message/message_details/screens/message_details.dart';
 import '../view/splash/view/splash_screen.dart';
 import '../view/welcome/view/welcome_screen.dart';
+import '../modules/user/booking/booking details/view/booking_details_screen.dart';
 
 class AppRoutes {
-
   static const String splashScreen = '/splashScreen';
   static const String welcomeScreen = '/welcomeScreen';
   static const String login = '/login';
@@ -44,6 +40,7 @@ class AppRoutes {
   static const String serviceDetailScreen = '/serviceDetailScreen';
   static const String bookingSummaryScreen = '/bookingSummaryScreen';
   static const String bookingConfirmationScreen = '/bookingConfirmationScreen';
+  static const String bookingDetailsScreen = '/bookingDetailsScreen';
   static const String navigationTab = '/navigationTab';
   static const String profile = '/profile';
   static const String cart = '/cart';
@@ -59,8 +56,6 @@ class AppRoutes {
   static const String helpSupportScreen = '/HelpSupportScreen';
   static const String loginDetails = '/LoginDetailScreen';
 
-
-
   //*********************************** vendor All Screens  ****************************************//
 
   static const String vendorNavigation = '/vendorNavigation';
@@ -74,7 +69,8 @@ class AppRoutes {
   //******************************** Bookings screens *************************************//
 
   static const String vendorBookingScreen = '/vendorBookingScreen';
-  static const String vendorBookingDetailsScreen = '/vendorBookingDetailsScreen';
+  static const String vendorBookingDetailsScreen =
+      '/vendorBookingDetailsScreen';
 
   //******************************** Profiles screens *************************************//
   static const String vendorProfileScreen = '/vendorProfileScreen';
@@ -88,14 +84,13 @@ class AppRoutes {
   static const String vendorAddNewAddressScreen = '/vendorAddNewAddressScreen';
   static const String locationPickerScreen = '/locationPickerScreen';
 
-
-
   //******************************** Services screens *************************************//
   static const String vendorServicesScreen = '/vendorServicesScreen';
   static const String vendorAddNewService = '/vendorAddNewService';
   static const String vendorEditService = '/vendorEditService';
   static const String vendorFilterScreen = '/vendorFilterScreen';
-  static const String vendorServiceDetailsScreen = '/vendorServiceDetailsScreen';
+  static const String vendorServiceDetailsScreen =
+      '/vendorServiceDetailsScreen';
 
   //******************************** Wallet screens *************************************//
   static const String vendorWalletScreen = '/vendorWalletScreen';
@@ -103,11 +98,8 @@ class AppRoutes {
   static const String vendorWithdrawScreen = '/vendorWithdrawScreen';
   static const String messageDetailsScreen = '/messageDetailsScreen';
 
-
-
   static Route<dynamic>? generateRoute(RouteSettings setting) {
     switch (setting.name) {
-
       case splashScreen:
         return MaterialPageRoute(builder: (context) => SplashScreen());
 
@@ -118,12 +110,17 @@ class AppRoutes {
         return MaterialPageRoute(builder: (context) => LoginScreen());
 
       case otpVerification:
-        return MaterialPageRoute(builder: (context) => VerificationScreen(phone: '', verificationId: '',));
+        return MaterialPageRoute(
+          builder: (context) => VerificationScreen(
+            phone: '',
+            verificationId: '',
+            countryCode: '',
+          ),
+        );
       case messageDetailsScreen:
         final args = setting.arguments as Map<String, dynamic>;
         return MaterialPageRoute(
-          builder:
-              (context) => MessageDetailsScreen(
+          builder: (context) => MessageDetailsScreen(
             conversionId: args['conversion_id'],
             dataLink: args['dataLink'],
             messageForSend: args['messageForSend'],
@@ -142,13 +139,22 @@ class AppRoutes {
 
       case serviceDetailScreen:
         return MaterialPageRoute(
-          builder: (context) => ServiceDetailScreen(service: setting.arguments as dynamic, categoryId: setting.arguments as int,
+          builder: (context) => ServiceDetailScreen(
+            service: setting.arguments as dynamic,
+            categoryId: setting.arguments as int,
+          ),
+        );
+      case bookingDetailsScreen:
+        return MaterialPageRoute(
+          builder: (context) => BookingDetailsScreen(
+            bookingData: setting.arguments as Map<String, dynamic>,
+            tabIndex: 0,
           ),
         );
 
-    // NEW PROFILE ROUTES
+      // NEW PROFILE ROUTES
 
-    //
+      //
 
       case profileScreen:
         return MaterialPageRoute(builder: (_) => ProfileScreen());
@@ -159,7 +165,7 @@ class AppRoutes {
       case savedAddressScreen:
         return MaterialPageRoute(builder: (_) => SavedAddressScreen());
 
-        case editAddressScreen:
+      case editAddressScreen:
         return MaterialPageRoute(builder: (_) => EditUserAddressScreen());
 
       case addAddressScreen:
@@ -176,12 +182,14 @@ class AppRoutes {
 
       case commonScreen:
         final args = setting.arguments as CommonScreenArgs;
-        return MaterialPageRoute(builder: (_) => CommonScreen(type: args.type, url: args.url,),);
+        return MaterialPageRoute(
+          builder: (_) => CommonScreen(type: args.type, url: args.url),
+        );
 
       case loginDetails:
         return MaterialPageRoute(builder: (_) => LoginDetailsScreen());
 
-//vendor screen
+      //vendor screen
 
       case helpSupportScreen:
         return MaterialPageRoute(builder: (_) => HelpSupportScreen());
@@ -194,7 +202,9 @@ class AppRoutes {
       case vendorWalletScreen:
         return MaterialPageRoute(builder: (_) => VendorMyWalletScreen());
       case vendorWithdrawScreen:
-        return MaterialPageRoute(builder: (_) => WithdrawScreen(availableBalance: '',));
+        return MaterialPageRoute(
+          builder: (_) => WithdrawScreen(availableBalance: ''),
+        );
       case vendorServicesScreen:
         return MaterialPageRoute(builder: (_) => VendorServicesScreen());
       // case vendorProfileScreen:
@@ -208,10 +218,8 @@ class AppRoutes {
       // case vendorBookingDetailsScreen:
       //   return MaterialPageRoute(builder: (_) => VendorBookingDetailsScreen(booking: ));
 
-
       default:
         return MaterialPageRoute(builder: (context) => SplashScreen());
     }
   }
-
 }

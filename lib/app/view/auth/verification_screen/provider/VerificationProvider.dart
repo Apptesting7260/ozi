@@ -14,6 +14,7 @@ import '../../../../modules/vendor/navigation tab/view/vendor_navigation_tab_scr
 import '../../../../shared/widgets/auth_guard.dart';
 import '../../../user_role/choose_your_role/view/choose_role.dart';
 import '../model/verify_otp.dart';
+import '../../create account/view/create_account_screen.dart';
 
 class VerificationProvider extends ChangeNotifier {
   String verificationId;
@@ -162,7 +163,7 @@ class VerificationProvider extends ChangeNotifier {
     return remaining.inSeconds > 0 ? remaining.inSeconds : 0;
   }
 
-  Future<void> verifyOtpMethod(String phone) async {
+  Future<void> verifyOtpMethod(String phone, String countryCode) async {
     if (isLoading) return;
 
     if (isOtpExpired) {
@@ -209,21 +210,21 @@ class VerificationProvider extends ChangeNotifier {
       // Get Firebase ID token
       String idToken = (await user.getIdToken())!;
 
-      String countryCode = "+91";
-      String mobile = phone;
+      // String countryCode = "+91";
+      // String mobile = phone;
 
-      if (phone.startsWith("+")) {
-        int spaceIndex = phone.indexOf(" ");
-        if (spaceIndex > 0) {
-          countryCode = phone.substring(0, spaceIndex);
-          mobile = phone.substring(spaceIndex + 1);
-        }
-      }
+      // if (phone.startsWith("+")) {
+      //   int spaceIndex = phone.indexOf(" ");
+      //   if (spaceIndex > 0) {
+      //     countryCode = phone.substring(0, spaceIndex);
+      //     mobile = phone.substring(spaceIndex + 1);
+      //   }
+      // }
 
       //  Prepare backend request
       Map<String, dynamic> requestData = {
         "country_code": countryCode,
-        "mobile": mobile,
+        "mobile": phone,
         "fcm_token": PushNotificationService.fcmToken ?? "",
         "id_token": idToken,
         "device_name": deviceInfo["device_name"] ?? "",
@@ -237,6 +238,9 @@ class VerificationProvider extends ChangeNotifier {
 
       if (response.status == true) {
         await UserPreference.saveLoginStatus(response.isLoggedIn ?? false);
+        await UserPreference.saveIsRoleSelected(
+          response.isRoleSelected ?? false,
+        );
         await saveLogin(response.nextStep, response.token);
         await UserPreference.saveUserId(response.userId ?? "");
         await UserPreference.saveStep(response.stepCompleted ?? "0");
@@ -253,18 +257,22 @@ class VerificationProvider extends ChangeNotifier {
           final savedRole = await UserPreference.returnRole();
           final savedStep = await UserPreference.returnStep();
           final savedUserId = await UserPreference.returnUserId();
+          final savedIsRoleSelected =
+              await UserPreference.returnIsRoleSelected();
 
           print("========== AFTER SAVE ==========");
           print("API Role: ${response.nextStep}");
           print("API Token: ${response.token}");
           print("API Step: ${response.stepCompleted}");
           print("API UserId: ${response.userId}");
+          print("API IsRoleSelected: ${response.isRoleSelected}");
           print("--------------------------------");
           print("Saved isLogin: $savedLogin");
           print("Saved Role: $savedRole");
           print("Saved Token: $savedToken");
           print("Saved Step: $savedStep");
           print("Saved UserId: $savedUserId");
+          print("Saved IsRoleSelected: $savedIsRoleSelected");
           print("================================");
         }
 
@@ -275,12 +283,23 @@ class VerificationProvider extends ChangeNotifier {
           );
         }
         if (navigatorKey.currentContext!.mounted) {
-          if (response.stepCompleted == '0') {
+          if (response.isRoleSelected != true) {
             Navigator.pushReplacement(
               navigatorKey.currentContext!,
               MaterialPageRoute(
                 builder: (_) => ChooseRoleScreen(
                   userId: response.userId,
+                  phoneNumber: phone,
+                  isMobileVerified: true,
+                ),
+              ),
+            );
+          } else if (response.stepCompleted == '0') {
+            Navigator.pushReplacement(
+              navigatorKey.currentContext!,
+              MaterialPageRoute(
+                builder: (_) => CreateAccountScreen(
+                  userId: response.userId ?? "",
                   phoneNumber: phone,
                   isMobileVerified: true,
                 ),
@@ -326,8 +345,7 @@ class VerificationProvider extends ChangeNotifier {
       notifyListeners();
     } catch (e) {
       isLoading = false;
-      errorMessage =
-          "We couldn't verify your OTP at the moment. Please try again.";
+      errorMessage = e.toString();
       notifyListeners();
     }
   }

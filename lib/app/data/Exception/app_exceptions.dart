@@ -22,9 +22,7 @@ class FetchDataException extends AppExceptions {
 
 class UnauthenticatedException extends AppExceptions {
   UnauthenticatedException([String? message])
-      : super(message, "Token has been invalidated. Please login again.") {
-    
-
+    : super(message, "Token has been invalidated. Please login again.") {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _handleLogout();
     });
@@ -38,26 +36,21 @@ class UnauthenticatedException extends AppExceptions {
       Navigator.pushNamedAndRemoveUntil(
         context,
         AppRoutes.login,
-            (route) => false,
+        (route) => false,
       );
     }
   }
 }
 
-enum AuthFlowType {
-  sendOtp,
-  verifyOtp,
-  resendOtp,
-}
+enum AuthFlowType { sendOtp, verifyOtp, resendOtp }
 
 String mapFirebaseError(
-    FirebaseAuthException e, {
-      required AuthFlowType flow,
-      int otpTimeoutSeconds = 60,
-    }) {
+  FirebaseAuthException e, {
+  required AuthFlowType flow,
+  int otpTimeoutSeconds = 60,
+}) {
   switch (e.code) {
-
-  // PHONE INPUT ERRORS
+    // PHONE INPUT ERRORS
 
     case 'invalid-phone-number':
       return "Please enter a valid phone number.";
@@ -65,7 +58,7 @@ String mapFirebaseError(
     case 'missing-phone-number':
       return "Phone number is required.";
 
-  // OTP VERIFICATION ERRORS
+    // OTP VERIFICATION ERRORS
 
     case 'invalid-verification-code':
       return "The OTP you entered is incorrect.";
@@ -79,7 +72,7 @@ String mapFirebaseError(
     case 'code-expired':
       return "OTP has expired. Please request a new one.";
 
-  // RATE LIMIT / TEMP BLOCK
+    // RATE LIMIT / TEMP BLOCK
 
     case 'too-many-requests':
       return "Too many attempts. Please try again later.";
@@ -90,7 +83,7 @@ String mapFirebaseError(
     case 'captcha-check-failed':
       return "Verification failed. Please try again.";
 
-  // NETWORK / SYSTEM
+    // NETWORK / SYSTEM
 
     case 'network-request-failed':
       return "No internet connection. Please check your network.";
@@ -110,7 +103,7 @@ String mapFirebaseError(
     case 'missing-verification-id':
       return "Verification session expired. Please request a new OTP.";
 
-  // DEFAULT FLOW AWARE MESSAGE
+    // DEFAULT FLOW AWARE MESSAGE
 
     default:
       return _defaultFlowMessage(flow);

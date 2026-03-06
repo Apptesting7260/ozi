@@ -9,8 +9,7 @@ class OtpSession {
     this.validFor = const Duration(seconds: 60),
   });
 
-  bool get isExpired =>
-      DateTime.now().difference(sentAt) > validFor;
+  bool get isExpired => DateTime.now().difference(sentAt) > validFor;
 
   int get secondsRemaining {
     final remaining =

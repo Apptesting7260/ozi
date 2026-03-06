@@ -50,7 +50,7 @@ class Repository {
     }
   }
 
-    //************************************************** Verification API **************************************************//
+  //************************************************** Verification API **************************************************//
   Future<VerifyOtp> verificationUser(Map<String, dynamic> data) async {
     try {
       dynamic response = await _apiService.postApiWithoutToken(
@@ -512,6 +512,28 @@ class Repository {
     }
   }
 
+  Future<dynamic> checkMobileExistsApi(
+    String mobile,
+    String countryCode,
+  ) async {
+    try {
+      final url = AppUrls.checkMobileExists;
+      final data = {'mobile': mobile, 'country_code': countryCode};
+
+      dev.log('Check Mobile Exists API URL: $url');
+      dev.log('Check Mobile Exists Data: $data');
+
+      dynamic response = await _apiService.postApi(data, url);
+
+      dev.log('Check Mobile Exists Raw Response: $response');
+
+      return response;
+    } catch (e) {
+      // Get.snackbar("Error", e.toString());
+      throw Exception(e);
+    }
+  }
+
   //********************************* decreaseCartQuantity Api ********************************//
   Future<DecreaseCartQuantityModel> decreaseCartItemApi(int cartId) async {
     try {
@@ -548,6 +570,26 @@ class Repository {
       return response;
     } catch (e) {
       dev.log('Error in decreaseCartItemApi: $e');
+      throw Exception(e);
+    }
+  }
+
+  Future<dynamic> checkSocialUser(String googleId, String email) async {
+    try {
+      final url = AppUrls.checkSocialUser;
+
+      dev.log('Check Social User API URL: $url');
+
+      dynamic response = await _apiService.postApi({
+        "google_id": googleId,
+        "email": email,
+      }, url);
+
+      dev.log('Check Social User Raw Response: $response');
+
+      return response;
+    } catch (e) {
+      dev.log('Error in checkSocialUser: $e');
       throw Exception(e);
     }
   }

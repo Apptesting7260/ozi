@@ -23,6 +23,10 @@ class CreateAccountScreen extends StatelessWidget {
 
   bool get isGoogleSignUp => email != null && email!.isNotEmpty;
 
+  int _maxLen(CreateAccountProvider value) {
+    return value.getExpectedPhoneLength(value.selectedCountry.phoneCode);
+  }
+
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
@@ -246,92 +250,165 @@ class CreateAccountScreen extends StatelessWidget {
                       hBox(16),
 
                       /// MOBILE NUMBER
-                      CustomTextFormField(
-                        controller: value.mobileController,
-                        label: "Mobile Number",
-                        hintText: "Enter mobile number",
-                        textInputType: TextInputType.phone,
-                        enabled: !value.isMobileVerified,
-                        prefix: Padding(
-                          padding: const EdgeInsets.all(12),
-                          child: Icon(
-                            Icons.phone,
-                            size: 20,
-                            color: AppColors.grey,
-                          ),
-                        ),
-                        onChanged: (val) {
-                          value.updateUI();
-                        },
-                        suffix: value.isMobileVerified
-                            ? Padding(
-                                padding: const EdgeInsets.all(12),
-                                child: Icon(
-                                  Icons.check_circle,
-                                  color: AppColors.green,
-                                  size: 20,
-                                ),
-                              )
-                            : Padding(
-                                padding: const EdgeInsets.all(12),
-                                child: GestureDetector(
-                                  onTap:
-                                      (value.mobileController.text.length >=
-                                              10 &&
-                                          !value.isloading)
-                                      ? () async {
-                                          final phone = value
-                                              .mobileController
-                                              .text
-                                              .trim();
-                                          final fullPhone =
-                                              phone.startsWith("+")
-                                              ? phone
-                                              : "+91$phone";
-                                          final success = await value
-                                              .sendMobileOtp(fullPhone);
-                                          if (success) {
-                                            _showMobileOtpDialog(
-                                              context,
-                                              value,
-                                              userId,
-                                            );
-                                          }
-                                        }
-                                      : null,
-                                  child: value.isloading
-                                      ? SizedBox(
-                                          height: 18,
-                                          width: 18,
-                                          child: CircularProgressIndicator(
-                                            strokeWidth: 2,
-                                            color: AppColors.primary,
-                                          ),
-                                        )
-                                      : Text(
-                                          "Verify",
-                                          style: AppFontStyle.text_14_400(
-                                            value
-                                                        .mobileController
-                                                        .text
-                                                        .length >=
-                                                    10
-                                                ? AppColors.primary
-                                                : AppColors.grey,
-                                          ),
-                                        ),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          CustomTextFormField(
+                            controller: value.mobileController,
+                            label: "Mobile Number",
+                            hintText: "Enter ${_maxLen(value)} digits",
+                            textInputType: TextInputType.phone,
+                            enabled: !value.isMobileVerified,
+                            inputFormatters: [
+                              FilteringTextInputFormatter.digitsOnly,
+                              LengthLimitingTextInputFormatter(_maxLen(value)),
+                            ],
+                            prefix: Padding(
+                              padding: const EdgeInsets.only(
+                                left: 14,
+                                right: 8,
+                              ),
+                              child: InkWell(
+                                onTap:
+                                    (value.isloading || value.isMobileVerified)
+                                    ? null
+                                    : () {
+                                        showCountryPicker(
+                                          context: context,
+                                          showPhoneCode: true,
+                                          onSelect: (Country country) {
+                                            value.updateCountry(country);
+                                            // value.mobileController.clear();
+                                          },
+                                        );
+                                      },
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    // wBox(8),
+                                    Text(
+                                      "+${value.selectedCountry.phoneCode}",
+                                      style: AppFontStyle.text_16_600(
+                                        AppColors.primary,
+                                      ),
+                                    ),
+                                    Icon(
+                                      Icons.keyboard_arrow_down,
+                                      size: 16,
+                                      color: AppColors.grey,
+                                    ),
+                                    wBox(8),
+                                    Container(
+                                      height: 20,
+                                      width: 1,
+                                      color: AppColors.grey.withOpacity(0.3),
+                                    ),
+                                  ],
                                 ),
                               ),
-                        borderRadius: 60,
-                        validator: (val) {
-                          if (val == null || val.trim().isEmpty) {
-                            return "Mobile number is required";
-                          }
-                          if (val.trim().length < 10) {
-                            return "Enter a valid mobile number";
-                          }
-                          return null;
-                        },
+                            ),
+                            onChanged: (val) {
+                              // If they edit the number, reset verification status
+                              if (value.isMobileVerified) {
+                                value.resetMobileVerification();
+                              }
+                              if (value.mobileError != null) {
+                                value.setMobileError(null);
+                              }
+                              value.updateUI();
+                            },
+                            suffix: value.isMobileVerified
+                                ? Padding(
+                                    padding: const EdgeInsets.all(12),
+                                    child: Icon(
+                                      Icons.check_circle,
+                                      color: AppColors.green,
+                                      size: 20,
+                                    ),
+                                  )
+                                : Padding(
+                                    padding: const EdgeInsets.all(12),
+                                    child: GestureDetector(
+                                      onTap:
+                                          (value.mobileController.text.length ==
+                                                  _maxLen(value) &&
+                                              !value.isloading)
+                                          ? () async {
+                                              final exists = await value
+                                                  .checkMobileExists();
+                                              if (exists) {
+                                                final phone = value
+                                                    .mobileController
+                                                    .text
+                                                    .trim();
+                                                final fullPhone =
+                                                    "+${value.selectedCountry.phoneCode}$phone";
+                                                final verificationId =
+                                                    await value.sendMobileOtp(
+                                                      fullPhone,
+                                                    );
+                                                print(
+                                                  "Verification id : $verificationId",
+                                                );
+                                                if (verificationId != '') {
+                                                  print(
+                                                    "Verification id : $verificationId",
+                                                  );
+                                                  value.updateOtpLoading(false);
+                                                  _showMobileOtpDialog(
+                                                    context,
+                                                    value,
+                                                    userId,
+                                                    verificationId,
+                                                    fullPhone,
+                                                  );
+                                                }
+                                              }
+                                            }
+                                          : null,
+                                      child: value.isloading
+                                          ? SizedBox(
+                                              height: 18,
+                                              width: 18,
+                                              child: CircularProgressIndicator(
+                                                strokeWidth: 2,
+                                                color: AppColors.primary,
+                                              ),
+                                            )
+                                          : Text(
+                                              "Verify",
+                                              style: AppFontStyle.text_14_400(
+                                                value
+                                                            .mobileController
+                                                            .text
+                                                            .length ==
+                                                        _maxLen(value)
+                                                    ? AppColors.primary
+                                                    : AppColors.grey,
+                                              ),
+                                            ),
+                                    ),
+                                  ),
+                            borderRadius: 60,
+                            errorText: value.mobileError,
+                            validator: (val) {
+                              if (val == null || val.trim().isEmpty) {
+                                return "Mobile number is required";
+                              }
+                              if (val.trim().length != _maxLen(value)) {
+                                return "Enter exactly ${_maxLen(value)} digits";
+                              }
+                              return null;
+                            },
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(left: 16, top: 4),
+                            child: Text(
+                              "Required: ${_maxLen(value)} digits for ${value.getCountryName(value.selectedCountry.phoneCode)}",
+                              style: AppFontStyle.text_12_400(AppColors.grey),
+                            ),
+                          ),
+                        ],
                       ),
 
                       hBox(30),
@@ -391,12 +468,19 @@ class CreateAccountScreen extends StatelessWidget {
     BuildContext context,
     CreateAccountProvider provider,
     String userId,
+    String verificationID,
+    String mobileNumber,
   ) {
     showDialog(
       context: context,
       barrierDismissible: false,
       builder: (context) {
-        return _MobileOtpDialogContent(provider: provider, userId: userId);
+        return _MobileOtpDialogContent(
+          provider: provider,
+          userId: userId,
+          verificationID: verificationID,
+          mobileNumber: mobileNumber,
+        );
       },
     );
   }
@@ -511,6 +595,8 @@ class _OtpDialogContentState extends State<_OtpDialogContent> {
                 alignment: Alignment.centerLeft,
                 child: Text(
                   errorMessage!,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                   style: AppFontStyle.text_12_400(AppColors.red),
                 ),
               ),
@@ -665,8 +751,16 @@ class _OtpDialogContentState extends State<_OtpDialogContent> {
 class _MobileOtpDialogContent extends StatefulWidget {
   final CreateAccountProvider provider;
   final String userId;
+  final String verificationID;
 
-  const _MobileOtpDialogContent({required this.provider, required this.userId});
+  String? mobileNumber;
+
+  _MobileOtpDialogContent({
+    required this.provider,
+    required this.userId,
+    required this.verificationID,
+    required this.mobileNumber,
+  });
 
   @override
   State<_MobileOtpDialogContent> createState() =>
@@ -674,8 +768,36 @@ class _MobileOtpDialogContent extends StatefulWidget {
 }
 
 class _MobileOtpDialogContentState extends State<_MobileOtpDialogContent> {
+  TextEditingController otpController = TextEditingController();
   String otpCode = "";
   String? errorMessage;
+  int _resendSeconds = 60;
+  Timer? _timer;
+  String? mobileNumber;
+  bool isResending = false;
+  @override
+  void initState() {
+    super.initState();
+    _startTimer();
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  void _startTimer() {
+    _resendSeconds = 60;
+    _timer?.cancel();
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (_resendSeconds == 0) {
+        timer.cancel();
+      } else {
+        setState(() => _resendSeconds--);
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -690,19 +812,27 @@ class _MobileOtpDialogContentState extends State<_MobileOtpDialogContent> {
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(
-            "Enter the 6-digit OTP sent to your phone.",
+            "Enter the 6-digit OTP sent to your phone number.",
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
             textAlign: TextAlign.center,
             style: AppFontStyle.text_14_400(AppColors.grey),
           ),
           hBox(30),
           PinCodeTextField(
+            controller: otpController,
             appContext: context,
             length: 6,
-            onChanged: (v) => otpCode = v,
+            onChanged: (v) {
+              otpCode = v;
+              if (errorMessage != null) {
+                setState(() => errorMessage = null);
+              }
+            },
             keyboardType: TextInputType.number,
             enableActiveFill: true,
             pinTheme: PinTheme(
-              shape: PinCodeFieldShape.box,
+              shape: PinCodeFieldShape.circle,
               borderRadius: BorderRadius.circular(8),
               fieldHeight: 45,
               fieldWidth: 40,
@@ -715,8 +845,58 @@ class _MobileOtpDialogContentState extends State<_MobileOtpDialogContent> {
               borderWidth: 0,
             ),
           ),
-          if (errorMessage != null)
-            Text(errorMessage!, style: AppFontStyle.text_12_400(AppColors.red)),
+          if (errorMessage != null) ...[
+            hBox(12),
+            Text(
+              errorMessage!,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign.center,
+              style: AppFontStyle.text_12_400(AppColors.red),
+            ),
+          ],
+          hBox(12),
+          // Timer / Resend row
+          if (_resendSeconds > 0)
+            Text(
+              "Resend OTP in ${_resendSeconds}s",
+              textAlign: TextAlign.center,
+              style: AppFontStyle.text_12_400(AppColors.grey),
+            )
+          else
+            isResending
+                ? SizedBox(
+                    height: 16,
+                    width: 16,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 1.5,
+                      color: AppColors.primary,
+                    ),
+                  )
+                : GestureDetector(
+                    onTap: () async {
+                      setState(() {
+                        errorMessage = null;
+                        otpController.clear();
+                        isResending = true;
+                      });
+                      try {
+                        await widget.provider.sendMobileOtp(
+                          widget.mobileNumber!,
+                        );
+                        _startTimer();
+                      } finally {
+                        if (mounted) {
+                          setState(() => isResending = false);
+                        }
+                      }
+                    },
+                    child: Text(
+                      "Resend OTP",
+                      textAlign: TextAlign.center,
+                      style: AppFontStyle.text_12_400(AppColors.primary),
+                    ),
+                  ),
           hBox(30),
           Row(
             children: [
@@ -724,7 +904,8 @@ class _MobileOtpDialogContentState extends State<_MobileOtpDialogContent> {
                 child: CustomButton(
                   height: 45,
                   text: "Cancel",
-                  color: AppColors.grey,
+                  textStyle: AppFontStyle.text_16_600(AppColors.black),
+                  color: AppColors.lightGrey,
                   onPressed: () => Navigator.pop(context),
                 ),
               ),
@@ -735,15 +916,36 @@ class _MobileOtpDialogContentState extends State<_MobileOtpDialogContent> {
                   text: "Verify",
                   isLoading: widget.provider.otpLoading,
                   onPressed: () async {
-                    if (otpCode.length == 6) {
-                      final success = await widget.provider.verifyMobileOtp(
-                        otpCode,
+                    if (_resendSeconds == 0) {
+                      setState(() {
+                        errorMessage = "OTP Expired. Please resend OTP.";
+                      });
+                      return;
+                    }
+
+                    if (otpCode.length != 6) {
+                      setState(() {
+                        errorMessage = "Please enter 6-digit OTP";
+                      });
+                      return;
+                    }
+
+                    final error = await widget.provider.verifyMobileOtp(
+                      otpCode,
+                    );
+
+                    if (error == null) {
+                      // Only pop and show success if there's NO error
+                      Navigator.pop(context);
+                      Get.showToast(
+                        "Mobile number verified successfully",
+                        type: ToastType.success,
                       );
-                      if (success) {
-                        Navigator.pop(context);
-                      } else {
-                        setState(() => errorMessage = "Invalid OTP");
-                      }
+                    } else {
+                      // Show error message if verification failed
+                      setState(() {
+                        errorMessage = error;
+                      });
                     }
                   },
                 ),

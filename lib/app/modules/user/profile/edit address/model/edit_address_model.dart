@@ -8,9 +8,7 @@ class EditAddressModel {
   EditAddressModel.fromJson(Map<String, dynamic> json) {
     status = json['status'];
     message = json['message'];
-    data = json['data'] != null
-        ? EditAddressData.fromJson(json['data'])
-        : null;
+    data = json['data'] != null ? EditAddressData.fromJson(json['data']) : null;
   }
 
   Map<String, dynamic> toJson() {
@@ -28,7 +26,7 @@ class EditAddressData {
   int? id;
   int? userId;
   String? addressType;
-  int? isDefault;
+  bool? isDefault;
   String? streetAddress;
   String? apartment;
   String? city;

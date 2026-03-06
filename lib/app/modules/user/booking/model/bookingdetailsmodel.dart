@@ -113,9 +113,7 @@ class Data {
         items!.add(Items.fromJson(v));
       });
     }
-    vendor = json['vendor'] != null
-        ? Vendor.fromJson(json['vendor'])
-        : null;
+    vendor = json['vendor'] != null ? Vendor.fromJson(json['vendor']) : null;
     address = json['address'] != null
         ? Address.fromJson(json['address'])
         : null;
@@ -393,7 +391,7 @@ class Address {
   int? id;
   int? userId;
   String? addressType;
-  int? isDefault;
+  bool? isDefault;
   String? streetAddress;
   String? apartment;
   String? city;
@@ -422,9 +420,7 @@ class Address {
         ? json['user_id']
         : int.tryParse(json['user_id'].toString());
     addressType = json['address_type']?.toString();
-    isDefault = json['is_default'] is int
-        ? json['is_default']
-        : int.tryParse(json['is_default'].toString());
+    isDefault = json['is_default'];
     streetAddress = json['street_address']?.toString();
     apartment = json['apartment']?.toString();
     city = json['city']?.toString();

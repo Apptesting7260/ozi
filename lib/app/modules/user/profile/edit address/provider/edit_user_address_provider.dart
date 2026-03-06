@@ -8,10 +8,10 @@ import '../../save address/model/user_address_model.dart';
 class EditUserAddressProvider extends ChangeNotifier {
   final _repository = Repository();
 
-  late TextEditingController streetController;
-  late TextEditingController apartmentController;
-  late TextEditingController cityController;
-  late TextEditingController zipController;
+  TextEditingController streetController = TextEditingController();
+  TextEditingController apartmentController = TextEditingController();
+  TextEditingController cityController = TextEditingController();
+  TextEditingController zipController = TextEditingController();
 
   int selectedType = 0;
   bool _initialized = false;
@@ -38,8 +38,8 @@ class EditUserAddressProvider extends ChangeNotifier {
   void init(Data? address) {
     if (kDebugMode) {
       print(
-      "Init called with address ID: ${address?.id}, already initialized: $_initialized",
-    );
+        "Init called with address ID: ${address?.id}, already initialized: $_initialized",
+      );
     }
 
     // If already initialized with the same address, skip
@@ -50,11 +50,8 @@ class EditUserAddressProvider extends ChangeNotifier {
       return;
     }
 
-    if (_initialized) {
-      if (kDebugMode) {
-        print("Re-initializing with different address");
-      }
-      disposeControllers();
+    if (_initialized && kDebugMode) {
+      print("Re-initializing with different address");
     }
 
     _addressId = address?.id;
@@ -64,15 +61,32 @@ class EditUserAddressProvider extends ChangeNotifier {
       print("Setting _addressId to: $_addressId, lat: $_lat, lng: $_lng");
     }
 
-    if (_lat != null &&
-        _lng != null &&
-        _lat != "null" &&
-        _lng != "null" &&
-        _lat!.isNotEmpty &&
-        _lng!.isNotEmpty) {
-      selectedLatLng = LatLng(double.parse(_lat!), double.parse(_lng!));
-      _updateMarker(selectedLatLng!);
-    } else {
+    try {
+      if (_lat != null &&
+          _lng != null &&
+          _lat != "null" &&
+          _lng != "null" &&
+          _lat!.isNotEmpty &&
+          _lng!.isNotEmpty) {
+        selectedLatLng = LatLng(double.parse(_lat!), double.parse(_lng!));
+        // Set marker without calling notifyListeners (init will do it at the end)
+        markers.clear();
+        markers.add(
+          Marker(
+            markerId: const MarkerId("selected"),
+            position: selectedLatLng!,
+            icon: BitmapDescriptor.defaultMarkerWithHue(
+              BitmapDescriptor.hueCyan,
+            ),
+          ),
+        );
+      } else {
+        selectedLatLng = initialLocation;
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print("Error parsing lat/lng: $e");
+      }
       selectedLatLng = initialLocation;
     }
 
@@ -285,14 +299,16 @@ class EditUserAddressProvider extends ChangeNotifier {
     _isLoading = false;
     selectedLatLng = null;
     markers.clear();
+    streetController = TextEditingController();
+    apartmentController = TextEditingController();
+    cityController = TextEditingController();
+    zipController = TextEditingController();
   }
 
   void disposeControllers() {
-    if (_initialized) {
-      streetController.dispose();
-      apartmentController.dispose();
-      cityController.dispose();
-      zipController.dispose();
-    }
+    streetController.dispose();
+    apartmentController.dispose();
+    cityController.dispose();
+    zipController.dispose();
   }
 }

@@ -1,4 +1,3 @@
-
 import '../../core/appExports/app_export.dart';
 
 class CustomTextFormField extends StatelessWidget {
@@ -38,11 +37,14 @@ class CustomTextFormField extends StatelessWidget {
     this.onEditingComplete,
     this.onFieldSubmitted,
     this.labelText,
-    this.autoValidateMode, this.buildCounter, this.label,
+    this.autoValidateMode,
+    this.buildCounter,
+    this.label,
+    this.errorText,
   });
 
   final Alignment? alignment;
-  final bool ?readOnly;
+  final bool? readOnly;
   final double? width;
   final double? height;
 
@@ -111,15 +113,16 @@ class CustomTextFormField extends StatelessWidget {
   final Function(String)? onFieldSubmitted;
 
   final String? labelText;
+  final String? errorText;
   final AutovalidateMode? autoValidateMode;
 
   @override
   Widget build(BuildContext context) {
     return alignment != null
         ? Align(
-      alignment: alignment ?? Alignment.center,
-      child: textFormFieldWidget,
-    )
+            alignment: alignment ?? Alignment.center,
+            child: textFormFieldWidget,
+          )
         : textFormFieldWidget;
   }
 
@@ -129,26 +132,35 @@ class CustomTextFormField extends StatelessWidget {
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        if(label!=null)
-        Padding(
-          padding:  EdgeInsets.only(bottom: 4.h),
-          child: Text(label??"",style: AppFontStyle.text_16_500(AppColors.darkText, fontFamily: AppFontFamily.medium),),
-        ),
+        if (label != null)
+          Padding(
+            padding: EdgeInsets.only(bottom: 4.h),
+            child: Text(
+              label ?? "",
+              style: AppFontStyle.text_16_500(
+                AppColors.darkText,
+                fontFamily: AppFontFamily.medium,
+              ),
+            ),
+          ),
         TextFormField(
-          readOnly: readOnly??false,
+          readOnly: readOnly ?? false,
           buildCounter: buildCounter,
           // expands: true,
           onTap: onTap,
           maxLength: maxLength,
-          onTapOutside:onTapOutside ?? (event) {
-            FocusManager.instance.primaryFocus?.unfocus();
-          },
+          onTapOutside:
+              onTapOutside ??
+              (event) {
+                FocusManager.instance.primaryFocus?.unfocus();
+              },
           onChanged: onChanged,
-          autovalidateMode: autoValidateMode ?? AutovalidateMode.onUserInteraction,
+          autovalidateMode:
+              autoValidateMode ?? AutovalidateMode.onUserInteraction,
           enabled: enabled ?? true,
           controller: controller,
           autofocus: autofocus ?? false,
-          style: textStyle ?? AppFontStyle.text_14_400(AppColors.darkText,),
+          style: textStyle ?? AppFontStyle.text_14_400(AppColors.darkText),
           obscureText: obscureText!,
           textInputAction: textInputAction,
           keyboardType: textInputType,
@@ -166,25 +178,21 @@ class CustomTextFormField extends StatelessWidget {
   );
 
   InputDecoration get decoration => InputDecoration(
-    errorStyle:  Get.errorTextStyle(),
+    errorStyle: Get.errorTextStyle(),
     alignLabelWithHint: true,
     labelText: labelText,
     errorMaxLines: 10,
     hintText: hintText ?? "",
-    hintStyle: hintStyle ??
-        AppFontStyle.text_14_400(
-          AppColors.hintText,
-        ),
-    labelStyle: hintStyle ??
-        AppFontStyle.text_14_500(
-          AppColors.hintText,
-        ),
+    errorText: errorText,
+    hintStyle: hintStyle ?? AppFontStyle.text_14_400(AppColors.hintText),
+    labelStyle: hintStyle ?? AppFontStyle.text_14_500(AppColors.hintText),
     prefixIcon: prefix,
     prefixIconConstraints: prefixConstraints ?? BoxConstraints(minWidth: 30.w),
     suffixIcon: suffix,
     suffixIconConstraints: suffixConstraints,
     isDense: true,
-    contentPadding: contentPadding ?? EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+    contentPadding:
+        contentPadding ?? EdgeInsets.symmetric(vertical: 14, horizontal: 16),
     fillColor: fillColor ?? AppColors.fieldBgColor,
     filled: filled,
     border: borderDecoration ?? Get.defaultBorder(borderRadius),
@@ -193,6 +201,5 @@ class CustomTextFormField extends StatelessWidget {
     disabledBorder: borderDecoration ?? Get.defaultBorder(borderRadius),
     errorBorder: Get.errorBorder(borderRadius),
     focusedErrorBorder: Get.errorBorder(borderRadius),
-
   );
 }

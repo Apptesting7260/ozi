@@ -1,6 +1,7 @@
 import '../../../../../core/appExports/app_export.dart';
 import '../../../../../core/constants/app_urls.dart';
 import '../../../../../data/network/network_api_services.dart';
+import '../../../../../data/storage/user_preference.dart';
 import '../../model/choose_role_model.dart';
 
 class RoleProvider extends ChangeNotifier {
@@ -19,7 +20,7 @@ class RoleProvider extends ChangeNotifier {
 
   bool get hasSelectedRole => selectedRole != null;
 
-  Future<ChooseRoleModel?>  chooseRole({required String userId}) async {
+  Future<ChooseRoleModel?> chooseRole({required String userId}) async {
     if (kDebugMode) {
       print("in Choose Role 1");
     }
@@ -56,13 +57,20 @@ class RoleProvider extends ChangeNotifier {
         print("in Choose Role 6");
       }
 
+      final chooseRoleResponse = ChooseRoleModel.fromJson(response);
+
+      if (chooseRoleResponse.status == true) {
+        await UserPreference.saveIsRoleSelected(true);
+        await UserPreference.saveRole(selectedRole!);
+      }
+
       isLoading = false;
       notifyListeners();
       if (kDebugMode) {
         print("in Choose Role 7");
       }
 
-      return ChooseRoleModel.fromJson(response);
+      return chooseRoleResponse;
     } catch (e) {
       isLoading = false;
       errorMessage = e.toString();

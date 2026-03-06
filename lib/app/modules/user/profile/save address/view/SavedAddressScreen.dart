@@ -374,7 +374,7 @@ class _SavedAddressScreenState extends State<SavedAddressScreen> {
                               index: i,
                               selected: provider.selectedIndex == i,
                               title: address.addressType ?? 'Other',
-                              tag: address.isDefault == 1 ? 'Default' : null,
+                              tag: address.isDefault == true ? 'Default' : null,
                               icon: provider.getIconForAddressType(
                                 address.addressType,
                               ),
@@ -391,7 +391,7 @@ class _SavedAddressScreenState extends State<SavedAddressScreen> {
                                 i,
                                 context,
                               ), // original index
-                              isDelete: address.isDefault == 1,
+                              isDelete: address.isDefault == true,
                             ),
                           );
                         }),
