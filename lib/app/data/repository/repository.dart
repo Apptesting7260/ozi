@@ -38,7 +38,7 @@ class Repository {
   final _apiService = NetworkApiServices();
 
   //**************************************************** Login API *****************************************************************//
-  Future<LoginModel> userLoginApi(Map<String, dynamic> data) async {
+  Future<LoginModel> accountChecker(Map<String, dynamic> data) async {
     try {
       dynamic response = await _apiService.postApiWithoutToken(
         data,

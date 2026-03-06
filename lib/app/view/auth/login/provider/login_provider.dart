@@ -28,6 +28,7 @@ class LoginProvider extends ChangeNotifier {
   String? _errorMessage;
   LoginModel? _loginResponse;
   Repository _repository = Repository();
+  bool restoreCancelled = false;
 
   bool get isLoading => _isLoading;
 
@@ -331,11 +332,70 @@ class LoginProvider extends ChangeNotifier {
 
   OtpSession? get otpSession => _otpSession;
 
+  Future<bool> handleContinue(
+      BuildContext context,
+      String phone,
+      String regionCode,
+      ) async {
+    final body = {"country_code": "+$regionCode", "mobile": phone};
+
+    try {
+      _setLoading(true);
+      restoreCancelled = false;
+      errorMessageFirebase = null;
+
+      final response = await Repository().accountChecker(body);
+
+      final isDeleted = response.data?.isDeleted == true;
+      final canRestore = response.data?.canRestore == true;
+
+      if (isDeleted) {
+
+        if (canRestore) {
+          _setLoading(false);
+
+          final bool? restore = await showAccountCheckerPopup(context);
+
+          if (restore != true) {
+            restoreCancelled = true;
+            return false;
+          }
+
+          return await sendOtp("+$regionCode$phone");
+        }
+
+        errorMessageFirebase = response.message ?? "Account deleted";
+        return false;
+      }
+
+      return await sendOtp("+$regionCode$phone");
+
+    } catch (e) {
+      if (kDebugMode) {
+        print("HANDLE CONTINUE ERROR: $e");
+      }
+
+      Get.showToast(
+        "Something went wrong. Please try again.",
+        type: ToastType.warning,
+      );
+
+      return false;
+    } finally {
+      _setLoading(false);
+    }
+  }
+
+  void _setLoading(bool value) {
+    _isLoading = value;
+    notifyListeners();
+  }
+
   Future<bool> sendOtp(String phone) async {
     final Completer<bool> completer = Completer();
 
     _isLoading = true;
-    errorMessageFirebase = null; // Clear any previous error
+    errorMessageFirebase = null;
     notifyListeners();
 
     await _auth.verifyPhoneNumber(
@@ -344,10 +404,16 @@ class LoginProvider extends ChangeNotifier {
       verificationCompleted: (PhoneAuthCredential credential) async {
         try {
           await _auth.signInWithCredential(credential);
-          print("otp send sucessully : $credential");
+          if (kDebugMode) {
+            print("otp send successfully : $credential");
+          }
         } catch (e) {
-          print("otp send sucessully catch : $credential");
-          print("otp send sucessully catch : ${e.toString()}");
+          if (kDebugMode) {
+            print("otp send successfully catch : $credential");
+          }
+          if (kDebugMode) {
+            print("otp send successfully catch : ${e.toString()}");
+          }
         }
       },
 
@@ -753,10 +819,111 @@ class LoginProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<bool?> showAccountCheckerPopup(BuildContext context) async {
+    return await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        return WillPopScope(
+          onWillPop: () async => false,
+          child: Dialog(
+            insetPadding: const EdgeInsets.symmetric(horizontal: 24),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(24),
+            ),
+            child: Container(
+              width: 382,
+              height: 257,
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 28),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(24),
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    'Restore Your Account',
+                    textAlign: TextAlign.center,
+                    style: AppFontStyle.text_22_600(
+                      Color.fromRGBO(28, 29, 33, 1),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    maxLines: 3,
+                    'Would you like to restore your previous account and continue where you left off?',
+                    textAlign: TextAlign.center,
+                    style: AppFontStyle.text_16_300(
+                      Color.fromRGBO(112, 108, 108, 1),
+                    ),
+                  ),
+                  const SizedBox(height: 28),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: GestureDetector(
+                          onTap: () {
+                            Navigator.pop(context, false);
+                            Get.showToast(
+                              "Account restoration cancelled. You cannot continue with this number.",
+                              type: ToastType.warning,
+                            );
+                          },
+                          child: Container(
+                            height: 48,
+                            alignment: Alignment.center,
+                            decoration: BoxDecoration(
+                              color: Colors.transparent,
+                              borderRadius: BorderRadius.circular(30),
+                              border: Border.all(color: Colors.grey.shade400),
+                            ),
+                            child: Text(
+                              'Cancel',
+                              style: AppFontStyle.text_16_600(
+                                Color.fromRGBO(112, 108, 108, 1),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: GestureDetector(
+                          onTap: () async {
+                            Navigator.pop(context, true);
+                          },
+                          child: Container(
+                            height: 48,
+                            alignment: Alignment.center,
+                            decoration: BoxDecoration(
+                              color: AppColors.primary,
+                              borderRadius: BorderRadius.circular(30),
+                            ),
+                            child: Text(
+                              'Restore',
+                              style: AppFontStyle.text_16_600(
+                                Color.fromRGBO(255, 255, 255, 1),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   void reset() {
     _isLoading = false;
     _errorMessage = null;
     _loginResponse = null;
     notifyListeners();
   }
+
 }
