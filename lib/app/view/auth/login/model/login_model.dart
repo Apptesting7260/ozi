@@ -1,39 +1,45 @@
 class LoginModel {
   bool? status;
   String? message;
-  Data? data;
+  LoginModelData? data;
 
   LoginModel({this.status, this.message, this.data});
 
   LoginModel.fromJson(Map<String, dynamic> json) {
     status = json['status'];
     message = json['message'];
-    data = json['data'] != null ? new Data.fromJson(json['data']) : null;
+    data = json['data'] != null ? LoginModelData.fromJson(json['data']) : null;
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['status'] = this.status;
-    data['message'] = this.message;
-    if (this.data != null) {
-      data['data'] = this.data!.toJson();
+    final Map<String, dynamic> map = {};
+    map['status'] = status;
+    map['message'] = message;
+    if (data != null) {
+      map['data'] = data!.toJson();
     }
-    return data;
+    return map;
   }
 }
 
-class Data {
-  String? type;
+class LoginModelData {
+  bool? isDeleted;
+  bool? canRestore;
+  int? deletedDays;
 
-  Data({this.type});
+  LoginModelData({this.isDeleted, this.canRestore, this.deletedDays});
 
-  Data.fromJson(Map<String, dynamic> json) {
-    type = json['type'];
+  LoginModelData.fromJson(Map<String, dynamic> json) {
+    isDeleted = json['is_deleted'];
+    canRestore = json['can_restore'];
+    deletedDays = json['deleted_days'];
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['type'] = this.type;
-    return data;
+    final Map<String, dynamic> map = {};
+    map['is_deleted'] = isDeleted;
+    map['can_restore'] = canRestore;
+    map['deleted_days'] = deletedDays;
+    return map;
   }
 }

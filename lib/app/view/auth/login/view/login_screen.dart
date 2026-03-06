@@ -5,6 +5,8 @@ import '../provider/login_provider.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
 
+
+
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
@@ -123,7 +125,11 @@ class _LoginScreenState extends State<LoginScreen> {
       return;
     }
 
-    final success = await loginProvider.sendOtp("+$countryCode$phoneNumber");
+    final success = await loginProvider.handleContinue(
+      context,
+      phoneNumber,
+      countryCode,
+    );
 
     if (success) {
       Navigator.push(
@@ -139,8 +145,10 @@ class _LoginScreenState extends State<LoginScreen> {
     } else {
       if (!success && mounted) {
         if (kDebugMode) {
+
           print("object");
         }
+        if (loginProvider.restoreCancelled) return;
         Get.showToast(
           loginProvider.errorMessageFirebase ??
               "Failed to send OTP. Please try again.",

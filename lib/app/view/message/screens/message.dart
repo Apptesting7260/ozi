@@ -103,7 +103,17 @@ class _MessageScreenState extends State<MessageScreen> {
                                   Stack(
                                     children: [
                                       CircularProfileImage(
-                                        imageUrl: isGroup? ('${AppUrls.imageBaseUrl}${message?.groupImage??''}'):('${AppUrls.imageBaseUrl}${message?.receiver?.profile??''}'),
+                                        imageUrl: isGroup
+                                            ? message?.groupImage != null && message!.groupImage!.isNotEmpty
+                                            ? '${AppUrls.imageBaseUrl}${message.groupImage}'
+                                            : null
+                                            : message?.receiver?.profile != null &&
+                                            message!.receiver!.profile!.isNotEmpty
+                                            ? '${AppUrls.imageBaseUrl}${message.receiver!.profile}'
+                                            : null,
+                                        name: isGroup
+                                            ? message?.groupName
+                                            : message?.receiver?.userName,
                                         borderColor: Colors.transparent,
                                         size: 60,
                                       ),

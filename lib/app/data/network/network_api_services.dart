@@ -17,11 +17,24 @@ class NetworkApiServices extends BaseApiServices {
   late Dio _dio;
 
   NetworkApiServices._internal() {
+    // _dio = Dio(
+    //   BaseOptions(
+    //     connectTimeout: const Duration(seconds: 60),
+    //     receiveTimeout: const Duration(seconds: 60),
+    //     responseType: ResponseType.json,
+    //   ),
+    // );
+
     _dio = Dio(
       BaseOptions(
+        baseUrl: "https://nbturls.in/oziservice/api",
         connectTimeout: const Duration(seconds: 60),
         receiveTimeout: const Duration(seconds: 60),
         responseType: ResponseType.json,
+        headers: {
+          "Accept": "application/json",
+          "Content-Type": "application/json",
+        },
       ),
     );
 
@@ -227,22 +240,41 @@ class NetworkApiServices extends BaseApiServices {
     }
   }
 
+  // dynamic returnResponse(Response response, String url) {
+  //   if (response.data?['status'] == false) {
+  //     throw FetchDataException(
+  //       response.data?['message'] ?? 'Error ${response.statusCode}',
+  //     );
+  //   } else if (response.statusCode == 200 || response.statusCode == 201) {
+  //     return response.data;
+  //   } else if (response.statusCode == 401) {
+  //     _handleLogout();
+  //     throw UnauthenticatedException();
+  //   } else {
+  //     throw FetchDataException(
+  //       response.data?['message'] ?? 'Error ${response.statusCode}',
+  //     );
+  //   }
+  // }
+
   dynamic returnResponse(Response response, String url) {
-    if (response.data?['status'] == false) {
-      throw FetchDataException(
-        response.data?['message'] ?? 'Error ${response.statusCode}',
-      );
-    } else if (response.statusCode == 200 || response.statusCode == 201) {
+
+    if (response.statusCode == 200 || response.statusCode == 201) {
       return response.data;
-    } else if (response.statusCode == 401) {
+    }
+
+    else if (response.statusCode == 401) {
       _handleLogout();
       throw UnauthenticatedException();
-    } else {
+    }
+
+    else {
       throw FetchDataException(
         response.data?['message'] ?? 'Error ${response.statusCode}',
       );
     }
   }
+
 
   dynamic returnResponseMultiPart(
     Response response,
