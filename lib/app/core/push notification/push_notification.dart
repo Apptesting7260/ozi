@@ -10,6 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../data/storage/user_preference.dart';
+import '../../modules/user/navigation tab/view/navigation_tab_screen.dart';
 import '../../modules/vendor/navigation tab/view/vendor_navigation_tab_screen.dart';
 import '../../routes/app_routes.dart';
 import '../utils/get_utils.dart';
@@ -456,27 +457,37 @@ class PushNotificationService {
 
       case "booking_confirm":
 
-      // Navigator.pushNamed(
-      //   context,
-      // //  AppRoutes.userBookingDetailsScreen,
-      //   arguments: {"booking_id": bookingId},
-      // );
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(
+            builder: (_) => NavigationTabScreen(initialIndex: 3),
+          ),
+              (route) => false,
+        );
 
         break;
 
       case "booking_completed":
 
-      // Navigator.pushNamed(
-      //   context,
-      // //  AppRoutes.userBookingSummaryScreen,
-      //   arguments: {"booking_id": bookingId},
-      // );
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(
+            builder: (_) => NavigationTabScreen(initialIndex: 3),
+          ),
+              (route) => false,
+        );
 
         break;
 
       default:
 
-        Navigator.pushNamed(context, AppRoutes.homeScreen);
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(
+            builder: (_) => NavigationTabScreen(initialIndex: 0),
+          ),
+              (route) => false,
+        );
     }
   }
 
