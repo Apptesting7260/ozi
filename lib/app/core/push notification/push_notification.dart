@@ -11,8 +11,6 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../utils/get_utils.dart';
 
-
-
 @pragma('vm:entry-point')
 Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp();
@@ -28,12 +26,8 @@ Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
     // );
     //
     // FlutterCallkitIncoming.showCallkitIncoming(params);
-  }else if(message.data['NotificationType'] == 'call_ended'){
-
-  }
+  } else if (message.data['NotificationType'] == 'call_ended') {}
 }
-
-
 
 @pragma('vm:entry-point')
 void backgroundNotificationTap(NotificationResponse notificationResponse) {
@@ -47,12 +41,14 @@ class PushNotificationService {
   static String? fcmToken;
   static String? apnsToken;
 
-  static final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
-  static DarwinInitializationSettings initializationSettingsDarwin =const DarwinInitializationSettings(
-    requestAlertPermission: true,
-    requestBadgePermission: true,
-    requestSoundPermission: true,
-  );
+  static final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+      FlutterLocalNotificationsPlugin();
+  static DarwinInitializationSettings initializationSettingsDarwin =
+      const DarwinInitializationSettings(
+        requestAlertPermission: true,
+        requestBadgePermission: true,
+        requestSoundPermission: true,
+      );
 
   static firebaseNotification() async {
     firebaseMessaging.requestPermission(
@@ -78,29 +74,46 @@ class PushNotificationService {
       RemoteNotification? notification = message.notification;
       AndroidNotification? android = message.notification?.android;
       AppleNotification? appleNotification = message.notification?.apple;
-      debugPrint('🔔message notification title=====${message.notification?.title}');
-      debugPrint('🔔message notification title=====${message.notification?.title}');
-      debugPrint('📝message notification body=====${message.notification?.body}');
-      debugPrint('📝message notification data=====${message.data['NotificationType']}');
-      debugPrint('notification body=====$notification.  $android.   $appleNotification');
+      debugPrint(
+        '🔔message notification title=====${message.notification?.title}',
+      );
+      debugPrint(
+        '🔔message notification title=====${message.notification?.title}',
+      );
+      debugPrint(
+        '📝message notification body=====${message.notification?.body}',
+      );
+      debugPrint(
+        '📝message notification data=====${message.data['NotificationType']}',
+      );
+      debugPrint(
+        'notification body=====$notification.  $android.   $appleNotification',
+      );
 
-        if(message.data['NotificationType']=='call'){
+      if (message.data['NotificationType'] == 'call') {
+      } else if (message.data['NotificationType'] == 'call_ended') {
+      } else {
+        showNotification(message.notification, message.data);
+      }
+      debugPrint('android not null notification==${message.notification}');
 
-        }else if(message.data['NotificationType'] == 'call_ended'){
+      RemoteMessage? initialMessage = await FirebaseMessaging.instance
+          .getInitialMessage();
 
-        }else{
-          showNotification(message.notification,message.data);
+      if (initialMessage != null) {
+        if (initialMessage.data['conversationId'] != null) {
+          navigateFromNotification(
+            entityType: 'chat',
+            entityId: initialMessage.data['conversationId'],
+          );
+        } else {
+          navigateFromNotification(
+            entityType: initialMessage.data['entity_type'] ?? 'notification',
+            entityId: initialMessage.data['entity_id'] ?? '',
+          );
         }
-        debugPrint('android not null notification==${message.notification}');
-        FirebaseMessaging.instance.getInitialMessage().then((message) {
-          if (message != null) {
-            debugPrint("abc525");
-          } else {
-            debugPrint("123154115415abc");
-          }
-        });
-    },
-    );
+      }
+    });
 
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) async {
       if (message.notification != null) {
@@ -113,31 +126,40 @@ class PushNotificationService {
         if (kDebugMode) {
           print(message.data);
         }
-        if(message.data['conversationId']!=null){
-          navigateFromNotification(entityType: 'chat',entityId: message.data['conversationId'],);
-        }else if(message.data['NotificationType']=='live_streaming'){
+        if (message.data['conversationId'] != null) {
+          navigateFromNotification(
+            entityType: 'chat',
+            entityId: message.data['conversationId'],
+          );
+        } else if (message.data['NotificationType'] == 'live_streaming') {
           // Navigator.push(navigatorKey.currentContext!, MaterialPageRoute(builder: (context) => LiveStreamScreen(token: message.data['token'],
           //     appId: message.data['appId'],
           //     channelId: message.data['channelName'],
           //     isCollaborator: false, streamId: message.data['liveSessionId'],),));
-        }else{
-          navigateFromNotification(entityType: message.data['entity_type']??'notification',entityId: message.data['entity_id']??'',);
+        } else {
+          navigateFromNotification(
+            entityType: message.data['entity_type'] ?? 'notification',
+            entityId: message.data['entity_id'] ?? '',
+          );
         }
       }
     });
 
     FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
 
-    FirebaseMessaging.instance.getToken().then((String? token) async {
-      if (token == null) {
-        debugPrint('FCM token is null');
-      } else {
-        fcmToken = token;
-        debugPrint('FCM token: $token');
-      }
-    }).catchError((error) {
-      debugPrint('Error getting FCM token: ${error.toString()}');
-    });
+    FirebaseMessaging.instance
+        .getToken()
+        .then((String? token) async {
+          if (token == null) {
+            debugPrint('FCM token is null');
+          } else {
+            fcmToken = token;
+            debugPrint('FCM token: $token');
+          }
+        })
+        .catchError((error) {
+          debugPrint('Error getting FCM token: ${error.toString()}');
+        });
 
     if (defaultTargetPlatform == TargetPlatform.iOS) {
       debugPrint('FlutterFire Messaging Example: Getting APNs token...');
@@ -147,25 +169,28 @@ class PushNotificationService {
     }
   }
 
-
-
-
   static Future initLocalNotification() async {
     if (Platform.isIOS) {
-      var initializationSettingsAndroid = const AndroidInitializationSettings('ic_launcher');
+      var initializationSettingsAndroid = const AndroidInitializationSettings(
+        'ic_launcher',
+      );
 
-      final InitializationSettings initializationSettings = InitializationSettings(
-          android: initializationSettingsAndroid,
-          iOS: initializationSettingsDarwin);
+      final InitializationSettings initializationSettings =
+          InitializationSettings(
+            android: initializationSettingsAndroid,
+            iOS: initializationSettingsDarwin,
+          );
 
-      flutterLocalNotificationsPlugin.initialize(initializationSettings,
-          onDidReceiveNotificationResponse: onDidReceiveNotificationResponse);
+      flutterLocalNotificationsPlugin.initialize(
+        initializationSettings,
+        onDidReceiveNotificationResponse: onDidReceiveNotificationResponse,
+      );
     } else {
-      var initializationSettingsAndroid =
-      const AndroidInitializationSettings('@mipmap/ic_launcher');
+      var initializationSettingsAndroid = const AndroidInitializationSettings(
+        '@mipmap/ic_launcher',
+      );
 
       const initializationSettingsIOS = DarwinInitializationSettings();
-
 
       var initializationSettings = InitializationSettings(
         android: initializationSettingsAndroid,
@@ -174,13 +199,16 @@ class PushNotificationService {
 
       await flutterLocalNotificationsPlugin.initialize(
         initializationSettings,
-        onDidReceiveBackgroundNotificationResponse:backgroundNotificationTap,
+        onDidReceiveBackgroundNotificationResponse: backgroundNotificationTap,
         onDidReceiveNotificationResponse: onDidReceiveNotificationResponse,
       );
     }
   }
 
-  static Future<void> showNotification(RemoteNotification? notification,Map<String, dynamic>? data) async {
+  static Future<void> showNotification(
+    RemoteNotification? notification,
+    Map<String, dynamic>? data,
+  ) async {
     var android = const AndroidNotificationDetails(
       'high_importance_channel',
       "Woye Vendor",
@@ -209,25 +237,31 @@ class PushNotificationService {
     );
   }
 
-
-
-  static void onDidReceiveNotificationResponse(NotificationResponse notificationResponse) async {
+  static void onDidReceiveNotificationResponse(
+    NotificationResponse notificationResponse,
+  ) async {
     // NotificationsController  controller = Get.put(NotificationsController());
     final String? payload = notificationResponse.payload;
     if (payload != null) {
       try {
         debugPrint('notification payload: $payload');
-        Map<String,dynamic>? dataIs = jsonDecode(payload);
-        if(dataIs?['conversationId']!=null){
-          navigateFromNotification(entityType: 'chat',entityId: dataIs?['conversationId']??'',);
-        }else if(dataIs?['NotificationType']=='live_streaming'){
+        Map<String, dynamic>? dataIs = jsonDecode(payload);
+        if (dataIs?['conversationId'] != null) {
+          navigateFromNotification(
+            entityType: 'chat',
+            entityId: dataIs?['conversationId'] ?? '',
+          );
+        } else if (dataIs?['NotificationType'] == 'live_streaming') {
           // Navigator.push(navigatorKey.currentContext!, MaterialPageRoute(builder: (context) => LiveStreamScreen(token: dataIs?['token'],
           //     appId: dataIs?['appId'],
           //     channelId: dataIs?['channelName'],
           //      streamId: dataIs?['liveSessionId'],
           //     isCollaborator: false),));
-        }else{
-          navigateFromNotification(entityType: dataIs?['entity_type']??'notifications',entityId: dataIs?['entity_id']??'',);
+        } else {
+          navigateFromNotification(
+            entityType: dataIs?['entity_type'] ?? 'notifications',
+            entityId: dataIs?['entity_id'] ?? '',
+          );
         }
       } catch (e) {
         debugPrint('Error parsing payload: $e');
@@ -235,7 +269,11 @@ class PushNotificationService {
     }
   }
 
-  static showCustomSnackBar(String title, String message, BuildContext context) {
+  static showCustomSnackBar(
+    String title,
+    String message,
+    BuildContext context,
+  ) {
     if (kDebugMode) {
       print("object>>>> $title \n $message");
     }
@@ -255,16 +293,11 @@ class PushNotificationService {
       ),
       titleText: Text(
         title,
-        style: TextStyle(
-          fontWeight: FontWeight.bold,
-          color: Colors.black,
-        ),
+        style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
       ),
       messageText: Text(
         message,
-        style: TextStyle(
-          color: Colors.black,
-        ),
+        style: TextStyle(color: Colors.black),
         maxLines: 2,
         overflow: TextOverflow.ellipsis,
       ),
@@ -282,7 +315,6 @@ class PushNotificationService {
     required dynamic entityId,
     Map<String, dynamic>? extraData,
   }) async {
-
     final context = navigatorKey.currentContext;
 
     if (context == null) {
@@ -293,7 +325,6 @@ class PushNotificationService {
     debugPrint("🔀 Notification navigate: type=$entityType id=$entityId");
 
     switch (entityType) {
-
       case "chat":
         // Navigator.pushNamed(
         //   context,
@@ -357,7 +388,6 @@ class PushNotificationService {
     }
   }
 
-
   // static Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   //   log("background notification--> ${message.notification?.body}");
   // }
@@ -383,5 +413,4 @@ class PushNotificationService {
   //     }
   //   }
   // }
-
 }

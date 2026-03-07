@@ -3,9 +3,9 @@
 <plist version="1.0">
 <dict>
 	<key>CLIENT_ID</key>
-	<string>102047141140-1shi7k7q400fr90snrpalk9a21foq3fj.apps.googleusercontent.com</string>
+	<string>102047141140-mqg6j1te5gbpk1h495dk2rbnmsni54us.apps.googleusercontent.com</string>
 	<key>REVERSED_CLIENT_ID</key>
-	<string>com.googleusercontent.apps.102047141140-1shi7k7q400fr90snrpalk9a21foq3fj</string>
+	<string>com.googleusercontent.apps.102047141140-mqg6j1te5gbpk1h495dk2rbnmsni54us</string>
 	<key>ANDROID_CLIENT_ID</key>
 	<string>102047141140-2psps59a674s7pps57cahm1tpjn24k28.apps.googleusercontent.com</string>
 	<key>API_KEY</key>
@@ -15,7 +15,7 @@
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>com.example.ozi</string>
+	<string>com.ozii.ozi</string>
 	<key>PROJECT_ID</key>
 	<string>oziservices-e95c8</string>
 	<key>STORAGE_BUCKET</key>
@@ -31,6 +31,6 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:102047141140:ios:1e263346e42169ceaa0601</string>
+	<string>1:102047141140:ios:e63f671e3d8a5437aa0601</string>
 </dict>
 </plist>
