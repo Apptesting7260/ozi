@@ -594,7 +594,7 @@ class CreateAccountProvider with ChangeNotifier {
       final response = await _apiService.postApiWithoutToken({
         "user_id": userId,
         "first_name": firstNameController.text.trim(),
-        "country_code": selectedCountry.phoneCode,
+        "country_code": "+${selectedCountry.phoneCode}",
         "last_name": lastNameController.text.trim(),
         "email": emailController.text.trim(),
         "mobile": mobileController.text.trim(),
