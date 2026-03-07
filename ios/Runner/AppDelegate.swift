@@ -1,5 +1,7 @@
 import UIKit
 import Flutter
+import Firebase
+import FirebaseMessaging
 import GoogleMaps  // ← Add this import (very important!)
 
 @main

@@ -333,10 +333,10 @@ class LoginProvider extends ChangeNotifier {
   OtpSession? get otpSession => _otpSession;
 
   Future<bool> handleContinue(
-      BuildContext context,
-      String phone,
-      String regionCode,
-      ) async {
+    BuildContext context,
+    String phone,
+    String regionCode,
+  ) async {
     final body = {"country_code": "+$regionCode", "mobile": phone};
 
     try {
@@ -350,7 +350,6 @@ class LoginProvider extends ChangeNotifier {
       final canRestore = response.data?.canRestore == true;
 
       if (isDeleted) {
-
         if (canRestore) {
           _setLoading(false);
 
@@ -369,7 +368,6 @@ class LoginProvider extends ChangeNotifier {
       }
 
       return await sendOtp("+$regionCode$phone");
-
     } catch (e) {
       if (kDebugMode) {
         print("HANDLE CONTINUE ERROR: $e");
@@ -611,9 +609,16 @@ class LoginProvider extends ChangeNotifier {
     String lastName,
   ) async {
     try {
+      print("account is deleted. checking user");
       final value = await _repository.checkSocialUser(googleId, email);
 
-      if (value['is_deleted'] == true) {
+      final bool isDeleted = value['data'] != null
+          ? value['data']['is_deleted'] == true
+          : false;
+      print("account is deleted. checking user $isDeleted");
+
+      if (isDeleted) {
+        print("account is deleted");
         showAccountCheckerPopup(
           context,
           googleId,
@@ -624,6 +629,7 @@ class LoginProvider extends ChangeNotifier {
           lastName,
         );
       } else {
+        print("account is not deleted");
         socialLoginApi(
           context,
           idToken,
@@ -635,6 +641,7 @@ class LoginProvider extends ChangeNotifier {
         );
       }
     } catch (e) {
+      print("error in checkSocialUserApi: $e");
       socialLoginApi(
         context,
         idToken,
@@ -669,9 +676,10 @@ class LoginProvider extends ChangeNotifier {
               borderRadius: BorderRadius.circular(24),
             ),
             child: Container(
-              width: 382,
-              height: 257,
+              // width: 340,
+              // height: 257,
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 28),
+              // margin: EdgeInsets.all(15),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(24),
               ),
@@ -938,8 +946,8 @@ class LoginProvider extends ChangeNotifier {
               borderRadius: BorderRadius.circular(24),
             ),
             child: Container(
-              width: 382,
-              height: 257,
+              // width: 382,
+              // height: 257,
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 28),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(24),
@@ -1031,5 +1039,4 @@ class LoginProvider extends ChangeNotifier {
     _loginResponse = null;
     notifyListeners();
   }
-
 }

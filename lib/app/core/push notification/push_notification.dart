@@ -15,8 +15,6 @@ import '../../modules/vendor/navigation tab/view/vendor_navigation_tab_screen.da
 import '../../routes/app_routes.dart';
 import '../utils/get_utils.dart';
 
-
-
 @pragma('vm:entry-point')
 Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp();
@@ -71,12 +69,14 @@ class PushNotificationService {
   static String? fcmToken;
   static String? apnsToken;
 
-  static final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
-  static DarwinInitializationSettings initializationSettingsDarwin =const DarwinInitializationSettings(
-    requestAlertPermission: true,
-    requestBadgePermission: true,
-    requestSoundPermission: true,
-  );
+  static final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+      FlutterLocalNotificationsPlugin();
+  static DarwinInitializationSettings initializationSettingsDarwin =
+      const DarwinInitializationSettings(
+        requestAlertPermission: true,
+        requestBadgePermission: true,
+        requestSoundPermission: true,
+      );
 
   static firebaseNotification() async {
     firebaseMessaging.requestPermission(
@@ -221,20 +221,26 @@ class PushNotificationService {
 
   static Future initLocalNotification() async {
     if (Platform.isIOS) {
-      var initializationSettingsAndroid = const AndroidInitializationSettings('ic_launcher');
+      var initializationSettingsAndroid = const AndroidInitializationSettings(
+        'ic_launcher',
+      );
 
-      final InitializationSettings initializationSettings = InitializationSettings(
-          android: initializationSettingsAndroid,
-          iOS: initializationSettingsDarwin);
+      final InitializationSettings initializationSettings =
+          InitializationSettings(
+            android: initializationSettingsAndroid,
+            iOS: initializationSettingsDarwin,
+          );
 
-      flutterLocalNotificationsPlugin.initialize(initializationSettings,
-          onDidReceiveNotificationResponse: onDidReceiveNotificationResponse);
+      flutterLocalNotificationsPlugin.initialize(
+        initializationSettings,
+        onDidReceiveNotificationResponse: onDidReceiveNotificationResponse,
+      );
     } else {
-      var initializationSettingsAndroid =
-      const AndroidInitializationSettings('@mipmap/ic_launcher');
+      var initializationSettingsAndroid = const AndroidInitializationSettings(
+        '@mipmap/ic_launcher',
+      );
 
       const initializationSettingsIOS = DarwinInitializationSettings();
-
 
       var initializationSettings = InitializationSettings(
         android: initializationSettingsAndroid,
@@ -243,13 +249,16 @@ class PushNotificationService {
 
       await flutterLocalNotificationsPlugin.initialize(
         initializationSettings,
-        onDidReceiveBackgroundNotificationResponse:backgroundNotificationTap,
+        onDidReceiveBackgroundNotificationResponse: backgroundNotificationTap,
         onDidReceiveNotificationResponse: onDidReceiveNotificationResponse,
       );
     }
   }
 
-  static Future<void> showNotification(RemoteNotification? notification,Map<String, dynamic>? data) async {
+  static Future<void> showNotification(
+    RemoteNotification? notification,
+    Map<String, dynamic>? data,
+  ) async {
     var android = const AndroidNotificationDetails(
       'high_importance_channel',
       "Woye Vendor",
@@ -318,7 +327,11 @@ class PushNotificationService {
     }
   }
 
-  static showCustomSnackBar(String title, String message, BuildContext context) {
+  static showCustomSnackBar(
+    String title,
+    String message,
+    BuildContext context,
+  ) {
     if (kDebugMode) {
       print("object>>>> $title \n $message");
     }
@@ -338,16 +351,11 @@ class PushNotificationService {
       ),
       titleText: Text(
         title,
-        style: TextStyle(
-          fontWeight: FontWeight.bold,
-          color: Colors.black,
-        ),
+        style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
       ),
       messageText: Text(
         message,
-        style: TextStyle(
-          color: Colors.black,
-        ),
+        style: TextStyle(color: Colors.black),
         maxLines: 2,
         overflow: TextOverflow.ellipsis,
       ),
