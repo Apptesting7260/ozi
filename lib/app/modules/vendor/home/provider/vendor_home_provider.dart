@@ -93,13 +93,17 @@ class VendorHomeProvider extends ChangeNotifier {
 
   updateAcceptLoading(bool value, String bookingId, String status) {
     _acceptRejectLoading = value;
+
     _homeModel.data?.requests?.forEach((e) {
-      if (status == 'accept') {
-        e.isLoadingAccept = value;
-      } else {
-        e.isLoadingReject = value;
+      if (e.bookingId == bookingId) {
+        if (status == 'accept') {
+          e.isLoadingAccept = value;
+        } else {
+          e.isLoadingReject = value;
+        }
       }
     });
+
     notifyListeners();
   }
 
@@ -160,8 +164,6 @@ class VendorHomeProvider extends ChangeNotifier {
     }
   }
 
-  bool _servicePopupShown = false;
-  bool _locationPopupShown = false;
 
   bool _popupLoading = false;
 
@@ -267,7 +269,6 @@ class VendorHomeProvider extends ChangeNotifier {
 
                                 if (_homeModel.data?.vendorStatus?.hasService ==
                                     true) {
-                                  _servicePopupShown = false;
                                   Navigator.of(context).pop();
                                 }
                               },

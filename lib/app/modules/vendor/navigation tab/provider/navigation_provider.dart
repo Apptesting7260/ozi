@@ -26,12 +26,13 @@ class VendorNavigationProvider extends ChangeNotifier {
   }
 
   // --------------------------------------------------------
+
   final List<Widget> pages = [
-    VendorHomeScreen(),
-    VendorMybookingsScreen(),
-    VendorMyWalletScreen(),
-    VendorServicesScreen(),
-    ProfileScreen(),
+    VendorHomeScreen(),  // 0
+    VendorMybookingsScreen(), // 1
+    VendorMyWalletScreen(), // 2
+    VendorServicesScreen(),  // 3
+    ProfileScreen(), // 4
   ];
 
   // --------------------------------------------------------

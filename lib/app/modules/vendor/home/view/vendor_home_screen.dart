@@ -136,12 +136,6 @@ class _VendorHomeScreenState extends State<VendorHomeScreen> {
                                   },
                                   request: request,
                                 );
-
-
-                                // _requestCard(
-                                //   statusColor: AppColors.purple,
-                                //   request:request
-                                // );
                               },
                             ),
 
