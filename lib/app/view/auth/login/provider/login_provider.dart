@@ -354,7 +354,7 @@ class LoginProvider extends ChangeNotifier {
         if (canRestore) {
           _setLoading(false);
 
-          final bool? restore = await showAccountCheckerPopup(context);
+          final bool? restore = await showAccountCheckerPopupOtp(context);
 
           if (restore != true) {
             restoreCancelled = true;
@@ -925,7 +925,7 @@ class LoginProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<bool?> showAccountCheckerPopup(BuildContext context) async {
+  Future<bool?> showAccountCheckerPopupOtp(BuildContext context) async {
     return await showDialog<bool>(
       context: context,
       barrierDismissible: false,

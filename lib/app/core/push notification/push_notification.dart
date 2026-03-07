@@ -9,6 +9,9 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import '../../data/storage/user_preference.dart';
+import '../../modules/vendor/navigation tab/view/vendor_navigation_tab_screen.dart';
+import '../../routes/app_routes.dart';
 import '../utils/get_utils.dart';
 
 
@@ -17,32 +20,52 @@ import '../utils/get_utils.dart';
 Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp();
   log("Background Notification: ${message.notification?.body}");
-  if (message.data['NotificationType'] == 'call') {
-    // CallKitParams params = CallKitParams(
-    //   id: message.data['callId'],
-    //   nameCaller: message.data['callerName'],
-    //   appName: 'My App',
-    //   avatar: message.data['callerImage'],
-    //   handle: 'Caller',
-    //   type: 0, // 0 = audio call
-    // );
-    //
-    // FlutterCallkitIncoming.showCallkitIncoming(params);
+  debugPrint('🔔message notification title background message=====${message.notification?.title}');
+  debugPrint('📝message notification body=====${message.notification?.body}');
+  debugPrint('📝message notification data body=====${message.data}');
+  debugPrint('📝message notification messageId=====${message.data['booking_id']}');
+  debugPrint('📝message notification messageType=====${message.data['type']}');
+  debugPrint('📝message notification messageType=====${message.data['screen']}');
+
+  if (message.data['type'] == 'booking_request') {
+
+
   }else if(message.data['NotificationType'] == 'call_ended'){
 
   }
 }
 
-
-
 @pragma('vm:entry-point')
 void backgroundNotificationTap(NotificationResponse notificationResponse) {
+
   final String? payload = notificationResponse.payload;
+
   debugPrint("🔙 Background Notification tapped. Payload: $payload");
+
+  if (payload == null) return;
+
+  try {
+
+    final Map<String, dynamic> data = jsonDecode(payload);
+
+    PushNotificationService.navigateFromNotification(
+      screen: data['screen'] ?? '',
+      bookingId: data['booking_id'] ?? '',
+      type: data['type'] ?? '',
+    );
+
+  } catch (e) {
+
+    debugPrint("❌ Background payload parse error: $e");
+
+  }
 }
 
 class PushNotificationService {
   static FirebaseMessaging firebaseMessaging = FirebaseMessaging.instance;
+
+  /// Prevent duplicate notification navigation
+  static final Set<String> _handledMessageIds = {};
 
   static String? fcmToken;
   static String? apnsToken;
@@ -75,55 +98,71 @@ class PushNotificationService {
     initLocalNotification();
 
     FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
+
+      debugPrint("📨 Message ID: ${message.messageId}");
+
       RemoteNotification? notification = message.notification;
       AndroidNotification? android = message.notification?.android;
       AppleNotification? appleNotification = message.notification?.apple;
-      debugPrint('🔔message notification title=====${message.notification?.title}');
-      debugPrint('🔔message notification title=====${message.notification?.title}');
+      debugPrint('🔔message notification title onmessage =====${message.notification?.title}');
       debugPrint('📝message notification body=====${message.notification?.body}');
-      debugPrint('📝message notification data=====${message.data['NotificationType']}');
-      debugPrint('notification body=====$notification.  $android.   $appleNotification');
+      debugPrint('📝message notification dataBody=====${message.data}');
+      //debugPrint('📝message notification data=====${message.data['screen']}');
+      debugPrint('notification body ===== $notification.  $android.   $appleNotification');
+        showNotification(message.notification,message.data);
 
-        if(message.data['NotificationType']=='call'){
-
-        }else if(message.data['NotificationType'] == 'call_ended'){
-
-        }else{
-          showNotification(message.notification,message.data);
+      debugPrint('android not null notification==${message.notification}');
+      FirebaseMessaging.instance.getInitialMessage().then((message) {
+        if (message != null) {
+          debugPrint("abc525");
+        } else {
+          debugPrint("123154115415abc");
         }
-        debugPrint('android not null notification==${message.notification}');
-        FirebaseMessaging.instance.getInitialMessage().then((message) {
-          if (message != null) {
-            debugPrint("abc525");
-          } else {
-            debugPrint("123154115415abc");
-          }
-        });
+      });
     },
     );
 
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) async {
-      if (message.notification != null) {
-        if (kDebugMode) {
-          print('called on tap');
-        }
-        if (kDebugMode) {
-          print(message.notification?.body);
-        }
-        if (kDebugMode) {
-          print(message.data);
-        }
-        if(message.data['conversationId']!=null){
-          navigateFromNotification(entityType: 'chat',entityId: message.data['conversationId'],);
-        }else if(message.data['NotificationType']=='live_streaming'){
-          // Navigator.push(navigatorKey.currentContext!, MaterialPageRoute(builder: (context) => LiveStreamScreen(token: message.data['token'],
-          //     appId: message.data['appId'],
-          //     channelId: message.data['channelName'],
-          //     isCollaborator: false, streamId: message.data['liveSessionId'],),));
-        }else{
-          navigateFromNotification(entityType: message.data['entity_type']??'notification',entityId: message.data['entity_id']??'',);
-        }
+
+      /// Prevent duplicate navigation
+      if (message.messageId != null) {
+        if (_handledMessageIds.contains(message.messageId)) return;
+        _handledMessageIds.add(message.messageId!);
       }
+
+
+      if (kDebugMode) {
+        debugPrint("🔔 Notification tapped");
+        debugPrint("Notification Body: ${message.notification?.body}");
+        debugPrint("Notification Data: ${message.data}");
+      }
+
+      try {
+
+        final String screen = message.data['screen'] ?? '';
+        final String bookingId = message.data['booking_id'] ?? '';
+        final String type = message.data['type'] ?? '';
+
+        if (screen.isNotEmpty && bookingId.isNotEmpty) {
+
+          await navigateFromNotification(
+            screen: screen,
+            bookingId: bookingId,
+            type: type,
+          );
+
+        } else {
+
+          debugPrint("⚠ Invalid notification data");
+
+        }
+
+      } catch (e) {
+
+        debugPrint("❌ Notification navigation error: $e");
+
+      }
+
     });
 
     FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
@@ -133,11 +172,18 @@ class PushNotificationService {
         debugPrint('FCM token is null');
       } else {
         fcmToken = token;
-        debugPrint('FCM token: $token');
+        debugPrint('🔔 FCM token: $token');
       }
     }).catchError((error) {
       debugPrint('Error getting FCM token: ${error.toString()}');
     });
+
+    /// Listen for token refresh
+    FirebaseMessaging.instance.onTokenRefresh.listen((newToken) {
+      fcmToken = newToken;
+      debugPrint("🔄 FCM Token Refreshed: $newToken");
+    });
+
 
     if (defaultTargetPlatform == TargetPlatform.iOS) {
       debugPrint('FlutterFire Messaging Example: Getting APNs token...');
@@ -145,7 +191,29 @@ class PushNotificationService {
       apnsToken = token;
       debugPrint('FlutterFire Messaging Example: Got APNs token: $token');
     }
+    /// Handle notification when app opens from terminated state
+    RemoteMessage? initialMessage =
+    await FirebaseMessaging.instance.getInitialMessage();
+
+    if (initialMessage != null) {
+
+      debugPrint("📩 App opened via notification (terminated)");
+
+      final String screen = initialMessage.data['screen'] ?? '';
+      final String bookingId = initialMessage.data['booking_id'] ?? '';
+      final String type = initialMessage.data['type'] ?? '';
+
+      if (screen.isNotEmpty && bookingId.isNotEmpty) {
+        await navigateFromNotification(
+          screen: screen,
+          bookingId: bookingId,
+          type: type,
+        );
+      }
+    }
   }
+
+
 
 
 
@@ -211,27 +279,41 @@ class PushNotificationService {
 
 
 
-  static void onDidReceiveNotificationResponse(NotificationResponse notificationResponse) async {
-    // NotificationsController  controller = Get.put(NotificationsController());
+  static void onDidReceiveNotificationResponse(
+      NotificationResponse notificationResponse) async {
+
     final String? payload = notificationResponse.payload;
-    if (payload != null) {
-      try {
-        debugPrint('notification payload: $payload');
-        Map<String,dynamic>? dataIs = jsonDecode(payload);
-        if(dataIs?['conversationId']!=null){
-          navigateFromNotification(entityType: 'chat',entityId: dataIs?['conversationId']??'',);
-        }else if(dataIs?['NotificationType']=='live_streaming'){
-          // Navigator.push(navigatorKey.currentContext!, MaterialPageRoute(builder: (context) => LiveStreamScreen(token: dataIs?['token'],
-          //     appId: dataIs?['appId'],
-          //     channelId: dataIs?['channelName'],
-          //      streamId: dataIs?['liveSessionId'],
-          //     isCollaborator: false),));
-        }else{
-          navigateFromNotification(entityType: dataIs?['entity_type']??'notifications',entityId: dataIs?['entity_id']??'',);
-        }
-      } catch (e) {
-        debugPrint('Error parsing payload: $e');
+
+    if (payload == null) return;
+
+    try {
+
+      debugPrint("Notification payload: $payload");
+
+      final Map<String, dynamic> data = jsonDecode(payload);
+
+      final String screen = data['screen'] ?? '';
+      final String bookingId = data['booking_id'] ?? '';
+      final String type = data['type'] ?? '';
+
+      if (screen.isNotEmpty && bookingId.isNotEmpty) {
+
+        navigateFromNotification(
+          screen: screen,
+          bookingId: bookingId,
+          type: type,
+        );
+
+      } else {
+
+        debugPrint("⚠ Invalid notification payload");
+
       }
+
+    } catch (e) {
+
+      debugPrint("❌ Payload parse error: $e");
+
     }
   }
 
@@ -270,6 +352,7 @@ class PushNotificationService {
       ),
       duration: const Duration(seconds: 3),
       onTap: (_) {
+        print("Hooooo rha h tappppppp");
         // final NotificationsController controller = Get.put(NotificationsController());
         // final type = controller.apiData.value.notification?.first.type ?? "";
         // _handleNotificationTap(type: type, title: title);
@@ -278,110 +361,150 @@ class PushNotificationService {
   }
 
   static Future<void> navigateFromNotification({
-    required String entityType,
-    required dynamic entityId,
-    Map<String, dynamic>? extraData,
+    required String screen,
+    required dynamic bookingId,
+    required String type,
   }) async {
+
+    await Future.delayed(const Duration(milliseconds: 300));
 
     final context = navigatorKey.currentContext;
 
     if (context == null) {
-      debugPrint("❌ navigatorKey context is null");
+      debugPrint("❌ navigatorKey context null");
       return;
     }
 
-    debugPrint("🔀 Notification navigate: type=$entityType id=$entityId");
+    String? role = await UserPreference.returnRole();
 
-    switch (entityType) {
+    debugPrint("ROLE = $role");
+    debugPrint("SCREEN = $screen");
+    debugPrint("BOOKING ID = $bookingId");
 
-      case "chat":
-        // Navigator.pushNamed(
-        //   context,
-        //   AppRoutes.messageDetailsScreen,
-        //   arguments: {"conversion_id": entityId},
-        // );
-        break;
-
-      case "call":
-        // Navigator.pushNamed(
-        //   context,
-        //   AppRoutes.ringingCallCard,
-        //   arguments: {
-        //     "appId": extraData?['appId'],
-        //     "callType":extraData?['callType'],
-        //     "token": extraData?['token'],
-        //     "channelName": extraData?['channelName'],
-        //     "userName": extraData?['callerName'] ?? '',
-        //     "userImageUrl": extraData?['callerImage'] ?? '',
-        //   },
-        // );
-        break;
-
-      case "reel":
-        // Navigator.of(context).push(
-        //   MaterialPageRoute(
-        //     builder:
-        //         (context) => Singlereelscreen(
-        //       isFirstLoad: true,
-        //       reelId: entityId,
-        //     ),
-        //   ),
-        // );
-        break;
-
-      case "post":
-        // Navigator.pushNamed(
-        //   context,
-        //   AppRoutes.singlePost,
-        //   arguments: {'postId': entityId ?? ""},
-        // );
-
-        break;
-
-      case "profile":
-        // Navigator.pushNamed(
-        //   context,
-        //   AppRoutes.userProfileScreen,
-        //   arguments: entityId,
-        // );
-        break;
-
-      case "notification":
-        // Navigator.pushNamed(context, AppRoutes.allNotifications);
-        break;
-
-      default:
-        // Navigator.pushNamed(context, AppRoutes.allNotifications);
-        debugPrint("⚠ Unknown entityType: $entityType");
-        break;
+    if (role == "vendor") {
+      _handleVendorNavigation(context, type, bookingId);
+    } else {
+      _handleUserNavigation(context, type, bookingId);
     }
   }
 
 
-  // static Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  //   log("background notification--> ${message.notification?.body}");
-  // }
+  static void _handleVendorNavigation(
+      BuildContext context,
+      String type,
+      dynamic bookingId,
+      ) {
 
-  // static void _handleNotificationTap({required String type, required String title}) {
-  //   if (type == "restaurant") {
-  //     if (title == "New Order Received") {
-  //       Get.toNamed(AppRoutes.restaurantOrderListScreen, arguments: {"fromNotification": "true"});
-  //     } else if (title == "Ticket Reply") {
-  //       Get.toNamed(AppRoutes.restaurantSupportScreen);
-  //     }
-  //   } else if (type == "pharmacy") {
-  //     if (title == "New Order Received") {
-  //       Get.toNamed(AppRoutes.pharmacyOrderListScreen, arguments: {"fromNotification": "true"});
-  //     } else if (title == "Ticket Reply") {
-  //       Get.toNamed(AppRoutes.pharmacySupportScreen);
-  //     }
-  //   } else if (type == "grocery") {
-  //     if (title == "New Order Received") {
-  //       Get.toNamed(AppRoutes.groceryOrderListScreen, arguments: {"fromNotification": "true"});
-  //     } else if (title == "Ticket Reply") {
-  //       Get.toNamed(AppRoutes.grocerySupportScreen);
-  //     }
-  //   }
-  // }
+    switch (type) {
+
+      case "booking_request":
+
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(
+            builder: (_) => VendorNavigationTabScreen(initialIndex: 1),
+          ),
+              (route) => false,
+        );
+
+        break;
+
+      case "booking_confirm":
+
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(
+            builder: (_) => VendorNavigationTabScreen(initialIndex: 1),
+          ),
+              (route) => false,
+        );
+
+        break;
+
+      case "booking_completed":
+
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(
+            builder: (_) => VendorNavigationTabScreen(initialIndex: 1),
+          ),
+              (route) => false,
+        );
+
+        break;
+
+      default:
+
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(
+            builder: (_) => VendorNavigationTabScreen(initialIndex: 0),
+          ),
+              (route) => false,
+        );
+
+    }
+  }
+
+  static void _handleUserNavigation(
+      BuildContext context,
+      String type,
+      dynamic bookingId,
+      ) {
+
+    switch (type) {
+
+      case "booking_confirm":
+
+      // Navigator.pushNamed(
+      //   context,
+      // //  AppRoutes.userBookingDetailsScreen,
+      //   arguments: {"booking_id": bookingId},
+      // );
+
+        break;
+
+      case "booking_completed":
+
+      // Navigator.pushNamed(
+      //   context,
+      // //  AppRoutes.userBookingSummaryScreen,
+      //   arguments: {"booking_id": bookingId},
+      // );
+
+        break;
+
+      default:
+
+        Navigator.pushNamed(context, AppRoutes.homeScreen);
+    }
+  }
+
+
+// static Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+//   log("background notification--> ${message.notification?.body}");
+// }
+
+// static void _handleNotificationTap({required String type, required String title}) {
+//   if (type == "restaurant") {
+//     if (title == "New Order Received") {
+//       Get.toNamed(AppRoutes.restaurantOrderListScreen, arguments: {"fromNotification": "true"});
+//     } else if (title == "Ticket Reply") {
+//       Get.toNamed(AppRoutes.restaurantSupportScreen);
+//     }
+//   } else if (type == "pharmacy") {
+//     if (title == "New Order Received") {
+//       Get.toNamed(AppRoutes.pharmacyOrderListScreen, arguments: {"fromNotification": "true"});
+//     } else if (title == "Ticket Reply") {
+//       Get.toNamed(AppRoutes.pharmacySupportScreen);
+//     }
+//   } else if (type == "grocery") {
+//     if (title == "New Order Received") {
+//       Get.toNamed(AppRoutes.groceryOrderListScreen, arguments: {"fromNotification": "true"});
+//     } else if (title == "Ticket Reply") {
+//       Get.toNamed(AppRoutes.grocerySupportScreen);
+//     }
+//   }
+// }
 
 }
