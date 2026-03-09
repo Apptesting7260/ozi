@@ -1,11 +1,14 @@
 import '../../../../core/appExports/app_export.dart';
 import '../../../../shared/widgets/auth_guard.dart';
+import '../../../../shared/widgets/custom_app_bar.dart';
 import '../../../../shared/widgets/custom_text_form_field.dart';
 import '../../../../shared/widgets/custom_shimmer_box.dart';
 import '../provider/HelpProvider.dart';
 
 class HelpSupportScreen extends StatefulWidget {
-  const HelpSupportScreen({super.key});
+  final String? userRole;
+
+  const HelpSupportScreen({super.key,this.userRole});
 
   @override
   State<HelpSupportScreen> createState() => _HelpSupportScreenState();
@@ -34,6 +37,9 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+
+             widget.userRole == 'vendor' ?
+                const CustomAppBar(title: "Help & Support") :
               Padding(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 16,
