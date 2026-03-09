@@ -433,18 +433,46 @@ class PushNotificationService {
         Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(
-            builder: (_) => NavigationTabScreen(initialIndex: 3),
+            builder: (_) => NavigationTabScreen(initialIndex: 2
+            ),
           ),
           (route) => false,
         );
 
         break;
 
+      case "booking_cancelled":
+
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(
+            builder: (_) => NavigationTabScreen(initialIndex: 2
+            ),
+          ),
+              (route) => false,
+        );
+
+        break;
+
+      case "booking_rejected":
+
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(
+            builder: (_) => NavigationTabScreen(initialIndex: 2
+            ),
+          ),
+              (route) => false,
+        );
+
+        break;
+
+
       case "booking_completed":
         Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(
-            builder: (_) => NavigationTabScreen(initialIndex: 3),
+            builder: (_) => NavigationTabScreen(initialIndex: 2),
           ),
           (route) => false,
         );

@@ -1,28 +1,36 @@
+
 import 'package:ozi/app/core/constants/app_urls.dart';
 import 'package:ozi/app/data/models/booking_detail_model.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
 import '../../../../../core/appExports/app_export.dart';
 import '../../../../../data/response/api_status.dart';
+import '../../../../../routes/app_routes.dart';
 import '../../../../../shared/widgets/custom_app_bar.dart';
+import '../../../../user/booking/provider/booking_provider.dart';
+import '../../../../user/profile/common screen/provider/comman_screen_provider.dart';
 import '../provider/vendor_booking_details_provider.dart';
 
 class VendorBookingDetailsScreen extends StatelessWidget {
   final String bookingId;
   final int tabIndex;
 
-  const VendorBookingDetailsScreen({
+   VendorBookingDetailsScreen({
     super.key,
     required this.bookingId,
     this.tabIndex = 1
   });
 
+
+
   @override
   Widget build(BuildContext context) {
+    final bookingProvider = Provider.of<BookingProvider>(context);
     return ChangeNotifierProvider<VendorBookingDetailsProvider>(
       create: (context) => VendorBookingDetailsProvider(bookingId),
-      child: Consumer<VendorBookingDetailsProvider>(
-        builder: (context,provider,_) {
-          return Scaffold(
+      child: Builder(
+          builder: (context) {
+            final provider = context.watch<VendorBookingDetailsProvider>();
+            return Scaffold(
             backgroundColor: AppColors.white,
             body: SafeArea(
               child: Column(
@@ -50,6 +58,8 @@ class VendorBookingDetailsScreen extends StatelessWidget {
                                     provider.homeModel.data?.data?.user?.lastName??'',
                                     '${AppUrls.imageBaseUrl}${provider.homeModel.data?.data?.user?.proImg??''}',
                                   provider.homeModel.data?.data?.status??'',
+                                  provider.homeModel.data?.data?.user?.id??'',
+                                    bookingProvider,
                                 ),
                                 hBox(20),
                                 _bookingDetailsSection(
@@ -62,7 +72,22 @@ class VendorBookingDetailsScreen extends StatelessWidget {
                                 width: double.infinity,
                                 height: 46,
                                 child: OutlinedButton(
-                                  onPressed: provider.navigateToCustomer,
+                                  onPressed: () {
+                                    //
+                                    // final encodedAddress = Uri.encodeComponent(provider.homeModel.data?.data?.address?.fullAddress??'');
+                                    //
+                                    // final url = "https://www.google.com/maps/search/$encodedAddress";
+                                    //
+                                    // Navigator.pushNamed(
+                                    //   context,
+                                    //   AppRoutes.commonScreen,
+                                    //   arguments: CommonScreenArgs(
+                                    //     type: "Navigate to Customer",
+                                    //     url: url,
+                                    //   ),
+                                    // );
+                                    provider.navigateToCustomer();
+                                    },
                                   style: OutlinedButton.styleFrom(
                                     side: const BorderSide(color: Color(0x1A13AC6F)),
                                     shape: RoundedRectangleBorder(
@@ -94,6 +119,7 @@ class VendorBookingDetailsScreen extends StatelessWidget {
                                 _paymentSummary(
                                   serviceFee:provider.homeModel.data?.data?.serviceFee??'' ,
                                   subTotal: provider.homeModel.data?.data?.subtotal??'',
+                                  discount: provider.homeModel.data?.data?.serviceFee??'',
                                   total: provider.homeModel.data?.data?.total??''
                                 ),
 
@@ -137,79 +163,6 @@ class VendorBookingDetailsScreen extends StatelessWidget {
 
                                 hBox(10),
 
-                                // if(provider.homeModel.data?.data?.status=='confirmed'&&provider.isOpenOtpBox)...[
-                                //   hBox(20),
-                                //   Text(
-                                //     'Ask the customer for the 4-digit OTP to start the job.',
-                                //     style: TextStyle(color: Colors.grey),
-                                //   ),
-                                //   hBox(20),
-                                //   Padding(
-                                //     padding: const EdgeInsets.only(right: 40,left: 40),
-                                //     child: PinCodeTextField(
-                                //       appContext: context,
-                                //       controller: provider.pinController,
-                                //       autoDisposeControllers: false,
-                                //       length: 4,
-                                //       keyboardType: TextInputType.number,
-                                //       animationType: AnimationType.fade,
-                                //       enableActiveFill: true,
-                                //       pinTheme: PinTheme(
-                                //         shape: PinCodeFieldShape.circle,
-                                //         borderRadius: BorderRadius.all(Radius.circular(12)),
-                                //         fieldHeight: 55,
-                                //         fieldWidth: 55,
-                                //         inactiveColor: Colors.transparent,
-                                //         selectedColor: Colors.transparent,
-                                //         activeColor: Colors.transparent,
-                                //         inactiveFillColor: AppColors.lightGrey,
-                                //         selectedFillColor: AppColors.lightGrey,
-                                //         activeFillColor: AppColors.lightGrey,
-                                //         borderWidth: 0,
-                                //       ),
-                                //       onChanged: (value) {
-                                //         provider.updateErrorMessage(null);
-                                //       },
-                                //     ),
-                                //   )
-                                // ],
-                                // if (provider.errorMessage != null) ...[
-                                //   hBox(8),
-                                //   Text(
-                                //     provider.errorMessage!,
-                                //     style: AppFontStyle.text_14_400(Colors.red),
-                                //   ),
-                                //   hBox(20),
-                                // ],
-                                // if(provider.homeModel.data?.data?.status=='confirmed')
-                                // CustomButton(
-                                //     isLoading: provider.otpVerifyLoading,
-                                //     text:provider.homeModel.data?.data?.status=='confirmed'&&provider.isOpenOtpBox?'Verify & Start Job': 'Start Job',
-                                //     onPressed: (){
-                                //       if(provider.homeModel.data?.data?.status=='confirmed'&&provider.isOpenOtpBox){
-                                //          provider.verifyOtp(bookingId);
-                                //       }else{
-                                //         provider.updateIsOpenOtpBox(true);
-                                //       }
-                                //       // showModalBottomSheet(
-                                //       //   context: context,
-                                //       //   isScrollControlled: true, // Allow the bottom sheet to resize
-                                //       //   builder: (BuildContext context) {
-                                //       //     return SingleChildScrollView(
-                                //       //       child: OTPBottomSheet(),
-                                //       //     );
-                                //       //   },
-                                //       // );
-                                //     }),
-
-                                // if(provider.homeModel.data?.data?.status=='ongoing')
-                                //   CustomButton(
-                                //       isLoading: provider.completeJobLoading,
-                                //       text: 'Complete Job',
-                                //       onPressed: (){
-                                //         provider.completeTheJob(bookingId);
-                                //       }
-                                //   ),
 
                                 if (provider.homeModel.data?.data?.status == 'confirmed')
                                   CustomButton(
@@ -340,17 +293,19 @@ class VendorBookingDetailsScreen extends StatelessWidget {
                   borderRadius: const BorderRadius.all(Radius.circular(12)),
                   fieldHeight: 55,
                   fieldWidth: 55,
+                  activeFillColor: AppColors.fieldBgColor,
+                  inactiveFillColor: AppColors.fieldBgColor,
+                  selectedFillColor: AppColors.fieldBgColor,
+                  activeColor: AppColors.primary,
                   inactiveColor: Colors.transparent,
-                  selectedColor: Colors.transparent,
-                  activeColor: Colors.transparent,
-                  inactiveFillColor: AppColors.lightGrey,
-                  selectedFillColor: AppColors.lightGrey,
-                  activeFillColor: AppColors.lightGrey,
+                  selectedColor: AppColors.primary,
                   borderWidth: 0,
                 ),
-                onChanged: (value) {
-                  provider.updateErrorMessage(null);
-                },
+                  onChanged: (_) {
+                    if (provider.errorMessage != null) {
+                      provider.updateErrorMessage(null);
+                    }
+                  }
               ),
 
               if (provider.errorMessage != null) ...[
@@ -439,78 +394,8 @@ class VendorBookingDetailsScreen extends StatelessWidget {
                   style: AppFontStyle.text_16_600(AppColors.black),
                 ),
 
-                // Show status for canceled bookings
-                // if (tabIndex == 4) ...[
-                //   hBox(4),
-                //   Container(
-                //     decoration: BoxDecoration(
-                //       color: AppColors.red.withValues(alpha: 0.20),
-                //       borderRadius: BorderRadius.circular(30),
-                //     ),
-                //     child: Padding(
-                //       padding:  EdgeInsets.symmetric(horizontal: 12, vertical: 5),
-                //       child: Text(
-                //         "Cancelled",
-                //         style: AppFontStyle.text_14_600(AppColors.red),
-                //       ),
-                //     ),
-                //   ),
-                // ],
-
                 _StatusChip(status: booking?.status??'',)
 
-                // Show status for ongoing bookings
-                // if (tabIndex == 1) ...[
-                //   hBox(4),
-                //   Container(
-                //     decoration: BoxDecoration(
-                //       color: AppColors.orange.withValues(alpha: 0.20),
-                //       borderRadius: BorderRadius.circular(30),
-                //     ),
-                //     child: Padding(
-                //       padding:  EdgeInsets.symmetric(horizontal: 12, vertical: 5),
-                //       child: Text(
-                //         "in Progress",
-                //         style: AppFontStyle.text_14_600(AppColors.orange),
-                //       ),
-                //     ),
-                //   ),
-                // ],
-                //
-                // if (tabIndex == 2) ...[
-                //   hBox(4),
-                //   Container(
-                //     decoration: BoxDecoration(
-                //       color: AppColors.blue.withValues(alpha: 0.20),
-                //       borderRadius: BorderRadius.circular(30),
-                //     ),
-                //     child: Padding(
-                //       padding:  EdgeInsets.symmetric(horizontal: 12, vertical: 5),
-                //       child: Text(
-                //         "Confirmed",
-                //         style: AppFontStyle.text_14_600(AppColors.blue),
-                //       ),
-                //     ),
-                //   ),
-                // ],
-                //
-                // if (tabIndex == 3) ...[
-                //   hBox(4),
-                //   Container(
-                //     decoration: BoxDecoration(
-                //       color: AppColors.primary.withValues(alpha: 0.20),
-                //       borderRadius: BorderRadius.circular(30),
-                //     ),
-                //     child: Padding(
-                //       padding:  EdgeInsets.symmetric(horizontal: 12, vertical: 5),
-                //       child: Text(
-                //         "Completed",
-                //         style: AppFontStyle.text_14_600(AppColors.primary),
-                //       ),
-                //     ),
-                //   ),
-                // ],
-                //
               ],
             ),
             Column(
@@ -541,6 +426,7 @@ class VendorBookingDetailsScreen extends StatelessWidget {
       separatorBuilder: (_, __) => hBox(12),
       itemBuilder: (context, index) {
         return _serviceCard(
+          services?[index].quantity??'',
           services?[index].serviceName??'',
           services?[index].unitPrice??'',
           '${AppUrls.imageBaseUrl}${services?[index].image??''}',
@@ -550,39 +436,24 @@ class VendorBookingDetailsScreen extends StatelessWidget {
   }
 
 
-  // Widget _serviceCards() {
-  //   return Column(
-  //     children: [
-  //       _serviceCard(
-  //         "Shirt Sleeve Shortening & Fitting...",
-  //         "\$84.13",
-  //       ),
-  //       hBox(12),
-  //       _serviceCard(
-  //         "Shirt Sleeve Shortening & Fitting...",
-  //         "\$84.13",
-  //       ),
-  //     ],
-  //   );
-  // }
-
-  Widget _serviceCard(String title, String price,String image) {
+  Widget _serviceCard( String quantity,String title, String price,String image) {
     return Container(
       padding: EdgeInsets.all(12),
-      // decoration: BoxDecoration(
-      //   borderRadius: BorderRadius.circular(12),
-      //   border: Border.all(color: AppColors.containerBorder),
-      //   color: AppColors.white,
-      // ),
       child: Row(
         children: [
           ClipRRect(
-            borderRadius: BorderRadius.circular(8),
-            child: CustomImage(
-              path: image,
-              height: 50,
-              width: 50,
-              fit: BoxFit.cover,
+            borderRadius: BorderRadius.circular(25),
+            child: Selector<VendorBookingDetailsProvider, String>(
+              selector: (_, p) =>
+              p.homeModel.data?.data?.user?.proImg ?? '',
+              builder: (_, img, __) {
+                return CustomImage(
+                  path: image,
+                  height: 50,
+                  width: 50,
+                  fit: BoxFit.cover,
+                );
+              },
             ),
           ),
           wBox(12),
@@ -604,7 +475,21 @@ class VendorBookingDetailsScreen extends StatelessWidget {
               ],
             ),
           ),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            decoration: BoxDecoration(
+              color: AppColors.primary.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(6),
+            ),
+            child: Text(
+              "Qty: $quantity",
+              style: AppFontStyle.text_14_600(AppColors.primary),
+            ),
+          )
+
         ],
+
+
       ),
     );
   }
@@ -612,7 +497,7 @@ class VendorBookingDetailsScreen extends StatelessWidget {
 
 
 
-  Widget _serviceProvider( String customerName , String contact , String subHeading , String image , String status ) {
+  Widget _serviceProvider( String customerName , String contact , String subHeading , String image , String status , String id ,bookingProvider) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -627,12 +512,17 @@ class VendorBookingDetailsScreen extends StatelessWidget {
             children: [
               ClipRRect(
                 borderRadius: BorderRadius.circular(25),
-                child: CustomImage(
-                  path: image,
+                child: image.isNotEmpty
+                    ? Image.network(
+                  image,
                   height: 50,
                   width: 50,
                   fit: BoxFit.cover,
-                ),
+                  errorBuilder: (context, error, stackTrace) {
+                    return _nameAvatar(customerName);
+                  },
+                )
+                    : _nameAvatar(customerName),
               ),
               wBox(12),
               Expanded(
@@ -651,26 +541,49 @@ class VendorBookingDetailsScreen extends StatelessWidget {
                   ],
                 ),
               ),
-               if ( status == 'rejected' )
-                 SizedBox.shrink()
-             else
-              GestureDetector(
-                onTap: (){
-                  Get.dialCall(contact);
-                },
-                child: Container(
-                  padding: EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: AppColors.primary,
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(
-                    Icons.phone,
-                    color: AppColors.white,
-                    size: 20,
+              if (status != 'rejected') ...[
+                GestureDetector(
+                  onTap: () {
+                    bookingProvider.sendMessage(id.toString());
+                  },
+                  child: Container(
+                    padding: EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: AppColors.primary,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      Icons.message,
+                      color: AppColors.white,
+                      size: 20,
+                    ),
                   ),
                 ),
-              ),
+
+                wBox(12),
+
+                GestureDetector(
+                  onTap: () {
+                    Get.dialCall(contact);
+                  },
+                  child: Container(
+                    padding: EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: AppColors.primary,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      Icons.phone,
+                      color: AppColors.white,
+                      size: 20,
+                    ),
+                  ),
+                ),
+              ]
+              // else
+              //   SizedBox.shrink()
+
+
             ],
           ),
         ),
@@ -705,6 +618,22 @@ class VendorBookingDetailsScreen extends StatelessWidget {
           address,
         ),
       ],
+    );
+  }
+
+  Widget _nameAvatar(String name) {
+    return Container(
+      height: 50,
+      width: 50,
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        color: AppColors.primary.withOpacity(0.15),
+        shape: BoxShape.circle,
+      ),
+      child: Text(
+        name.isNotEmpty ? name[0].toUpperCase() : '?',
+        style: AppFontStyle.text_18_600(AppColors.primary),
+      ),
     );
   }
 
@@ -756,19 +685,11 @@ class VendorBookingDetailsScreen extends StatelessWidget {
         hBox(12),
         Container(
           padding: EdgeInsets.all(14),
-          //   decoration: BoxDecoration(
-          //   borderRadius: BorderRadius.circular(12),
-          //   border: Border.all(color: AppColors.containerBorder),
-          //   color: AppColors.white,
-          // ),
+
           child: Row(
             children: [
               Container(
                 padding: EdgeInsets.all(8),
-                // decoration: BoxDecoration(
-                //   color: AppColors.lightGrey,
-                //   borderRadius: BorderRadius.circular(8),
-                // ),
 
                 child:paymentMethod == "pay_online" ?  Icon(
                   Icons.credit_card,
@@ -789,7 +710,7 @@ class VendorBookingDetailsScreen extends StatelessWidget {
     );
   }
 
-  Widget _paymentSummary({required String subTotal,required String serviceFee,required String total}) {
+  Widget _paymentSummary({required String subTotal,required String serviceFee,required String discount,required String total}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -800,16 +721,13 @@ class VendorBookingDetailsScreen extends StatelessWidget {
         hBox(12),
         Container(
           padding: EdgeInsets.all(16),
-          // decoration: BoxDecoration(
-          //   borderRadius: BorderRadius.circular(12),
-          //   border: Border.all(color: AppColors.containerBorder),
-          //   color: AppColors.white,
-          // ),
           child: Column(
             children: [
               _summaryRow("Subtotal", "\$$subTotal"),
               hBox(12),
               _summaryRow("Service Fee", "\$$serviceFee"),
+              hBox(12),
+              _summaryRow("Discount", "\$$serviceFee"),
               hBox(16),
               Divider(color: AppColors.black.withValues(alpha: 0.10), thickness: 2,),
               hBox(12),
@@ -936,20 +854,6 @@ class _StatusChip extends StatelessWidget {
         textColor =  AppColors.black;
     }
 
-    // Container(
-    //   decoration: BoxDecoration(
-    //     color: AppColors.red.withValues(alpha: 0.20),
-    //     borderRadius: BorderRadius.circular(30),
-    //   ),
-    //   child: Padding(
-    //     padding:  EdgeInsets.symmetric(horizontal: 12, vertical: 5),
-    //     child: Text(
-    //       "Cancelled",
-    //       style: AppFontStyle.text_14_600(AppColors.red),
-    //     ),
-    //   ),
-    // )
-
     return Container(
       decoration: BoxDecoration(
         color: bg,
@@ -966,79 +870,6 @@ class _StatusChip extends StatelessWidget {
   }
 }
 
-// class OTPBottomSheet extends StatelessWidget {
-//   final TextEditingController otpController = TextEditingController();
-//
-//   OTPBottomSheet({super.key});
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return Padding(
-//       padding: const EdgeInsets.all(16.0),
-//       child: Column(
-//         mainAxisSize: MainAxisSize.min,
-//         children: [
-//           Text(
-//             'Verify OTP',
-//             style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-//           ),
-//           SizedBox(height: 8),
-//           Text(
-//             'Ask the customer for the 4-digit OTP to start the job.',
-//             style: TextStyle(color: Colors.grey),
-//           ),
-//           SizedBox(height: 16),
-//           // OTP input field using PinCodeTextField
-//           PinCodeTextField(
-//             length: 4,
-//             controller: otpController,
-//             keyboardType: TextInputType.number,
-//             pinTheme: PinTheme(
-//               shape: PinCodeFieldShape.box,
-//               borderRadius: BorderRadius.circular(8),
-//               fieldHeight: 60,
-//               fieldWidth: 60,
-//               activeFillColor: Colors.white,
-//               inactiveFillColor: Colors.white,
-//               activeColor: Colors.green,
-//               inactiveColor: Colors.grey,
-//               selectedColor: Colors.blue,
-//               selectedFillColor: Colors.white,
-//             ),
-//             onCompleted: (pin) {
-//               if (kDebugMode) {
-//                 print("OTP: $pin");
-//               }
-//             },
-//             onChanged: (value) {
-//               if (kDebugMode) {
-//                 print(value);
-//               }
-//             },
-//             appContext: context,
-//           ),
-//           SizedBox(height: 24),
-//           ElevatedButton(
-//             onPressed: () {
-//               // Handle OTP verification and job start logic here
-//               if (kDebugMode) {
-//                 print("OTP: ${otpController.text}");
-//               }
-//               Navigator.pop(context);
-//             },
-//             style: ElevatedButton.styleFrom(
-//               minimumSize: Size(double.infinity, 50),
-//               shape: RoundedRectangleBorder(
-//                 borderRadius: BorderRadius.circular(8),
-//               ),
-//             ),
-//             child: Text('Verify & Start Job'),
-//           ),
-//         ],
-//       ),
-//     );
-//   }
-// }
 
 
 

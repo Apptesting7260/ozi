@@ -25,13 +25,27 @@ class _CommonScreenState extends State<CommonScreen> {
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
       ..setNavigationDelegate(
         NavigationDelegate(
+
+          onNavigationRequest: (request) {
+
+            // Prevent WebView from opening intent:// links
+            if (request.url.startsWith("intent://")) {
+              return NavigationDecision.prevent;
+            }
+
+            return NavigationDecision.navigate;
+          },
+
           onPageStarted: (_) {
             _provider.setLoading(true);
           },
+
           onPageFinished: (_) {
             _provider.setLoading(false);
           },
-          onWebResourceError: (_) {
+
+          onWebResourceError: (error) {
+            debugPrint("WebView error: ${error.description}");
             _provider.setLoading(false);
           },
         ),
@@ -40,9 +54,7 @@ class _CommonScreenState extends State<CommonScreen> {
       ..enableZoom(false);
 
     if (widget.url.isNotEmpty) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        _controller.loadRequest(Uri.parse(widget.url));
-      });
+      _controller.loadRequest(Uri.parse(widget.url));
     }
   }
 

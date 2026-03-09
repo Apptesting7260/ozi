@@ -2,6 +2,7 @@ import 'package:chucker_flutter/chucker_flutter.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:ozi/app/modules/user/booking/provider/booking_provider.dart';
 import 'package:ozi/app/modules/user/cart/change%20address/provider/ChangeAddressProvider.dart';
 import 'package:ozi/app/modules/user/profile/add%20new%20address/provider/add_address_provider.dart';
 import 'package:ozi/app/modules/user/profile/edit%20address/provider/edit_user_address_provider.dart';
@@ -102,6 +103,8 @@ class MyApp extends StatelessWidget {
         ),
         ChangeNotifierProvider(create: (_) => NewRequestsProvider()),
         ChangeNotifierProvider(create: (_) => Settingprovider()),
+        ChangeNotifierProvider(create: (_) => BookingProvider()),
+
         ChangeNotifierProvider(
           create: (_) => CartProvider(repository: Repository()),
         ),

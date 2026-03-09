@@ -192,7 +192,11 @@ class AppRoutes {
       //vendor screen
 
       case helpSupportScreen:
-        return MaterialPageRoute(builder: (_) => HelpSupportScreen());
+        final userRole = setting.arguments as String?;
+
+        return MaterialPageRoute(
+          builder: (_) => HelpSupportScreen(userRole: userRole),
+        );
       case vendorNavigation:
         return MaterialPageRoute(builder: (_) => VendorNavigationTabScreen());
       case vendorHomeScreen:

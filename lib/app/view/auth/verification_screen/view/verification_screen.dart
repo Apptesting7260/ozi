@@ -156,7 +156,7 @@ class VerificationContent extends StatelessWidget {
                             return InkWell(
                               borderRadius: BorderRadius.circular(4),
                               onTap: isEnabled
-                                  ? () => provider.resendOtp(phone)
+                                  ? () => provider.resendOtp(phone, "+$countryCode")
                                   : null,
                               child: Text(
                                 isTimerActive
