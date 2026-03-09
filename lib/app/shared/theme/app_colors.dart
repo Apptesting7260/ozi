@@ -43,6 +43,17 @@ class AppColors{
   static Color greyShade= Color(0xFFEDEDED);
   
   static Color cardShadow =const Color.fromRGBO(15, 23, 41, 0.1);
+  static Color chatScaffold =const Color.fromRGBO(231, 247, 241, 1);
+  static Color chatSenderColor =const Color.fromRGBO(19, 172, 111, 1);
+  static Color chatReciverColor =const Color.fromRGBO(244, 244, 244, 1);
+  static Color chatSenderTextColor =const Color.fromRGBO(255, 255, 255, 1);
+  static Color chatReciverTextColor =const Color.fromRGBO(0, 0, 0, 1);
+  static Color chatTimeTextColor =const Color.fromRGBO(98, 97, 98, 1);
+
+  static Color chatTextFieldColor =const Color.fromRGBO(246, 246, 246, 1);
+  static Color chatAppBarColor =const Color.fromRGBO(231, 247, 241, 1);
+  static Color chatAppBarTextColor =const Color.fromRGBO(28, 29, 33, 1);
+  static Color chatAppBarMenuIconColor =const Color.fromRGBO(112, 108, 108, 1);
 
   static Color unReadNotification =const Color.fromRGBO(238, 249, 245, 1); //rgba(238, 249, 245, 1)
   static Color readNotification =const Color.fromRGBO(245, 245, 245, 1);

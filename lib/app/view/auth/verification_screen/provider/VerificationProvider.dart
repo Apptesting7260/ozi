@@ -397,7 +397,7 @@ class VerificationProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> resendOtp(String phone) async {
+  Future<void> resendOtp(String phone ,  String countryCode) async {
     if (resendTime > 0) return;
 
     isLoading = true;
@@ -405,8 +405,10 @@ class VerificationProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
+      String fullPhone = "$countryCode$phone";
+
       await _auth.verifyPhoneNumber(
-        phoneNumber: phone,
+        phoneNumber: fullPhone,
         forceResendingToken: _resendToken,
         timeout: const Duration(seconds: 60),
 

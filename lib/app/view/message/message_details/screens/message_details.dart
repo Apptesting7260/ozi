@@ -39,12 +39,7 @@ class _MessageDetailsScreenState extends State<MessageDetailsScreen> {
     );
     messageDetailsProvider.receivePersonalMessage();
     messageDetailsProvider.startScrollListener();
-    // messageDetailsProvider.focusNode.addListener(() {
-    //   if (messageDetailsProvider.focusNode.hasFocus &&
-    //       messageDetailsProvider.showEmojiPicker) {
-    //     messageDetailsProvider.updateShowEmojiPicker(false);
-    //   }
-    // });
+
   }
 
   @override
@@ -55,34 +50,6 @@ class _MessageDetailsScreenState extends State<MessageDetailsScreen> {
     super.dispose();
   }
 
-  // void _toggleEmojiPicker() {
-  //   FocusScope.of(navigatorKey.currentContext!).unfocus();
-  //   messageDetailsProvider.updateShowEmojiPicker(
-  //     !messageDetailsProvider.showEmojiPicker,
-  //   );
-  // }
-
-  // String getYouTubeThumbnail(String url) {
-  //   final id = url.split('/').last;
-  //   return 'https://img.youtube.com/vi/$id/0.jpg';
-  // }
-
-  // Future<String?> getYouTubeThumbnail(String videoUrl) async {
-  //   try {
-  //     final uint8list = await VideoThumbnail.thumbnailFile(
-  //       video: videoUrl,
-  //       thumbnailPath: (await Directory.systemTemp.createTemp()).path,
-  //       imageFormat: ImageFormat.JPEG,
-  //       maxHeight: 200, // height of thumbnail
-  //       quality: 75,
-  //     );
-  //
-  //     return uint8list; // path to thumbnail image
-  //   } catch (e) {
-  //     print('Error generating thumbnail: $e');
-  //     return null;
-  //   }
-  // }
 
   @override
   Widget build(BuildContext context) {
@@ -97,19 +64,20 @@ class _MessageDetailsScreenState extends State<MessageDetailsScreen> {
           switch (value.messageListData.status) {
             case ApiStatus.loading:
               return Scaffold(
-                appBar: AppBar(
-                  backgroundColor: Colors.white,
-                  title: Row(
-                    children: [
-                      ShimmerBox(width: 45, height: 45, radius: 45),
-                      SizedBox(width: 12),
-                      ShimmerBox(width: 140, height: 20),
-                    ],
-                  ),
-                ),
+               // backgroundColor: AppColors.chatScaffold,
+               //  appBar: AppBar(
+               //    backgroundColor: AppColors.chatAppBarColor,
+               //    title: Row(
+               //      children: [
+               //        ShimmerBox(width: 45, height: 45, radius: 45),
+               //        SizedBox(width: 12),
+               //        ShimmerBox(width: 140, height: 20),
+               //      ],
+               //    ),
+               //  ),
                 body: Column(
                   children: [
-                    Divider(height: 1),
+                  //  Divider(height: 1),
                     Expanded(
                       child: ListView.builder(
                         padding: EdgeInsets.all(12),
@@ -220,8 +188,9 @@ class _MessageDetailsScreenState extends State<MessageDetailsScreen> {
                       )
                     : null,
                 appBar: AppBar(
+                  elevation: 0,
                   scrolledUnderElevation: 0,
-                  backgroundColor: AppColors.white,
+                  backgroundColor: AppColors.chatAppBarColor,
                   leadingWidth: 23,
                   leading: InkWell(
                     onTap: () {
@@ -229,7 +198,11 @@ class _MessageDetailsScreenState extends State<MessageDetailsScreen> {
                     },
                     child: Padding(
                       padding: EdgeInsetsGeometry.only(left: 10),
-                      child: Icon(Icons.arrow_back_ios, color: Colors.black),
+                      child:const Icon(
+                        Icons.arrow_back_ios_new,
+                        color: Colors.black87,
+                        size: 20,
+                      ),
                     ),
                   ),
                   // leading: InkWell(
@@ -246,59 +219,64 @@ class _MessageDetailsScreenState extends State<MessageDetailsScreen> {
                     children: [
                       CircularProfileImage(
                         size: 45,
-                        imageUrl:
-                            '${AppUrls.imageBaseUrl}${value.userData?.conversationImage ?? ''}',
+                        imageUrl: value.userData?.conversationImage != null &&
+                            value.userData!.conversationImage!.isNotEmpty
+                            ? '${AppUrls.imageBaseUrl}${value.userData!.conversationImage}'
+                            : null,
+                        name: value.userData?.conversationName ?? '',
                       ),
-                      // CustomImage(
-                      //   path: value.userData?.conversationImage ?? '',
-                      //   // borderColor: Colors.transparent,
-                      //   // size: 54,
-                      // ),
-                      SizedBox(width: 10),
+
+                      SizedBox(width: 12),
                       Expanded(
                         child: Text(
                           value.userData?.conversationName ?? '',
-                          style: AppFontStyle.text_18_500(AppColors.hintText),
+                          style: AppFontStyle.text_18_600(AppColors.chatAppBarTextColor),
                         ),
                       ),
                     ],
                   ),
                   actions: [
-                    // InkWell(
-                    //   onTap: () {
-                    //     Navigator.pushNamed(context, AppRoutes.ringingCallCard,arguments: {
-                    //       "conversationId": widget.conversionId,
-                    //       "callType":'video',
-                    //       "userName": value.userData?.conversationName ?? '',
-                    //       "userImageUrl": value.userData?.conversationImage ?? '',
-                    //     });
-                    //     // Navigator.pushNamed(
-                    //     //   context,
-                    //     //   AppRoutes.videoRingingCallCard,
-                    //     // );
-                    //   },
-                    //   child: CustomImage(path: ImageConstants.videoCallIcon),
-                    // ),
-                    // wBox(10),
-                    // InkWell(
-                    //   onTap: () {
-                    //     Navigator.pushNamed(context, AppRoutes.ringingCallCard,arguments: {
-                    //       "conversationId": widget.conversionId,
-                    //       "callType":'audio',
-                    //       "userName": value.userData?.conversationName ?? '',
-                    //       "userImageUrl": value.userData?.conversationImage ?? '',
-                    //     });
-                    //   },
-                    //   child: CustomImage(path: ImageConstants.callIcon),
-                    // ),
-                    wBox(16),
+                    PopupMenuButton<String>(
+                      icon: Icon(
+                        Icons.more_vert,
+                        color: AppColors.chatAppBarMenuIconColor,
+                      ),
+                      onSelected: (value) {
+                        switch (value) {
+                          case 'view_profile':
+
+                            break;
+
+                          case 'clear_chat':
+
+                            break;
+
+                          case 'block':
+
+                            break;
+                        }
+                      },
+                      itemBuilder: (BuildContext context) => [
+                        const PopupMenuItem(
+                          value: 'view_profile',
+                          child: Text('View Profile'),
+                        ),
+                        const PopupMenuItem(
+                          value: 'clear_chat',
+                          child: Text('Clear Chat'),
+                        ),
+                        const PopupMenuItem(
+                          value: 'block',
+                          child: Text('Block User'),
+                        ),
+                      ],
+                    ),
                   ],
                 ),
                 body: Column(
                   children: [
                     hBox(14),
-                    Divider(color: AppColors.primary, height: 1),
-                    // MessageScreen.adsWidget,
+                 //   Divider(color: AppColors.primary, height: 1),// MessageScreen.adsWidget,
                     Expanded(
                       child: ListView.builder(
                         controller: value.scrollController,
@@ -309,6 +287,7 @@ class _MessageDetailsScreenState extends State<MessageDetailsScreen> {
                           MessageListModelData? msg =
                               value.messageListData.data!.data[index];
                           return buildMessageItem(
+                            value.userData?.conversationImage ?? "",
                             msg,
                             context,
                             isGroup,
@@ -339,6 +318,7 @@ class _MessageDetailsScreenState extends State<MessageDetailsScreen> {
   }
 
   Widget buildMessageItem(
+      String profileImage,
     MessageListModelData msg,
     BuildContext context,
     bool isGroup,
@@ -382,7 +362,7 @@ class _MessageDetailsScreenState extends State<MessageDetailsScreen> {
     Widget content;
 
     content =
-        SizedBox(); //Text(msg.text??'',style: AppFontStyle.text_16_300(context.titleColor),maxLines: 200,);
+        SizedBox();
 
     switch (msg.dataLink != null
         ? "link"
@@ -390,13 +370,27 @@ class _MessageDetailsScreenState extends State<MessageDetailsScreen> {
         ? 'text'
         : getFileType(msg.fileUrl?[0] ?? '')) {
       case 'text':
-        content = Text(
-          msg.text ?? '',
-          style: AppFontStyle.text_16_300(
-            AppColors.primary,
-            overflow: TextOverflow.clip,
-          ),
-          maxLines: 200,
+        content = Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Flexible(
+              child: Text(
+                maxLines: 8,
+                msg.text ?? '',
+                style: isSent
+                    ? AppFontStyle.text_16_400(AppColors.chatSenderTextColor)
+                    : AppFontStyle.text_16_400(AppColors.chatReciverTextColor),
+              ),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              Get.formatTimeToAmPm(msg.createdAt ?? ''),
+              style: isSent
+                  ? AppFontStyle.text_12_400(AppColors.chatSenderTextColor)
+                  : AppFontStyle.text_12_400(AppColors.chatTimeTextColor),
+            ),
+          ],
         );
         break;
       case 'image':
@@ -458,13 +452,7 @@ class _MessageDetailsScreenState extends State<MessageDetailsScreen> {
       case 'link':
         content = GestureDetector(
           onTap: () {
-            // Navigator.push(
-            //   context,
-            //   MaterialPageRoute(
-            //     builder:
-            //         (_) => FullScreenImage(imageUrl: msg.fileUrl?[0] ?? ''),
-            //   ),
-            // );
+
           },
           child: ClipRRect(
             borderRadius: BorderRadius.circular(8),
@@ -472,8 +460,8 @@ class _MessageDetailsScreenState extends State<MessageDetailsScreen> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Image with placeholder/blur
-                // SizedBox(
+                //   Image with placeholder/blur
+                //   SizedBox(
                 //   width: Get.width() * 0.4,
                 //   height: 200,
                 //   child: UrlPreviewWidget(url: msg.dataLink??'') ),
@@ -488,44 +476,12 @@ class _MessageDetailsScreenState extends State<MessageDetailsScreen> {
             ),
           ),
         );
-        // content = GestureDetector(
-        //   onTap: () {
-        //     Navigator.push(
-        //       context,
-        //       MaterialPageRoute(
-        //         builder: (_) => FullScreenImage(imageUrl: msg.fileUrl?[0]??''),
-        //       ),
-        //     );
-        //   },
-        //   child: ClipRRect(
-        //     borderRadius: BorderRadius.circular(8),
-        //     child: Column(
-        //       mainAxisSize: MainAxisSize.min,
-        //       crossAxisAlignment: CrossAxisAlignment.start,
-        //       children: [
-        //         SizedBox(child: CustomImage(path: msg.fileUrl?[0]??'',fit: BoxFit.fitWidth,width:Get.width()*0.4,height: 200,)),
-        //         if(msg.text!=null)
-        //           SizedBox(height: 5,),
-        //         if(msg.text!=null)
-        //         Text(msg.text??'',style: AppFontStyle.text_16_300(context.titleColor),maxLines: 200,)
-        //       ],
-        //     ),
-        //   ),
-        // );
         break;
 
       case 'video':
-        // final thumbnail = getYTThumb(msg.fileUrl?[0]??'');
-        // final thumbnail = getYTThumb(msg.fileUrl?[0]??'');
         content = GestureDetector(
           onTap: () {
-            // Navigator.push(
-            //   context,
-            //   MaterialPageRoute(
-            //     builder:
-            //         (_) => VideoPlayerScreen(videoUrl: msg.fileUrl?[0] ?? ''),
-            //   ),
-            // );
+
           },
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -558,7 +514,7 @@ class _MessageDetailsScreenState extends State<MessageDetailsScreen> {
       case 'audio':
         content = Text(
           'audio',
-        ); //AudioMessageWidget(audioUrl: msg.fileUrl?[0] ?? '');
+        );
         break;
     }
 
@@ -567,8 +523,6 @@ class _MessageDetailsScreenState extends State<MessageDetailsScreen> {
         // messageDetailsProvider.tapPosition = details.globalPosition;
       },
       onLongPress: () {
-        // messageDetailsProvider.updateSelectedMessage(msg);
-        // _showReactionOverlay(context);
         _showMessageOptions(
           context: context,
           index: index,
@@ -596,32 +550,37 @@ class _MessageDetailsScreenState extends State<MessageDetailsScreen> {
                       : MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    if (isGroup && !isSent) ...[
-                      CustomImage(
-                        path: participants[0].profile ?? "",
-                        borderRadius: BorderRadius.circular(30),
-                        height: 30,
-                        width: 30,
-                      ),
-                      SizedBox(width: 8),
-                    ],
+                    // if (!isSent) ...[
+                    //   CustomImage(
+                    //     path: '${AppUrls.imageBaseUrl}$profileImage',
+                    //     borderRadius: BorderRadius.circular(30),
+                    //     height: 30,
+                    //     width: 30,
+                    //   ),
+                    //   SizedBox(width: 8),
+                    // ],
                     Flexible(
                       child: Container(
                         margin: margin,
-                        padding: const EdgeInsets.all(10),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 14,
+                          vertical: 10,
+                        ),
                         decoration: BoxDecoration(
                           color: isSent
-                              ? AppColors.blueShade
-                              : AppColors.greyShade,
-                          borderRadius: BorderRadius.circular(12),
+                              ? AppColors.chatSenderColor   // green sender bubble
+                              : AppColors.chatReciverColor,  // light grey receiver bubble
+                          borderRadius: BorderRadius.only(
+                            topLeft: const Radius.circular(16),
+                            topRight: const Radius.circular(16),
+                            bottomLeft: Radius.circular(isSent ? 16 : 4),
+                            bottomRight: Radius.circular(isSent ? 4 : 16),
+                          ),
                         ),
                         child: content,
                       ),
                     ),
-                    // if(isGroup && isSent) ...[
-                    //   SBox(width: 8,),
-                    //   CustomImage(path: participants[0].profile ?? "",borderRadius: BorderRadius.circular(30),height: 30,width: 30,),
-                    // ],
+
                   ],
                 ),
                 if (msg.reactions != null && msg.reactions!.isNotEmpty)
@@ -637,14 +596,6 @@ class _MessageDetailsScreenState extends State<MessageDetailsScreen> {
                       style: const TextStyle(fontSize: 16),
                     ),
                   ),
-                // if (msg.reactions != null && msg.reactions!.isNotEmpty)
-                //   Padding(
-                //     padding: const EdgeInsets.only(top: 4),
-                //     child: Text(
-                //       msg.reactions?[0].reaction ?? 'dd',
-                //       style: TextStyle(fontSize: 16),
-                //     ),
-                //   ),
                 const SizedBox(height: 4),
                 // Tick stays inside
                 if (msg.senderType == 'you')
@@ -652,59 +603,29 @@ class _MessageDetailsScreenState extends State<MessageDetailsScreen> {
                     mainAxisSize: MainAxisSize.min,
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
-                      // if (msg.status == 'sent')
-                      //   CustomImage(path: ImageConstants.sendOneIcon),
-                      // if (msg.status == 'delivered')
-                      //   CustomImage(
-                      //     path: ImageConstants.sendDoubleIcon,
-                      //     color: Colors.grey,
-                      //   ),
-                      // if (msg.status == 'seen')
-                      CustomImage(
-                        path: ImageConstants.pause,
-                        color: Colors.green,
-                      ),
                       if (msg.status == 'waiting') SizedBox.shrink(),
                     ],
                   ),
               ],
             ),
             const SizedBox(height: 2), // Space between bubble and time
-            Padding(
-              padding: isSent
-                  ? const EdgeInsets.only(right: 10)
-                  : const EdgeInsets.only(left: 10),
-              child: Text(
-                Get.timeAgo(msg.createdAt ?? ''),
-                style: AppFontStyle.text_14_300(AppColors.primary),
-              ),
-            ),
+            // Padding(
+            //   padding: isSent
+            //       ? const EdgeInsets.only(right: 10)
+            //       : const EdgeInsets.only(left: 10),
+            //   child: Text(
+            //     Get.timeAgo(msg.createdAt ?? ''),
+            //     style: AppFontStyle.text_12_400(AppColors.chatTimeTextColor)
+            //   ),
+            // ),
           ],
         ),
       ),
     );
   }
 
-  // List<Widget> buildChatList(List<MessageListModelData> messages, BuildContext context) {
-  //   // messages.sort((a, b) => a.dateTime.compareTo(b.dateTime)); // Ensure sorted
-  //   List<Widget> widgets = [];
-  //
-  //   DateTime? lastDate;
-  //
-  //   for (final msg in messages) {
-  //     // final date = Get.formatDate(msg.createdAt??'');
-  //     // if (lastDate == null || date.day != lastDate.day||date.month != lastDate.month || date.year != lastDate.year) {
-  //     //   lastDate = date;
-  //     //   widgets.add(_buildDateLabel(_formatDateLabel(date)));
-  //     // }
-  //     widgets.add(_buildMessageBubble(msg, getYouTubeThumbnail, context));
-  //   }
-  //
-  //   return widgets;
-  // }
-
   String getFileType(String url) {
-    // Convert to lowercase to make comparison case-insensitive
+
     final lowerUrl = url.toLowerCase();
 
     // Check for image extensions
@@ -729,119 +650,12 @@ class _MessageDetailsScreenState extends State<MessageDetailsScreen> {
     return 'file';
   }
 
-  // void _showReactionOverlay(BuildContext context) {
-  //   if (messageDetailsProvider.tapPosition == null ||
-  //       messageDetailsProvider.selectedMessage == null)
-  //     return;
-  //
-  //   final overlay = Overlay.of(context);
-  //   late OverlayEntry entry;
-  //
-  //   entry = OverlayEntry(
-  //     builder:
-  //         (_) => GestureDetector(
-  //           behavior: HitTestBehavior.translucent,
-  //           onTap: () {
-  //             entry.remove();
-  //           },
-  //           child: Stack(
-  //             children: [
-  //               Positioned(
-  //                 top: messageDetailsProvider.tapPosition!.dy - 50,
-  //                 left: messageDetailsProvider.tapPosition!.dx - 100,
-  //                 child: GestureDetector(
-  //                   onTap:
-  //                       () {}, // Absorb taps on emoji container to prevent dismiss
-  //                   child: Material(
-  //                     color: Colors.transparent,
-  //                     child: Container(
-  //                       padding: const EdgeInsets.symmetric(
-  //                         horizontal: 12,
-  //                         vertical: 8,
-  //                       ),
-  //                       decoration: BoxDecoration(
-  //                         color: context.white,
-  //                         borderRadius: BorderRadius.circular(24),
-  //                         boxShadow: [
-  //                           BoxShadow(color: Colors.black26, blurRadius: 5),
-  //                         ],
-  //                       ),
-  //                       child: Row(
-  //                         mainAxisSize: MainAxisSize.min,
-  //                         children:
-  //                             ["❤️", "😂", "😮", "😢", "😡", "👍"].map((emoji) {
-  //                               return GestureDetector(
-  //                                 onTap: () {
-  //                                   print(
-  //                                     messageDetailsProvider
-  //                                         .selectedMessage
-  //                                         ?.text,
-  //                                   );
-  //                                   messageDetailsProvider.reactionOnMessage(
-  //                                     widget.conversionId,
-  //                                     emoji,
-  //                                   );
-  //                                   entry
-  //                                       .remove(); // Auto-dismiss after selection
-  //                                 },
-  //                                 child: Padding(
-  //                                   padding: const EdgeInsets.symmetric(
-  //                                     horizontal: 6,
-  //                                   ),
-  //                                   child: Text(
-  //                                     emoji,
-  //                                     style: TextStyle(fontSize: 24),
-  //                                   ),
-  //                                 ),
-  //                               );
-  //                             }).toList(),
-  //                       ),
-  //                     ),
-  //                   ),
-  //                 ),
-  //               ),
-  //             ],
-  //           ),
-  //         ),
-  //   );
-  //
-  //   overlay.insert(entry);
-  // }
 
-  // void _showEmojiBottomSheet({
-  //   required BuildContext context,
-  //   // required String msgId,
-  //   // required SingleChatController controller,
-  //   // required bool isSender,
-  //   required int index,
-  //   // required bool isFile,
-  // }) {
-  //   showModalBottomSheet(
-  //     backgroundColor: Colors.transparent,
-  //     isScrollControlled: true,
-  //     context: context,
-  //     builder: (context) {
-  //       return SafeArea(
-  //         child: SizedBox(
-  //           height: 300,
-  //           child: EmojiPicker(
-  //             onEmojiSelected: (category, emoji) {
-  //               print("emoji select from package : $emoji");
-  //               Navigator.pop(context);
-  //             },
-  //           ),
-  //         ),
-  //       );
-  //     },
-  //   );
-  // }
 
   void _showMessageOptions({
     required BuildContext context,
     required MessageDetailsProvider provider,
-    // required String msgId,
-    // required SingleChatController controller,
-    // required bool isSender,
+
     required int index,
     required String msgId,
     required String senderType,
@@ -898,18 +712,6 @@ class _MessageDetailsScreenState extends State<MessageDetailsScreen> {
                         child: Text(emoji, style: TextStyle(fontSize: 24)),
                       ),
                     SizedBox(width: 10),
-                    // GestureDetector(
-                    //                     //   onTap: () {
-                    //                     //     Navigator.pop(context);
-                    //                     //
-                    //                     //     // _showEmojiBottomSheet(context: context, index: index);
-                    //                     //   },
-                    //                     //   child: Icon(
-                    //                     //     Icons.add_circle_outline,
-                    //                     //     size: 28,
-                    //                     //     color: Colors.white,
-                    //                     //   ),
-                    //                     // ),
                   ],
                 ),
               ),
@@ -930,20 +732,6 @@ class _MessageDetailsScreenState extends State<MessageDetailsScreen> {
                   });
                 }),
 
-              // Message Options
-              // if (controller.msgListObj.data![index].message?.file == null ||
-              //     controller.msgListObj.data![index].message!.file!.isEmpty)
-              //   _buildOption(context, "Reply", Icons.reply, () {
-              //     Navigator.pop(context);
-              //     controller.isReplying = true;
-              //     controller.replyingID = msgId;
-
-              //     controller.update();
-              //     // Handle Reply
-              //   }),
-              // _buildOption(context, "Edit", Icons.edit, () {}),
-
-              // Delete Option
               if (senderType == 'you')
                 _buildOption(context, "Delete", Icons.delete, () async {
                   Navigator.pop(context);
@@ -985,12 +773,20 @@ class _MessageDetailsScreenState extends State<MessageDetailsScreen> {
         return Column(
           mainAxisSize: MainAxisSize.min,
           children: [
+            Divider(color: AppColors.dividerColor,),
             Container(
               margin: const EdgeInsets.symmetric(horizontal: 15, vertical: 12),
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
               decoration: BoxDecoration(
-                color: AppColors.fieldBgColor,
-                borderRadius: BorderRadius.circular(100),
+                color: AppColors.chatTextFieldColor,
+                borderRadius: BorderRadius.circular(30),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.05),
+                    blurRadius: 10,
+                    offset: const Offset(0, 2),
+                  )
+                ],
               ),
               child: TextFormField(
                 controller: provider.controller,
@@ -1007,58 +803,9 @@ class _MessageDetailsScreenState extends State<MessageDetailsScreen> {
 
                   contentPadding: const EdgeInsets.symmetric(vertical: 10),
 
-                  /// Leading widget (emoji button)
-                  // prefixIcon: IconButton(
-                  //   onPressed: _toggleEmojiPicker,
-                  //   icon: CustomImage(path: ImageConstants.emojiIcon),
-                  //   constraints: const BoxConstraints(),
-                  //   padding: EdgeInsets.zero,
-                  // ),
-
-                  /// Trailing widgets (docs, mic, send)
                   suffixIcon: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      // IconButton(
-                      //   onPressed: () => provider.pickFile(),
-                      //   icon: CustomImage(path: ImageConstants.docsIcon),
-                      //   constraints: const BoxConstraints(),
-                      //   padding: EdgeInsets.zero,
-                      // ),
-                      // Padding(
-                      //   padding: const EdgeInsets.symmetric(horizontal: 4),
-                      //   child: CustomImage(path: ImageConstants.micIcon),
-                      // ),
-                      // Padding(
-                      //   padding: const EdgeInsets.symmetric(horizontal: 4),
-                      //   child: AudioRecorderButton(
-                      //     onAudioSend: (audioFile) {
-                      //       print("Audio file recorded: ${audioFile.path}");
-                      //       // 👉 Send this file to your function
-                      //       // uploadAudio(audioFile);
-                      //       Navigator.push(
-                      //         navigatorKey.currentContext!,
-                      //         MaterialPageRoute(
-                      //           builder:
-                      //               (context) => FilePreviewScreen(
-                      //             file: audioFile,
-                      //             fileType: "audio",
-                      //             onSend: (File file, String fileType) {
-                      //               provider.sendImagesOrVideosOrFiles(
-                      //                 [file],
-                      //                 fileType == 'image'
-                      //                     ? UploadFileType.image
-                      //                     : fileType == 'video'
-                      //                     ? UploadFileType.video
-                      //                     : UploadFileType.audio,
-                      //               );
-                      //             },
-                      //           ),
-                      //         ),
-                      //       );
-                      //     },
-                      //   ),
-                      // ),
                       GestureDetector(
                         onTap: () =>
                             provider.sendPersonalMessage(widget.conversionId),
@@ -1083,275 +830,12 @@ class _MessageDetailsScreenState extends State<MessageDetailsScreen> {
                 ),
               ),
             ),
-
-            /// Emoji Picker
-            // if (provider.showEmojiPicker)
-            //   SizedBox(
-            //     height: 250,
-            //     child: EmojiPicker(
-            //       onEmojiSelected: (category, emoji) {
-            //         _onEmojiSelected(emoji.emoji);
-            //       },
-            //       config: const Config(),
-            //     ),
-            //   ),
           ],
         );
       },
     );
   }
 
-  // Widget _buildInputBar() {
-  //   return Consumer<MessageDetailsProvider>(builder: (context, value, child) {
-  //       return Column(
-  //         children: [
-  //           Container(
-  //             padding: const EdgeInsets.only(left: 15,right: 7),
-  //             margin: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
-  //             decoration: BoxDecoration(
-  //               borderRadius: BorderRadius.circular(100),
-  //               color: navigatorKey.currentContext!.fieldBgColor,
-  //             ),
-  //             child: Row(
-  //               children: [
-  //                 InkWell(
-  //                   onTap: _toggleEmojiPicker,
-  //                   child: Padding(
-  //                     padding: const EdgeInsets.only(right: 5),
-  //                     child: CustomImage(path: ImageConstants.emojiIcon),
-  //                   ),
-  //                 ),
-  //                 // IconButton(
-  //                 //   icon: Icon(Icons.emoji_emotions_outlined, color: Colors.grey),
-  //                 //   onPressed: _toggleEmojiPicker,
-  //                 // ),
-  //                 Expanded(
-  //                   child: TextField(
-  //                     controller: messageDetailsProvider.controller,
-  //                     focusNode: messageDetailsProvider.focusNode,
-  //                     decoration: InputDecoration(
-  //                       hintText: "Type a message...",
-  //                       hintStyle: AppFontStyle.text_18_300(navigatorKey.currentContext!.hintTextColor),
-  //                       border: InputBorder.none,
-  //                     ),
-  //                   ),
-  //                 ),
-  //                 Row(
-  //                   children: [
-  //                     InkWell(
-  //                       onTap: (){
-  //                          messageDetailsProvider.pickFile(widget.receiverId);
-  //                       },
-  //                       child: Padding(
-  //                         padding: const EdgeInsets.only(left: 7,right: 3),
-  //                         child: CustomImage(path: ImageConstants.docsIcon),
-  //                       ),
-  //                     ),
-  //                     Padding(
-  //                       padding: const EdgeInsets.only(left: 3,right: 4),
-  //                       child: CustomImage(path: ImageConstants.micIcon),
-  //                     ),
-  //                     InkWell(
-  //                       onTap: (){
-  //                         messageDetailsProvider.sendPersonalMessage(widget.receiverId,widget.conversionId);
-  //                       },
-  //                       child: Padding(
-  //                         padding: const EdgeInsets.only(top: 7,bottom: 7,left: 3),
-  //                         child: Container(
-  //                             width: 46,
-  //                             height: 46,
-  //                             // padding: EdgeInsets.all(10),
-  //                             decoration: BoxDecoration(
-  //                               color: navigatorKey.currentContext!.primary,
-  //                               borderRadius: BorderRadius.circular(100),
-  //                             ),
-  //                             child: Center(
-  //                               child: SizedBox(
-  //                                 width: 16,
-  //                                 height: 16,
-  //                                 child: CustomImage(
-  //                                     path: ImageConstants.sendIcon
-  //                                 ),
-  //                               ),
-  //                             )),
-  //                       ),
-  //                     ),
-  //                   ],
-  //                 )
-  //
-  //               ],
-  //             ),
-  //           ),
-  //           if (messageDetailsProvider.showEmojiPicker)
-  //             SizedBox(
-  //               height: 250,
-  //               child: EmojiPicker(
-  //                 onEmojiSelected: (category, emoji) {
-  //                   _onEmojiSelected(emoji.emoji);
-  //                 },
-  //                 config: Config(
-  //                   // columns: 7,
-  //                   // emojiSizeMax: 32,
-  //                   // verticalSpacing: 0,
-  //                   // horizontalSpacing: 0,
-  //                   // initCategory: Category.SMILEYS,
-  //                   // bgColor: context.white,
-  //                   // indicatorColor: Colors.blue,
-  //                   // iconColorSelected: Colors.blue,
-  //                 ),
-  //               ),
-  //             ),
-  //         ],
-  //       );
-  //     },);
-  // }
 }
 
-// class FullScreenImage extends StatelessWidget {
-//   final String imageUrl;
-//   const FullScreenImage({super.key, required this.imageUrl});
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       backgroundColor: Colors.black,
-//       appBar: AppBar(backgroundColor: Colors.transparent),
-//       body: Center(child: InteractiveViewer(child: Image.network(imageUrl))),
-//     );
-//   }
-// }
-//
-// class VideoPlayerScreen extends StatefulWidget {
-//   final String videoUrl;
-//   const VideoPlayerScreen({super.key, required this.videoUrl});
-//
-//   @override
-//   State<VideoPlayerScreen> createState() => _VideoPlayerScreenState();
-// }
-//
-// class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
-//   late VideoPlayerController _controller;
-//   bool isInitialized = false;
-//
-//   @override
-//   void initState() {
-//     super.initState();
-//     _controller = VideoPlayerController.network(widget.videoUrl)
-//       ..initialize().then((_) {
-//         setState(() => isInitialized = true);
-//         _controller.play();
-//       });
-//   }
-//
-//   @override
-//   void dispose() {
-//     _controller.dispose();
-//     super.dispose();
-//   }
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       backgroundColor: Colors.black,
-//       appBar: AppBar(backgroundColor: Colors.transparent),
-//       body: Center(
-//         child:
-//             isInitialized
-//                 ? AspectRatio(
-//                   aspectRatio: _controller.value.aspectRatio,
-//                   child: VideoPlayer(_controller),
-//                 )
-//                 : CircularProgressIndicator(),
-//       ),
-//       floatingActionButton:
-//           isInitialized
-//               ? FloatingActionButton(
-//                 onPressed: () {
-//                   setState(
-//                     () =>
-//                         _controller.value.isPlaying
-//                             ? _controller.pause()
-//                             : _controller.play(),
-//                   );
-//                 },
-//                 child: Icon(
-//                   _controller.value.isPlaying ? Icons.pause : Icons.play_arrow,
-//                 ),
-//               )
-//               : null,
-//     );
-//   }
-// }
-//
-// class AudioMessageWidget extends StatefulWidget {
-//   final String audioUrl;
-//   const AudioMessageWidget({super.key, required this.audioUrl});
-//
-//   @override
-//   State<AudioMessageWidget> createState() => _AudioMessageWidgetState();
-// }
-//
-// class _AudioMessageWidgetState extends State<AudioMessageWidget> {
-//   late AudioPlayer _player;
-//   bool isPlaying = false;
-//
-//   @override
-//   void initState() {
-//     super.initState();
-//     _player = AudioPlayer();
-//
-//     _initAudio();
-//
-//     // Auto-pause when completed
-//     _player.onPlayerComplete.listen((_) {
-//       setState(() => isPlaying = false);
-//     });
-//
-//     // _player.playerStateStream.listen((state) {
-//     //   if (state.processingState == ProcessingState.completed) {
-//     //     setState(() {
-//     //       isPlaying = false;
-//     //     });
-//     //     _player.seek(Duration.zero); // Optional: reset to start
-//     //   }
-//     // });
-//   }
-//
-//   Future<void> _initAudio() async {
-//     try {
-//       // await _player.setUrl(widget.audioUrl);
-//     } catch (e) {
-//       print("Error loading audio: $e");
-//     }
-//   }
-//
-//   @override
-//   void dispose() {
-//     // _player.dispose();
-//     super.dispose();
-//   }
-//
-//   void togglePlay() async {
-//     if (isPlaying) {
-//        await _player.pause();
-//     } else {
-//       await _player.play(UrlSource(widget.audioUrl));
-//     }
-//     setState(() => isPlaying = !isPlaying);
-//   }
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return InkWell(
-//       onTap: togglePlay,
-//       child: Row(
-//         mainAxisSize: MainAxisSize.min,
-//         children: [
-//           Icon(isPlaying ? Icons.pause : Icons.play_arrow, color: Colors.blue),
-//           const SizedBox(width: 8),
-//           Text("Audio Message", style: TextStyle(color: Colors.black87)),
-//         ],
-//       ),
-//     );
-//   }
-// }
+

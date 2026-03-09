@@ -114,17 +114,8 @@ class VerificationContent extends StatelessWidget {
                   hBox(16),
                   CustomButton(
                     text: provider.isLoading ? "Verifying..." : "Verify",
-                    onPressed: () {
-                      if (provider.isLoading) return;
-                      print("phone on verification : $phone");
-                      print("countryCode on verification : $countryCode");
-                      provider.verifyOtpMethod(phone, ("+$countryCode"));
-
-                      if (kDebugMode) {
-                        print(
-                          "Error After send Otp : ${provider.errorMessage}",
-                        );
-                      }
+                    onPressed:() {
+                      provider.verifyOtpMethod(phone, "+$countryCode");
                     },
                   ),
                   hBox(24),
@@ -155,7 +146,7 @@ class VerificationContent extends StatelessWidget {
                             return InkWell(
                               borderRadius: BorderRadius.circular(4),
                               onTap: isEnabled
-                                  ? () => provider.resendOtp(phone)
+                                  ? () => provider.resendOtp(phone, "+$countryCode")
                                   : null,
                               child: Text(
                                 isTimerActive
