@@ -70,6 +70,7 @@ void main() async {
 
   Stripe.publishableKey =
       'pk_test_51T1KB9DSmK2YlVb0zz4kEhEobZjMs9aQKpL9pQJQT79Ja4HsVM9QFW9XPirqeIDOAMsBC3vtFtPlXPDmFaH1tmGy00IQqXiz82';
+  await Stripe.instance.applySettings();
   runApp(const MyApp());
 }
 

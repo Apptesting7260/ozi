@@ -14,29 +14,36 @@ import '../../modules/user/navigation tab/view/navigation_tab_screen.dart';
 import '../../modules/vendor/navigation tab/view/vendor_navigation_tab_screen.dart';
 import '../../routes/app_routes.dart';
 import '../utils/get_utils.dart';
+import '../../../firebase_options.dart';
 
 @pragma('vm:entry-point')
 Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  await Firebase.initializeApp();
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   log("Background Notification: ${message.notification?.body}");
-  debugPrint('🔔message notification title background message=====${message.notification?.title}');
+  debugPrint(
+    '🔔message notification title background message=====${message.notification?.title}',
+  );
   debugPrint('📝message notification body=====${message.notification?.body}');
   debugPrint('📝message notification data body=====${message.data}');
-  debugPrint('📝message notification messageId=====${message.data['booking_id']}');
+  debugPrint(
+    '📝message notification messageId=====${message.data['booking_id']}',
+  );
   debugPrint('📝message notification messageType=====${message.data['type']}');
-  debugPrint('📝message notification messageType=====${message.data['screen']}');
+  debugPrint(
+    '📝message notification messageType=====${message.data['screen']}',
+  );
 
-  if (message.data['type'] == 'booking_request') {
-
-
-  }else if(message.data['NotificationType'] == 'call_ended'){
-
+  try {
+    if (message.data['type'] == 'booking_request') {
+    } else if (message.data['NotificationType'] == 'call_ended') {}
+  } catch (e) {
+    debugPrint("Error in background notification: $e");
   }
 }
 
 @pragma('vm:entry-point')
 void backgroundNotificationTap(NotificationResponse notificationResponse) {
-
   final String? payload = notificationResponse.payload;
 
   debugPrint("🔙 Background Notification tapped. Payload: $payload");
@@ -44,7 +51,6 @@ void backgroundNotificationTap(NotificationResponse notificationResponse) {
   if (payload == null) return;
 
   try {
-
     final Map<String, dynamic> data = jsonDecode(payload);
 
     PushNotificationService.navigateFromNotification(
@@ -52,11 +58,8 @@ void backgroundNotificationTap(NotificationResponse notificationResponse) {
       bookingId: data['booking_id'] ?? '',
       type: data['type'] ?? '',
     );
-
   } catch (e) {
-
     debugPrint("❌ Background payload parse error: $e");
-
   }
 }
 
@@ -76,10 +79,11 @@ class PushNotificationService {
         requestAlertPermission: true,
         requestBadgePermission: true,
         requestSoundPermission: true,
+        // onDidReceiveLocalNotification: null,
       );
 
   static firebaseNotification() async {
-    firebaseMessaging.requestPermission(
+    await firebaseMessaging.requestPermission(
       alert: true,
       announcement: true,
       badge: true,
@@ -88,49 +92,56 @@ class PushNotificationService {
       provisional: false,
       sound: true,
     );
+
+    await firebaseMessaging.setForegroundNotificationPresentationOptions(
+      alert: true,
+      badge: true,
+      sound: true,
+    );
     firebaseMessaging.isAutoInitEnabled;
-    var android = const AndroidInitializationSettings('@mipmap/ic_launcher');
-    var ios = const DarwinInitializationSettings();
 
-    var platform = InitializationSettings(android: android, iOS: ios);
-    flutterLocalNotificationsPlugin.initialize(platform);
-    // firebaseMessaging.requestPermission();
-
-    initLocalNotification();
+    await initLocalNotification();
 
     FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
+      try {
+        debugPrint("📨 Message ID: ${message.messageId}");
 
-      debugPrint("📨 Message ID: ${message.messageId}");
+        RemoteNotification? notification = message.notification;
+        AndroidNotification? android = message.notification?.android;
+        AppleNotification? appleNotification = message.notification?.apple;
+        debugPrint(
+          '🔔message notification title onmessage =====${message.notification?.title}',
+        );
+        debugPrint(
+          '📝message notification body=====${message.notification?.body}',
+        );
+        debugPrint('📝message notification dataBody=====${message.data}');
+        //debugPrint('📝message notification data=====${message.data['screen']}');
+        debugPrint(
+          'notification body ===== $notification.  $android.   $appleNotification',
+        );
 
-      RemoteNotification? notification = message.notification;
-      AndroidNotification? android = message.notification?.android;
-      AppleNotification? appleNotification = message.notification?.apple;
-      debugPrint('🔔message notification title onmessage =====${message.notification?.title}');
-      debugPrint('📝message notification body=====${message.notification?.body}');
-      debugPrint('📝message notification dataBody=====${message.data}');
-      //debugPrint('📝message notification data=====${message.data['screen']}');
-      debugPrint('notification body ===== $notification.  $android.   $appleNotification');
-        showNotification(message.notification,message.data);
+        showNotification(message.notification, message.data);
 
-      debugPrint('android not null notification==${message.notification}');
-      FirebaseMessaging.instance.getInitialMessage().then((message) {
-        if (message != null) {
-          debugPrint("abc525");
-        } else {
-          debugPrint("123154115415abc");
-        }
-      });
-    },
-    );
+        debugPrint('android not null notification==${message.notification}');
+        FirebaseMessaging.instance.getInitialMessage().then((message) {
+          if (message != null) {
+            debugPrint("abc525");
+          } else {
+            debugPrint("123154115415abc");
+          }
+        });
+      } catch (e) {
+        debugPrint("Error in onMessage: $e");
+      }
+    });
 
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) async {
-
       /// Prevent duplicate navigation
       if (message.messageId != null) {
         if (_handledMessageIds.contains(message.messageId)) return;
         _handledMessageIds.add(message.messageId!);
       }
-
 
       if (kDebugMode) {
         debugPrint("🔔 Notification tapped");
@@ -139,45 +150,39 @@ class PushNotificationService {
       }
 
       try {
-
         final String screen = message.data['screen'] ?? '';
         final String bookingId = message.data['booking_id'] ?? '';
         final String type = message.data['type'] ?? '';
 
         if (screen.isNotEmpty && bookingId.isNotEmpty) {
-
           await navigateFromNotification(
             screen: screen,
             bookingId: bookingId,
             type: type,
           );
-
         } else {
-
           debugPrint("⚠ Invalid notification data");
-
         }
-
       } catch (e) {
-
         debugPrint("❌ Notification navigation error: $e");
-
       }
-
     });
 
     FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
 
-    FirebaseMessaging.instance.getToken().then((String? token) async {
-      if (token == null) {
-        debugPrint('FCM token is null');
-      } else {
-        fcmToken = token;
-        debugPrint('🔔 FCM token: $token');
-      }
-    }).catchError((error) {
-      debugPrint('Error getting FCM token: ${error.toString()}');
-    });
+    FirebaseMessaging.instance
+        .getToken()
+        .then((String? token) async {
+          if (token == null) {
+            debugPrint('FCM token is null');
+          } else {
+            fcmToken = token;
+            debugPrint('🔔 FCM token: $token');
+          }
+        })
+        .catchError((error) {
+          debugPrint('Error getting FCM token: ${error.toString()}');
+        });
 
     /// Listen for token refresh
     FirebaseMessaging.instance.onTokenRefresh.listen((newToken) {
@@ -185,19 +190,18 @@ class PushNotificationService {
       debugPrint("🔄 FCM Token Refreshed: $newToken");
     });
 
-
     if (defaultTargetPlatform == TargetPlatform.iOS) {
       debugPrint('FlutterFire Messaging Example: Getting APNs token...');
       String? token = await FirebaseMessaging.instance.getAPNSToken();
       apnsToken = token;
       debugPrint('FlutterFire Messaging Example: Got APNs token: $token');
     }
+
     /// Handle notification when app opens from terminated state
-    RemoteMessage? initialMessage =
-    await FirebaseMessaging.instance.getInitialMessage();
+    RemoteMessage? initialMessage = await FirebaseMessaging.instance
+        .getInitialMessage();
 
     if (initialMessage != null) {
-
       debugPrint("📩 App opened via notification (terminated)");
 
       final String screen = initialMessage.data['screen'] ?? '';
@@ -214,45 +218,28 @@ class PushNotificationService {
     }
   }
 
-
-
-
-
-
   static Future initLocalNotification() async {
-    if (Platform.isIOS) {
-      var initializationSettingsAndroid = const AndroidInitializationSettings(
-        'ic_launcher',
-      );
+    const initializationSettingsAndroid = AndroidInitializationSettings(
+      '@mipmap/ic_launcher',
+    );
+    const initializationSettingsIOS = DarwinInitializationSettings(
+      requestAlertPermission: true,
+      requestBadgePermission: true,
+      requestSoundPermission: true,
+    );
 
-      final InitializationSettings initializationSettings =
-          InitializationSettings(
-            android: initializationSettingsAndroid,
-            iOS: initializationSettingsDarwin,
-          );
+    const initializationSettings = InitializationSettings(
+      android: initializationSettingsAndroid,
+      iOS: initializationSettingsIOS,
+    );
 
-      flutterLocalNotificationsPlugin.initialize(
-        initializationSettings,
-        onDidReceiveNotificationResponse: onDidReceiveNotificationResponse,
-      );
-    } else {
-      var initializationSettingsAndroid = const AndroidInitializationSettings(
-        '@mipmap/ic_launcher',
-      );
-
-      const initializationSettingsIOS = DarwinInitializationSettings();
-
-      var initializationSettings = InitializationSettings(
-        android: initializationSettingsAndroid,
-        iOS: initializationSettingsIOS,
-      );
-
-      await flutterLocalNotificationsPlugin.initialize(
-        initializationSettings,
-        onDidReceiveBackgroundNotificationResponse: backgroundNotificationTap,
-        onDidReceiveNotificationResponse: onDidReceiveNotificationResponse,
-      );
-    }
+    await flutterLocalNotificationsPlugin.initialize(
+      initializationSettings,
+      onDidReceiveNotificationResponse: onDidReceiveNotificationResponse,
+      onDidReceiveBackgroundNotificationResponse: Platform.isIOS
+          ? null
+          : backgroundNotificationTap,
+    );
   }
 
   static Future<void> showNotification(
@@ -280,24 +267,21 @@ class PushNotificationService {
 
     await flutterLocalNotificationsPlugin.show(
       DateTime.now().second,
-      notification?.title,
-      notification?.body,
+      notification?.title ?? 'Notification',
+      notification?.body ?? '',
       platform,
-      payload: jsonEncode(data),
+      payload: data != null ? jsonEncode(data) : null,
     );
   }
 
-
-
   static void onDidReceiveNotificationResponse(
-      NotificationResponse notificationResponse) async {
-
+    NotificationResponse notificationResponse,
+  ) async {
     final String? payload = notificationResponse.payload;
 
     if (payload == null) return;
 
     try {
-
       debugPrint("Notification payload: $payload");
 
       final Map<String, dynamic> data = jsonDecode(payload);
@@ -307,23 +291,16 @@ class PushNotificationService {
       final String type = data['type'] ?? '';
 
       if (screen.isNotEmpty && bookingId.isNotEmpty) {
-
         navigateFromNotification(
           screen: screen,
           bookingId: bookingId,
           type: type,
         );
-
       } else {
-
         debugPrint("⚠ Invalid notification payload");
-
       }
-
     } catch (e) {
-
       debugPrint("❌ Payload parse error: $e");
-
     }
   }
 
@@ -374,7 +351,6 @@ class PushNotificationService {
     required dynamic bookingId,
     required String type,
   }) async {
-
     await Future.delayed(const Duration(milliseconds: 300));
 
     final context = navigatorKey.currentContext;
@@ -397,133 +373,118 @@ class PushNotificationService {
     }
   }
 
-
   static void _handleVendorNavigation(
-      BuildContext context,
-      String type,
-      dynamic bookingId,
-      ) {
-
+    BuildContext context,
+    String type,
+    dynamic bookingId,
+  ) {
     switch (type) {
-
       case "booking_request":
-
         Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(
             builder: (_) => VendorNavigationTabScreen(initialIndex: 1),
           ),
-              (route) => false,
+          (route) => false,
         );
 
         break;
 
       case "booking_confirm":
-
         Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(
             builder: (_) => VendorNavigationTabScreen(initialIndex: 1),
           ),
-              (route) => false,
+          (route) => false,
         );
 
         break;
 
       case "booking_completed":
-
         Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(
             builder: (_) => VendorNavigationTabScreen(initialIndex: 1),
           ),
-              (route) => false,
+          (route) => false,
         );
 
         break;
 
       default:
-
         Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(
             builder: (_) => VendorNavigationTabScreen(initialIndex: 0),
           ),
-              (route) => false,
+          (route) => false,
         );
-
     }
   }
 
   static void _handleUserNavigation(
-      BuildContext context,
-      String type,
-      dynamic bookingId,
-      ) {
-
+    BuildContext context,
+    String type,
+    dynamic bookingId,
+  ) {
     switch (type) {
-
       case "booking_confirm":
-
         Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(
             builder: (_) => NavigationTabScreen(initialIndex: 3),
           ),
-              (route) => false,
+          (route) => false,
         );
 
         break;
 
       case "booking_completed":
-
         Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(
             builder: (_) => NavigationTabScreen(initialIndex: 3),
           ),
-              (route) => false,
+          (route) => false,
         );
 
         break;
 
       default:
-
         Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(
             builder: (_) => NavigationTabScreen(initialIndex: 0),
           ),
-              (route) => false,
+          (route) => false,
         );
     }
   }
 
+  // static Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  //   log("background notification--> ${message.notification?.body}");
+  // }
 
-// static Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-//   log("background notification--> ${message.notification?.body}");
-// }
-
-// static void _handleNotificationTap({required String type, required String title}) {
-//   if (type == "restaurant") {
-//     if (title == "New Order Received") {
-//       Get.toNamed(AppRoutes.restaurantOrderListScreen, arguments: {"fromNotification": "true"});
-//     } else if (title == "Ticket Reply") {
-//       Get.toNamed(AppRoutes.restaurantSupportScreen);
-//     }
-//   } else if (type == "pharmacy") {
-//     if (title == "New Order Received") {
-//       Get.toNamed(AppRoutes.pharmacyOrderListScreen, arguments: {"fromNotification": "true"});
-//     } else if (title == "Ticket Reply") {
-//       Get.toNamed(AppRoutes.pharmacySupportScreen);
-//     }
-//   } else if (type == "grocery") {
-//     if (title == "New Order Received") {
-//       Get.toNamed(AppRoutes.groceryOrderListScreen, arguments: {"fromNotification": "true"});
-//     } else if (title == "Ticket Reply") {
-//       Get.toNamed(AppRoutes.grocerySupportScreen);
-//     }
-//   }
-// }
-
+  // static void _handleNotificationTap({required String type, required String title}) {
+  //   if (type == "restaurant") {
+  //     if (title == "New Order Received") {
+  //       Get.toNamed(AppRoutes.restaurantOrderListScreen, arguments: {"fromNotification": "true"});
+  //     } else if (title == "Ticket Reply") {
+  //       Get.toNamed(AppRoutes.restaurantSupportScreen);
+  //     }
+  //   } else if (type == "pharmacy") {
+  //     if (title == "New Order Received") {
+  //       Get.toNamed(AppRoutes.pharmacyOrderListScreen, arguments: {"fromNotification": "true"});
+  //     } else if (title == "Ticket Reply") {
+  //       Get.toNamed(AppRoutes.pharmacySupportScreen);
+  //     }
+  //   } else if (type == "grocery") {
+  //     if (title == "New Order Received") {
+  //       Get.toNamed(AppRoutes.groceryOrderListScreen, arguments: {"fromNotification": "true"});
+  //     } else if (title == "Ticket Reply") {
+  //       Get.toNamed(AppRoutes.grocerySupportScreen);
+  //     }
+  //   }
+  // }
 }
