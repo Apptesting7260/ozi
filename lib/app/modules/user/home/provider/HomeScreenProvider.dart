@@ -2,6 +2,7 @@ import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import '../../../../core/appExports/app_export.dart';
 import '../../../../data/repository/repository.dart';
+import '../../../../data/storage/user_preference.dart';
 import '../model/category_model.dart';
 import '../services/view/CategoryDetailScreen.dart';
 import '../../cart/change address/provider/ChangeAddressProvider.dart';
@@ -11,6 +12,30 @@ class HomeScreenProvider extends ChangeNotifier {
   HomeScreenProvider() {
     // Location and data will be handled by loadOnce() called from the View
   }
+
+  // Session-based consent map: userId -> hasConsented
+  // This is stored only in-memory (within the app) as requested.
+  static final Map<String, bool> _sessionConsentMap = {};
+
+  static void setSessionConsent(String userId, bool hasConsented) {
+    _sessionConsentMap[userId] = hasConsented;
+  }
+
+  static bool hasGuestConsent() {
+    return _sessionConsentMap['guest'] ?? false;
+  }
+
+  static void promoteGuestConsent(String userId) {
+    if (hasGuestConsent()) {
+      _sessionConsentMap[userId] = true;
+      debugPrint("Consent promoted from guest to user: $userId");
+    }
+  }
+
+  static void clearAllConsent() {
+    _sessionConsentMap.clear();
+  }
+
   String _selectedLocation = "Select Location";
   final String _userName = "Alex";
 
@@ -34,6 +59,12 @@ class HomeScreenProvider extends ChangeNotifier {
 
   String _searchQuery = "";
   String get searchQuery => _searchQuery;
+
+  DateTime? _lastFetchTime;
+
+  bool hasSessionConsent(String? userId) {
+    return _sessionConsentMap[userId ?? "guest"] ?? false;
+  }
 
   bool _isManualLocation = false;
 
@@ -59,14 +90,50 @@ class HomeScreenProvider extends ChangeNotifier {
 
   final Repository _repository = Repository();
 
-  Future<void> loadOnce() async {
-    if (_isLoaded) return;
+  Future<void> loadOnce(BuildContext context) async {
+    final String userId = await UserPreference.returnUserId() ?? "guest";
+    debugPrint(
+      "loadOnce: userId=$userId, isLoaded=$_isLoaded, lastFetchTime=$_lastFetchTime",
+    );
+
+    // If already loaded and within 30 mins, and we have consent, just return
+    if (_isLoaded &&
+        _lastFetchTime != null &&
+        DateTime.now().difference(_lastFetchTime!).inMinutes < 30) {
+      debugPrint("loadOnce: Already loaded within 30 mins. Skipping.");
+      return;
+    }
+
+    // Restore consent from persistent storage if not already in memory
+    if (!(_sessionConsentMap[userId] ?? false)) {
+      final persistedConsent = await UserPreference.returnLocationConsent();
+      debugPrint("loadOnce: persistedConsent from storage = $persistedConsent");
+      if (persistedConsent == true) {
+        _sessionConsentMap[userId] = true;
+        debugPrint("Restored location consent from storage for user: $userId");
+      }
+    } else {
+      debugPrint("loadOnce: Already have in-memory consent for user: $userId");
+    }
+
+    // Check session consent
+    if (!(_sessionConsentMap[userId] ?? false)) {
+      debugPrint("loadOnce: No consent found. Showing dialog...");
+      if (context.mounted) {
+        await requestLocationPermission(context);
+      }
+      return;
+    }
+
+    debugPrint("loadOnce: Consent found. Fetching location...");
+
     _isLoading = true;
     notifyListeners();
 
     bool success = await getCurrentLocation();
     if (success) {
       _isLoaded = true;
+      _lastFetchTime = DateTime.now();
     }
     _isLoading = false;
     notifyListeners();
@@ -80,6 +147,7 @@ class HomeScreenProvider extends ChangeNotifier {
     bool success = await getCurrentLocation();
     if (success) {
       _isLoaded = true;
+      _lastFetchTime = DateTime.now();
     }
     _isLoading = false;
     notifyListeners();
@@ -213,6 +281,13 @@ class HomeScreenProvider extends ChangeNotifier {
     lat = null;
     lng = null;
     _serviceCategories.clear();
+
+    // Clear session consent on reset (logout) to ensure we ask again on next login
+    _sessionConsentMap.clear();
+    // Also clear persisted consent (it gets cleared via clearSharedPreference too,
+    // but this is explicit for clarity)
+    UserPreference.saveLocationConsent(false);
+
     notifyListeners();
   }
 
@@ -316,7 +391,95 @@ class HomeScreenProvider extends ChangeNotifier {
     }
   }
 
+  Future<bool> showLocationConsentDialog(BuildContext context) async {
+    return await showDialog<bool>(
+          context: context,
+          barrierDismissible: false,
+          builder: (dialogContext) {
+            return Dialog(
+              insetPadding: const EdgeInsets.symmetric(horizontal: 28),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(18),
+              ),
+              backgroundColor: AppColors.white,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 22,
+                  vertical: 22,
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      height: 60,
+                      width: 60,
+                      decoration: BoxDecoration(
+                        color: AppColors.primary.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                      child: Icon(
+                        Icons.location_on,
+                        color: AppColors.primary,
+                        size: 30,
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    Text(
+                      "Allow Location Access",
+                      style: AppFontStyle.text_18_600(
+                        AppColors.black,
+                        fontFamily: AppFontFamily.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      "We need your location to show available services near you. Your location is only used while the app is active in this session.",
+                      textAlign: TextAlign.center,
+                      maxLines: 3,
+                      style: AppFontStyle.text_14_400(AppColors.grey),
+                    ),
+                    const SizedBox(height: 24),
+                    CustomButton(
+                      text: "Allow",
+                      borderRadius: BorderRadius.circular(30),
+                      onPressed: () => Navigator.pop(dialogContext, true),
+                    ),
+                    const SizedBox(height: 12),
+                    CustomButton(
+                      text: "Don't Allow",
+                      isOutlined: true,
+                      borderRadius: BorderRadius.circular(30),
+                      onPressed: () => Navigator.pop(dialogContext, false),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        ) ??
+        false;
+  }
+
   Future<void> requestLocationPermission(BuildContext context) async {
+    final String userId = await UserPreference.returnUserId() ?? "guest";
+    debugPrint(
+      "requestLocationPermission: userId=$userId, currentConsent=${_sessionConsentMap[userId]}",
+    );
+
+    // If we don't have session consent yet, ask explicitly via our custom dialog
+    if (!(_sessionConsentMap[userId] ?? false)) {
+      bool consented = await showLocationConsentDialog(context);
+      if (!consented) {
+        debugPrint("User declined session location consent.");
+        return;
+      }
+      // Save consent immediately after user agrees in dialog
+      _sessionConsentMap[userId] = true;
+      await UserPreference.saveLocationConsent(true);
+      debugPrint("Location consent saved for user: $userId");
+    }
+
+    // Now check/request OS level permission
     if (await LocationPermissionHelper.handleLocationPermission(context)) {
       _isLoading = true;
       notifyListeners();

@@ -142,6 +142,16 @@ class UserPreference {
     return pref.getBool("isRoleSelected");
   }
 
+  static saveLocationConsent(bool hasConsented) async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    pref.setBool("location_consent", hasConsented);
+  }
+
+  static Future<bool?> returnLocationConsent() async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    return pref.getBool("location_consent");
+  }
+
   static clearSharedPreference() async {
     SharedPreferences pref = await SharedPreferences.getInstance();
     pref.remove('accessToken');
@@ -155,5 +165,6 @@ class UserPreference {
     pref.remove('mobile');
     pref.remove('isMobileVerified');
     pref.remove('isRoleSelected');
+    pref.remove('location_consent');
   }
 }

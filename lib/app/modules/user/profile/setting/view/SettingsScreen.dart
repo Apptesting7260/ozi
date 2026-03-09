@@ -63,7 +63,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         title: "Login Details",
                         showArrow: true,
                         onTap: () {
-                            Navigator.pushNamed(context, AppRoutes.loginDetails);
+                          Navigator.pushNamed(context, AppRoutes.loginDetails);
                         },
                       ),
 
@@ -72,7 +72,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         title: "Terms & Conditions",
                         showArrow: true,
                         onTap: () {
-                          final url = provider.settingsData?.data?.termsUrl ?? "";
+                          final url =
+                              provider.settingsData?.data?.termsUrl ?? "";
 
                           Navigator.pushNamed(
                             context,
@@ -102,16 +103,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           //     print("Could not launch $url");
                           //   }
                           // }
-                            final url = provider.settingsData?.data?.privacyUrl ?? "";
+                          final url =
+                              provider.settingsData?.data?.privacyUrl ?? "";
 
-                            Navigator.pushNamed(
-                              context,
-                              AppRoutes.commonScreen,
-                              arguments: CommonScreenArgs(
-                                type: "Privacy Policy",
-                                url: url,
-                              ),
-                            );
+                          Navigator.pushNamed(
+                            context,
+                            AppRoutes.commonScreen,
+                            arguments: CommonScreenArgs(
+                              type: "Privacy Policy",
+                              url: url,
+                            ),
+                          );
                         },
                       ),
 

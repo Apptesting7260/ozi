@@ -113,9 +113,19 @@ class VerificationContent extends StatelessWidget {
                   ],
                   hBox(16),
                   CustomButton(
-                    text: provider.isLoading ? "Verifying..." : "Verify",
-                    onPressed:() {
-                      provider.verifyOtpMethod(phone, "+$countryCode");
+                    text: "Verify",
+                    isLoading: provider.isLoading,
+                    onPressed: () {
+                      if (provider.isLoading) return;
+                      print("phone on verification : $phone");
+                      print("countryCode on verification : $countryCode");
+                      provider.verifyOtpMethod(phone, ("+$countryCode"));
+
+                      if (kDebugMode) {
+                        print(
+                          "Error After send Otp : ${provider.errorMessage}",
+                        );
+                      }
                     },
                   ),
                   hBox(24),

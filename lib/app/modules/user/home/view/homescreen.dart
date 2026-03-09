@@ -21,17 +21,34 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
         // context.read<AuthProvider>().loadStatus();
         context.read<ProfileProvider>().fetchUserProfile();
-        context.read<HomeScreenProvider>().loadOnce();
+        context.read<HomeScreenProvider>().loadOnce(context);
       }
     });
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      // Re-trigger loadOnce which has the 30-min logic
+      if (mounted) {
+        context.read<HomeScreenProvider>().loadOnce(context);
+      }
+    }
   }
 
   @override
