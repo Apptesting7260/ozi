@@ -113,7 +113,8 @@ class VerificationContent extends StatelessWidget {
                   ],
                   hBox(16),
                   CustomButton(
-                    text: provider.isLoading ? "Verifying..." : "Verify",
+                    text: "Verify",
+                    isLoading: provider.isLoading,
                     onPressed: () {
                       if (provider.isLoading) return;
                       print("phone on verification : $phone");

@@ -299,6 +299,8 @@ class CreateAccountProvider with ChangeNotifier {
   bool _isEmailVerified = false;
   bool get isEmailVerified => _isEmailVerified;
 
+  String? _verifiedEmail;
+
   bool _isloading = false;
   bool get isloading => _isloading;
 
@@ -307,6 +309,9 @@ class CreateAccountProvider with ChangeNotifier {
 
   String? _mobileError;
   String? get mobileError => _mobileError;
+
+  String? _verifiedMobile;
+  String? _verifiedCountryCode;
 
   void setMobileError(String? error) {
     _mobileError = error;
@@ -321,12 +326,28 @@ class CreateAccountProvider with ChangeNotifier {
 
   void updateCountry(Country country) {
     _selectedCountry = country;
-    resetMobileVerification();
+    _checkMobileVerification();
     notifyListeners();
+  }
+
+  void _checkMobileVerification() {
+    final currentMobile = mobileController.text.trim();
+    final currentCountry = _selectedCountry.phoneCode;
+
+    if (_verifiedMobile != null &&
+        _verifiedCountryCode != null &&
+        currentMobile == _verifiedMobile &&
+        currentCountry == _verifiedCountryCode) {
+      _isMobileVerified = true;
+    } else {
+      _isMobileVerified = false;
+    }
   }
 
   void resetMobileVerification() {
     _isMobileVerified = false;
+    _verifiedMobile = null;
+    _verifiedCountryCode = null;
     UserPreference.saveIsMobileVerified(false);
     notifyListeners();
   }
@@ -348,7 +369,14 @@ class CreateAccountProvider with ChangeNotifier {
     _isEmailValid = RegExp(
       r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
     ).hasMatch(val.trim());
-    _isEmailVerified = false; // Reset verification on change
+
+    // If the current email matches the previously verified email, mark as verified
+    if (_verifiedEmail != null && val.trim() == _verifiedEmail) {
+      _isEmailVerified = true;
+    } else {
+      _isEmailVerified = false; // Reset verification on change
+    }
+
     notifyListeners();
   }
 
@@ -356,11 +384,16 @@ class CreateAccountProvider with ChangeNotifier {
   void setEmailVerifiedFromGoogle() {
     _isEmailValid = true;
     _isEmailVerified = true;
+    _verifiedEmail = emailController.text.trim();
   }
 
   void setMobileData({required String mobile, required bool isVerified}) {
     mobileController.text = mobile;
     _isMobileVerified = isVerified;
+    if (isVerified) {
+      _verifiedMobile = mobile;
+      _verifiedCountryCode = _selectedCountry.phoneCode;
+    }
     notifyListeners();
   }
 
@@ -506,6 +539,8 @@ class CreateAccountProvider with ChangeNotifier {
       await FirebaseAuth.instance.signOut();
 
       _isMobileVerified = true;
+      _verifiedMobile = mobileController.text.trim();
+      _verifiedCountryCode = _selectedCountry.phoneCode;
       _otpLoading = false;
       notifyListeners();
       return null; // success
@@ -558,6 +593,7 @@ class CreateAccountProvider with ChangeNotifier {
           response['message']?.toString().toLowerCase().contains('success') ==
               true) {
         _isEmailVerified = true;
+        _verifiedEmail = data['email']?.toString().trim();
       }
       notifyListeners();
       // Navigator.pop(navigatorKey.currentContext!);
@@ -578,6 +614,7 @@ class CreateAccountProvider with ChangeNotifier {
   }
 
   void updateUI() {
+    _checkMobileVerification();
     notifyListeners();
   }
 
@@ -615,7 +652,7 @@ class CreateAccountProvider with ChangeNotifier {
       // ScaffoldMessenger.of(context).showSnackBar(
       //   SnackBar(
       //     content: Text(
-      //       "$e",
+      //       "$e"  ,
       //     ),
       //     backgroundColor: Colors.red,
       //   ),

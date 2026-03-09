@@ -1,4 +1,5 @@
 import 'package:intl/intl.dart';
+import 'package:ozi/app/modules/user/navigation%20tab/view/navigation_tab_screen.dart';
 import 'package:ozi/app/modules/user/singleService/screen/singleservicescreen.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -891,7 +892,9 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
               if (provider.bookingDetails?.data?.status?.toLowerCase() !=
                       "rejected" &&
                   provider.bookingDetails?.data?.status?.toLowerCase() !=
-                      "cancelled") ...[
+                      "cancelled" &&
+                  provider.bookingDetails?.data?.status?.toLowerCase() !=
+                      "completed") ...[
                 if (vendor.mobile != null)
                   GestureDetector(
                     onTap: () {
@@ -925,6 +928,30 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
                       Icons.message,
                       color: AppColors.white,
                       size: 20,
+                    ),
+                  ),
+                ),
+              ] else if (provider.bookingDetails?.data?.status?.toLowerCase() ==
+                  "completed") ...[
+                GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            const NavigationTabScreen(initialIndex: 3),
+                      ),
+                    );
+                  },
+                  child: Container(
+                    padding: EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: AppColors.primary,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Text(
+                      "Need Help",
+                      style: AppFontStyle.text_14_600(AppColors.white),
                     ),
                   ),
                 ),

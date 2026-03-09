@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:ozi/app/core/appExports/app_export.dart';
 import 'package:ozi/app/core/device%20info/datainfoservices.dart';
@@ -16,12 +15,11 @@ import 'package:ozi/app/modules/user/navigation%20tab/view/navigation_tab_screen
 import 'package:ozi/app/modules/vendor/navigation%20tab/view/vendor_navigation_tab_screen.dart';
 import 'package:ozi/app/shared/widgets/customoverlayloader.dart';
 import 'package:ozi/app/view/user_role/choose_your_role/view/choose_role.dart';
-import 'dart:convert';
-import '../../../../core/constants/app_urls.dart';
 import '../../../../data/Exception/app_exceptions.dart';
 import '../../../../data/models/otp_session.dart';
 import '../model/login_model.dart';
 import '../../../../modules/auth/vendor/signup/view/service_category.dart';
+import '../../../../modules/user/home/provider/HomeScreenProvider.dart';
 
 class LoginProvider extends ChangeNotifier {
   bool _isLoading = false;
@@ -845,19 +843,19 @@ class LoginProvider extends ChangeNotifier {
                 ),
               );
             } else if (stepCompleted == 1 && userRole == 'vendor') {
-              await saveLogin(userRole, apiToken);
+              await saveLogin(userRole, apiToken, userId);
               Navigator.push(
                 navigatorKey.currentContext!,
                 MaterialPageRoute(builder: (_) => ServiceCategory()),
               );
             } else if (stepCompleted == 2 && userRole == 'vendor') {
-              await saveLogin(userRole, apiToken);
+              await saveLogin(userRole, apiToken, userId);
               Navigator.push(
                 navigatorKey.currentContext!,
                 MaterialPageRoute(builder: (_) => SetAvailabilityScreen(false)),
               );
             } else if (stepCompleted == 3 && userRole == 'vendor') {
-              await saveLogin(userRole, apiToken);
+              await saveLogin(userRole, apiToken, userId);
               Navigator.push(
                 navigatorKey.currentContext!,
                 MaterialPageRoute(
@@ -866,7 +864,7 @@ class LoginProvider extends ChangeNotifier {
                 ),
               );
             } else {
-              loginWithSaveTokenRedirection(userRole, apiToken);
+              loginWithSaveTokenRedirection(userRole, apiToken, userId);
             }
           }
 
@@ -898,23 +896,26 @@ class LoginProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> saveLogin(String? role, String? token) async {
+  Future<void> saveLogin(String? role, String? token, String userId) async {
     if (role == null || token == null) {
       return;
     }
     await UserPreference.isLoggedIn(true);
     await UserPreference.saveAccessToken(token);
     await UserPreference.saveRole(role);
+    // Promote any consent given on the login screen (guest) to the new user
+    HomeScreenProvider.promoteGuestConsent(userId);
   }
 
   Future<void> loginWithSaveTokenRedirection(
     String? role,
     String? token,
+    String userId,
   ) async {
     if (role == null || token == null) {
       return;
     }
-    await saveLogin(role, token);
+    await saveLogin(role, token, userId);
     if (role == 'user') {
       Navigator.push(
         navigatorKey.currentContext!,

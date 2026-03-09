@@ -9,12 +9,32 @@ import '../../../../../shared/widgets/custom_image_path_helper.dart';
 import '../../../../../shared/widgets/custom_text_form_field.dart';
 import '../provider/EditProfileProvider.dart';
 
-class EditProfileScreen extends StatelessWidget {
+class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({super.key});
 
-  void initState(BuildContext context) {
-    final profileProvider = context.read<ProfileProvider>();
-    profileProvider.fetchUserProfile();
+  @override
+  State<EditProfileScreen> createState() => _EditProfileScreenState();
+}
+
+class _EditProfileScreenState extends State<EditProfileScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        final profileProvider = context.read<ProfileProvider>();
+        final editProvider = context.read<EditProfileProvider>();
+        if (profileProvider.userData != null) {
+          editProvider.populateProfileData(profileProvider.userData);
+        } else {
+          profileProvider.fetchUserProfile().then((_) {
+            if (mounted && profileProvider.userData != null) {
+              editProvider.populateProfileData(profileProvider.userData);
+            }
+          });
+        }
+      }
+    });
   }
 
   @override
@@ -45,9 +65,8 @@ class EditProfileScreen extends StatelessWidget {
 
                   CustomButton(
                     borderRadius: BorderRadius.circular(60),
-                    text: provider.isUpdating
-                        ? "Updating..."
-                        : "Update Profile",
+                    text: "Update Profile",
+                    isLoading: provider.isUpdating,
                     onPressed: provider.isUpdating
                         ? null
                         : () => provider.updateProfile(context),
@@ -66,7 +85,7 @@ class EditProfileScreen extends StatelessWidget {
 
   // ─────────────────── PROFILE SECTION ───────────────────
 
-  Widget _profileSection(EditProfileProvider provider, context) {
+  Widget _profileSection(EditProfileProvider provider, BuildContext context) {
     return Column(
       children: [
         Stack(
@@ -351,7 +370,7 @@ class _OtpDialogContentState extends State<_OtpDialogContent> {
   String? errorMessage;
   String? successMessage;
   bool isResending = false;
-  int secondsRemaining = 180;
+  int secondsRemaining = 60;
   Timer? timer;
 
   @override
@@ -363,7 +382,7 @@ class _OtpDialogContentState extends State<_OtpDialogContent> {
   void startTimer({bool clearSuccess = true}) {
     timer?.cancel();
     setState(() {
-      secondsRemaining = 180;
+      secondsRemaining = 60;
       errorMessage = null;
       if (clearSuccess) successMessage = null;
     });
@@ -392,198 +411,210 @@ class _OtpDialogContentState extends State<_OtpDialogContent> {
 
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(
-      insetPadding: const EdgeInsets.symmetric(horizontal: 20),
-      contentPadding: const EdgeInsets.all(20),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      title: Text(
-        "OTP Verification",
-        textAlign: TextAlign.center,
-        style: AppFontStyle.text_20_600(AppColors.darkText),
-      ),
-      content: SizedBox(
-        width: Get.width(),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              "Enter the 6-digit OTP sent to your email.",
-              textAlign: TextAlign.center,
-              style: AppFontStyle.text_14_400(AppColors.grey),
-            ),
-            hBox(20),
-            PinCodeTextField(
-              appContext: context,
-              length: 6,
-              onChanged: (value) {
-                otpCode = value;
-                if (errorMessage != null || successMessage != null) {
-                  setState(() {
-                    errorMessage = null;
-                    successMessage = null;
-                  });
-                }
-              },
-              keyboardType: TextInputType.number,
-              enableActiveFill: true,
-              pinTheme: PinTheme(
-                shape: PinCodeFieldShape.circle,
-                fieldHeight: 48,
-                fieldWidth: 48,
-                activeFillColor: AppColors.fieldBgColor,
-                inactiveFillColor: AppColors.fieldBgColor,
-                selectedFillColor: AppColors.fieldBgColor,
-                activeColor: AppColors.primary,
-                inactiveColor: Colors.transparent,
-                selectedColor: AppColors.primary,
-                borderWidth: 0,
-              ),
-            ),
-            if (errorMessage != null) ...[
-              hBox(8),
-              Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  errorMessage!,
-                  style: AppFontStyle.text_12_400(AppColors.red),
-                ),
-              ),
-            ],
-            hBox(20),
-            if (secondsRemaining > 0)
-              Center(
-                child: Text(
-                  "Resend OTP in $timerText",
-                  style: AppFontStyle.text_12_400(AppColors.grey),
-                ),
-              )
-            else
-              Center(
-                child: isResending
-                    ? SizedBox(
-                        height: 16,
-                        width: 16,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 1.5,
-                          color: AppColors.primary,
-                        ),
-                      )
-                    : GestureDetector(
-                        onTap: () async {
-                          try {
-                            setState(() => isResending = true);
-                            final response = await widget.provider
-                                .emailSendOtpApi({
-                                  "email": widget.provider.emailController.text
-                                      .trim(),
-                                });
-                            if (response['status'] == true ||
-                                response['status'] == 200) {
-                              startTimer(clearSuccess: false);
-                              setState(() {
-                                successMessage = "OTP resent successfully";
-                              });
-                            } else {
-                              setState(() {
-                                errorMessage =
-                                    response['message'] ??
-                                    "Failed to resend OTP";
-                              });
-                            }
-                          } catch (e) {
-                            setState(() {
-                              errorMessage = e.toString();
-                            });
-                          } finally {
-                            setState(() => isResending = false);
-                          }
-                        },
-                        child: Text(
-                          "Resend OTP",
-                          style: AppFontStyle.text_14_600(
-                            AppColors.primary,
-                          ).copyWith(decoration: TextDecoration.underline),
-                        ),
-                      ),
-              ),
-            if (successMessage != null) ...[
-              hBox(8),
-              Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  successMessage!,
-                  style: AppFontStyle.text_12_400(AppColors.green),
-                ),
-              ),
-            ],
-            hBox(30),
-            Row(
+    return ListenableBuilder(
+      listenable: widget.provider,
+      builder: (context, child) {
+        return AlertDialog(
+          insetPadding: const EdgeInsets.symmetric(horizontal: 20),
+          contentPadding: const EdgeInsets.all(20),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          title: Text(
+            "OTP Verification",
+            textAlign: TextAlign.center,
+            style: AppFontStyle.text_20_600(AppColors.darkText),
+          ),
+          content: SizedBox(
+            width: Get.width(),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
               children: [
-                Expanded(
-                  child: OutlinedButton(
-                    onPressed: () => Navigator.pop(context),
-                    style: OutlinedButton.styleFrom(
-                      side: BorderSide(color: AppColors.red),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30),
-                      ),
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                    ),
-                    child: Text(
-                      "Cancel",
-                      style: AppFontStyle.text_16_600(AppColors.red),
-                    ),
+                Text(
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  "Enter the 6-digit OTP sent to your email.",
+                  textAlign: TextAlign.center,
+                  style: AppFontStyle.text_14_400(AppColors.grey),
+                ),
+                hBox(20),
+                PinCodeTextField(
+                  appContext: context,
+                  length: 6,
+                  onChanged: (value) {
+                    otpCode = value;
+                    if (errorMessage != null || successMessage != null) {
+                      setState(() {
+                        errorMessage = null;
+                        successMessage = null;
+                      });
+                    }
+                  },
+                  keyboardType: TextInputType.number,
+                  enableActiveFill: true,
+                  pinTheme: PinTheme(
+                    shape: PinCodeFieldShape.circle,
+                    fieldHeight: 48,
+                    fieldWidth: 48,
+                    activeFillColor: AppColors.fieldBgColor,
+                    inactiveFillColor: AppColors.fieldBgColor,
+                    selectedFillColor: AppColors.fieldBgColor,
+                    activeColor: AppColors.primary,
+                    inactiveColor: Colors.transparent,
+                    selectedColor: AppColors.primary,
+                    borderWidth: 0,
                   ),
                 ),
-                wBox(12),
-                Expanded(
-                  child: widget.provider.otpLoading
-                      ? Center(
-                          child: CircularProgressIndicator(
-                            color: AppColors.primary,
-                          ),
-                        )
-                      : CustomButton(
-                          height: 50,
-                          onPressed: () async {
-                            if (otpCode.length == 6) {
+                if (errorMessage != null) ...[
+                  hBox(8),
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      errorMessage!,
+                      style: AppFontStyle.text_12_400(AppColors.red),
+                    ),
+                  ),
+                ],
+                hBox(20),
+                if (secondsRemaining > 0)
+                  Center(
+                    child: Text(
+                      "Resend OTP in $timerText",
+                      style: AppFontStyle.text_12_400(AppColors.grey),
+                    ),
+                  )
+                else
+                  Center(
+                    child: isResending
+                        ? SizedBox(
+                            height: 16,
+                            width: 16,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 1.5,
+                              color: AppColors.primary,
+                            ),
+                          )
+                        : GestureDetector(
+                            onTap: () async {
                               try {
+                                setState(() => isResending = true);
                                 final response = await widget.provider
-                                    .verifyEmailApi({"otp": otpCode});
+                                    .emailSendOtpApi({
+                                      "email": widget
+                                          .provider
+                                          .emailController
+                                          .text
+                                          .trim(),
+                                    });
                                 if (response['status'] == true ||
                                     response['status'] == 200) {
-                                  Navigator.pop(context);
-                                  Get.showToast(
-                                    "Email verified successfully",
-                                    type: ToastType.success,
-                                  );
+                                  startTimer(clearSuccess: false);
+                                  setState(() {
+                                    successMessage = "OTP resent successfully";
+                                  });
                                 } else {
                                   setState(() {
                                     errorMessage =
-                                        response['message'] ?? "Invalid OTP";
+                                        response['message'] ??
+                                        "Failed to resend OTP";
                                   });
                                 }
                               } catch (e) {
                                 setState(() {
                                   errorMessage = e.toString();
                                 });
+                              } finally {
+                                setState(() => isResending = false);
                               }
-                            } else {
+                            },
+                            child: Text(
+                              "Resend OTP",
+                              style: AppFontStyle.text_14_600(
+                                AppColors.primary,
+                              ).copyWith(decoration: TextDecoration.underline),
+                            ),
+                          ),
+                  ),
+                if (successMessage != null) ...[
+                  hBox(8),
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      successMessage!,
+                      style: AppFontStyle.text_12_400(AppColors.green),
+                    ),
+                  ),
+                ],
+                hBox(30),
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: () => Navigator.pop(context),
+                        style: OutlinedButton.styleFrom(
+                          side: BorderSide(color: AppColors.red),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                        ),
+                        child: Text(
+                          "Cancel",
+                          style: AppFontStyle.text_16_600(AppColors.red),
+                        ),
+                      ),
+                    ),
+                    wBox(12),
+                    Expanded(
+                      child: CustomButton(
+                        height: 50,
+                        isLoading: widget.provider.otpLoading,
+                        onPressed: () async {
+                          if (otpCode.length == 6) {
+                            try {
+                              final response = await widget.provider
+                                  .verifyEmailApi({
+                                    "email": widget
+                                        .provider
+                                        .emailController
+                                        .text
+                                        .trim(),
+                                    "otp": otpCode,
+                                  });
+                              if (response['status'] == true ||
+                                  response['status'] == 200) {
+                                Navigator.pop(context);
+                                Get.showToast(
+                                  "Email verified successfully",
+                                  type: ToastType.success,
+                                );
+                              } else {
+                                setState(() {
+                                  errorMessage =
+                                      response['message'] ?? "Invalid OTP";
+                                });
+                              }
+                            } catch (e) {
                               setState(() {
-                                errorMessage = "Please enter a 6-digit OTP";
+                                errorMessage = e.toString();
                               });
                             }
-                          },
-                          text: "Verify",
-                        ),
+                          } else {
+                            setState(() {
+                              errorMessage = "Please enter a 6-digit OTP";
+                            });
+                          }
+                        },
+                        text: "Verify",
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 }

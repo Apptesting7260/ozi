@@ -308,10 +308,6 @@ class CreateAccountScreen extends StatelessWidget {
                               ),
                             ),
                             onChanged: (val) {
-                              // If they edit the number, reset verification status
-                              if (value.isMobileVerified) {
-                                value.resetMobileVerification();
-                              }
                               if (value.mobileError != null) {
                                 value.setMobileError(null);
                               }
@@ -501,7 +497,7 @@ class _OtpDialogContentState extends State<_OtpDialogContent> {
   String? errorMessage;
   String? successMessage;
   bool isResending = false;
-  int secondsRemaining = 180;
+  int secondsRemaining = 60;
   Timer? timer;
 
   @override
@@ -513,7 +509,7 @@ class _OtpDialogContentState extends State<_OtpDialogContent> {
   void startTimer({bool clearSuccess = true}) {
     timer?.cancel();
     setState(() {
-      secondsRemaining = 180;
+      secondsRemaining = 60;
       errorMessage = null;
       if (clearSuccess) successMessage = null;
     });
@@ -542,208 +538,213 @@ class _OtpDialogContentState extends State<_OtpDialogContent> {
 
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(
-      insetPadding: const EdgeInsets.symmetric(horizontal: 20),
-      contentPadding: const EdgeInsets.all(20),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      title: Text(
-        "OTP Verification",
-        textAlign: TextAlign.center,
-        style: AppFontStyle.text_20_600(AppColors.darkText),
-      ),
-      content: SizedBox(
-        width: Get.width(),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              "Enter the 6-digit OTP sent to your email.",
-              textAlign: TextAlign.center,
-              style: AppFontStyle.text_14_400(AppColors.grey),
-            ),
-            hBox(30),
-            PinCodeTextField(
-              appContext: context,
-              length: 6,
-              onChanged: (value) {
-                otpCode = value;
-                if (errorMessage != null || successMessage != null) {
-                  setState(() {
-                    errorMessage = null;
-                    successMessage = null;
-                  });
-                }
-              },
-              keyboardType: TextInputType.number,
-              enableActiveFill: true,
-              pinTheme: PinTheme(
-                shape: PinCodeFieldShape.circle,
-                fieldHeight: 48,
-                fieldWidth: 48,
-                activeFillColor: AppColors.fieldBgColor,
-                inactiveFillColor: AppColors.fieldBgColor,
-                selectedFillColor: AppColors.fieldBgColor,
-                activeColor: AppColors.primary,
-                inactiveColor: Colors.transparent,
-                selectedColor: AppColors.primary,
-                borderWidth: 0,
-              ),
-            ),
-            if (errorMessage != null) ...[
-              hBox(8),
-              Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  errorMessage!,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: AppFontStyle.text_12_400(AppColors.red),
-                ),
-              ),
-            ],
-            hBox(30),
-            if (secondsRemaining > 0)
-              Center(
-                child: Text(
-                  "Resend OTP in $timerText",
-                  style: AppFontStyle.text_12_400(AppColors.grey),
-                ),
-              )
-            else
-              Center(
-                child: isResending
-                    ? SizedBox(
-                        height: 16,
-                        width: 16,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 1.5,
-                          color: AppColors.primary,
-                        ),
-                      )
-                    : GestureDetector(
-                        onTap: () async {
-                          try {
-                            setState(() => isResending = true);
-                            final response = await widget.provider
-                                .emailSendApi({
-                                  "email": widget.provider.emailController.text
-                                      .trim(),
-                                  "user_id": widget.userId,
-                                });
-
-                            if (response['status'] == true ||
-                                response['status'] == 200) {
-                              startTimer(clearSuccess: false);
-                              setState(() {
-                                successMessage = "OTP resent successfully";
-                              });
-                            } else {
-                              setState(() {
-                                errorMessage =
-                                    response['message'] ??
-                                    "Failed to resend OTP";
-                              });
-                            }
-                          } catch (e) {
-                            setState(() {
-                              errorMessage = e.toString();
-                            });
-                          } finally {
-                            setState(() => isResending = false);
-                          }
-                        },
-                        child: Text(
-                          "Resend OTP",
-                          style: AppFontStyle.text_14_600(
-                            AppColors.primary,
-                          ).copyWith(decoration: TextDecoration.underline),
-                        ),
-                      ),
-              ),
-            if (successMessage != null) ...[
-              hBox(8),
-              Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  successMessage!,
-                  style: AppFontStyle.text_12_400(AppColors.green),
-                ),
-              ),
-            ],
-            hBox(30),
-            Row(
+    return ListenableBuilder(
+      listenable: widget.provider,
+      builder: (context, child) {
+        return AlertDialog(
+          insetPadding: const EdgeInsets.symmetric(horizontal: 20),
+          contentPadding: const EdgeInsets.all(20),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          title: Text(
+            "OTP Verification",
+            textAlign: TextAlign.center,
+            style: AppFontStyle.text_20_600(AppColors.darkText),
+          ),
+          content: SizedBox(
+            width: Get.width(),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
               children: [
-                Expanded(
-                  child: OutlinedButton(
-                    onPressed: () => Navigator.pop(context),
-                    style: OutlinedButton.styleFrom(
-                      side: BorderSide(color: AppColors.red),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30),
-                      ),
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                    ),
-                    child: Text(
-                      "Cancel",
-                      style: AppFontStyle.text_16_600(AppColors.red),
-                    ),
+                Text(
+                  "Enter the 6-digit OTP sent to your email.",
+                  textAlign: TextAlign.center,
+                  style: AppFontStyle.text_14_400(AppColors.grey),
+                ),
+                hBox(30),
+                PinCodeTextField(
+                  appContext: context,
+                  length: 6,
+                  onChanged: (value) {
+                    otpCode = value;
+                    if (errorMessage != null || successMessage != null) {
+                      setState(() {
+                        errorMessage = null;
+                        successMessage = null;
+                      });
+                    }
+                  },
+                  keyboardType: TextInputType.number,
+                  enableActiveFill: true,
+                  pinTheme: PinTheme(
+                    shape: PinCodeFieldShape.circle,
+                    fieldHeight: 48,
+                    fieldWidth: 48,
+                    activeFillColor: AppColors.fieldBgColor,
+                    inactiveFillColor: AppColors.fieldBgColor,
+                    selectedFillColor: AppColors.fieldBgColor,
+                    activeColor: AppColors.primary,
+                    inactiveColor: Colors.transparent,
+                    selectedColor: AppColors.primary,
+                    borderWidth: 0,
                   ),
                 ),
-                wBox(12),
-                Expanded(
-                  child: widget.provider.otpLoading
-                      ? Center(
-                          child: CircularProgressIndicator(
-                            color: AppColors.primary,
-                          ),
-                        )
-                      : CustomButton(
-                          height: 50,
-                          onPressed: () async {
-                            if (otpCode.length == 6) {
+                if (errorMessage != null) ...[
+                  hBox(8),
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      errorMessage!,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: AppFontStyle.text_12_400(AppColors.red),
+                    ),
+                  ),
+                ],
+                hBox(30),
+                if (secondsRemaining > 0)
+                  Center(
+                    child: Text(
+                      "Resend OTP in $timerText",
+                      style: AppFontStyle.text_12_400(AppColors.grey),
+                    ),
+                  )
+                else
+                  Center(
+                    child: isResending
+                        ? SizedBox(
+                            height: 16,
+                            width: 16,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 1.5,
+                              color: AppColors.primary,
+                            ),
+                          )
+                        : GestureDetector(
+                            onTap: () async {
                               try {
+                                setState(() => isResending = true);
                                 final response = await widget.provider
-                                    .verifyEmailApi({
+                                    .emailSendApi({
                                       "email": widget
                                           .provider
                                           .emailController
                                           .text
                                           .trim(),
-                                      "otp": otpCode,
                                       "user_id": widget.userId,
                                     });
+
                                 if (response['status'] == true ||
                                     response['status'] == 200) {
-                                  Navigator.pop(context);
-                                  Get.showToast(
-                                    "Email verified successfully",
-                                    type: ToastType.success,
-                                  );
+                                  startTimer(clearSuccess: false);
+                                  setState(() {
+                                    successMessage = "OTP resent successfully";
+                                  });
                                 } else {
                                   setState(() {
                                     errorMessage =
-                                        response['message'] ?? "Invalid OTP";
+                                        response['message'] ??
+                                        "Failed to resend OTP";
                                   });
                                 }
                               } catch (e) {
                                 setState(() {
                                   errorMessage = e.toString();
                                 });
+                              } finally {
+                                setState(() => isResending = false);
                               }
-                            } else {
+                            },
+                            child: Text(
+                              "Resend OTP",
+                              style: AppFontStyle.text_14_600(
+                                AppColors.primary,
+                              ).copyWith(decoration: TextDecoration.underline),
+                            ),
+                          ),
+                  ),
+                if (successMessage != null) ...[
+                  hBox(8),
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      successMessage!,
+                      style: AppFontStyle.text_12_400(AppColors.green),
+                    ),
+                  ),
+                ],
+                hBox(30),
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: () => Navigator.pop(context),
+                        style: OutlinedButton.styleFrom(
+                          side: BorderSide(color: AppColors.red),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                        ),
+                        child: Text(
+                          "Cancel",
+                          style: AppFontStyle.text_16_600(AppColors.red),
+                        ),
+                      ),
+                    ),
+                    wBox(12),
+                    Expanded(
+                      child: CustomButton(
+                        height: 50,
+                        onPressed: () async {
+                          if (otpCode.length == 6) {
+                            try {
+                              final response = await widget.provider
+                                  .verifyEmailApi({
+                                    "email": widget
+                                        .provider
+                                        .emailController
+                                        .text
+                                        .trim(),
+                                    "otp": otpCode,
+                                    "user_id": widget.userId,
+                                  });
+                              if (response['status'] == true ||
+                                  response['status'] == 200) {
+                                Navigator.pop(context);
+                                Get.showToast(
+                                  "Email verified successfully",
+                                  type: ToastType.success,
+                                );
+                              } else {
+                                setState(() {
+                                  errorMessage =
+                                      response['message'] ?? "Invalid OTP";
+                                });
+                              }
+                            } catch (e) {
                               setState(() {
-                                errorMessage = "Please enter a 6-digit OTP";
+                                errorMessage = e.toString();
                               });
                             }
-                          },
-                          text: "Verify",
-                        ),
+                          } else {
+                            setState(() {
+                              errorMessage = "Please enter a 6-digit OTP";
+                            });
+                          }
+                        },
+                        isLoading: widget.provider.otpLoading,
+                        text: "Verify",
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 }
@@ -801,159 +802,166 @@ class _MobileOtpDialogContentState extends State<_MobileOtpDialogContent> {
 
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      title: Text(
-        "Mobile OTP",
-        textAlign: TextAlign.center,
-        style: AppFontStyle.text_20_600(AppColors.darkText),
-      ),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            "Enter the 6-digit OTP sent to your phone number.",
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
+    return ListenableBuilder(
+      listenable: widget.provider,
+      builder: (context, child) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          title: Text(
+            "Mobile OTP",
             textAlign: TextAlign.center,
-            style: AppFontStyle.text_14_400(AppColors.grey),
+            style: AppFontStyle.text_20_600(AppColors.darkText),
           ),
-          hBox(30),
-          PinCodeTextField(
-            controller: otpController,
-            appContext: context,
-            length: 6,
-            onChanged: (v) {
-              otpCode = v;
-              if (errorMessage != null) {
-                setState(() => errorMessage = null);
-              }
-            },
-            keyboardType: TextInputType.number,
-            enableActiveFill: true,
-            pinTheme: PinTheme(
-              shape: PinCodeFieldShape.circle,
-              borderRadius: BorderRadius.circular(8),
-              fieldHeight: 45,
-              fieldWidth: 40,
-              activeFillColor: AppColors.fieldBgColor,
-              inactiveFillColor: AppColors.fieldBgColor,
-              selectedFillColor: AppColors.fieldBgColor,
-              activeColor: AppColors.primary,
-              inactiveColor: Colors.transparent,
-              selectedColor: AppColors.primary,
-              borderWidth: 0,
-            ),
-          ),
-          if (errorMessage != null) ...[
-            hBox(12),
-            Text(
-              errorMessage!,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              textAlign: TextAlign.center,
-              style: AppFontStyle.text_12_400(AppColors.red),
-            ),
-          ],
-          hBox(12),
-          // Timer / Resend row
-          if (_resendSeconds > 0)
-            Text(
-              "Resend OTP in ${_resendSeconds}s",
-              textAlign: TextAlign.center,
-              style: AppFontStyle.text_12_400(AppColors.grey),
-            )
-          else
-            isResending
-                ? SizedBox(
-                    height: 16,
-                    width: 16,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 1.5,
-                      color: AppColors.primary,
-                    ),
-                  )
-                : GestureDetector(
-                    onTap: () async {
-                      setState(() {
-                        errorMessage = null;
-                        otpController.clear();
-                        isResending = true;
-                      });
-                      try {
-                        await widget.provider.sendMobileOtp(
-                          widget.mobileNumber!,
-                        );
-                        _startTimer();
-                      } finally {
-                        if (mounted) {
-                          setState(() => isResending = false);
-                        }
-                      }
-                    },
-                    child: Text(
-                      "Resend OTP",
-                      textAlign: TextAlign.center,
-                      style: AppFontStyle.text_12_400(AppColors.primary),
-                    ),
-                  ),
-          hBox(30),
-          Row(
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
             children: [
-              Expanded(
-                child: CustomButton(
-                  height: 45,
-                  text: "Cancel",
-                  textStyle: AppFontStyle.text_16_600(AppColors.black),
-                  color: AppColors.lightGrey,
-                  onPressed: () => Navigator.pop(context),
+              Text(
+                "Enter the 6-digit OTP sent to your phone number.",
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.center,
+                style: AppFontStyle.text_14_400(AppColors.grey),
+              ),
+              hBox(30),
+              PinCodeTextField(
+                controller: otpController,
+                appContext: context,
+                length: 6,
+                onChanged: (v) {
+                  otpCode = v;
+                  if (errorMessage != null) {
+                    setState(() => errorMessage = null);
+                  }
+                },
+                keyboardType: TextInputType.number,
+                enableActiveFill: true,
+                pinTheme: PinTheme(
+                  shape: PinCodeFieldShape.circle,
+                  borderRadius: BorderRadius.circular(8),
+                  fieldHeight: 45,
+                  fieldWidth: 40,
+                  activeFillColor: AppColors.fieldBgColor,
+                  inactiveFillColor: AppColors.fieldBgColor,
+                  selectedFillColor: AppColors.fieldBgColor,
+                  activeColor: AppColors.primary,
+                  inactiveColor: Colors.transparent,
+                  selectedColor: AppColors.primary,
+                  borderWidth: 0,
                 ),
               ),
-              wBox(10),
-              Expanded(
-                child: CustomButton(
-                  height: 45,
-                  text: "Verify",
-                  isLoading: widget.provider.otpLoading,
-                  onPressed: () async {
-                    if (_resendSeconds == 0) {
-                      setState(() {
-                        errorMessage = "OTP Expired. Please resend OTP.";
-                      });
-                      return;
-                    }
-
-                    if (otpCode.length != 6) {
-                      setState(() {
-                        errorMessage = "Please enter 6-digit OTP";
-                      });
-                      return;
-                    }
-
-                    final error = await widget.provider.verifyMobileOtp(
-                      otpCode,
-                    );
-
-                    if (error == null) {
-                      // Only pop and show success if there's NO error
-                      Navigator.pop(context);
-                      Get.showToast(
-                        "Mobile number verified successfully",
-                        type: ToastType.success,
-                      );
-                    } else {
-                      // Show error message if verification failed
-                      setState(() {
-                        errorMessage = error;
-                      });
-                    }
-                  },
+              if (errorMessage != null) ...[
+                hBox(12),
+                Text(
+                  errorMessage!,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.center,
+                  style: AppFontStyle.text_12_400(AppColors.red),
                 ),
+              ],
+              hBox(12),
+              // Timer / Resend row
+              if (_resendSeconds > 0)
+                Text(
+                  "Resend OTP in ${_resendSeconds}s",
+                  textAlign: TextAlign.center,
+                  style: AppFontStyle.text_12_400(AppColors.grey),
+                )
+              else
+                isResending
+                    ? SizedBox(
+                        height: 16,
+                        width: 16,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 1.5,
+                          color: AppColors.primary,
+                        ),
+                      )
+                    : GestureDetector(
+                        onTap: () async {
+                          setState(() {
+                            errorMessage = null;
+                            otpController.clear();
+                            isResending = true;
+                          });
+                          try {
+                            await widget.provider.sendMobileOtp(
+                              widget.mobileNumber!,
+                            );
+                            _startTimer();
+                          } finally {
+                            if (mounted) {
+                              setState(() => isResending = false);
+                            }
+                          }
+                        },
+                        child: Text(
+                          "Resend OTP",
+                          textAlign: TextAlign.center,
+                          style: AppFontStyle.text_12_400(AppColors.primary),
+                        ),
+                      ),
+              hBox(30),
+              Row(
+                children: [
+                  Expanded(
+                    child: CustomButton(
+                      height: 45,
+                      text: "Cancel",
+                      textStyle: AppFontStyle.text_16_600(AppColors.black),
+                      color: AppColors.lightGrey,
+                      onPressed: () => Navigator.pop(context),
+                    ),
+                  ),
+                  wBox(10),
+                  Expanded(
+                    child: CustomButton(
+                      height: 45,
+                      text: "Verify",
+                      isLoading: widget.provider.otpLoading,
+                      onPressed: () async {
+                        if (_resendSeconds == 0) {
+                          setState(() {
+                            errorMessage = "OTP Expired. Please resend OTP.";
+                          });
+                          return;
+                        }
+
+                        if (otpCode.length != 6) {
+                          setState(() {
+                            errorMessage = "Please enter 6-digit OTP";
+                          });
+                          return;
+                        }
+
+                        final error = await widget.provider.verifyMobileOtp(
+                          otpCode,
+                        );
+
+                        if (error == null) {
+                          // Only pop and show success if there's NO error
+                          Navigator.pop(context);
+                          Get.showToast(
+                            "Mobile number verified successfully",
+                            type: ToastType.success,
+                          );
+                        } else {
+                          // Show error message if verification failed
+                          setState(() {
+                            errorMessage = error;
+                          });
+                        }
+                      },
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 }
