@@ -37,10 +37,7 @@ class VendorHomeProvider extends ChangeNotifier {
       if (kDebugMode) {
         print(response);
       }
-
       setHomeModel(ApiResponse.completed(VendorHomeModel.fromJson(response)));
-
-
     } catch (e) {
       Get.showToast(e.toString(), type: ToastType.error);
       setHomeModel(ApiResponse.error('Internal Server Error'));
@@ -139,6 +136,7 @@ class VendorHomeProvider extends ChangeNotifier {
     }
   }
 
+
   // Future<void> updateLocation(Position? location)async {
   //   if(location==null) return;
   //   try {
@@ -152,6 +150,7 @@ class VendorHomeProvider extends ChangeNotifier {
   //     Get.showToast(e.toString(), type: ToastType.error);
   //   }
   // }
+
 
   Future<void> updateLocationFromLatLng(LatLng latLng) async {
     try {

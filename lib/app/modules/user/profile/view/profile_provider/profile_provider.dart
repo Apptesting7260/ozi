@@ -2,6 +2,7 @@ import 'package:ozi/app/core/appExports/app_export.dart';
 import 'package:ozi/app/modules/user/home/provider/HomeScreenProvider.dart';
 import '../../../../../data/repository/repository.dart';
 import '../../../../../data/storage/user_preference.dart';
+import '../../../../../shared/widgets/auth_guard.dart';
 import '../model/logout_model.dart';
 import '../../../../../routes/app_routes.dart';
 import '../model/user_profile_model.dart';
@@ -45,12 +46,18 @@ class ProfileProvider extends ChangeNotifier {
 
       if (response.status == true) {
         await UserPreference.clearSharedPreference();
+
         if (context.mounted) {
+
+          // reset providers
+          context.read<AuthGuestProvider>().updateLogin(false);
+          context.read<ProfileProvider>().clearProfile();
           context.read<HomeScreenProvider>().resetState();
+
           Navigator.pushNamedAndRemoveUntil(
             context,
             AppRoutes.splashScreen,
-            (route) => false,
+                (route) => false,
           );
         }
       } else {
@@ -58,9 +65,6 @@ class ProfileProvider extends ChangeNotifier {
         notifyListeners();
 
         if (context.mounted) {
-          // ScaffoldMessenger.of(context).showSnackBar(
-          //   SnackBar(content: Text(_errorMessage), backgroundColor: Colors.red),
-          // );
           Get.showToast(_errorMessage, type: ToastType.error);
         }
       }
@@ -142,5 +146,10 @@ class ProfileProvider extends ChangeNotifier {
 
   Future<void> refreshProfile() async {
     await fetchUserProfile();
+  }
+
+  void clearProfile() {
+    _userProfile = null;
+    notifyListeners();
   }
 }

@@ -21,6 +21,10 @@ class VendorNotificationProvider extends ChangeNotifier {
   List<NotificationItem> _notifications = [];
   List<NotificationItem> get notifications => _notifications;
 
+  int get unreadCount {
+    return _notifications.where((n) => n.isRead != true).length;
+  }
+
   VendorNotificationProvider() {
     getNotifications();
   }

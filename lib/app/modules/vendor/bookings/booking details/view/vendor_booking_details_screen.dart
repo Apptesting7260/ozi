@@ -4,17 +4,15 @@ import 'package:ozi/app/data/models/booking_detail_model.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
 import '../../../../../core/appExports/app_export.dart';
 import '../../../../../data/response/api_status.dart';
-import '../../../../../routes/app_routes.dart';
 import '../../../../../shared/widgets/custom_app_bar.dart';
 import '../../../../user/booking/provider/booking_provider.dart';
-import '../../../../user/profile/common screen/provider/comman_screen_provider.dart';
 import '../provider/vendor_booking_details_provider.dart';
 
 class VendorBookingDetailsScreen extends StatelessWidget {
   final String bookingId;
   final int tabIndex;
 
-   VendorBookingDetailsScreen({
+   const VendorBookingDetailsScreen({
     super.key,
     required this.bookingId,
     this.tabIndex = 1

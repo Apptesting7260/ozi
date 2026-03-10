@@ -23,6 +23,7 @@ import 'app/modules/user/profile/login details/provider/login_details_provider.d
 import 'app/modules/user/profile/save address/provider/saved_address_provider.dart';
 import 'app/modules/user/profile/view/profile_provider/profile_provider.dart';
 import 'app/modules/vendor/home/new requests/provider/new_requests_provider.dart';
+import 'app/modules/vendor/home/notification/provider/vendor_ notification_provider.dart';
 import 'app/modules/vendor/home/provider/vendor_home_provider.dart';
 import 'app/modules/vendor/services/provider/service_provider.dart';
 import 'app/routes/app_routes.dart';
@@ -98,6 +99,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => VendorServicesProvider()),
         ChangeNotifierProvider(create: (_) => ChangeAddressProvider()),
         ChangeNotifierProvider(create: (_) => LocationPickerProvider()),
+        ChangeNotifierProvider(create: (_) => VendorNotificationProvider()),
         ChangeNotifierProvider(
           create: (_) => AuthGuestProvider()..loadStatus(),
         ),

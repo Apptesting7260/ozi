@@ -10,6 +10,7 @@ import '../../../../shared/widgets/custom_image_path_helper.dart';
 import '../../../../shared/widgets/custom_shimmer_box.dart';
 import '../../../../shared/widgets/custom_text_form_field.dart';
 import '../../../../view/message/screens/message.dart';
+import '../../../vendor/home/notification/provider/vendor_ notification_provider.dart';
 import '../../profile/view/profile_provider/profile_provider.dart';
 import '../model/category_model.dart';
 import '../provider/HomeScreenProvider.dart';
@@ -28,7 +29,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     WidgetsBinding.instance.addObserver(this);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
-        // context.read<AuthProvider>().loadStatus();
+        context.read<AuthGuestProvider>().loadStatus();
         context.read<ProfileProvider>().fetchUserProfile();
         context.read<HomeScreenProvider>().loadOnce(context);
       }
@@ -215,25 +216,91 @@ class HomeScreenView extends StatelessWidget {
               ),
             ),
             wBox(12),
-            GestureDetector(
-              onTap: () async {
-                final bool allowed = await AuthGuard.requireLogin(context);
+            // GestureDetector(
+            //   onTap: () async {
+            //     final bool allowed = await AuthGuard.requireLogin(context);
+            //
+            //     if (!allowed) return;
+            //
+            //     Navigator.push(
+            //       context,
+            //       MaterialPageRoute(
+            //         builder: (_) => const NotificationsScreen(),
+            //       ),
+            //     );
+            //   },
+            //   child: Image.asset(
+            //     "assets/images/noti.png",
+            //     height: 46,
+            //     width: 46,
+            //   ),
+            // ),
 
-                if (!allowed) return;
+            Consumer<VendorNotificationProvider>(
+              builder: (context, provider, _) {
+                return InkWell(
+                  borderRadius: BorderRadius.circular(40),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const NotificationsScreen(),
+                      ),
+                    );
+                  },
+                  child: Stack(
+                    clipBehavior: Clip.none,
+                    children: [
+                      Container(
+                        height: 40,
+                        width: 40,
+                        decoration: BoxDecoration(
+                          color: AppColors.lightGrey,
+                          shape: BoxShape.circle,
+                        ),
+                        child: Center(
+                          child: CustomImage(
+                            path: ImageConstants.bell,
+                            height: 20,
+                            width: 20,
+                            color: AppColors.black,
+                          ),
+                        ),
+                      ),
 
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => const NotificationsScreen(),
+                      /// Badge
+                      if (provider.unreadCount > 0)
+                        Positioned(
+                          right: -2,
+                          top: -2,
+                          child: Container(
+                            padding: const EdgeInsets.all(4),
+                            constraints: const BoxConstraints(
+                              minWidth: 18,
+                              minHeight: 18,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.red,
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Text(
+                              provider.unreadCount > 99
+                                  ? "99+"
+                                  : provider.unreadCount.toString(),
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ),
+                    ],
                   ),
                 );
               },
-              child: Image.asset(
-                "assets/images/noti.png",
-                height: 46,
-                width: 46,
-              ),
-            ),
+            )
           ],
         ),
       ],

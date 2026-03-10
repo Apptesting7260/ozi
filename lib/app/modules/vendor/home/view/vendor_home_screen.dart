@@ -8,6 +8,7 @@ import '../../../../shared/widgets/custom_toggle_switch.dart';
 import '../../../../view/message/screens/message.dart';
 import '../../../user/profile/view/profile_provider/profile_provider.dart';
 import '../new requests/view/new_request_screen.dart';
+import '../notification/provider/vendor_ notification_provider.dart';
 import '../notification/view/vendor_notifications_screen.dart';
 import '../request_card/view/request_card_view.dart';
 
@@ -26,6 +27,9 @@ class _VendorHomeScreenState extends State<VendorHomeScreen> {
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (!mounted) return;
+
+      final notificationProvider = context.read<VendorNotificationProvider>();
+      await notificationProvider.getNotifications();
 
       final homeProvider = context.read<VendorHomeProvider>();
 
@@ -94,28 +98,14 @@ class _VendorHomeScreenState extends State<VendorHomeScreen> {
                               ),
                             )
                           : ListView.builder(
-                              itemCount:
-                                  value.homeModel.data?.requests?.length ?? 0,
+                        itemCount: (value.homeModel.data!.requests!.length > 2)
+                            ? 2
+                            : value.homeModel.data!.requests!.length,
                               physics: NeverScrollableScrollPhysics(),
                               shrinkWrap: true,
                               itemBuilder: (context, index) {
                                 VendorHomeRequests request =
                                     value.homeModel.data!.requests![index];
-                                // return RequestCard(
-                                //   onAccept: () {
-                                //     value.acceptOrRejectRequest(
-                                //       'accept',
-                                //       request.bookingId ?? '',
-                                //     );
-                                //   },
-                                //   onReject: () {
-                                //     value.acceptOrRejectRequest(
-                                //       'reject',
-                                //       request.bookingId ?? '',
-                                //     );
-                                //   },
-                                //   request: request,
-                                // );
                                 return RequestCard(
                                   onAccept: () {
                                     value.acceptOrRejectRequest(
@@ -157,6 +147,32 @@ class _VendorHomeScreenState extends State<VendorHomeScreen> {
     );
   }
 
+  //  return AlertDialog(
+  //
+  //           title: const Text("Reject Request"),
+  //           content: const Text(
+  //             "Are you sure you want to reject this request?\nThis action cannot be undone.",
+  //           ),
+  //           actions: [
+  //             TextButton(
+  //               onPressed: () {
+  //                 Navigator.pop(context); // close dialog
+  //               },
+  //               child: const Text("Cancel"),
+  //             ),
+  //             TextButton(
+  //               onPressed: () {
+  //                 Navigator.pop(context); // close dialog
+  //                 onConfirm(); // call reject API
+  //               },
+  //               child: const Text(
+  //                 "Reject",
+  //                 style: TextStyle(color: Colors.red),
+  //               ),
+  //             ),
+  //           ],
+  //         );
+
   void _showRejectWarning(
       BuildContext context,
       VoidCallback onConfirm,
@@ -164,29 +180,101 @@ class _VendorHomeScreenState extends State<VendorHomeScreen> {
     showDialog(
       context: context,
       builder: (context) {
-        return AlertDialog(
-          title: const Text("Reject Request"),
-          content: const Text(
-            "Are you sure you want to reject this request?\nThis action cannot be undone.",
+      return  Dialog(
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 28),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(24),
+            ),
+            child: Consumer<VendorHomeProvider>(
+              builder: (context, provider, _) {
+                if (provider.popupLoading) {
+                  return const SizedBox(
+                    height: 100,
+                    child: Center(child: CircularProgressIndicator()),
+                  );
+                }
+                return Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      "Reject Request",
+                      textAlign: TextAlign.center,
+                      style: AppFontStyle.text_22_600(
+                        Color.fromRGBO(28, 29, 33, 1),
+                      ),
+                    ),
+
+                    const SizedBox(height: 12),
+
+                    Text(
+                      maxLines: 5,
+                      "Are you sure you want to reject this request?\nThis action cannot be undone.",
+                      textAlign: TextAlign.center,
+                      style: AppFontStyle.text_16_300(
+                        Color.fromRGBO(112, 108, 108, 1),
+                      ),
+                    ),
+
+                    const SizedBox(height: 28),
+
+                    Row(
+                      children: [
+                        Expanded(
+                          child: GestureDetector(
+                            onTap: () {
+                              Navigator.pop(context);
+                            },
+                            child: Container(
+                              height: 48,
+                              alignment: Alignment.center,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(30),
+                                border: Border.all(
+                                  color: Colors.grey.shade400,
+                                ),
+                              ),
+                              child: Text(
+                                "Cancel",
+                                style: AppFontStyle.text_16_600(
+                                  const Color.fromRGBO(112, 108, 108, 1),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+
+                        const SizedBox(width: 16),
+
+                        Expanded(
+                          child: GestureDetector(
+                            onTap: () async {
+                              Navigator.pop(context);
+                               onConfirm();
+                            },
+                            child: Container(
+                              height: 48,
+                              alignment: Alignment.center,
+                              decoration: BoxDecoration(
+                                color: AppColors.red,
+                                borderRadius: BorderRadius.circular(30),
+                              ),
+                              child: Text(
+                                "Reject",
+                                style: AppFontStyle.text_16_600(
+                                  const Color.fromRGBO(255, 255, 255, 1),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                );
+              },
+            ),
           ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context); // close dialog
-              },
-              child: const Text("Cancel"),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context); // close dialog
-                onConfirm(); // call reject API
-              },
-              child: const Text(
-                "Reject",
-                style: TextStyle(color: Colors.red),
-              ),
-            ),
-          ],
         );
       },
     );
@@ -245,33 +333,98 @@ class _VendorHomeScreenState extends State<VendorHomeScreen> {
               ),
             ),
             wBox(10),
-            InkWell(
-              borderRadius: BorderRadius.circular(40),
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => const NotificationsScreen(),
+            // InkWell(
+            //   borderRadius: BorderRadius.circular(40),
+            //   onTap: () {
+            //     Navigator.push(
+            //       context,
+            //       MaterialPageRoute(
+            //         builder: (_) => const NotificationsScreen(),
+            //       ),
+            //     );
+            //   },
+            //   child: Container(
+            //     height: 40,
+            //     width: 40,
+            //     decoration: BoxDecoration(
+            //       color: AppColors.lightGrey,
+            //       shape: BoxShape.circle,
+            //     ),
+            //     child: Center(
+            //       child: CustomImage(
+            //         path: ImageConstants.bell,
+            //         height: 20,
+            //         width: 20,
+            //         color: AppColors.black,
+            //       ),
+            //     ),
+            //   ),
+            // ),
+            Consumer<VendorNotificationProvider>(
+              builder: (context, provider, _) {
+                return InkWell(
+                  borderRadius: BorderRadius.circular(40),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const NotificationsScreen(),
+                      ),
+                    );
+                  },
+                  child: Stack(
+                    clipBehavior: Clip.none,
+                    children: [
+                      Container(
+                        height: 40,
+                        width: 40,
+                        decoration: BoxDecoration(
+                          color: AppColors.lightGrey,
+                          shape: BoxShape.circle,
+                        ),
+                        child: Center(
+                          child: CustomImage(
+                            path: ImageConstants.bell,
+                            height: 20,
+                            width: 20,
+                            color: AppColors.black,
+                          ),
+                        ),
+                      ),
+
+                      /// Badge
+                      if (provider.unreadCount > 0)
+                        Positioned(
+                          right: -2,
+                          top: -2,
+                          child: Container(
+                            padding: const EdgeInsets.all(4),
+                            constraints: const BoxConstraints(
+                              minWidth: 18,
+                              minHeight: 18,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.red,
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Text(
+                              provider.unreadCount > 99
+                                  ? "99+"
+                                  : provider.unreadCount.toString(),
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ),
+                    ],
                   ),
                 );
               },
-              child: Container(
-                height: 40,
-                width: 40,
-                decoration: BoxDecoration(
-                  color: AppColors.lightGrey,
-                  shape: BoxShape.circle,
-                ),
-                child: Center(
-                  child: CustomImage(
-                    path: ImageConstants.bell,
-                    height: 20,
-                    width: 20,
-                    color: AppColors.black,
-                  ),
-                ),
-              ),
-            ),
+            )
           ],
         );
       },
