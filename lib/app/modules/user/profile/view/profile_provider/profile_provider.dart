@@ -49,8 +49,11 @@ class ProfileProvider extends ChangeNotifier {
           context.read<HomeScreenProvider>().resetState();
           Navigator.pushNamedAndRemoveUntil(
             context,
-            AppRoutes.splashScreen,
+            AppRoutes.welcomeScreen,
             (route) => false,
+            //   splashScreen,
+            //   (route) => false,
+            // );
           );
         }
       } else {

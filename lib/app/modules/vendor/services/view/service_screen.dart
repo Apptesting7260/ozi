@@ -1,4 +1,5 @@
 import 'package:ozi/app/core/constants/app_urls.dart';
+import 'package:ozi/app/shared/widgets/cutom_nodata_widget.dart';
 
 import '../../../../core/appExports/app_export.dart';
 import '../../../../data/models/all_services_model_vendor.dart';
@@ -8,7 +9,6 @@ import '../../../auth/vendor/signup/view/service_details.dart';
 import '../filter/view/filters_screen.dart';
 import '../provider/service_provider.dart';
 import '../service_details/view/service_details_screen.dart';
-
 
 class VendorServicesScreen extends StatelessWidget {
   const VendorServicesScreen({super.key});
@@ -56,17 +56,14 @@ class _MyServicesContent extends StatelessWidget {
                       borderRadius: 40,
                       onChanged: provider.onSearchChanged,
                     ),
-
                   ),
 
                   wBox(10),
 
                   GestureDetector(
                     onTap: () async {
-
                       final categoryObjects =
                           provider.homeModel.data?.filters?.categories ?? [];
-
 
                       final result = await Navigator.push(
                         context,
@@ -76,7 +73,6 @@ class _MyServicesContent extends StatelessWidget {
                             initialStatus: provider.selectedStatus,
                             initialCategoryId: provider.selectedCategoryId,
                           ),
-
                         ),
                       );
 
@@ -97,7 +93,6 @@ class _MyServicesContent extends StatelessWidget {
                           categoryId: categoryId,
                         );
                       }
-
                     },
                     child: Container(
                       height: 44,
@@ -109,7 +104,6 @@ class _MyServicesContent extends StatelessWidget {
                       child: Icon(Icons.tune, color: AppColors.primary),
                     ),
                   ),
-
                 ],
               ),
 
@@ -124,7 +118,8 @@ class _MyServicesContent extends StatelessWidget {
                   final result = await Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => ServiceDetailsScreen(null,"Add New Service"),
+                      builder: (context) =>
+                          ServiceDetailsScreen(null, "Add New Service"),
                     ),
                   );
                   if (result == null || result != null) {
@@ -156,7 +151,6 @@ class _MyServicesContent extends StatelessWidget {
               hBox(20),
 
               switch (provider.homeModel.status) {
-
                 ApiStatus.loading => const Expanded(
                   child: Center(child: CircularProgressIndicator()),
                 ),
@@ -164,9 +158,8 @@ class _MyServicesContent extends StatelessWidget {
                 ApiStatus.completed => Expanded(
                   child: Builder(
                     builder: (context) {
-
                       final list = provider.homeModel.data?.data ?? [];
-                  //    final pagination = provider.homeModel.data?.pagination;
+                      //    final pagination = provider.homeModel.data?.pagination;
 
                       if (list.isEmpty) {
                         return Center(
@@ -179,10 +172,11 @@ class _MyServicesContent extends StatelessWidget {
                                 color: AppColors.grey.withValues(alpha: 0.3),
                               ),
                               hBox(16),
-                              Text(
-                                "No services available",
-                                style: AppFontStyle.text_16_400(AppColors.grey),
-                              ),
+                              NoDataFoundWidget(),
+                              // Text(
+                              //   "No services available",
+                              //   style: AppFontStyle.text_16_400(AppColors.grey),
+                              // ),
                             ],
                           ),
                         );
@@ -194,13 +188,13 @@ class _MyServicesContent extends StatelessWidget {
                           physics: const AlwaysScrollableScrollPhysics(),
                           controller: provider.scrollController,
 
-                          itemCount: list.length +
+                          itemCount:
+                              list.length +
                               (provider.isPaginationLoading ? 1 : 0),
 
                           separatorBuilder: (_, __) => hBox(14),
 
                           itemBuilder: (_, index) {
-
                             if (index == list.length) {
                               return const Padding(
                                 padding: EdgeInsets.symmetric(vertical: 16),
@@ -229,8 +223,7 @@ class _MyServicesContent extends StatelessWidget {
                 ),
 
                 _ => const SizedBox.shrink(),
-              }
-
+              },
             ],
           ),
         ),
@@ -249,7 +242,8 @@ class _MyServicesContent extends StatelessWidget {
         final result = await Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => ServiceCardDetailsScreen(serviceId: service.id.toString(),),
+            builder: (context) =>
+                ServiceCardDetailsScreen(serviceId: service.id.toString()),
           ),
         );
         if (result == null || result != null) {
@@ -261,12 +255,7 @@ class _MyServicesContent extends StatelessWidget {
         decoration: BoxDecoration(
           color: AppColors.white,
           borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: AppColors.cardShadow,
-              blurRadius: 10,
-            ),
-          ],
+          boxShadow: [BoxShadow(color: AppColors.cardShadow, blurRadius: 10)],
         ),
         child: Column(
           children: [
@@ -276,7 +265,7 @@ class _MyServicesContent extends StatelessWidget {
                   borderRadius: BorderRadius.circular(12),
                   child: CustomImage(
                     path:
-                    '${AppUrls.imageBaseUrl}${service?.serviceImage ?? ''}',
+                        '${AppUrls.imageBaseUrl}${service?.serviceImage ?? ''}',
                     height: 70,
                     width: 70,
                   ),
@@ -330,7 +319,9 @@ class _MyServicesContent extends StatelessWidget {
                   child: Text(
                     service.status == "active" ? "Active" : "Inactive",
                     style: AppFontStyle.text_11_500(
-                      service.status == "active" ? AppColors.primary : AppColors.grey,
+                      service.status == "active"
+                          ? AppColors.primary
+                          : AppColors.grey,
                     ),
                   ),
                 ),
@@ -386,10 +377,11 @@ class _MyServicesContent extends StatelessWidget {
                       isOutlined: true,
                       borderRadius: BorderRadius.circular(30),
                       onPressed: () async {
-                        final result  = await Navigator.push(
+                        final result = await Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => ServiceDetailsScreen(service,"Edit Service"),
+                            builder: (context) =>
+                                ServiceDetailsScreen(service, "Edit Service"),
                           ),
                         );
 
@@ -430,10 +422,10 @@ class _MyServicesContent extends StatelessWidget {
 
   /// Delete Confirmation Dialog
   void _showDeleteDialog(
-      BuildContext context,
-      VendorServicesProvider provider,
-      VendorGetAllServicesModelData service,
-      ) {
+    BuildContext context,
+    VendorServicesProvider provider,
+    VendorGetAllServicesModelData service,
+  ) {
     showDialog(
       context: context,
       builder: (BuildContext dialogContext) {

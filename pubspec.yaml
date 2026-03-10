@@ -61,6 +61,7 @@ dependencies:
   flutter_google_places_hoc081098: ^2.0.0
   http: ^1.6.0
   google_places_autocomplete: ^2.1.2
+  lottie: ^3.3.2
 
 dependency_overrides:
   google_maps_flutter_android: 2.14.0
@@ -71,19 +72,6 @@ dev_dependencies:
 
 
   flutter_lints: ^5.0.0
-  flutter_launcher_icons: ^0.13.1
-
-flutter_launcher_icons:
-  android: "launcher_icon"
-  ios: true
-  image_path: "assets/images/Ozi App Icon.png"
-  adaptive_icon_background: "#FFFFFF"
-  adaptive_icon_foreground: "assets/images/Ozi App Icon.png"
-  # This will also generate a separate icon for notifications (Android)
-  notification_icon:
-    enabled: true
-    image_path: "assets/images/Ozi App Icon.png"
-
 
 flutter:
   uses-material-design: true
@@ -91,6 +79,7 @@ flutter:
   assets:
     - assets/images/
     - assets/svg/
+    - assets/lottie/
 
   fonts:
     - family: Onest-Bold
@@ -112,3 +101,4 @@ flutter:
     - family: Onest-SemiBold
       fonts:
         - asset: assets/fonts/Onest-SemiBold.ttf
+ 

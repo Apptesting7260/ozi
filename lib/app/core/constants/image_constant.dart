@@ -4,6 +4,7 @@ class ImageConstants {
   static String imagePath = "assets/images";
   static String svgPath = "assets/svg";
   static String lottiePath = "assets/lottie";
+  static String noData = "$lottiePath/NoDataAnimation.json";
 
   //****************************************** Splash Screen *****************************************************************//
   static String splashLogo = "$imagePath/SplashLogo.png";
@@ -84,8 +85,6 @@ class ImageConstants {
   static String logout = '$svgPath/logout.svg';
   static String lock = '$svgPath/lock.svg';
   static String mobile = '$svgPath/mobile.svg';
-
-
 
   //******************************************* vendor screens  *******************************************************************************//
 
