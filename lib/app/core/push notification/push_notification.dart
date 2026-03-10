@@ -8,7 +8,6 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../data/storage/user_preference.dart';
 import '../../modules/user/navigation tab/view/navigation_tab_screen.dart';
 import '../../modules/vendor/navigation tab/view/vendor_navigation_tab_screen.dart';
@@ -16,43 +15,47 @@ import '../../routes/app_routes.dart';
 import '../utils/get_utils.dart';
 import '../../../firebase_options.dart';
 
+// ─── BACKGROUND HANDLER ──────────────────────────────────────────────────────
+// ⚠️  iOS IMPORTANT:
+//   On iOS, this handler runs in a SEPARATE background isolate.
+//   flutter_local_notifications CANNOT show notifications from a background
+//   isolate on iOS — Apple forbids it. The APNs system notification
+//   (sent by Firebase via your server payload) is what iOS users will see
+//   in background/terminated state. We only suppress it in foreground (step 2).
+//
+// ✅  Android:
+//   We CAN show a local notification from here. Firebase suppresses its own
+//   system tray notification when onBackgroundMessage is registered, so we
+//   must show one manually to ensure it appears.
 @pragma('vm:entry-point')
 Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   log("Background Notification: ${message.notification?.body}");
-  debugPrint(
-    '🔔message notification title background message=====${message.notification?.title}',
-  );
-  debugPrint('📝message notification body=====${message.notification?.body}');
-  debugPrint('📝message notification data body=====${message.data}');
-  debugPrint(
-    '📝message notification messageId=====${message.data['booking_id']}',
-  );
-  debugPrint('📝message notification messageType=====${message.data['type']}');
-  debugPrint(
-    '📝message notification messageType=====${message.data['screen']}',
-  );
 
-  try {
-    if (message.data['type'] == 'booking_request') {
-    } else if (message.data['NotificationType'] == 'call_ended') {}
-  } catch (e) {
-    debugPrint("Error in background notification: $e");
+  // Only show local notification on Android — iOS handles it via APNs system
+  if (!Platform.isIOS) {
+    await PushNotificationService.initLocalNotification();
+    await PushNotificationService.showNotification(
+      message.notification,
+      message.data,
+      messageId: message.messageId,
+    );
   }
 }
 
+// ─── BACKGROUND TAP HANDLER (Android only) ───────────────────────────────────
+// iOS does NOT support onDidReceiveBackgroundNotificationResponse.
+// On iOS, background taps are handled via onMessageOpenedApp (Firebase)
+// or getInitialMessage (terminated). Do NOT register this for iOS.
 @pragma('vm:entry-point')
 void backgroundNotificationTap(NotificationResponse notificationResponse) {
   final String? payload = notificationResponse.payload;
-
   debugPrint("🔙 Background Notification tapped. Payload: $payload");
-
   if (payload == null) return;
 
   try {
     final Map<String, dynamic> data = jsonDecode(payload);
-
     PushNotificationService.navigateFromNotification(
       screen: data['screen'] ?? '',
       bookingId: data['booking_id'] ?? '',
@@ -63,26 +66,27 @@ void backgroundNotificationTap(NotificationResponse notificationResponse) {
   }
 }
 
+// ─── PUSH NOTIFICATION SERVICE ───────────────────────────────────────────────
 class PushNotificationService {
   static FirebaseMessaging firebaseMessaging = FirebaseMessaging.instance;
 
-  /// Prevent duplicate notification navigation
   static final Set<String> _handledMessageIds = {};
+  static bool _isInitialized = false;
 
   static String? fcmToken;
   static String? apnsToken;
 
   static final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
       FlutterLocalNotificationsPlugin();
-  static DarwinInitializationSettings initializationSettingsDarwin =
-      const DarwinInitializationSettings(
-        requestAlertPermission: true,
-        requestBadgePermission: true,
-        requestSoundPermission: true,
-        // onDidReceiveLocalNotification: null,
-      );
 
-  static firebaseNotification() async {
+  static Future<void> firebaseNotification() async {
+    if (_isInitialized) {
+      debugPrint("PushNotificationService already initialized. Skipping.");
+      return;
+    }
+    _isInitialized = true;
+
+    // ── 1. Request permissions ───────────────────────────────────────────────
     await firebaseMessaging.requestPermission(
       alert: true,
       announcement: true,
@@ -93,86 +97,76 @@ class PushNotificationService {
       sound: true,
     );
 
+    // ── 2. Suppress Firebase's own banner in iOS FOREGROUND only ────────────
+    //    - Foreground: We show our own local notification (full control).
+    //    - Background/Terminated: APNs system notification shows automatically
+    //      (we cannot intercept it on iOS — Apple restriction).
+    //    Setting all false prevents a DUPLICATE banner in foreground on iOS.
     await firebaseMessaging.setForegroundNotificationPresentationOptions(
-      alert: true,
-      badge: true,
-      sound: true,
+      alert: false, // ← was true  (caused duplicate on iOS)
+      badge: false, // ← was true
+      sound: false, // ← was true
     );
-    firebaseMessaging.isAutoInitEnabled;
 
+    // ── 3. Init local notifications ──────────────────────────────────────────
     await initLocalNotification();
 
+    // ── 4. Register background handler ──────────────────────────────────────
+    FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
+
+    // ── 5. Foreground messages ───────────────────────────────────────────────
     FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
-      try {
-        debugPrint("📨 Message ID: ${message.messageId}");
-
-        RemoteNotification? notification = message.notification;
-        AndroidNotification? android = message.notification?.android;
-        AppleNotification? appleNotification = message.notification?.apple;
-        debugPrint(
-          '🔔message notification title onmessage =====${message.notification?.title}',
-        );
-        debugPrint(
-          '📝message notification body=====${message.notification?.body}',
-        );
-        debugPrint('📝message notification dataBody=====${message.data}');
-        //debugPrint('📝message notification data=====${message.data['screen']}');
-        debugPrint(
-          'notification body ===== $notification.  $android.   $appleNotification',
-        );
-
-        showNotification(message.notification, message.data);
-
-        debugPrint('android not null notification==${message.notification}');
-        FirebaseMessaging.instance.getInitialMessage().then((message) {
-          if (message != null) {
-            debugPrint("abc525");
-          } else {
-            debugPrint("123154115415abc");
-          }
-        });
-      } catch (e) {
-        debugPrint("Error in onMessage: $e");
+      if (message.messageId != null) {
+        if (_handledMessageIds.contains(message.messageId)) {
+          debugPrint(
+            "♻️ Duplicate foreground message ignored: ${message.messageId}",
+          );
+          return;
+        }
+        _handledMessageIds.add(message.messageId!);
       }
+
+      debugPrint("📨 Foreground Message ID: ${message.messageId}");
+      debugPrint('🔔 Title: ${message.notification?.title}');
+      debugPrint('📝 Body : ${message.notification?.body}');
+      debugPrint('📦 Data : ${message.data}');
+
+      // Show ONLY via local notifications — Firebase does NOT auto-show
+      // anything in foreground on Android, and we disabled it on iOS above.
+      await showNotification(
+        message.notification,
+        message.data,
+        messageId: message.messageId,
+      );
     });
 
+    // ── 6. App opened from background via notification tap ───────────────────
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) async {
-      /// Prevent duplicate navigation
       if (message.messageId != null) {
         if (_handledMessageIds.contains(message.messageId)) return;
         _handledMessageIds.add(message.messageId!);
       }
 
-      if (kDebugMode) {
-        debugPrint("🔔 Notification tapped");
-        debugPrint("Notification Body: ${message.notification?.body}");
-        debugPrint("Notification Data: ${message.data}");
-      }
+      debugPrint("🔔 Notification tapped (background → foreground)");
+      debugPrint("Data: ${message.data}");
 
-      try {
-        final String screen = message.data['screen'] ?? '';
-        final String bookingId = message.data['booking_id'] ?? '';
-        final String type = message.data['type'] ?? '';
+      final String screen = message.data['screen'] ?? '';
+      final String bookingId = message.data['booking_id'] ?? '';
+      final String type = message.data['type'] ?? '';
 
-        if (screen.isNotEmpty && bookingId.isNotEmpty) {
-          await navigateFromNotification(
-            screen: screen,
-            bookingId: bookingId,
-            type: type,
-          );
-        } else {
-          debugPrint("⚠ Invalid notification data");
-        }
-      } catch (e) {
-        debugPrint("❌ Notification navigation error: $e");
+      if (screen.isNotEmpty && bookingId.isNotEmpty) {
+        await navigateFromNotification(
+          screen: screen,
+          bookingId: bookingId,
+          type: type,
+        );
       }
     });
 
-    FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
-
+    // ── 7. FCM Token ─────────────────────────────────────────────────────────
     FirebaseMessaging.instance
         .getToken()
-        .then((String? token) async {
+        .then((String? token) {
           if (token == null) {
             debugPrint('FCM token is null');
           } else {
@@ -181,28 +175,27 @@ class PushNotificationService {
           }
         })
         .catchError((error) {
-          debugPrint('Error getting FCM token: ${error.toString()}');
+          debugPrint('Error getting FCM token: $error');
         });
 
-    /// Listen for token refresh
     FirebaseMessaging.instance.onTokenRefresh.listen((newToken) {
       fcmToken = newToken;
       debugPrint("🔄 FCM Token Refreshed: $newToken");
     });
 
+    // ── 8. APNs token (iOS only) ─────────────────────────────────────────────
     if (defaultTargetPlatform == TargetPlatform.iOS) {
-      debugPrint('FlutterFire Messaging Example: Getting APNs token...');
       String? token = await FirebaseMessaging.instance.getAPNSToken();
       apnsToken = token;
-      debugPrint('FlutterFire Messaging Example: Got APNs token: $token');
+      debugPrint('APNs token: $token');
     }
 
-    /// Handle notification when app opens from terminated state
+    // ── 9. App opened from terminated state ──────────────────────────────────
     RemoteMessage? initialMessage = await FirebaseMessaging.instance
         .getInitialMessage();
 
     if (initialMessage != null) {
-      debugPrint("📩 App opened via notification (terminated)");
+      debugPrint("📩 App opened via notification (terminated state)");
 
       final String screen = initialMessage.data['screen'] ?? '';
       final String bookingId = initialMessage.data['booking_id'] ?? '';
@@ -218,72 +211,147 @@ class PushNotificationService {
     }
   }
 
-  static Future initLocalNotification() async {
-    const initializationSettingsAndroid = AndroidInitializationSettings(
-      '@mipmap/ic_launcher',
-    );
-    const initializationSettingsIOS = DarwinInitializationSettings(
-      requestAlertPermission: true,
-      requestBadgePermission: true,
-      requestSoundPermission: true,
-    );
+  // ── LOCAL NOTIFICATION INIT ─────────────────────────────────────────────────
+  // ⚠️  iOS SETUP REQUIRED in AppDelegate.swift / AppDelegate.m:
+  //   Add this so flutter_local_notifications can intercept foreground
+  //   notifications on iOS (shows banner while app is open):
+  //
+  //   Swift (AppDelegate.swift):
+  //     import UIKit
+  //     import Flutter
+  //     import flutter_local_notifications
+  //
+  //     @UIApplicationMain
+  //     @objc class AppDelegate: FlutterAppDelegate {
+  //       override func application(_ application: UIApplication,
+  //           didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
+  //         FlutterLocalNotificationsPlugin.setPluginRegistrantCallback { registry in
+  //           GeneratedPluginRegistrant.register(with: registry)
+  //         }
+  //         if #available(iOS 10.0, *) {
+  //           UNUserNotificationCenter.current().delegate = self as? UNUserNotificationCenterDelegate
+  //         }
+  //         GeneratedPluginRegistrant.register(with: self)
+  //         return super.application(application, didFinishLaunchingWithOptions: launchOptions)
+  //       }
+  //     }
+  static Future<void> initLocalNotification() async {
+    const AndroidInitializationSettings initializationSettingsAndroid =
+        AndroidInitializationSettings(
+          // ✅ Use launcher_icon generated by flutter_launcher_icons
+          '@mipmap/launcher_icon',
+        );
 
-    const initializationSettings = InitializationSettings(
-      android: initializationSettingsAndroid,
-      iOS: initializationSettingsIOS,
-    );
+    // ✅ iOS: defaultPresentAlert/Sound/Badge control foreground presentation
+    //    of local notifications shown by flutter_local_notifications.
+    //    These are separate from Firebase's setForegroundNotificationPresentationOptions.
+    const DarwinInitializationSettings initializationSettingsIOS =
+        DarwinInitializationSettings(
+          requestAlertPermission: true,
+          requestBadgePermission: true,
+          requestSoundPermission: true,
+          defaultPresentAlert: true, // show banner in foreground
+          defaultPresentSound: true, // play sound in foreground
+          defaultPresentBadge: true, // update badge in foreground
+        );
+
+    const InitializationSettings initializationSettings =
+        InitializationSettings(
+          android: initializationSettingsAndroid,
+          iOS: initializationSettingsIOS,
+        );
 
     await flutterLocalNotificationsPlugin.initialize(
       initializationSettings,
       onDidReceiveNotificationResponse: onDidReceiveNotificationResponse,
+      // ✅ iOS does NOT support background notification response handler —
+      //    taps on iOS background/terminated notifications are caught by
+      //    FirebaseMessaging.onMessageOpenedApp and getInitialMessage instead.
       onDidReceiveBackgroundNotificationResponse: Platform.isIOS
           ? null
           : backgroundNotificationTap,
     );
+
+    // Create the Android notification channel
+    await _createAndroidNotificationChannel();
   }
 
-  static Future<void> showNotification(
-    RemoteNotification? notification,
-    Map<String, dynamic>? data,
-  ) async {
-    var android = const AndroidNotificationDetails(
+  // ── ANDROID CHANNEL ─────────────────────────────────────────────────────────
+  static Future<void> _createAndroidNotificationChannel() async {
+    if (!Platform.isAndroid) return;
+
+    const AndroidNotificationChannel channel = AndroidNotificationChannel(
       'high_importance_channel',
-      "Woye Vendor",
-      channelDescription: "channelDescription",
+      'High Importance Notifications',
+      description: 'Used for important notifications.',
       importance: Importance.max,
-      fullScreenIntent: true,
-      icon: '@mipmap/ic_launcher',
-      priority: Priority.high,
-      visibility: NotificationVisibility.public,
+      playSound: true,
+      enableVibration: true,
+      showBadge: true,
     );
 
-    var iOS = const DarwinNotificationDetails(
+    await flutterLocalNotificationsPlugin
+        .resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin
+        >()
+        ?.createNotificationChannel(channel);
+  }
+
+  // ── SHOW NOTIFICATION ───────────────────────────────────────────────────────
+  static Future<void> showNotification(
+    RemoteNotification? notification,
+    Map<String, dynamic>? data, {
+    String? messageId,
+  }) async {
+    const AndroidNotificationDetails androidDetails =
+        AndroidNotificationDetails(
+          'high_importance_channel',
+          'High Importance Notifications',
+          channelDescription: 'Used for important notifications.',
+          importance: Importance.max,
+          priority: Priority.high,
+          fullScreenIntent: true,
+          visibility: NotificationVisibility.public,
+          // ✅ Must match the icon in initializationSettingsAndroid
+          icon: '@mipmap/launcher_icon',
+        );
+
+    const DarwinNotificationDetails iOSDetails = DarwinNotificationDetails(
       presentAlert: true,
       presentSound: true,
       presentBadge: true,
       sound: 'default',
     );
-    var platform = NotificationDetails(android: android, iOS: iOS);
+
+    const NotificationDetails platformDetails = NotificationDetails(
+      android: androidDetails,
+      iOS: iOSDetails,
+    );
+
+    // Use a stable ID based on messageId to prevent duplicates from creating separate banners.
+    // Fallback to timestamp ONLY if messageId is missing.
+    final int notificationId = messageId != null
+        ? messageId.hashCode % 100000
+        : DateTime.now().millisecondsSinceEpoch % 100000;
 
     await flutterLocalNotificationsPlugin.show(
-      DateTime.now().second,
+      notificationId,
       notification?.title ?? 'Notification',
       notification?.body ?? '',
-      platform,
+      platformDetails,
       payload: data != null ? jsonEncode(data) : null,
     );
   }
 
+  // ── TAP HANDLER (foreground) ────────────────────────────────────────────────
   static void onDidReceiveNotificationResponse(
     NotificationResponse notificationResponse,
   ) async {
     final String? payload = notificationResponse.payload;
-
     if (payload == null) return;
 
     try {
       debugPrint("Notification payload: $payload");
-
       final Map<String, dynamic> data = jsonDecode(payload);
 
       final String screen = data['screen'] ?? '';
@@ -291,61 +359,46 @@ class PushNotificationService {
       final String type = data['type'] ?? '';
 
       if (screen.isNotEmpty && bookingId.isNotEmpty) {
-        navigateFromNotification(
+        await navigateFromNotification(
           screen: screen,
           bookingId: bookingId,
           type: type,
         );
-      } else {
-        debugPrint("⚠ Invalid notification payload");
       }
     } catch (e) {
       debugPrint("❌ Payload parse error: $e");
     }
   }
 
-  static showCustomSnackBar(
-    String title,
-    String message,
-    BuildContext context,
-  ) {
-    if (kDebugMode) {
-      print("object>>>> $title \n $message");
-    }
-    Flushbar(
-      margin: const EdgeInsets.all(10),
-      borderRadius: BorderRadius.circular(12),
-      backgroundColor: Colors.white,
-      flushbarPosition: FlushbarPosition.TOP,
-      icon: Padding(
-        padding: REdgeInsets.only(left: 8.0),
-        child: Image.asset(
-          'assets/images/launcher.webp',
-          width: 40,
-          height: 40,
-          fit: BoxFit.cover,
-        ),
-      ),
-      titleText: Text(
-        title,
-        style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
-      ),
-      messageText: Text(
-        message,
-        style: TextStyle(color: Colors.black),
-        maxLines: 2,
-        overflow: TextOverflow.ellipsis,
-      ),
-      duration: const Duration(seconds: 3),
-      onTap: (_) {
-        print("Hooooo rha h tappppppp");
-        // final NotificationsController controller = Get.put(NotificationsController());
-        // final type = controller.apiData.value.notification?.first.type ?? "";
-        // _handleNotificationTap(type: type, title: title);
-      },
-    ).show(context);
-  }
+  // ── SNACKBAR ────────────────────────────────────────────────────────────────
+  // static void showCustomSnackBar(
+  //   String title,
+  //   String message,
+  //   BuildContext context,
+  // ) {
+  //   Flushbar(
+  //     margin: const EdgeInsets.all(10),
+  //     borderRadius: BorderRadius.circular(12),
+  //     backgroundColor: Colors.white,
+  //     flushbarPosition: FlushbarPosition.TOP,
+  //     titleText: Text(
+  //       title,
+  //       style: const TextStyle(
+  //         fontWeight: FontWeight.bold,
+  //         color: Colors.black,
+  //       ),
+  //     ),
+  //     messageText: Text(
+  //       message,
+  //       style: const TextStyle(color: Colors.black),
+  //       maxLines: 2,
+  //       overflow: TextOverflow.ellipsis,
+  //     ),
+  //     duration: const Duration(seconds: 3),
+  //   ).show(context);
+  // }
 
+  // ── NAVIGATION ──────────────────────────────────────────────────────────────
   static Future<void> navigateFromNotification({
     required String screen,
     required dynamic bookingId,
@@ -354,17 +407,15 @@ class PushNotificationService {
     await Future.delayed(const Duration(milliseconds: 300));
 
     final context = navigatorKey.currentContext;
-
     if (context == null) {
       debugPrint("❌ navigatorKey context null");
       return;
     }
 
     String? role = await UserPreference.returnRole();
-
-    debugPrint("ROLE = $role");
-    debugPrint("SCREEN = $screen");
-    debugPrint("BOOKING ID = $bookingId");
+    debugPrint(
+      "ROLE=$role | SCREEN=$screen | BOOKING_ID=$bookingId | TYPE=$type",
+    );
 
     if (role == "vendor") {
       _handleVendorNavigation(context, type, bookingId);
@@ -378,49 +429,18 @@ class PushNotificationService {
     String type,
     dynamic bookingId,
   ) {
-    switch (type) {
-      case "booking_request":
-        Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(
-            builder: (_) => VendorNavigationTabScreen(initialIndex: 1),
-          ),
-          (route) => false,
-        );
+    final int tabIndex = switch (type) {
+      "booking_request" || "booking_confirm" || "booking_completed" => 1,
+      _ => 0,
+    };
 
-        break;
-
-      case "booking_confirm":
-        Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(
-            builder: (_) => VendorNavigationTabScreen(initialIndex: 1),
-          ),
-          (route) => false,
-        );
-
-        break;
-
-      case "booking_completed":
-        Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(
-            builder: (_) => VendorNavigationTabScreen(initialIndex: 1),
-          ),
-          (route) => false,
-        );
-
-        break;
-
-      default:
-        Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(
-            builder: (_) => VendorNavigationTabScreen(initialIndex: 0),
-          ),
-          (route) => false,
-        );
-    }
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(
+        builder: (_) => VendorNavigationTabScreen(initialIndex: tabIndex),
+      ),
+      (route) => false,
+    );
   }
 
   static void _handleUserNavigation(
@@ -428,91 +448,20 @@ class PushNotificationService {
     String type,
     dynamic bookingId,
   ) {
-    switch (type) {
-      case "booking_confirm":
-        Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(
-            builder: (_) => NavigationTabScreen(initialIndex: 2
-            ),
-          ),
-          (route) => false,
-        );
+    final int tabIndex = switch (type) {
+      "booking_confirm" ||
+      "booking_cancelled" ||
+      "booking_rejected" ||
+      "booking_completed" => 2,
+      _ => 0,
+    };
 
-        break;
-
-      case "booking_cancelled":
-
-        Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(
-            builder: (_) => NavigationTabScreen(initialIndex: 2
-            ),
-          ),
-              (route) => false,
-        );
-
-        break;
-
-      case "booking_rejected":
-
-        Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(
-            builder: (_) => NavigationTabScreen(initialIndex: 2
-            ),
-          ),
-              (route) => false,
-        );
-
-        break;
-
-
-      case "booking_completed":
-        Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(
-            builder: (_) => NavigationTabScreen(initialIndex: 2),
-          ),
-          (route) => false,
-        );
-
-        break;
-
-      default:
-        Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(
-            builder: (_) => NavigationTabScreen(initialIndex: 0),
-          ),
-          (route) => false,
-        );
-    }
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(
+        builder: (_) => NavigationTabScreen(initialIndex: tabIndex),
+      ),
+      (route) => false,
+    );
   }
-
-  // static Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  //   log("background notification--> ${message.notification?.body}");
-  // }
-
-  // static void _handleNotificationTap({required String type, required String title}) {
-  //   if (type == "restaurant") {
-  //     if (title == "New Order Received") {
-  //       Get.toNamed(AppRoutes.restaurantOrderListScreen, arguments: {"fromNotification": "true"});
-  //     } else if (title == "Ticket Reply") {
-  //       Get.toNamed(AppRoutes.restaurantSupportScreen);
-  //     }
-  //   } else if (type == "pharmacy") {
-  //     if (title == "New Order Received") {
-  //       Get.toNamed(AppRoutes.pharmacyOrderListScreen, arguments: {"fromNotification": "true"});
-  //     } else if (title == "Ticket Reply") {
-  //       Get.toNamed(AppRoutes.pharmacySupportScreen);
-  //     }
-  //   } else if (type == "grocery") {
-  //     if (title == "New Order Received") {
-  //       Get.toNamed(AppRoutes.groceryOrderListScreen, arguments: {"fromNotification": "true"});
-  //     } else if (title == "Ticket Reply") {
-  //       Get.toNamed(AppRoutes.grocerySupportScreen);
-  //     }
-  //   }
-  // }
 }
