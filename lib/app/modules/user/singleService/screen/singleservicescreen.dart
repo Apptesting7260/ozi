@@ -1,7 +1,7 @@
 import 'package:ozi/app/core/appExports/app_export.dart';
 import 'package:ozi/app/modules/user/singleService/provider/singlesrviceprovider.dart';
 import 'package:ozi/app/modules/user/singleService/model/singleservicemodel.dart'
-    as model;
+as model;
 import 'package:ozi/app/data/repository/repository.dart';
 import 'package:ozi/app/shared/widgets/custom_app_bar.dart';
 import 'package:ozi/app/shared/widgets/read_more_text.dart';
@@ -10,9 +10,12 @@ import 'package:ozi/app/modules/user/home/model/category_model.dart';
 import 'package:ozi/app/modules/user/home/service%20details/view/vendordetailscreen.dart';
 import 'package:ozi/app/modules/user/navigation%20tab/view/navigation_tab_screen.dart';
 
+import '../../../../shared/widgets/auth_guard.dart';
+
 class singleServiceScreen extends StatefulWidget {
   final int serviceId;
   final bool isCart;
+
   const singleServiceScreen({
     super.key,
     required this.serviceId,
@@ -56,22 +59,22 @@ class _singleServiceScreenState extends State<singleServiceScreen> {
                   Expanded(
                     child: provider.isLoading
                         ? Center(
-                            child: CircularProgressIndicator(
-                              color: AppColors.primary,
-                            ),
-                          )
+                      child: CircularProgressIndicator(
+                        color: AppColors.primary,
+                      ),
+                    )
                         : provider.error != null
                         ? Center(child: Text(provider.error!))
                         : provider.serviceData?.data == null
                         ? const Center(child: Text("No data found"))
                         : SingleChildScrollView(
-                            padding: EdgeInsets.all(16.w),
-                            child: _buildServiceCard(
-                              context,
-                              provider.serviceData!.data!,
-                              provider,
-                            ),
-                          ),
+                      padding: EdgeInsets.all(16.w),
+                      child: _buildServiceCard(
+                        context,
+                        provider.serviceData!.data!,
+                        provider,
+                      ),
+                    ),
                   ),
                   if (!provider.isLoading && provider.cartItemCount > 0) ...[
                     Divider(color: AppColors.containerBorder, thickness: 1),
@@ -89,54 +92,54 @@ class _singleServiceScreenState extends State<singleServiceScreen> {
   Widget _buildBottomBar(BuildContext context, SingleServiceProvider provider) {
     return widget.isCart
         ? Container(
-            padding: EdgeInsets.all(16.w),
-            decoration: const BoxDecoration(color: Colors.white),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  '\$${provider.subtotalAmount.toStringAsFixed(2)}',
-                  style: AppFontStyle.text_28_600(
-                    AppColors.black,
-                    fontFamily: AppFontFamily.bold,
-                  ),
+      padding: EdgeInsets.all(16.w),
+      decoration: const BoxDecoration(color: Colors.white),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            '\$${provider.subtotalAmount.toStringAsFixed(2)}',
+            style: AppFontStyle.text_28_600(
+              AppColors.black,
+              fontFamily: AppFontFamily.bold,
+            ),
+          ),
+          CustomButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) =>
+                  const NavigationTabScreen(initialIndex: 1),
                 ),
-                CustomButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) =>
-                            const NavigationTabScreen(initialIndex: 1),
-                      ),
-                    );
-                  },
-                  width: 150.w,
-                  height: 50.h,
-                  color: AppColors.primary,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      CustomImage(
-                        path: ImageConstants.cart,
-                        height: 20.w,
-                        width: 20.w,
-                        color: AppColors.white,
-                      ),
-                      wBox(8),
-                      Text(
-                        'View Cart',
-                        style: AppFontStyle.text_14_600(
-                          Colors.white,
-                          fontFamily: AppFontFamily.semiBold,
-                        ),
-                      ),
-                    ],
+              );
+            },
+            width: 150.w,
+            height: 50.h,
+            color: AppColors.primary,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                CustomImage(
+                  path: ImageConstants.cart,
+                  height: 20.w,
+                  width: 20.w,
+                  color: AppColors.white,
+                ),
+                wBox(8),
+                Text(
+                  'View Cart',
+                  style: AppFontStyle.text_14_600(
+                    Colors.white,
+                    fontFamily: AppFontFamily.semiBold,
                   ),
                 ),
               ],
             ),
-          )
+          ),
+        ],
+      ),
+    )
         : SizedBox.shrink();
   }
 
@@ -146,14 +149,12 @@ class _singleServiceScreenState extends State<singleServiceScreen> {
     return "${AppUrls.imageBaseUrl}$path";
   }
 
-  Widget _buildServiceCard(
-    BuildContext context,
-    model.Data serviceData,
-    SingleServiceProvider provider,
-  ) {
+  Widget _buildServiceCard(BuildContext context,
+      model.Data serviceData,
+      SingleServiceProvider provider,) {
     final vendorName =
-        '${serviceData.vendor?.firstName ?? ""} ${serviceData.vendor?.lastName ?? ""}'
-            .trim();
+    '${serviceData.vendor?.firstName ?? ""} ${serviceData.vendor?.lastName ?? ""}'
+        .trim();
     final serviceType = serviceData.category?.categoryName ?? 'Services';
     final duration =
         '${serviceData.durationValue ?? 0} ${serviceData.durationType ?? 'Hours'}';
@@ -170,8 +171,8 @@ class _singleServiceScreenState extends State<singleServiceScreen> {
               backgroundColor: AppColors.lightGrey2,
               backgroundImage: serviceData.vendor?.proImg != null
                   ? CachedNetworkImageProvider(
-                      getFullImageUrl(serviceData.vendor?.proImg),
-                    )
+                getFullImageUrl(serviceData.vendor?.proImg),
+              )
                   : null,
               child: serviceData.vendor?.proImg == null
                   ? const Icon(Icons.person, color: Colors.white)
@@ -228,17 +229,19 @@ class _singleServiceScreenState extends State<singleServiceScreen> {
                 width: 100.w,
                 height: 100.w,
                 fit: BoxFit.cover,
-                placeholder: (_, __) => Container(
-                  width: 100.w,
-                  height: 100.w,
-                  color: AppColors.lightGrey2,
-                ),
-                errorWidget: (_, __, ___) => Container(
-                  width: 100.w,
-                  height: 100.w,
-                  color: Colors.grey[200],
-                  child: const Icon(Icons.image_not_supported),
-                ),
+                placeholder: (_, __) =>
+                    Container(
+                      width: 100.w,
+                      height: 100.w,
+                      color: AppColors.lightGrey2,
+                    ),
+                errorWidget: (_, __, ___) =>
+                    Container(
+                      width: 100.w,
+                      height: 100.w,
+                      color: Colors.grey[200],
+                      child: const Icon(Icons.image_not_supported),
+                    ),
               ),
             ),
             wBox(16),
@@ -283,16 +286,16 @@ class _singleServiceScreenState extends State<singleServiceScreen> {
                       ),
                       widget.isCart == true
                           ? provider.isInCart(serviceData.id ?? 0)
-                                ? _buildCounter(
-                                    serviceData.id ?? 0,
-                                    provider,
-                                    context,
-                                  )
-                                : _buildAddButton(
-                                    serviceData.id ?? 0,
-                                    provider,
-                                    context,
-                                  )
+                          ? _buildCounter(
+                        serviceData.id ?? 0,
+                        provider,
+                        context,
+                      )
+                          : _buildAddButton(
+                        serviceData.id ?? 0,
+                        provider,
+                        context,
+                      )
                           : SizedBox.shrink(),
                     ],
                   ),
@@ -320,18 +323,19 @@ class _singleServiceScreenState extends State<singleServiceScreen> {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => VendorDetailScreen(
-                vendorId: serviceData.vendorId.toString(),
-                vendorName:
+              builder: (context) =>
+                  VendorDetailScreen(
+                    vendorId: serviceData.vendorId.toString(),
+                    vendorName:
                     "${serviceData.vendor?.firstName ?? ""} ${serviceData.vendor?.lastName ?? ""}",
-                service: Subcategories(
-                  id: serviceData.subcategoryId ?? serviceData.categoryId,
-                  categoryName:
+                    service: Subcategories(
+                      id: serviceData.subcategoryId ?? serviceData.categoryId,
+                      categoryName:
                       serviceData.subcategory?.categoryName ??
-                      serviceData.category?.categoryName,
-                ),
-                categoryId: serviceData.categoryId ?? 0,
-              ),
+                          serviceData.category?.categoryName,
+                    ),
+                    categoryId: serviceData.categoryId ?? 0,
+                  ),
             ),
           );
         }
@@ -353,17 +357,18 @@ class _singleServiceScreenState extends State<singleServiceScreen> {
     );
   }
 
-  Widget _buildAddButton(
-    int serviceId,
-    SingleServiceProvider provider,
-    BuildContext context,
-  ) {
+  Widget _buildAddButton(int serviceId,
+      SingleServiceProvider provider,
+      BuildContext context,) {
     return CustomButton(
       width: 80.w,
       height: 35.h,
       borderRadius: BorderRadius.circular(20.r),
       color: AppColors.primary,
       onPressed: () async {
+        final bool allowed = await AuthGuard.requireLogin(context);
+
+        if (!allowed) return;
         try {
           await provider.addToCart(serviceId);
         } catch (e) {
@@ -378,11 +383,9 @@ class _singleServiceScreenState extends State<singleServiceScreen> {
     );
   }
 
-  Widget _buildCounter(
-    int serviceId,
-    SingleServiceProvider provider,
-    BuildContext context,
-  ) {
+  Widget _buildCounter(int serviceId,
+      SingleServiceProvider provider,
+      BuildContext context,) {
     final quantity = provider.getQuantity(serviceId);
 
     return Container(

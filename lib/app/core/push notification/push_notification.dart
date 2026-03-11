@@ -10,8 +10,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import '../../data/storage/user_preference.dart';
 import '../../modules/user/navigation tab/view/navigation_tab_screen.dart';
+import '../../modules/vendor/home/notification/provider/vendor_ notification_provider.dart';
 import '../../modules/vendor/navigation tab/view/vendor_navigation_tab_screen.dart';
-import '../../routes/app_routes.dart';
 import '../utils/get_utils.dart';
 import '../../../firebase_options.dart';
 
@@ -31,6 +31,19 @@ import '../../../firebase_options.dart';
 Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  //log("Background Notification: ${message.notification?.body}");
+  debugPrint(
+    '🔔message notification title background message=====${message.notification?.title}',
+  );
+  debugPrint('📝message notification body=====${message.notification?.body}');
+  debugPrint('📝message notification data body=====${message.data}');
+  debugPrint(
+    '📝message notification messageId=====${message.data['booking_id']}',
+  );
+  debugPrint('📝message notification messageType=====${message.data['type']}');
+  debugPrint(
+    '📝message notification messageType=====${message.data['screen']}',
+  );
   log("Background Notification: ${message.notification?.body}");
 
   // Only show local notification on Android — iOS handles it via APNs system
@@ -114,6 +127,32 @@ class PushNotificationService {
     // ── 4. Register background handler ──────────────────────────────────────
     FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
 
+        final context = navigatorKey.currentContext;
+        if (context != null) {
+          try {
+            final notifProvider =
+            context.read<VendorNotificationProvider>();
+            // Either refresh from page 1:
+            await notifProvider.getNotifications(isRefresh: true);
+            // or, if your API is heavy and backend already increments counts,
+            // you could instead just re-fetch first page occasionally.
+          } catch (e) {
+            debugPrint('Error updating VendorNotificationProvider on message: $e');
+          }
+        }
+
+
+        debugPrint('android not null notification==${message.notification}');
+        FirebaseMessaging.instance.getInitialMessage().then((message) {
+          if (message != null) {
+            debugPrint("abc525");
+          } else {
+            debugPrint("123154115415abc");
+          }
+        });
+      } catch (e) {
+        debugPrint("Error in onMessage: $e");
+ =======
     // ── 5. Foreground messages ───────────────────────────────────────────────
     FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
       if (message.messageId != null) {

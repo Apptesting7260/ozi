@@ -10,6 +10,7 @@ import '../../../../shared/widgets/custom_image_path_helper.dart';
 import '../../../../shared/widgets/custom_shimmer_box.dart';
 import '../../../../shared/widgets/custom_text_form_field.dart';
 import '../../../../view/message/screens/message.dart';
+import '../../../vendor/home/notification/provider/vendor_ notification_provider.dart';
 import '../../profile/view/profile_provider/profile_provider.dart';
 import '../model/category_model.dart';
 import '../provider/HomeScreenProvider.dart';
@@ -64,7 +65,6 @@ class HomeScreenView extends StatelessWidget {
   Widget build(BuildContext context) {
     final provider = context.watch<HomeScreenProvider>();
     // final profileProvider = context.watch<ProfileProvider>();
-    final isLoggedIn = context.watch<AuthGuestProvider>().isLoggedIn;
 
     return Scaffold(
       body: SafeArea(
@@ -85,9 +85,16 @@ class HomeScreenView extends StatelessWidget {
                   hBox(8),
                   _buildServiceGrid(context, provider),
                   hBox(10),
-                  isLoggedIn
-                      ? SizedBox.shrink()
-                      : _buildBecomeProviderCard(context, provider),
+                  Consumer<AuthGuestProvider>(
+                    builder: (context, auth, child) {
+
+                      if (auth.isGuest) {
+                        return _buildBecomeProviderCard(context, provider);
+                      }
+
+                      return const SizedBox.shrink();
+                    },
+                  ),
                   hBox(10),
                 ],
               ),
@@ -99,14 +106,17 @@ class HomeScreenView extends StatelessWidget {
   }
 
   Widget _buildHeader(BuildContext context, HomeScreenProvider provider) {
-    final isLoggedIn = context.watch<AuthGuestProvider>().isLoggedIn;
+    final auth = context.watch<AuthGuestProvider>();
     final profile = context.watch<ProfileProvider>();
     final firstName = profile.firstName;
 
     final displayName =
-        (isLoggedIn && firstName != null && firstName.trim().isNotEmpty)
+    auth.isGuest
+        ? "Guest"
+        : (firstName.trim().isNotEmpty ?? false)
         ? firstName
         : "Guest";
+
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -215,25 +225,95 @@ class HomeScreenView extends StatelessWidget {
               ),
             ),
             wBox(12),
-            GestureDetector(
-              onTap: () async {
-                final bool allowed = await AuthGuard.requireLogin(context);
+            // GestureDetector(
+            //   onTap: () async {
+            //     final bool allowed = await AuthGuard.requireLogin(context);
+            //
+            //     if (!allowed) return;
+            //
+            //     Navigator.push(
+            //       context,
+            //       MaterialPageRoute(
+            //         builder: (_) => const NotificationsScreen(),
+            //       ),
+            //     );
+            //   },
+            //   child: Image.asset(
+            //     "assets/images/noti.png",
+            //     height: 46,
+            //     width: 46,
+            //   ),
+            // ),
 
-                if (!allowed) return;
+            Consumer<VendorNotificationProvider>(
+              builder: (context, provider, _) {
+                return InkWell(
+                  borderRadius: BorderRadius.circular(40),
+                  onTap: () async{
+                    bool allowed = await AuthGuard.requireLogin(context);
 
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => const NotificationsScreen(),
+                    if (!allowed) return;
+
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const NotificationsScreen(),
+                      ),
+                    );
+                  },
+                  child: Stack(
+                    clipBehavior: Clip.none,
+                    children: [
+                      Container(
+                        height: 40,
+                        width: 40,
+                        decoration: BoxDecoration(
+                          color: AppColors.lightGrey,
+                          shape: BoxShape.circle,
+                        ),
+                        child: Center(
+                          child: CustomImage(
+                            path: ImageConstants.bell,
+                            height: 20,
+                            width: 20,
+                            color: AppColors.black,
+                          ),
+                        ),
+                      ),
+
+                      /// Badge
+                      if (provider.unreadCount > 0)
+                        Positioned(
+                          right: -2,
+                          top: -2,
+                          child: Container(
+                            padding: const EdgeInsets.all(4),
+                            constraints: const BoxConstraints(
+                              minWidth: 18,
+                              minHeight: 18,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.red,
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Text(
+                              provider.unreadCount > 99
+                                  ? "99+"
+                                  : provider.unreadCount.toString(),
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ),
+                    ],
                   ),
                 );
               },
-              child: Image.asset(
-                "assets/images/noti.png",
-                height: 46,
-                width: 46,
-              ),
-            ),
+            )
           ],
         ),
       ],

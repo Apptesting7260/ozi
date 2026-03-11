@@ -329,9 +329,7 @@ class ServiceDetailView extends StatelessWidget {
   Widget _buildViewButton(BuildContext context, ServiceData serviceData) {
     return InkWell(
       onTap: () async {
-        final bool allowed = await AuthGuard.requireLogin(context);
 
-        if (!allowed) return;
         if (serviceData.vendorId != null) {
           Navigator.push(
             context,

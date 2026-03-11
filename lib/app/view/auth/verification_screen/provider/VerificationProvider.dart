@@ -246,9 +246,7 @@ class VerificationProvider extends ChangeNotifier {
         await UserPreference.saveStep(response.stepCompleted ?? "0");
         await UserPreference.saveMobile(phone);
         await UserPreference.saveIsMobileVerified(true);
-        navigatorKey.currentContext!.read<AuthGuestProvider>().updateLogin(
-          true,
-        );
+
 
         //  Debug Prints
         if (kDebugMode) {
@@ -308,7 +306,7 @@ class VerificationProvider extends ChangeNotifier {
           } else if (response.stepCompleted == '1' &&
               response.role == 'vendor') {
             await saveLogin(response.role, response.token);
-            Navigator.push(
+            Navigator.pushReplacement(
               navigatorKey.currentContext!,
               MaterialPageRoute(builder: (_) => ServiceCategory()),
             );
