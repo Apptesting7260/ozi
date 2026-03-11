@@ -2,6 +2,7 @@ import 'package:ozi/app/modules/user/Reviews%20Section/screens/allreviewsscreen.
 import 'package:ozi/app/modules/user/home/model/category_model.dart';
 import 'package:ozi/app/modules/user/navigation%20tab/view/navigation_tab_screen.dart';
 import 'package:ozi/app/modules/user/singleService/screen/singleservicescreen.dart';
+import 'package:ozi/app/shared/widgets/cutom_nodata_widget.dart';
 import '../../../../../core/appExports/app_export.dart';
 import '../../../../../core/constants/app_urls.dart';
 import '../../../../../data/response/api_status.dart';
@@ -67,7 +68,7 @@ class VendorDetailView extends StatelessWidget {
 
     final dataList = provider.vendorDetailData.data?.data;
     if (dataList == null || dataList.isEmpty) {
-      return Center(child: Text("No services found for this vendor", style: AppFontStyle.text_16_400(AppColors.grey)));
+      return NoDataFoundWidget(message: "No services found for this vendor");
     }
 
     final vendor = dataList.first.vendor;

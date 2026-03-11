@@ -1,13 +1,13 @@
 import 'package:intl/intl.dart';
-import 'package:ozi/app/modules/user/cart/change%20address/provider/ChangeAddressProvider.dart';
+import 'package:ozi/app/modules/user/profile/save%20address/provider/saved_address_provider.dart';
+import 'package:ozi/app/modules/user/profile/save%20address/view/SavedAddressScreen.dart';
+import 'package:ozi/app/modules/user/profile/save%20address/model/user_address_model.dart';
 import '../../../../../core/appExports/app_export.dart';
 import '../../../../../shared/widgets/custom_app_bar.dart';
 import '../../../../../shared/widgets/custom_date_picker.dart';
-import '../../change address/view/ChangeAddressScreen.dart';
 import '../../chnge payment method/provider/PaymentMethodProvider.dart';
 import '../../chnge payment method/view/ChangePaymentMethodScreen.dart';
 import '../provider/ScheduleProvider.dart';
-import '../../../../../core/utils/location_permission_helper.dart';
 
 class ScheduleServiceScreen extends StatelessWidget {
   const ScheduleServiceScreen({super.key});
@@ -17,9 +17,7 @@ class ScheduleServiceScreen extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(
-          create: (_) => ChangeAddressProvider()
-            ..fetchUserAddresses()
-            ..useCurrentLocation(),
+          create: (_) => SavedAddressProvider()..fetchUserAddresses(),
         ),
         ChangeNotifierProvider(
           create: (_) => ScheduleProvider()..scheduleService(),
@@ -30,14 +28,49 @@ class ScheduleServiceScreen extends StatelessWidget {
   }
 }
 
-class _ScheduleServiceScreenContent extends StatelessWidget {
+class _ScheduleServiceScreenContent extends StatefulWidget {
   const _ScheduleServiceScreenContent();
 
   @override
+  State<_ScheduleServiceScreenContent> createState() =>
+      _ScheduleServiceScreenContentState();
+}
+
+class _ScheduleServiceScreenContentState
+    extends State<_ScheduleServiceScreenContent> {
+  // Static to persist across screen recreations within the same session
+  static Data? _selectedAddress;
+  static int? _selectedIndex;
+  bool _hasAutoSetDefault = false;
+
+  @override
   Widget build(BuildContext context) {
-    final addressProvider = context.watch<ChangeAddressProvider>();
+    final addressProvider = context.watch<SavedAddressProvider>();
     final provider = context.watch<ScheduleProvider>();
     final times = provider.availableTimesForSelectedDay;
+
+    // Auto-set default address once addresses are loaded,
+    // but only if user hasn't previously selected one
+    if (!_hasAutoSetDefault &&
+        !addressProvider.isLoading &&
+        addressProvider.addresses.isNotEmpty) {
+      _hasAutoSetDefault = true;
+      // If a previous selection exists, verify it's still valid
+      if (_selectedIndex != null &&
+          _selectedIndex! >= 0 &&
+          _selectedIndex! < addressProvider.addresses.length) {
+        _selectedAddress = addressProvider.addresses[_selectedIndex!];
+      } else {
+        // No previous selection — use default address
+        final defaultIndex = addressProvider.addresses.indexWhere(
+          (addr) => addr.isDefault == true,
+        );
+        if (defaultIndex != -1) {
+          _selectedAddress = addressProvider.addresses[defaultIndex];
+          _selectedIndex = defaultIndex;
+        }
+      }
+    }
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -244,34 +277,33 @@ class _ScheduleServiceScreenContent extends StatelessWidget {
                       ),
                       TextButton(
                         onPressed: () async {
-                          if (await LocationPermissionHelper.handleLocationPermission(
+                          // Set previously selected index on provider
+                          if (_selectedIndex != null) {
+                            addressProvider.selectAddress(_selectedIndex!);
+                          }
+                          final selectedIndex = await Navigator.push<int>(
                             context,
-                          )) {
-                            if (context.mounted) {
-                              final selectedIndex = await Navigator.push<int>(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) => ChangeNotifierProvider.value(
-                                    value: addressProvider,
-                                    child: const ChangeAddressScreen(),
-                                  ),
+                            MaterialPageRoute(
+                              builder: (_) => ChangeNotifierProvider.value(
+                                value: addressProvider,
+                                child: const SavedAddressScreen(
+                                  isservice: true,
                                 ),
-                              );
-                              if (selectedIndex != null) {
-                                final addressProvider =
-                                    Provider.of<ChangeAddressProvider>(
-                                      context,
-                                      listen: false,
-                                    );
-                                addressProvider.selectAddress((selectedIndex));
-                              }
-                            }
+                              ),
+                            ),
+                          );
+                          if (selectedIndex != null &&
+                              selectedIndex >= 0 &&
+                              selectedIndex <
+                                  addressProvider.addresses.length) {
+                            setState(() {
+                              _selectedIndex = selectedIndex;
+                              _selectedAddress =
+                                  addressProvider.addresses[selectedIndex];
+                            });
                           }
                         },
                         child: Text(
-                          // addressProvider.selectedAddress == null
-                          //     ? 'Add Address >'
-                          //     :
                           'Change Address >',
                           style: AppFontStyle.text_14_500(
                             AppColors.primary,
@@ -289,72 +321,54 @@ class _ScheduleServiceScreenContent extends StatelessWidget {
                       border: Border.all(color: AppColors.containerBorder),
                     ),
                     child: Row(
-                      mainAxisAlignment:
-                          addressProvider.selectedAddress == null &&
-                              addressProvider.selectedIndex != -2
-                          ? MainAxisAlignment.center
-                          : MainAxisAlignment.start,
                       children: [
-                        if (addressProvider.selectedAddress != null ||
-                            addressProvider.selectedIndex == -2) ...[
-                          Container(
-                            padding: EdgeInsets.all(10),
-                            decoration: BoxDecoration(
-                              color: AppColors.lightGrey,
-                              borderRadius: BorderRadius.circular(30),
-                            ),
-                            child: CustomImage(
-                              path: ImageConstants.location,
-
-                              color: AppColors.black,
-                            ),
+                        Container(
+                          padding: EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            color: AppColors.lightGrey,
+                            borderRadius: BorderRadius.circular(30),
                           ),
-                          SizedBox(width: 12),
-                        ],
+                          child: CustomImage(
+                            path: ImageConstants.location,
+                            color: AppColors.black,
+                          ),
+                        ),
+                        SizedBox(width: 12),
                         Expanded(
-                          child: Column(
-                            crossAxisAlignment:
-                                addressProvider.selectedAddress == null &&
-                                    addressProvider.selectedIndex != -2
-                                ? CrossAxisAlignment.center
-                                : CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                addressProvider.selectedIndex == -2
-                                    ? 'Current Address'
-                                    : addressProvider
-                                                  .selectedAddress
-                                                  ?.addressType !=
-                                              null &&
-                                          addressProvider
-                                              .selectedAddress!
-                                              .addressType!
-                                              .isNotEmpty
-                                    ? '${addressProvider.selectedAddress!.addressType![0].toUpperCase()}${addressProvider.selectedAddress!.addressType!.substring(1)}'
-                                    : 'Address',
-                                style: AppFontStyle.text_14_600(
-                                  AppColors.black,
-                                  fontFamily: AppFontFamily.semiBold,
-                                ),
-                              ),
-                              if (addressProvider.selectedAddress != null ||
-                                  addressProvider.selectedIndex == -2) ...[
-                                SizedBox(height: 4),
-                                Text(
-                                  addressProvider.selectedIndex == -2
-                                      ? (addressProvider
-                                                .currentLocationAddress ??
-                                            "Detecting location...")
-                                      : addressProvider.getFormattedAddress(
-                                          addressProvider.selectedAddress!,
-                                        ),
-                                  style: AppFontStyle.text_14_400(
-                                    AppColors.grey,
+                          child: _selectedAddress != null
+                              ? Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      _selectedAddress!.addressType != null &&
+                                              _selectedAddress!
+                                                  .addressType!
+                                                  .isNotEmpty
+                                          ? '${_selectedAddress!.addressType![0].toUpperCase()}${_selectedAddress!.addressType!.substring(1)}'
+                                          : 'Address',
+                                      style: AppFontStyle.text_14_600(
+                                        AppColors.black,
+                                        fontFamily: AppFontFamily.semiBold,
+                                      ),
+                                    ),
+                                    SizedBox(height: 4),
+                                    Text(
+                                      addressProvider.getFormattedAddress(
+                                        _selectedAddress!,
+                                      ),
+                                      style: AppFontStyle.text_14_400(
+                                        AppColors.grey,
+                                      ),
+                                    ),
+                                  ],
+                                )
+                              : Text(
+                                  'Select an address',
+                                  style: AppFontStyle.text_14_600(
+                                    AppColors.black,
+                                    fontFamily: AppFontFamily.semiBold,
                                   ),
                                 ),
-                              ],
-                            ],
-                          ),
                         ),
                       ],
                     ),
@@ -505,8 +519,7 @@ class _ScheduleServiceScreenContent extends StatelessWidget {
                     isLoading: provider.isBookingLoading,
                     onPressed:
                         (provider.selectedTime == null ||
-                            (addressProvider.selectedAddress == null &&
-                                addressProvider.selectedIndex != -2))
+                            _selectedAddress == null)
                         ? null
                         : () {
                             if (kDebugMode) {
@@ -514,11 +527,7 @@ class _ScheduleServiceScreenContent extends StatelessWidget {
                             }
                             provider.bookServiceApi(
                               context: context,
-                              addressId:
-                                  addressProvider.selectedAddress?.id
-                                      .toString() ??
-                                  addressProvider.currentLocationAddress
-                                      .toString(),
+                              addressId: _selectedAddress!.id.toString(),
                               paymentMethod:
                                   provider.selectedPaymentMethod?.title
                                       .trim()

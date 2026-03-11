@@ -59,7 +59,7 @@ class _ChangeAddressScreenState extends State<ChangeAddressScreen> {
                         padding: REdgeInsets.all(16),
                         children: [
                           // Always show Current Location as first tile
-                          _currentLocationTile(provider),
+                          // _currentLocationTile(provider),
                           SizedBox(height: 12),
 
                           // Saved addresses (if any)
@@ -254,6 +254,8 @@ class _ChangeAddressScreenState extends State<ChangeAddressScreen> {
     required String address,
     required String icon,
     String? tag,
+
+    bool isCurrent = false,
     required VoidCallback onTap,
   }) {
     return GestureDetector(

@@ -223,6 +223,18 @@ class AppRoutes {
       //   return MaterialPageRoute(builder: (_) => VendorBookingDetailsScreen(booking: ));
 
       default:
+        // Ignore firebase auth deep links to prevent unwanted navigation to SplashScreen
+        // when returning from Safari/Chrome reCAPTCHA verification.
+        if (setting.name != null &&
+            (setting.name!.startsWith('/__/') ||
+                setting.name!.startsWith('app-1-') ||
+                setting.name!.contains('firebaseauth') ||
+                setting.name!.contains('com.googleusercontent') ||
+                setting.name == '/')) {
+          // Return null to let the plugin (Firebase Auth) handle the deep link internally
+          // without Flutter router disrupting the current screen stack.
+          return null;
+        }
         return MaterialPageRoute(builder: (context) => SplashScreen());
     }
   }

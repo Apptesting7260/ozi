@@ -280,12 +280,15 @@ class HomeScreenProvider extends ChangeNotifier {
     _selectedLocation = "Select Location";
     lat = null;
     lng = null;
+    _lastFetchTime = null; // Clear time on logout
     _serviceCategories.clear();
 
-
+    // Clear session consent on reset (logout) to ensure we ask again on next login
+    debugPrint(
+      "HomeScreenProvider: Resetting state and clearing all session consent.",
+    );
     _sessionConsentMap.clear();
-    // Also clear persisted consent (it gets cleared via clearSharedPreference too,
-    // but this is explicit for clarity)
+    // Also clear persisted consent
     UserPreference.saveLocationConsent(false);
 
     notifyListeners();
