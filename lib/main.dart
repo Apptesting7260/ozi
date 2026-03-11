@@ -68,7 +68,7 @@ void main() async {
     debugPrint('Failed to initialize Google Sign-In: $e');
     // Optionally show a toast or log — but don't crash the app
   }
-  PushNotificationService.firebaseNotification();
+  await PushNotificationService.firebaseNotification();
 
   Stripe.publishableKey =
       'pk_test_51T1KB9DSmK2YlVb0zz4kEhEobZjMs9aQKpL9pQJQT79Ja4HsVM9QFW9XPirqeIDOAMsBC3vtFtPlXPDmFaH1tmGy00IQqXiz82';

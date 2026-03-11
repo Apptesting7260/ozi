@@ -102,17 +102,26 @@ class LoginProvider extends ChangeNotifier {
     '233': {'length': 9, 'name': 'Ghana'}, // Ghana
     '234': {'length': 10, 'name': 'Nigeria'}, // Nigeria
     '235': {'length': 8, 'name': 'Chad'}, // Chad
-    '236': {'length': 8, 'name': 'Central African Republic'}, // Central African Republic
+    '236': {
+      'length': 8,
+      'name': 'Central African Republic',
+    }, // Central African Republic
     '237': {'length': 9, 'name': 'Cameroon'}, // Cameroon
     '238': {'length': 7, 'name': 'Cape Verde'}, // Cape Verde
-    '239': {'length': 7, 'name': 'Sao Tome and Principe'}, // Sao Tome and Principe
+    '239': {
+      'length': 7,
+      'name': 'Sao Tome and Principe',
+    }, // Sao Tome and Principe
     '240': {'length': 9, 'name': 'Equatorial Guinea'}, // Equatorial Guinea
     '241': {'length': 7, 'name': 'Gabon'}, // Gabon
     '242': {'length': 9, 'name': 'Congo'}, // Congo
     '243': {'length': 9, 'name': 'DR Congo'}, // DR Congo
     '244': {'length': 9, 'name': 'Angola'}, // Angola
     '245': {'length': 9, 'name': 'Guinea-Bissau'}, // Guinea-Bissau
-    '246': {'length': 7, 'name': 'British Indian Ocean Territory'}, // British Indian Ocean Territory
+    '246': {
+      'length': 7,
+      'name': 'British Indian Ocean Territory',
+    }, // British Indian Ocean Territory
     '247': {'length': 4, 'name': 'Ascension Island'}, // Ascension Island
     '248': {'length': 7, 'name': 'Seychelles'}, // Seychelles
     '249': {'length': 9, 'name': 'Sudan'}, // Sudan
@@ -165,7 +174,10 @@ class LoginProvider extends ChangeNotifier {
     '383': {'length': 8, 'name': 'Kosovo'}, // Kosovo
     '385': {'length': 9, 'name': 'Croatia'}, // Croatia
     '386': {'length': 8, 'name': 'Slovenia'}, // Slovenia
-    '387': {'length': 8, 'name': 'Bosnia and Herzegovina'}, // Bosnia and Herzegovina
+    '387': {
+      'length': 8,
+      'name': 'Bosnia and Herzegovina',
+    }, // Bosnia and Herzegovina
     '389': {'length': 8, 'name': 'Macedonia'}, // Macedonia
     '420': {'length': 9, 'name': 'Czech Republic'}, // Czech Republic
     '421': {'length': 9, 'name': 'Slovakia'}, // Slovakia
@@ -178,7 +190,10 @@ class LoginProvider extends ChangeNotifier {
     '505': {'length': 8, 'name': 'Nicaragua'}, // Nicaragua
     '506': {'length': 8, 'name': 'Costa Rica'}, // Costa Rica
     '507': {'length': 8, 'name': 'Panama'}, // Panama
-    '508': {'length': 6, 'name': 'Saint Pierre and Miquelon'}, // Saint Pierre and Miquelon
+    '508': {
+      'length': 6,
+      'name': 'Saint Pierre and Miquelon',
+    }, // Saint Pierre and Miquelon
     '509': {'length': 8, 'name': 'Haiti'}, // Haiti
     '590': {'length': 9, 'name': 'Guadeloupe'}, // Guadeloupe
     '591': {'length': 8, 'name': 'Bolivia'}, // Bolivia
@@ -189,7 +204,10 @@ class LoginProvider extends ChangeNotifier {
     '596': {'length': 9, 'name': 'Martinique'}, // Martinique
     '597': {'length': 7, 'name': 'Suriname'}, // Suriname
     '598': {'length': 8, 'name': 'Uruguay'}, // Uruguay
-    '599': {'length': 7, 'name': 'Netherlands Antilles'}, // Netherlands Antilles
+    '599': {
+      'length': 7,
+      'name': 'Netherlands Antilles',
+    }, // Netherlands Antilles
     '670': {'length': 8, 'name': 'East Timor'}, // East Timor
     '672': {'length': 6, 'name': 'Antarctica'}, // Antarctica
     '673': {'length': 7, 'name': 'Brunei'}, // Brunei
@@ -245,7 +263,8 @@ class LoginProvider extends ChangeNotifier {
 
   String? _loginErrorInvalidCredentialsMessage;
 
-  String? get loginErrorInvalidCredentialsMessage => _loginErrorInvalidCredentialsMessage;
+  String? get loginErrorInvalidCredentialsMessage =>
+      _loginErrorInvalidCredentialsMessage;
 
   setloginErrorInvalidCredentialsMessage(String? value) {
     _loginErrorInvalidCredentialsMessage = value;
@@ -312,7 +331,11 @@ class LoginProvider extends ChangeNotifier {
 
   OtpSession? get otpSession => _otpSession;
 
-  Future<bool> handleContinue(BuildContext context, String phone, String regionCode) async {
+  Future<bool> handleContinue(
+    BuildContext context,
+    String phone,
+    String regionCode,
+  ) async {
     final body = {"country_code": "+$regionCode", "mobile": phone};
 
     try {
@@ -349,7 +372,10 @@ class LoginProvider extends ChangeNotifier {
         print("HANDLE CONTINUE ERROR: $e");
       }
 
-      Get.showToast("Something went wrong. Please try again.", type: ToastType.warning);
+      Get.showToast(
+        "Something went wrong. Please try again.",
+        type: ToastType.warning,
+      );
 
       return false;
     } finally {
@@ -392,12 +418,17 @@ class LoginProvider extends ChangeNotifier {
         // Only handle if codeSent hasn't already resolved this request
         if (!completer.isCompleted) {
           _isLoading = false;
-          errorMessageFirebase = mapFirebaseError(e, flow: AuthFlowType.sendOtp);
+          errorMessageFirebase = mapFirebaseError(
+            e,
+            flow: AuthFlowType.sendOtp,
+          );
           notifyListeners();
           completer.complete(false);
         } else {
           // codeSent already fired — OTP was delivered, ignore this late error
-          print("verificationFailed fired after codeSent — ignoring: ${e.message}");
+          print(
+            "verificationFailed fired after codeSent — ignoring: ${e.message}",
+          );
         }
       },
 
@@ -407,7 +438,11 @@ class LoginProvider extends ChangeNotifier {
           verificationId = verId;
 
           // Create OTP session (60s expiry)
-          _otpSession = OtpSession(verificationId: verId, sentAt: DateTime.now(), validFor: const Duration(seconds: 60));
+          _otpSession = OtpSession(
+            verificationId: verId,
+            sentAt: DateTime.now(),
+            validFor: const Duration(seconds: 60),
+          );
 
           _isLoading = false;
           errorMessageFirebase = null; // Ensure no stale error
@@ -429,31 +464,27 @@ class LoginProvider extends ChangeNotifier {
   bool guestLoading = false;
 
   Future<void> guestLogin() async {
-
-    try{
+    try {
       guestLoading = true;
       notifyListeners();
-    final deviceInfo = await getDeviceInfo();
+      final deviceInfo = await getDeviceInfo();
 
-    final response = await Repository().guestUser(
-        {
-          "fcm_token": PushNotificationService.fcmToken ?? "",
-          "device_type": deviceInfo["device_type"] ?? "",
-          "device_name": deviceInfo["device_name"] ?? ""
-        }
-        );
+      final response = await Repository().guestUser({
+        "fcm_token": await PushNotificationService.getToken() ?? "",
+        "device_type": deviceInfo["device_type"] ?? "",
+        "device_name": deviceInfo["device_name"] ?? "",
+      });
 
-    if (response.status == true) {
-      await UserPreference.saveAccessToken(response.data?.apiToken ?? "");
-      await UserPreference.saveRole(response.data?.userRole ?? "guest");
-      await UserPreference.saveUserId(response.data?.userId.toString() ?? "");
-    }
-    }catch(e) {
-
+      if (response.status == true) {
+        await UserPreference.saveAccessToken(response.data?.apiToken ?? "");
+        await UserPreference.saveRole(response.data?.userRole ?? "guest");
+        await UserPreference.saveUserId(response.data?.userId.toString() ?? "");
+      }
+    } catch (e) {
       if (kDebugMode) {
         print("GUEST LOGIN ERROR: $e");
       }
-    }finally{
+    } finally {
       guestLoading = false;
       notifyListeners();
     }
@@ -485,20 +516,32 @@ class LoginProvider extends ChangeNotifier {
         firstName = nameParts.first;
         lastName = nameParts.length > 1 ? nameParts.sublist(1).join(' ') : '';
       }
-      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+      final GoogleSignInAuthentication googleAuth =
+          await googleUser.authentication;
 
-      debugPrint('Google user ID: ${googleUser.id} & Google idToken: ${googleAuth.idToken}');
+      debugPrint(
+        'Google user ID: ${googleUser.id} & Google idToken: ${googleAuth.idToken}',
+      );
       if (googleAuth.idToken == null || googleAuth.idToken!.isEmpty) {
-        Get.showToast('Failed to retrieve Google ID token', type: ToastType.error);
+        Get.showToast(
+          'Failed to retrieve Google ID token',
+          type: ToastType.error,
+        );
         CustomOverlayLoader.hide();
         return;
       }
 
-      debugPrint('Google idToken (prefix): ${googleAuth.idToken!.substring(0, 20)}...');
+      debugPrint(
+        'Google idToken (prefix): ${googleAuth.idToken!.substring(0, 20)}...',
+      );
 
-      final credential = GoogleAuthProvider.credential(idToken: googleAuth.idToken);
+      final credential = GoogleAuthProvider.credential(
+        idToken: googleAuth.idToken,
+      );
 
-      final userCredential = await FirebaseAuth.instance.signInWithCredential(credential);
+      final userCredential = await FirebaseAuth.instance.signInWithCredential(
+        credential,
+      );
 
       final timing = await userCredential.user?.getIdTokenResult();
       print("token expire timing ${timing?.issuedAtTime}");
@@ -524,9 +567,19 @@ class LoginProvider extends ChangeNotifier {
         return;
       }
 
-      debugPrint('Firebase ID token (prefix): ${firebaseIdToken.substring(0, 20)}...');
+      debugPrint(
+        'Firebase ID token (prefix): ${firebaseIdToken.substring(0, 20)}...',
+      );
 
-      await checkSocialUserApi(navigatorKey.currentContext!, googleUser.id, googleUser.email, firebaseIdToken, issuedAt.toString(), firstName, lastName);
+      await checkSocialUserApi(
+        navigatorKey.currentContext!,
+        googleUser.id,
+        googleUser.email,
+        firebaseIdToken,
+        issuedAt.toString(),
+        firstName,
+        lastName,
+      );
       // socialLoginApi(
       //   navigatorKey.currentContext!,
       //   firebaseIdToken,
@@ -556,7 +609,10 @@ class LoginProvider extends ChangeNotifier {
     } on PlatformException catch (e) {
       CustomOverlayLoader.hide();
       debugPrint('PlatformException: $e');
-      Get.showToast('Sign-in error – check Firebase/Google setup', type: ToastType.error);
+      Get.showToast(
+        'Sign-in error – check Firebase/Google setup',
+        type: ToastType.error,
+      );
     } catch (e) {
       CustomOverlayLoader.hide();
       debugPrint('Unexpected error: $e');
@@ -573,29 +629,71 @@ class LoginProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> checkSocialUserApi(BuildContext context, String googleId, String email, String idToken, String utcTime, String firstName, String lastName) async {
+  Future<void> checkSocialUserApi(
+    BuildContext context,
+    String googleId,
+    String email,
+    String idToken,
+    String utcTime,
+    String firstName,
+    String lastName,
+  ) async {
     try {
       print("account is deleted. checking user");
       final value = await _repository.checkSocialUser(googleId, email);
 
-      final bool isDeleted = value['data'] != null ? value['data']['is_deleted'] == true : false;
+      final bool isDeleted = value['data'] != null
+          ? value['data']['is_deleted'] == true
+          : false;
       print("account is deleted. checking user $isDeleted");
 
       if (isDeleted) {
         print("account is deleted");
-        showAccountCheckerPopup(context, googleId, email, idToken, utcTime, firstName, lastName);
+        showAccountCheckerPopup(
+          context,
+          googleId,
+          email,
+          idToken,
+          utcTime,
+          firstName,
+          lastName,
+        );
       } else {
         print("account is not deleted");
-        socialLoginApi(context, idToken, googleId, utcTime, firstName, lastName, email);
+        socialLoginApi(
+          context,
+          idToken,
+          googleId,
+          utcTime,
+          firstName,
+          lastName,
+          email,
+        );
       }
     } catch (e) {
       print("error in checkSocialUserApi: $e");
-      socialLoginApi(context, idToken, googleId, utcTime, firstName, lastName, email);
+      socialLoginApi(
+        context,
+        idToken,
+        googleId,
+        utcTime,
+        firstName,
+        lastName,
+        email,
+      );
       debugPrint('Error in checkSocialUserApi: $e');
     }
   }
 
-  Future<bool?> showAccountCheckerPopup(BuildContext context, String googleId, String email, String idToken, String utcTime, String firstName, String lastName) async {
+  Future<bool?> showAccountCheckerPopup(
+    BuildContext context,
+    String googleId,
+    String email,
+    String idToken,
+    String utcTime,
+    String firstName,
+    String lastName,
+  ) async {
     return await showDialog<bool>(
       context: context,
       barrierDismissible: false,
@@ -604,19 +702,36 @@ class LoginProvider extends ChangeNotifier {
           onWillPop: () async => false,
           child: Dialog(
             insetPadding: const EdgeInsets.symmetric(horizontal: 24),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(24),
+            ),
             child: Container(
               // width: 340,
               // height: 257,
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 28),
               // margin: EdgeInsets.all(15),
-              decoration: BoxDecoration(borderRadius: BorderRadius.circular(24)),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(24),
+              ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text('Restore Your Account', textAlign: TextAlign.center, style: AppFontStyle.text_22_600(Color.fromRGBO(28, 29, 33, 1))),
+                  Text(
+                    'Restore Your Account',
+                    textAlign: TextAlign.center,
+                    style: AppFontStyle.text_22_600(
+                      Color.fromRGBO(28, 29, 33, 1),
+                    ),
+                  ),
                   const SizedBox(height: 12),
-                  Text(maxLines: 3, 'Would you like to restore your previous account and continue where you left off?', textAlign: TextAlign.center, style: AppFontStyle.text_16_300(Color.fromRGBO(112, 108, 108, 1))),
+                  Text(
+                    maxLines: 3,
+                    'Would you like to restore your previous account and continue where you left off?',
+                    textAlign: TextAlign.center,
+                    style: AppFontStyle.text_16_300(
+                      Color.fromRGBO(112, 108, 108, 1),
+                    ),
+                  ),
                   const SizedBox(height: 28),
                   Row(
                     children: [
@@ -624,7 +739,10 @@ class LoginProvider extends ChangeNotifier {
                         child: GestureDetector(
                           onTap: () {
                             Navigator.pop(context, false);
-                            Get.showToast("Account restoration cancelled. You cannot continue with this Email.", type: ToastType.warning);
+                            Get.showToast(
+                              "Account restoration cancelled. You cannot continue with this Email.",
+                              type: ToastType.warning,
+                            );
                           },
                           child: Container(
                             height: 48,
@@ -634,7 +752,12 @@ class LoginProvider extends ChangeNotifier {
                               borderRadius: BorderRadius.circular(30),
                               border: Border.all(color: Colors.grey.shade400),
                             ),
-                            child: Text('Cancel', style: AppFontStyle.text_16_600(Color.fromRGBO(112, 108, 108, 1))),
+                            child: Text(
+                              'Cancel',
+                              style: AppFontStyle.text_16_600(
+                                Color.fromRGBO(112, 108, 108, 1),
+                              ),
+                            ),
                           ),
                         ),
                       ),
@@ -642,13 +765,29 @@ class LoginProvider extends ChangeNotifier {
                       Expanded(
                         child: GestureDetector(
                           onTap: () async {
-                            socialLoginApi(context, idToken, googleId, utcTime, firstName, lastName, email);
+                            socialLoginApi(
+                              context,
+                              idToken,
+                              googleId,
+                              utcTime,
+                              firstName,
+                              lastName,
+                              email,
+                            );
                           },
                           child: Container(
                             height: 48,
                             alignment: Alignment.center,
-                            decoration: BoxDecoration(color: AppColors.primary, borderRadius: BorderRadius.circular(30)),
-                            child: Text('Restore', style: AppFontStyle.text_16_600(Color.fromRGBO(255, 255, 255, 1))),
+                            decoration: BoxDecoration(
+                              color: AppColors.primary,
+                              borderRadius: BorderRadius.circular(30),
+                            ),
+                            child: Text(
+                              'Restore',
+                              style: AppFontStyle.text_16_600(
+                                Color.fromRGBO(255, 255, 255, 1),
+                              ),
+                            ),
                           ),
                         ),
                       ),
@@ -663,13 +802,31 @@ class LoginProvider extends ChangeNotifier {
     );
   }
 
-  Future<void> socialLoginApi(BuildContext context, String idToken, String googleId, String utcTime, String firstName, String lastName, String email) async {
+  Future<void> socialLoginApi(
+    BuildContext context,
+    String idToken,
+    String googleId,
+    String utcTime,
+    String firstName,
+    String lastName,
+    String email,
+  ) async {
     updateLoading(true);
 
     try {
       String deviceName = await DeviceIdService.getDeviceName();
 
-      final value = await _repository.socialLoginApi({"id_token": idToken, "device_name": deviceName, "device_type": Platform.isAndroid ? "android" : "ios", "fcm_token": PushNotificationService.fcmToken ?? "", "google_id": googleId, "utc_time": utcTime, "first_name": firstName, "last_name": lastName, "email": email});
+      final value = await _repository.socialLoginApi({
+        "id_token": idToken,
+        "device_name": deviceName,
+        "device_type": Platform.isAndroid ? "android" : "ios",
+        "fcm_token": await PushNotificationService.getToken() ?? "",
+        "google_id": googleId,
+        "utc_time": utcTime,
+        "first_name": firstName,
+        "last_name": lastName,
+        "email": email,
+      });
 
       // Only interact with context if widget is still mounted
       if (context.mounted) {
@@ -680,7 +837,9 @@ class LoginProvider extends ChangeNotifier {
           final String apiToken = data['api_token']?.toString() ?? '';
           final String userId = user['id']?.toString() ?? '';
           final String? userRole = user['user_role']?.toString();
-          final int stepCompleted = (user['step_completed'] is int) ? user['step_completed'] : int.tryParse(user['step_completed']?.toString() ?? '0') ?? 0;
+          final int stepCompleted = (user['step_completed'] is int)
+              ? user['step_completed']
+              : int.tryParse(user['step_completed']?.toString() ?? '0') ?? 0;
 
           final bool isRoleSelected = user['is_role_selected'] ?? false;
           final bool isMobileVerified = user['is_mobile_verified'] ?? false;
@@ -691,8 +850,12 @@ class LoginProvider extends ChangeNotifier {
           await UserPreference.saveIsLoggedIn(true);
           await UserPreference.saveIsRoleSelected(isRoleSelected);
           await UserPreference.saveStep(stepCompleted.toString());
-          await UserPreference.saveFirstName(user['first_name']?.toString() ?? '');
-          await UserPreference.saveLastName(user['last_name']?.toString() ?? '');
+          await UserPreference.saveFirstName(
+            user['first_name']?.toString() ?? '',
+          );
+          await UserPreference.saveLastName(
+            user['last_name']?.toString() ?? '',
+          );
           await UserPreference.saveEmail(user['email']?.toString() ?? '');
           await UserPreference.saveMobile(user['mobile']?.toString() ?? '');
           await UserPreference.saveIsMobileVerified(isMobileVerified);
@@ -701,26 +864,51 @@ class LoginProvider extends ChangeNotifier {
               Navigator.pushReplacement(
                 navigatorKey.currentContext!,
                 MaterialPageRoute(
-                  builder: (_) => ChooseRoleScreen(userId: userId, firstName: user['first_name']?.toString(), lastName: user['last_name']?.toString(), email: user['email']?.toString(), phoneNumber: user['mobile']?.toString(), isMobileVerified: false),
+                  builder: (_) => ChooseRoleScreen(
+                    userId: userId,
+                    firstName: user['first_name']?.toString(),
+                    lastName: user['last_name']?.toString(),
+                    email: user['email']?.toString(),
+                    phoneNumber: user['mobile']?.toString(),
+                    isMobileVerified: false,
+                  ),
                 ),
               );
             } else if (stepCompleted == 1 && userRole == 'vendor') {
               await saveLogin(userRole, apiToken, userId);
-              Navigator.push(navigatorKey.currentContext!, MaterialPageRoute(builder: (_) => ServiceCategory()));
+              Navigator.push(
+                navigatorKey.currentContext!,
+                MaterialPageRoute(builder: (_) => ServiceCategory()),
+              );
             } else if (stepCompleted == 2 && userRole == 'vendor') {
               await saveLogin(userRole, apiToken, userId);
-              Navigator.push(navigatorKey.currentContext!, MaterialPageRoute(builder: (_) => SetAvailabilityScreen(false)));
+              Navigator.push(
+                navigatorKey.currentContext!,
+                MaterialPageRoute(builder: (_) => SetAvailabilityScreen(false)),
+              );
             } else if (stepCompleted == 3 && userRole == 'vendor') {
               await saveLogin(userRole, apiToken, userId);
-              Navigator.push(navigatorKey.currentContext!, MaterialPageRoute(builder: (_) => IdentityVerificationScreen(isFromProfile: false)));
+              Navigator.push(
+                navigatorKey.currentContext!,
+                MaterialPageRoute(
+                  builder: (_) =>
+                      IdentityVerificationScreen(isFromProfile: false),
+                ),
+              );
             } else {
               loginWithSaveTokenRedirection(userRole, apiToken, userId);
             }
           }
 
-          Get.showToast(value['message']?.toString() ?? 'Login Successfully', type: ToastType.success);
+          Get.showToast(
+            value['message']?.toString() ?? 'Login Successfully',
+            type: ToastType.success,
+          );
         } else {
-          Get.showToast(value['message']?.toString() ?? 'Failed to login', type: ToastType.error);
+          Get.showToast(
+            value['message']?.toString() ?? 'Failed to login',
+            type: ToastType.error,
+          );
         }
       }
     } catch (error) {
@@ -751,15 +939,25 @@ class LoginProvider extends ChangeNotifier {
     HomeScreenProvider.promoteGuestConsent(userId);
   }
 
-  Future<void> loginWithSaveTokenRedirection(String? role, String? token, String userId) async {
+  Future<void> loginWithSaveTokenRedirection(
+    String? role,
+    String? token,
+    String userId,
+  ) async {
     if (role == null || token == null) {
       return;
     }
     await saveLogin(role, token, userId);
     if (role == 'user') {
-      Navigator.push(navigatorKey.currentContext!, MaterialPageRoute(builder: (_) => NavigationTabScreen()));
+      Navigator.push(
+        navigatorKey.currentContext!,
+        MaterialPageRoute(builder: (_) => NavigationTabScreen()),
+      );
     } else if (role == 'vendor') {
-      Navigator.push(navigatorKey.currentContext!, MaterialPageRoute(builder: (_) => VendorNavigationTabScreen()));
+      Navigator.push(
+        navigatorKey.currentContext!,
+        MaterialPageRoute(builder: (_) => VendorNavigationTabScreen()),
+      );
     }
   }
 
@@ -777,18 +975,35 @@ class LoginProvider extends ChangeNotifier {
           onWillPop: () async => false,
           child: Dialog(
             insetPadding: const EdgeInsets.symmetric(horizontal: 24),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(24),
+            ),
             child: Container(
               // width: 382,
               // height: 257,
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 28),
-              decoration: BoxDecoration(borderRadius: BorderRadius.circular(24)),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(24),
+              ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text('Restore Your Account', textAlign: TextAlign.center, style: AppFontStyle.text_22_600(Color.fromRGBO(28, 29, 33, 1))),
+                  Text(
+                    'Restore Your Account',
+                    textAlign: TextAlign.center,
+                    style: AppFontStyle.text_22_600(
+                      Color.fromRGBO(28, 29, 33, 1),
+                    ),
+                  ),
                   const SizedBox(height: 12),
-                  Text(maxLines: 3, 'Would you like to restore your previous account and continue where you left off?', textAlign: TextAlign.center, style: AppFontStyle.text_16_300(Color.fromRGBO(112, 108, 108, 1))),
+                  Text(
+                    maxLines: 3,
+                    'Would you like to restore your previous account and continue where you left off?',
+                    textAlign: TextAlign.center,
+                    style: AppFontStyle.text_16_300(
+                      Color.fromRGBO(112, 108, 108, 1),
+                    ),
+                  ),
                   const SizedBox(height: 28),
                   Row(
                     children: [
@@ -796,7 +1011,10 @@ class LoginProvider extends ChangeNotifier {
                         child: GestureDetector(
                           onTap: () {
                             Navigator.pop(context, false);
-                            Get.showToast("Account restoration cancelled. You cannot continue with this number.", type: ToastType.warning);
+                            Get.showToast(
+                              "Account restoration cancelled. You cannot continue with this number.",
+                              type: ToastType.warning,
+                            );
                           },
                           child: Container(
                             height: 48,
@@ -806,7 +1024,12 @@ class LoginProvider extends ChangeNotifier {
                               borderRadius: BorderRadius.circular(30),
                               border: Border.all(color: Colors.grey.shade400),
                             ),
-                            child: Text('Cancel', style: AppFontStyle.text_16_600(Color.fromRGBO(112, 108, 108, 1))),
+                            child: Text(
+                              'Cancel',
+                              style: AppFontStyle.text_16_600(
+                                Color.fromRGBO(112, 108, 108, 1),
+                              ),
+                            ),
                           ),
                         ),
                       ),
@@ -819,8 +1042,16 @@ class LoginProvider extends ChangeNotifier {
                           child: Container(
                             height: 48,
                             alignment: Alignment.center,
-                            decoration: BoxDecoration(color: AppColors.primary, borderRadius: BorderRadius.circular(30)),
-                            child: Text('Restore', style: AppFontStyle.text_16_600(Color.fromRGBO(255, 255, 255, 1))),
+                            decoration: BoxDecoration(
+                              color: AppColors.primary,
+                              borderRadius: BorderRadius.circular(30),
+                            ),
+                            child: Text(
+                              'Restore',
+                              style: AppFontStyle.text_16_600(
+                                Color.fromRGBO(255, 255, 255, 1),
+                              ),
+                            ),
                           ),
                         ),
                       ),

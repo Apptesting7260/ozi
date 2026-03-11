@@ -635,7 +635,7 @@ class CreateAccountProvider with ChangeNotifier {
         "last_name": lastNameController.text.trim(),
         "email": emailController.text.trim(),
         "mobile": mobileController.text.trim(),
-        "fcm_token": PushNotificationService.fcmToken ?? "",
+        "fcm_token": await PushNotificationService.getToken() ?? "",
         "device_name": deviceInfo["device_name"] ?? "",
         "device_type": deviceInfo["device_type"] ?? "",
       }, AppUrls.completeRegistration);

@@ -8,10 +8,11 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:permission_handler/permission_handler.dart';
 import '../../data/storage/user_preference.dart';
 import '../../modules/user/navigation tab/view/navigation_tab_screen.dart';
-import '../../modules/vendor/home/notification/provider/vendor_ notification_provider.dart';
 import '../../modules/vendor/navigation tab/view/vendor_navigation_tab_screen.dart';
+import '../../routes/app_routes.dart';
 import '../utils/get_utils.dart';
 import '../../../firebase_options.dart';
 
@@ -31,19 +32,6 @@ import '../../../firebase_options.dart';
 Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  //log("Background Notification: ${message.notification?.body}");
-  debugPrint(
-    '🔔message notification title background message=====${message.notification?.title}',
-  );
-  debugPrint('📝message notification body=====${message.notification?.body}');
-  debugPrint('📝message notification data body=====${message.data}');
-  debugPrint(
-    '📝message notification messageId=====${message.data['booking_id']}',
-  );
-  debugPrint('📝message notification messageType=====${message.data['type']}');
-  debugPrint(
-    '📝message notification messageType=====${message.data['screen']}',
-  );
   log("Background Notification: ${message.notification?.body}");
 
   // Only show local notification on Android — iOS handles it via APNs system
@@ -121,38 +109,17 @@ class PushNotificationService {
       sound: false, // ← was true
     );
 
+    // ── 2.1 Request Android Notification Permission explicitly for Android 13+ ─
+    if (Platform.isAndroid) {
+      await _requestAndroidPermission();
+    }
+
     // ── 3. Init local notifications ──────────────────────────────────────────
     await initLocalNotification();
 
     // ── 4. Register background handler ──────────────────────────────────────
     FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
 
-        final context = navigatorKey.currentContext;
-        if (context != null) {
-          try {
-            final notifProvider =
-            context.read<VendorNotificationProvider>();
-            // Either refresh from page 1:
-            await notifProvider.getNotifications(isRefresh: true);
-            // or, if your API is heavy and backend already increments counts,
-            // you could instead just re-fetch first page occasionally.
-          } catch (e) {
-            debugPrint('Error updating VendorNotificationProvider on message: $e');
-          }
-        }
-
-
-        debugPrint('android not null notification==${message.notification}');
-        FirebaseMessaging.instance.getInitialMessage().then((message) {
-          if (message != null) {
-            debugPrint("abc525");
-          } else {
-            debugPrint("123154115415abc");
-          }
-        });
-      } catch (e) {
-        debugPrint("Error in onMessage: $e");
- =======
     // ── 5. Foreground messages ───────────────────────────────────────────────
     FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
       if (message.messageId != null) {
@@ -169,6 +136,9 @@ class PushNotificationService {
       debugPrint('🔔 Title: ${message.notification?.title}');
       debugPrint('📝 Body : ${message.notification?.body}');
       debugPrint('📦 Data : ${message.data}');
+
+      // Log reception for debugging
+      log("🔔 Foreground Message Received: ${message.notification?.title}");
 
       // Show ONLY via local notifications — Firebase does NOT auto-show
       // anything in foreground on Android, and we disabled it on iOS above.
@@ -203,23 +173,24 @@ class PushNotificationService {
     });
 
     // ── 7. FCM Token ─────────────────────────────────────────────────────────
-    FirebaseMessaging.instance
-        .getToken()
-        .then((String? token) {
-          if (token == null) {
-            debugPrint('FCM token is null');
-          } else {
-            fcmToken = token;
-            debugPrint('🔔 FCM token: $token');
-          }
-        })
-        .catchError((error) {
-          debugPrint('Error getting FCM token: $error');
-        });
+    // IMPORTANT: await the token so it's available before any login/API call
+    try {
+      String? token = await FirebaseMessaging.instance.getToken();
+      if (token == null) {
+        debugPrint('FCM token is null');
+      } else {
+        fcmToken = token;
+        debugPrint('🔔 FCM token: $token');
+      }
+    } catch (error) {
+      debugPrint('❌ Error getting FCM token: $error');
+    }
 
     FirebaseMessaging.instance.onTokenRefresh.listen((newToken) {
       fcmToken = newToken;
       debugPrint("🔄 FCM Token Refreshed: $newToken");
+      // Update the server with the new token
+      _updateFcmTokenOnServer(newToken);
     });
 
     // ── 8. APNs token (iOS only) ─────────────────────────────────────────────
@@ -277,8 +248,8 @@ class PushNotificationService {
   static Future<void> initLocalNotification() async {
     const AndroidInitializationSettings initializationSettingsAndroid =
         AndroidInitializationSettings(
-          // ✅ Use launcher_icon generated by flutter_launcher_icons
-          '@mipmap/launcher_icon',
+          // ✅ Use ic_launcher which exists in your res folders
+          '@mipmap/ic_launcher',
         );
 
     // ✅ iOS: defaultPresentAlert/Sound/Badge control foreground presentation
@@ -349,10 +320,9 @@ class PushNotificationService {
           channelDescription: 'Used for important notifications.',
           importance: Importance.max,
           priority: Priority.high,
-          fullScreenIntent: true,
           visibility: NotificationVisibility.public,
           // ✅ Must match the icon in initializationSettingsAndroid
-          icon: '@mipmap/launcher_icon',
+          icon: '@mipmap/ic_launcher',
         );
 
     const DarwinNotificationDetails iOSDetails = DarwinNotificationDetails(
@@ -502,5 +472,52 @@ class PushNotificationService {
       ),
       (route) => false,
     );
+  }
+
+  // ── ANDROID 13+ PERMISSION ────────────────────────────────────────────────
+  static Future<void> _requestAndroidPermission() async {
+    // Check and request permission using permission_handler
+    var status = await Permission.notification.status;
+    if (status.isDenied || status.isPermanentlyDenied) {
+      debugPrint("🔔 Requesting notification permission...");
+      status = await Permission.notification.request();
+    }
+
+    if (status.isGranted) {
+      debugPrint("✅ Notification permissions granted.");
+    } else {
+      debugPrint("🚫 Notification permissions denied: $status");
+    }
+  }
+
+  // ── UPDATE FCM TOKEN ON SERVER ─────────────────────────────────────────
+  /// Sends the latest FCM token to the backend so the server always
+  /// has a valid token for push notifications.
+  static Future<void> _updateFcmTokenOnServer(String token) async {
+    try {
+      final String? accessToken = await UserPreference.returnAccessToken();
+      // Only update if user is logged in
+      if (accessToken == null || accessToken.isEmpty) return;
+
+      debugPrint("🔄 Sending updated FCM token to server...");
+      // TODO: Add your backend API endpoint to update FCM token.
+      // Example:
+      // await Repository().updateFcmToken({"fcm_token": token});
+    } catch (e) {
+      debugPrint("❌ Failed to update FCM token on server: $e");
+    }
+  }
+
+  /// Convenience method to get the current FCM token,
+  /// fetching a fresh one if it hasn't been retrieved yet.
+  static Future<String?> getToken() async {
+    if (fcmToken != null) return fcmToken;
+    try {
+      fcmToken = await FirebaseMessaging.instance.getToken();
+      debugPrint('🔔 FCM token (late fetch): $fcmToken');
+    } catch (e) {
+      debugPrint('❌ Error fetching FCM token: $e');
+    }
+    return fcmToken;
   }
 }
