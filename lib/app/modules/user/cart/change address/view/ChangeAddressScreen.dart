@@ -254,6 +254,8 @@ class _ChangeAddressScreenState extends State<ChangeAddressScreen> {
     required String address,
     required String icon,
     String? tag,
+
+    bool isCurrent = false,
     required VoidCallback onTap,
   }) {
     return GestureDetector(
