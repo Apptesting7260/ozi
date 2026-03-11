@@ -28,7 +28,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     WidgetsBinding.instance.addObserver(this);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
-        // context.read<AuthProvider>().loadStatus();
+        context.read<AuthGuestProvider>().loadStatus();
         context.read<ProfileProvider>().fetchUserProfile();
         context.read<HomeScreenProvider>().loadOnce(context);
       }

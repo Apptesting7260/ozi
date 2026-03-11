@@ -2,6 +2,7 @@ import 'dart:developer' as dev;
 import 'package:ozi/app/data/response/api_response.dart';
 import 'package:ozi/app/modules/user/cart/view/model/cart_items_model.dart';
 import 'package:ozi/app/modules/user/home/service%20details/model/vendordetaiulmodel.dart';
+import 'package:ozi/app/shared/widgets/cutom_nodata_widget.dart';
 import '../../../../../core/appExports/app_export.dart';
 import '../../../../../core/constants/app_urls.dart';
 import '../../../../../data/repository/repository.dart';
@@ -192,7 +193,7 @@ class ServiceDetailProvider extends ChangeNotifier {
           }
         }
         if (_serviceProviders.isEmpty) {
-          _errorMessage = 'No services available';
+          NoDataFoundWidget();
         }
         // Fetch cart items to populate _items and correct totals
         await fetchCartItems();

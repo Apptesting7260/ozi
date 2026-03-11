@@ -4,6 +4,8 @@ import '../../verification_screen/view/verification_screen.dart';
 import '../provider/login_provider.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
+import '../../../../modules/user/home/provider/HomeScreenProvider.dart';
+import '../../../../data/storage/user_preference.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -47,8 +49,18 @@ class _LoginScreenState extends State<LoginScreen> {
       if (!serviceEnabled) return;
 
       LocationPermission permission = await Geolocator.checkPermission();
-      if (permission == LocationPermission.denied) {
+
+      if (permission == LocationPermission.denied ||
+          permission == LocationPermission.unableToDetermine) {
         permission = await Geolocator.requestPermission();
+
+        // Automatically set consent ONLY if permission was just granted in this session
+        if (permission == LocationPermission.always ||
+            permission == LocationPermission.whileInUse) {
+          HomeScreenProvider.setSessionConsent('guest', true);
+          await UserPreference.saveLocationConsent(true);
+        }
+
         if (permission == LocationPermission.denied) return;
       }
 

@@ -21,15 +21,11 @@ class _NavigationTabScreenState extends State<NavigationTabScreen> {
   }
 
   Widget navIcon({required String path, required bool isActive}) {
-    return CustomImage(
-      path: path,
-      width: 22.0,
-      height: 22.0,
-    );
+    return CustomImage(path: path, width: 22.0, height: 22.0);
   }
 
   @override
-  Widget build( BuildContext context ) {
+  Widget build(BuildContext context) {
     return PopScope(
       canPop: false,
       onPopInvokedWithResult: (didPop, result) {
@@ -54,15 +50,7 @@ class _NavigationTabScreenState extends State<NavigationTabScreen> {
               children: [
                 Container(
                   padding: const EdgeInsets.only(top: 12, bottom: 6),
-                  decoration: BoxDecoration(
-                    color: AppColors.white,
-                    boxShadow: [
-                      BoxShadow(
-                        color: AppColors.black.withValues(alpha: 0.05),
-                        blurRadius: 20,
-                      ),
-                    ],
-                  ),
+
                   child: BottomNavigationBar(
                     unselectedLabelStyle: AppFontStyle.text_12_400(
                       AppColors.primary,
@@ -84,7 +72,10 @@ class _NavigationTabScreenState extends State<NavigationTabScreen> {
                         icon: Padding(
                           padding: EdgeInsets.only(bottom: 4.0),
                           child: navIcon(
-                            path: navProvider.getIconPath(0, navProvider.currentIndex == 0),
+                            path: navProvider.getIconPath(
+                              0,
+                              navProvider.currentIndex == 0,
+                            ),
                             isActive: navProvider.currentIndex == 0,
                           ),
                         ),
@@ -94,7 +85,10 @@ class _NavigationTabScreenState extends State<NavigationTabScreen> {
                         icon: Padding(
                           padding: const EdgeInsets.only(bottom: 4.0),
                           child: navIcon(
-                            path: navProvider.getIconPath(1, navProvider.currentIndex == 1),
+                            path: navProvider.getIconPath(
+                              1,
+                              navProvider.currentIndex == 1,
+                            ),
                             isActive: navProvider.currentIndex == 1,
                           ),
                         ),
@@ -104,7 +98,10 @@ class _NavigationTabScreenState extends State<NavigationTabScreen> {
                         icon: Padding(
                           padding: EdgeInsets.only(bottom: 4.0),
                           child: navIcon(
-                            path: navProvider.getIconPath(2, navProvider.currentIndex == 2),
+                            path: navProvider.getIconPath(
+                              2,
+                              navProvider.currentIndex == 2,
+                            ),
                             isActive: navProvider.currentIndex == 2,
                           ),
                         ),
@@ -112,9 +109,12 @@ class _NavigationTabScreenState extends State<NavigationTabScreen> {
                       ),
                       BottomNavigationBarItem(
                         icon: Padding(
-                          padding:  EdgeInsets.only(bottom: 4.0),
+                          padding: EdgeInsets.only(bottom: 4.0),
                           child: navIcon(
-                            path: navProvider.getIconPath(3, navProvider.currentIndex == 3),
+                            path: navProvider.getIconPath(
+                              3,
+                              navProvider.currentIndex == 3,
+                            ),
                             isActive: navProvider.currentIndex == 3,
                           ),
                         ),
@@ -122,9 +122,12 @@ class _NavigationTabScreenState extends State<NavigationTabScreen> {
                       ),
                       BottomNavigationBarItem(
                         icon: Padding(
-                          padding:  EdgeInsets.only(bottom: 4.0),
+                          padding: EdgeInsets.only(bottom: 4.0),
                           child: navIcon(
-                            path: navProvider.getIconPath(4, navProvider.currentIndex == 4),
+                            path: navProvider.getIconPath(
+                              4,
+                              navProvider.currentIndex == 4,
+                            ),
                             isActive: navProvider.currentIndex == 4,
                           ),
                         ),
@@ -144,7 +147,8 @@ class _NavigationTabScreenState extends State<NavigationTabScreen> {
                         child: Container(
                           height: 3,
                           margin: EdgeInsets.symmetric(
-                            horizontal: MediaQuery.of(context).size.width * 0.03,
+                            horizontal:
+                                MediaQuery.of(context).size.width * 0.03,
                           ),
                           decoration: BoxDecoration(
                             color: navProvider.currentIndex == index
