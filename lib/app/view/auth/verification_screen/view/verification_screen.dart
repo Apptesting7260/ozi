@@ -64,7 +64,7 @@ class VerificationContent extends StatelessWidget {
                     style: AppFontStyle.text_16_400(AppColors.grey),
                   ),
                   Text(
-                    phone,
+                    "+$countryCode $phone",
                     style: AppFontStyle.text_16_600(
                       AppColors.darkText,
                       fontFamily: AppFontFamily.semiBold,
