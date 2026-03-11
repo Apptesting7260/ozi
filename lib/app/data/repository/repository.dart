@@ -30,6 +30,7 @@ import '../../modules/user/profile/login details/model/login_detail_model.dart';
 import '../../modules/user/profile/login details/model/logout_user_model.dart';
 import '../../modules/user/profile/save address/model/delete_address_model.dart';
 import '../../modules/vendor/services/service_details/model/service_detail_model.dart';
+import '../../view/auth/login/model/gues_user_model.dart';
 import '../../view/auth/login/model/login_model.dart';
 import '../../view/auth/verification_screen/model/verify_otp.dart';
 import '../network/network_api_services.dart';
@@ -45,6 +46,20 @@ class Repository {
         AppUrls.login,
       );
       return LoginModel.fromJson(response);
+    } catch (e) {
+      throw Exception(e);
+    }
+  }
+
+  //**************************************************** Skip user API *****************************************************************//
+
+  Future<GuestUser> guestUser(Map<String, dynamic> data) async {
+    try {
+      dynamic response = await _apiService.postApiWithoutToken(
+        data,
+        AppUrls.guestUser,
+      );
+      return GuestUser.fromJson(response);
     } catch (e) {
       throw Exception(e);
     }

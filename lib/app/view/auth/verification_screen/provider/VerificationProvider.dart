@@ -246,9 +246,7 @@ class VerificationProvider extends ChangeNotifier {
         await UserPreference.saveStep(response.stepCompleted ?? "0");
         await UserPreference.saveMobile(phone);
         await UserPreference.saveIsMobileVerified(true);
-        navigatorKey.currentContext!.read<AuthGuestProvider>().updateLogin(
-          true,
-        );
+
 
         //  Debug Prints
         if (kDebugMode) {

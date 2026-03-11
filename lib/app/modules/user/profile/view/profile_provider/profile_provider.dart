@@ -48,9 +48,6 @@ class ProfileProvider extends ChangeNotifier {
         await UserPreference.clearSharedPreference();
 
         if (context.mounted) {
-
-          // reset providers
-          context.read<AuthGuestProvider>().updateLogin(false);
           context.read<ProfileProvider>().clearProfile();
           context.read<HomeScreenProvider>().resetState();
 
@@ -111,9 +108,10 @@ class ProfileProvider extends ChangeNotifier {
   // }
   Future<void> fetchUserProfile() async {
     // 🔐 STEP 1: Check token first
-    final token = await UserPreference.returnAccessToken();
-    if (token == null || token.isEmpty) {
-      // Guest user → do nothing
+    final role = await UserPreference.returnRole();
+
+    // Stop API for guest users
+    if (role == "guest") {
       return;
     }
 

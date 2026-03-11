@@ -317,10 +317,15 @@ class _LoginScreenState extends State<LoginScreen> {
                       AppColors.black,
                       fontFamily: AppFontFamily.semiBold,
                     ),
+                    forGroundColor: AppColors.primary,
+                    isLoading: loginProvider.guestLoading,
                     color: AppColors.lightGrey2,
                     isOutlined: true,
-                    onPressed: () {
-                      Navigator.push(
+                    onPressed: () async {
+
+                      await loginProvider.guestLogin();   // Call Guest API first
+
+                      Navigator.pushReplacement(
                         navigatorKey.currentContext!,
                         MaterialPageRoute(
                           builder: (_) => NavigationTabScreen(),

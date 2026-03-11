@@ -725,7 +725,7 @@ class VendorBookingDetailsScreen extends StatelessWidget {
               hBox(12),
               _summaryRow("Service Fee", "\$$serviceFee"),
               hBox(12),
-              _summaryRow("Discount", "\$$serviceFee"),
+              _summaryRow("Discount", "\$$discount"),
               hBox(16),
               Divider(color: AppColors.black.withValues(alpha: 0.10), thickness: 2,),
               hBox(12),

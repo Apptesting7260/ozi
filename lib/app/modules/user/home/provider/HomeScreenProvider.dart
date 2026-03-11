@@ -282,7 +282,7 @@ class HomeScreenProvider extends ChangeNotifier {
     lng = null;
     _serviceCategories.clear();
 
-    // Clear session consent on reset (logout) to ensure we ask again on next login
+
     _sessionConsentMap.clear();
     // Also clear persisted consent (it gets cleared via clearSharedPreference too,
     // but this is explicit for clarity)

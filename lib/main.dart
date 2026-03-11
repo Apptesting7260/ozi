@@ -49,8 +49,8 @@ void main() async {
       WebViewPlatform.instance = WebKitWebViewPlatform();
     }
   }
-  ChuckerFlutter.showOnRelease = false;
-  ChuckerFlutter.isDebugMode = false;
+  ChuckerFlutter.showOnRelease = true;
+  ChuckerFlutter.isDebugMode = true;
 
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   try {

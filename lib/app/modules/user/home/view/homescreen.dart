@@ -65,7 +65,6 @@ class HomeScreenView extends StatelessWidget {
   Widget build(BuildContext context) {
     final provider = context.watch<HomeScreenProvider>();
     // final profileProvider = context.watch<ProfileProvider>();
-    final isLoggedIn = context.watch<AuthGuestProvider>().isLoggedIn;
 
     return Scaffold(
       body: SafeArea(
@@ -86,9 +85,16 @@ class HomeScreenView extends StatelessWidget {
                   hBox(8),
                   _buildServiceGrid(context, provider),
                   hBox(10),
-                  isLoggedIn
-                      ? SizedBox.shrink()
-                      : _buildBecomeProviderCard(context, provider),
+                  Consumer<AuthGuestProvider>(
+                    builder: (context, auth, child) {
+
+                      if (auth.isGuest) {
+                        return _buildBecomeProviderCard(context, provider);
+                      }
+
+                      return const SizedBox.shrink();
+                    },
+                  ),
                   hBox(10),
                 ],
               ),
@@ -100,14 +106,17 @@ class HomeScreenView extends StatelessWidget {
   }
 
   Widget _buildHeader(BuildContext context, HomeScreenProvider provider) {
-    final isLoggedIn = context.watch<AuthGuestProvider>().isLoggedIn;
+    final auth = context.watch<AuthGuestProvider>();
     final profile = context.watch<ProfileProvider>();
     final firstName = profile.firstName;
 
     final displayName =
-        (isLoggedIn && firstName != null && firstName.trim().isNotEmpty)
+    auth.isGuest
+        ? "Guest"
+        : (firstName.trim().isNotEmpty ?? false)
         ? firstName
         : "Guest";
+
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -240,7 +249,11 @@ class HomeScreenView extends StatelessWidget {
               builder: (context, provider, _) {
                 return InkWell(
                   borderRadius: BorderRadius.circular(40),
-                  onTap: () {
+                  onTap: () async{
+                    bool allowed = await AuthGuard.requireLogin(context);
+
+                    if (!allowed) return;
+
                     Navigator.push(
                       context,
                       MaterialPageRoute(

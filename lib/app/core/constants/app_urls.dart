@@ -4,6 +4,7 @@ class AppUrls {
   static const String baseUrlSocket = "http://13.126.91.229:8001/";
 
   static const String login = "$baseUrl/send-otp";
+  static const String guestUser = "$baseUrl/guest-login";
   static const String socialLogin = "$baseUrl/social-login";
   static const String verification = "$baseUrl/verify-otp";
   static const String verificationFirebase = "$baseUrl/verify-otp-firebase";
