@@ -225,7 +225,7 @@ class VerificationProvider extends ChangeNotifier {
       Map<String, dynamic> requestData = {
         "country_code": countryCode,
         "mobile": phone,
-        "fcm_token": PushNotificationService.fcmToken ?? "",
+        "fcm_token": await PushNotificationService.getToken() ?? "",
         "id_token": idToken,
         "device_name": deviceInfo["device_name"] ?? "",
         "device_type": deviceInfo["device_type"] ?? "",
@@ -246,7 +246,6 @@ class VerificationProvider extends ChangeNotifier {
         await UserPreference.saveStep(response.stepCompleted ?? "0");
         await UserPreference.saveMobile(phone);
         await UserPreference.saveIsMobileVerified(true);
-
 
         //  Debug Prints
         if (kDebugMode) {
@@ -395,7 +394,7 @@ class VerificationProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> resendOtp(String phone ,  String countryCode) async {
+  Future<void> resendOtp(String phone, String countryCode) async {
     if (resendTime > 0) return;
 
     isLoading = true;
