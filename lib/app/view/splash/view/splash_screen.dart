@@ -1,6 +1,7 @@
 import '../../../core/appExports/app_export.dart';
 import '../../../data/storage/user_preference.dart';
 import '../../../modules/auth/vendor/signup/view/identity_verification_screen.dart';
+import '../../../modules/auth/vendor/signup/view/ready_to_go_livescreen.dart';
 import '../../../modules/auth/vendor/signup/view/service_category.dart';
 import '../../../modules/auth/vendor/signup/view/set_availability.dart';
 import '../../../modules/user/navigation tab/view/navigation_tab_screen.dart';
@@ -37,6 +38,8 @@ class _SplashScreenState extends State<SplashScreen> {
     String? step = await UserPreference.returnStep();
     String? userId = await UserPreference.returnUserId();
     bool isRoleSelected = await UserPreference.returnIsRoleSelected() ?? false;
+    bool isDocumentVerified =
+        await UserPreference.returnIsDocumentVerified() ?? false;
 
     if (kDebugMode) {
       print("========== SPLASH AUTH INIT ==========");
@@ -78,6 +81,7 @@ class _SplashScreenState extends State<SplashScreen> {
         bool isMobileVerified =
             await UserPreference.returnIsMobileVerified() ?? false;
 
+
         Navigator.pushReplacement(
           navigatorKey.currentContext!,
           MaterialPageRoute(
@@ -108,24 +112,17 @@ class _SplashScreenState extends State<SplashScreen> {
             builder: (_) => IdentityVerificationScreen(isFromProfile: false),
           ),
         );
-      } else {
+      } else if (step == '4' && role == 'vendor' && !isDocumentVerified) {
+        Navigator.push(
+          navigatorKey.currentContext!,
+          MaterialPageRoute(
+            builder: (_) => ReadyToGoLiveScreen(),
+          ),
+        );
+      }else {
         loginWithSaveTokenRedirection(role, token);
       }
-      // if(role=='user'){
-      //   Navigator.push(
-      //     navigatorKey.currentContext!,
-      //     MaterialPageRoute(
-      //       builder: (_) =>   NavigationTabScreen(),
-      //     ),
-      //   );
-      // }else if(role=='vendor'){
-      //   Navigator.push(
-      //     navigatorKey.currentContext!,
-      //     MaterialPageRoute(
-      //       builder: (_) =>   VendorNavigationTabScreen(),
-      //     ),
-      //   );
-      // }
+
     } else {
       Navigator.pushAndRemoveUntil(
         context,

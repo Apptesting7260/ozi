@@ -7,6 +7,7 @@ class AppUrls {
   static const String guestUser = "$baseUrl/guest-login";
   static const String socialLogin = "$baseUrl/social-login";
   static const String verification = "$baseUrl/verify-otp";
+  static const String documentStatusCheck = "$baseUrl/get-vendorDoc-verified-status";
   static const String verificationFirebase = "$baseUrl/verify-otp-firebase";
   static const String chooseRole = "$baseUrl/select-user-role";
   static const String completeRegistration = "$baseUrl/complete-registration";

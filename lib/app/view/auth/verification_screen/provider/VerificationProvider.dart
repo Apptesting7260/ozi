@@ -7,6 +7,7 @@ import '../../../../data/Exception/app_exceptions.dart';
 import '../../../../data/network/network_api_services.dart';
 import '../../../../data/storage/user_preference.dart';
 import '../../../../modules/auth/vendor/signup/view/identity_verification_screen.dart';
+import '../../../../modules/auth/vendor/signup/view/ready_to_go_livescreen.dart';
 import '../../../../modules/auth/vendor/signup/view/service_category.dart';
 import '../../../../modules/auth/vendor/signup/view/set_availability.dart';
 import '../../../../modules/user/navigation tab/view/navigation_tab_screen.dart';
@@ -246,6 +247,8 @@ class VerificationProvider extends ChangeNotifier {
         await UserPreference.saveStep(response.stepCompleted ?? "0");
         await UserPreference.saveMobile(phone);
         await UserPreference.saveIsMobileVerified(true);
+        await UserPreference.saveIsDocumentVerified(response.isVerifiedByAdmin ?? false);
+
 
         //  Debug Prints
         if (kDebugMode) {
@@ -316,8 +319,7 @@ class VerificationProvider extends ChangeNotifier {
               navigatorKey.currentContext!,
               MaterialPageRoute(builder: (_) => SetAvailabilityScreen(false)),
             );
-          } else if (response.stepCompleted == '3' &&
-              response.role == 'vendor') {
+          } else if (response.stepCompleted == '3' && response.role == 'vendor') {
             await saveLogin(response.role, response.token);
             Navigator.push(
               navigatorKey.currentContext!,
@@ -326,7 +328,14 @@ class VerificationProvider extends ChangeNotifier {
                     IdentityVerificationScreen(isFromProfile: false),
               ),
             );
-          } else {
+          } else if (response.stepCompleted == '4' && response.role == 'vendor' && !(response.isVerifiedByAdmin ?? false)) {
+            Navigator.push(
+              navigatorKey.currentContext!,
+              MaterialPageRoute(
+                builder: (_) => ReadyToGoLiveScreen(),
+              ),
+            );
+          }else {
             loginWithSaveTokenRedirection(response.role, response.token);
           }
         }

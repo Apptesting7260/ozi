@@ -3,6 +3,7 @@ import 'package:ozi/app/modules/vendor/home/provider/vendor_home_provider.dart';
 
 import '../../../../core/appExports/app_export.dart';
 import '../../../../data/models/vendor_home_model.dart';
+import '../../../../data/response/api_response.dart';
 import '../../../../data/response/api_status.dart';
 import '../../../../shared/widgets/custom_toggle_switch.dart';
 import '../../../../view/message/screens/message.dart';
@@ -28,16 +29,17 @@ class _VendorHomeScreenState extends State<VendorHomeScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (!mounted) return;
 
-      final notificationProvider = context.read<VendorNotificationProvider>();
-      await notificationProvider.getNotifications();
-
       final homeProvider = context.read<VendorHomeProvider>();
+      final notificationProvider = context.read<VendorNotificationProvider>();
+
+      homeProvider.setHomeModel(ApiResponse.loading());
+
+      await notificationProvider.getNotifications();
 
       await homeProvider.getHomeData();
       homeProvider.checkForUpdateLocationAndIsServiceAvailable();
 
       context.read<ProfileProvider>().fetchUserProfile();
-
     });
   }
 
@@ -47,101 +49,59 @@ class _VendorHomeScreenState extends State<VendorHomeScreen> {
     return Consumer<VendorHomeProvider>(
       builder: (context, value, child) {
         return Scaffold(
-          backgroundColor: AppColors.white,
-          body: SafeArea(
-            child: RefreshIndicator(
-              onRefresh: () async {
-                value.getHomeData();
-              },
-              child: switch (value.homeModel.status) {
-                ApiStatus.loading => const Center(
-                  child: CircularProgressIndicator(),
-                ),
-
-                ApiStatus.completed => SingleChildScrollView(
+            backgroundColor: AppColors.white,
+            body: SafeArea(
+              child: RefreshIndicator(
+                onRefresh: () async {
+                  await value.getHomeData();
+                },
+                child: SingleChildScrollView(
+                  physics: const AlwaysScrollableScrollPhysics(),
                   padding: const EdgeInsets.all(16),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      SafeArea(child: SizedBox(height: 10)),
 
-                      // ---------------- HEADER ----------------
                       _header(context),
 
                       hBox(20),
 
-                      // ---------------- ONLINE STATUS ----------------
                       _onlineStatus(),
 
                       hBox(20),
 
-                      // ---------------- STATS ----------------
-                      _statsGrid(),
+                      /// ONE loader for grid + requests
+                      if (value.homeModel.status == ApiStatus.loading)
+                        const Padding(
+                          padding: EdgeInsets.symmetric(vertical: 80),
+                          child: Center(
+                            child: CircularProgressIndicator(),
+                          ),
+                        )
+                      else ...[
+                        /// ---------------- STATS ----------------
+                        _statsGrid(),
 
-                      hBox(24),
+                        hBox(24),
 
-                      // ---------------- NEW REQUESTS ----------------
-                      _sectionHeader(context: context, title: "New Requests",newRequestLength:value.homeModel.data?.requests?.length ),
+                        /// ---------------- NEW REQUESTS ----------------
+                        _sectionHeader(
+                          context: context,
+                          title: "New Requests",
+                          newRequestLength: value.homeModel.data?.requests?.length,
+                        ),
 
-                      hBox(12),
-                      value.homeModel.data?.requests == null ||
-                              value.homeModel.data?.requests?.length == 0
-                          ? SizedBox(
-                              height: MediaQuery.of(context).size.height * 0.2,
-                              child: Center(
-                                child: Text(
-                                  "No new requests available",
-                                  style: AppFontStyle.text_16_500(
-                                    AppColors.grey,
-                                  ),
-                                ),
-                              ),
-                            )
-                          : ListView.builder(
-                        itemCount: (value.homeModel.data!.requests!.length > 2)
-                            ? 2
-                            : value.homeModel.data!.requests!.length,
-                              physics: NeverScrollableScrollPhysics(),
-                              shrinkWrap: true,
-                              itemBuilder: (context, index) {
-                                VendorHomeRequests request =
-                                    value.homeModel.data!.requests![index];
-                                return RequestCard(
-                                  onAccept: () {
-                                    value.acceptOrRejectRequest(
-                                      'accept',
-                                      request.bookingId ?? '',
-                                    );
-                                  },
-                                  onReject: () {
-                                    _showRejectWarning(
-                                      context,
-                                          () {
-                                        value.acceptOrRejectRequest(
-                                          'reject',
-                                          request.bookingId ?? '',
-                                        );
-                                      },
-                                    );
-                                  },
-                                  request: request,
-                                );
-                              },
-                            ),
+                        hBox(12),
+
+                        _requestsList(value),
+                      ],
 
                       hBox(20),
                     ],
                   ),
                 ),
-
-                ApiStatus.error => const Center(
-                  child: Text('Something went wrong'),
-                ),
-
-                _ => const SizedBox.shrink(),
-              },
-            ),
-          ),
+              ),
+            )
         );
       },
     );
@@ -173,6 +133,47 @@ class _VendorHomeScreenState extends State<VendorHomeScreen> {
   //           ],
   //         );
 
+  Widget _requestsList(VendorHomeProvider value) {
+
+    if (value.homeModel.data?.requests == null ||
+        value.homeModel.data!.requests!.isEmpty) {
+
+      return SizedBox(
+        height: 150,
+        child: Center(
+          child: Text(
+            "No new requests available",
+            style: AppFontStyle.text_16_500(AppColors.grey),
+          ),
+        ),
+      );
+    }
+
+    return ListView.builder(
+      itemCount: value.homeModel.data!.requests!.length > 2
+          ? 2
+          : value.homeModel.data!.requests!.length,
+      physics: const NeverScrollableScrollPhysics(),
+      shrinkWrap: true,
+      itemBuilder: (context, index) {
+
+        final request = value.homeModel.data!.requests![index];
+
+        return RequestCard(
+          request: request,
+          onAccept: () {
+            value.acceptOrRejectRequest('accept', request.bookingId ?? '');
+          },
+          onReject: () {
+            _showRejectWarning(context, () {
+              value.acceptOrRejectRequest('reject', request.bookingId ?? '');
+            });
+          },
+        );
+      },
+    );
+  }
+
   void _showRejectWarning(
       BuildContext context,
       VoidCallback onConfirm,
@@ -180,7 +181,7 @@ class _VendorHomeScreenState extends State<VendorHomeScreen> {
     showDialog(
       context: context,
       builder: (context) {
-      return  Dialog(
+        return  Dialog(
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 28),
             decoration: BoxDecoration(
@@ -250,7 +251,7 @@ class _VendorHomeScreenState extends State<VendorHomeScreen> {
                           child: GestureDetector(
                             onTap: () async {
                               Navigator.pop(context);
-                               onConfirm();
+                              onConfirm();
                             },
                             child: Container(
                               height: 48,
@@ -288,6 +289,7 @@ class _VendorHomeScreenState extends State<VendorHomeScreen> {
           children: [
             CircleAvatar(
               radius: 22,
+              backgroundColor: Colors.grey.shade200,
               backgroundImage: (provider.homeModel.data?.profile?.image != null &&
                   provider.homeModel.data!.profile!.image!.isNotEmpty)
                   ? NetworkImage(
@@ -296,10 +298,18 @@ class _VendorHomeScreenState extends State<VendorHomeScreen> {
                   : null,
               child: (provider.homeModel.data?.profile?.image == null ||
                   provider.homeModel.data!.profile!.image!.isEmpty)
-                  ? Icon(Icons.person, size: 22)
+                  ? Text(
+                (provider.homeModel.data?.profile?.name?.isNotEmpty ?? false)
+                    ? provider.homeModel.data!.profile!.name![0].toUpperCase()
+                    : "",
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                ),
+              )
                   : null,
-            ),
-
+            )
+            ,
 
             wBox(12),
 
@@ -311,7 +321,16 @@ class _VendorHomeScreenState extends State<VendorHomeScreen> {
                     getGreetingMessage(),
                     style: AppFontStyle.text_12_400(AppColors.grey),
                   ),
-                  Text(
+
+                  provider.homeModel.status == ApiStatus.loading
+                      ? Text(
+                    "Loading...",
+                    style: AppFontStyle.text_16_600(
+                      AppColors.grey,
+                      fontFamily: AppFontFamily.semiBold,
+                    ),
+                  )
+                      : Text(
                     provider.homeModel.data?.profile?.name ?? '',
                     style: AppFontStyle.text_16_600(
                       AppColors.darkText,
@@ -484,7 +503,7 @@ class _VendorHomeScreenState extends State<VendorHomeScreen> {
               // SWITCH (NOW WORKS)
               CustomToggleSwitch(
                 value:
-                    (provider.homeModel.data?.vendorStatus?.isOnline ?? false),
+                (provider.homeModel.data?.vendorStatus?.isOnline ?? false),
                 onChanged: (bool value) {
                   provider.toggleOnline();
                 },
@@ -512,7 +531,7 @@ class _VendorHomeScreenState extends State<VendorHomeScreen> {
             _statTile(
               icon: Icons.attach_money,
               title:
-                  "\$${provider.homeModel.data?.dashboard?.todayEarnings ?? '0'}",
+              "\$${provider.homeModel.data?.dashboard?.todayEarnings ?? '0'}",
               subtitle: "Today's Earning",
             ),
             _statTile(

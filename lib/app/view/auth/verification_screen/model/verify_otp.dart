@@ -10,6 +10,7 @@ class VerifyOtp {
   String? token;
   String? stepCompleted;
   bool? isRoleSelected;
+  bool? isVerifiedByAdmin;
 
   VerifyOtp({
     this.userId,
@@ -23,6 +24,7 @@ class VerifyOtp {
     this.status,
     this.message,
     this.isRoleSelected,
+    this.isVerifiedByAdmin
   });
 
   VerifyOtp.fromJson(Map<String, dynamic> json) {
@@ -41,6 +43,7 @@ class VerifyOtp {
       role = data['user_role'];
       token = data['api_token'];
       stepCompleted = data['step_completed']?.toString();
+      isVerifiedByAdmin = data['verified_by_admin'];
     }
   }
 

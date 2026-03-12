@@ -33,6 +33,7 @@ class BookingDetailModelData {
   String? serviceTime;
   String? subtotal;
   String? serviceFee;
+  String? discountFee;
   String? total;
   String? status;
   String? createdAt;
@@ -53,6 +54,7 @@ class BookingDetailModelData {
         this.serviceTime,
         this.subtotal,
         this.serviceFee,
+        this.discountFee,
         this.total,
         this.status,
         this.createdAt,
@@ -74,6 +76,7 @@ class BookingDetailModelData {
 
     subtotal = json['subtotal']?.toString();
     serviceFee = json['service_fee']?.toString();
+    discountFee = json['discount_amount']?.toString();
     total = json['total']?.toString();
     status = json['status']?.toString();
     createdAt = json['created_at']?.toString();
@@ -105,6 +108,7 @@ class BookingDetailModelData {
     // }
     data['subtotal'] = subtotal;
     data['service_fee'] = serviceFee;
+    data['discount_amount'] = discountFee;
     data['total'] = total;
     data['status'] = status;
     data['created_at'] = createdAt;
