@@ -87,16 +87,10 @@ class PushNotificationService {
     }
     _isInitialized = true;
 
-    // ── 1. Request permissions ───────────────────────────────────────────────
-    await firebaseMessaging.requestPermission(
-      alert: true,
-      announcement: true,
-      badge: true,
-      carPlay: false,
-      criticalAlert: true,
-      provisional: false,
-      sound: true,
-    );
+    // ── 1. Request permissions (non-blocking) ────────────────────────────────
+    //    Fire-and-forget so the permission dialog doesn't block app startup.
+    //    The splash screen will be visible while the dialog is shown.
+    _requestPermissionsInBackground();
 
     // ── 2. Suppress Firebase's own banner in iOS FOREGROUND only ────────────
     //    - Foreground: We show our own local notification (full control).
@@ -108,11 +102,6 @@ class PushNotificationService {
       badge: false, // ← was true
       sound: false, // ← was true
     );
-
-    // ── 2.1 Request Android Notification Permission explicitly for Android 13+ ─
-    if (Platform.isAndroid) {
-      await _requestAndroidPermission();
-    }
 
     // ── 3. Init local notifications ──────────────────────────────────────────
     await initLocalNotification();
@@ -472,6 +461,34 @@ class PushNotificationService {
       ),
       (route) => false,
     );
+  }
+
+  // ── NON-BLOCKING PERMISSION REQUEST ─────────────────────────────────────
+  /// Requests notification permissions asynchronously without blocking
+  /// the app startup. This ensures the splash screen is visible while
+  /// the permission dialog is displayed.
+  static void _requestPermissionsInBackground() {
+    // Fire-and-forget — don't await
+    () async {
+      try {
+        await firebaseMessaging.requestPermission(
+          alert: true,
+          announcement: true,
+          badge: true,
+          carPlay: false,
+          criticalAlert: true,
+          provisional: false,
+          sound: true,
+        );
+
+        // Request Android Notification Permission explicitly for Android 13+
+        if (Platform.isAndroid) {
+          await _requestAndroidPermission();
+        }
+      } catch (e) {
+        debugPrint("❌ Error requesting notification permissions: $e");
+      }
+    }();
   }
 
   // ── ANDROID 13+ PERMISSION ────────────────────────────────────────────────

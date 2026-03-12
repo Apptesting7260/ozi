@@ -35,45 +35,68 @@ import 'app/data/repository/repository.dart';
 import 'firebase_options.dart';
 
 void main() async {
+  // 1. Core Flutter setup - very fast
   WidgetsFlutterBinding.ensureInitialized();
 
+  // 2. Set orientations - fast
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
   ]);
-  //
-  if (WebViewPlatform.instance == null) {
-    if (Platform.isAndroid) {
-      WebViewPlatform.instance = AndroidWebViewPlatform();
-    } else if (Platform.isIOS) {
-      WebViewPlatform.instance = WebKitWebViewPlatform();
-    }
-  }
-  ChuckerFlutter.showOnRelease = true;
-  ChuckerFlutter.isDebugMode = true;
 
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  try {
-    await GoogleSignIn.instance.initialize(
-      // clientId: 'your-ios-or-web-client-id.apps.googleusercontent.com',     // usually only needed for iOS / web
-      clientId:
-          '102047141140-1shi7k7q400fr90snrpalk9a21foq3fj.apps.googleusercontent.com', // iOS
-
-      serverClientId:
-          '102047141140-maig6m3qtbl17h9h8d39r14tr1d7qgb4.apps.googleusercontent.com', // usually for Android if you need server auth code
-      // scopes: ['email', 'profile'],   // ← you can pass scopes here (or later in authenticate)
-    );
-    debugPrint('Google Sign-In initialized successfully');
-  } catch (e) {
-    debugPrint('Failed to initialize Google Sign-In: $e');
-    // Optionally show a toast or log — but don't crash the app
-  }
-  await PushNotificationService.firebaseNotification();
-
-  Stripe.publishableKey =
-      'pk_test_51T1KB9DSmK2YlVb0zz4kEhEobZjMs9aQKpL9pQJQT79Ja4HsVM9QFW9XPirqeIDOAMsBC3vtFtPlXPDmFaH1tmGy00IQqXiz82';
-  await Stripe.instance.applySettings();
+  // 3. Launch the app immediately - this shows the Splash Screen
   runApp(const MyApp());
+
+  // 4. Initialize services in the background without blocking the UI
+  _initServicesInBackground();
+}
+
+/// Initializes services like Firebase, Stripe, etc. in the background.
+/// This runs after the app has already started showing its first frame.
+Future<void> _initServicesInBackground() async {
+  try {
+    // WebView setup
+    if (WebViewPlatform.instance == null) {
+      if (Platform.isAndroid) {
+        WebViewPlatform.instance = AndroidWebViewPlatform();
+      } else if (Platform.isIOS) {
+        WebViewPlatform.instance = WebKitWebViewPlatform();
+      }
+    }
+
+    ChuckerFlutter.showOnRelease = true;
+    ChuckerFlutter.isDebugMode = true;
+
+    // Heavy initializations
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+
+    try {
+      await GoogleSignIn.instance.initialize(
+        clientId:
+            '102047141140-1shi7k7q400fr90snrpalk9a21foq3fj.apps.googleusercontent.com',
+        serverClientId:
+            '102047141140-maig6m3qtbl17h9h8d39r14tr1d7qgb4.apps.googleusercontent.com',
+      );
+      debugPrint('Google Sign-In initialized successfully');
+    } catch (e) {
+      debugPrint('Failed to initialize Google Sign-In: $e');
+    }
+
+    // Push notifications setup
+    await PushNotificationService.firebaseNotification();
+
+    // Stripe setup
+    Stripe.publishableKey =
+        'pk_test_51T1KB9DSmK2YlVb0zz4kEhEobZjMs9aQKpL9pQJQT79Ja4HsVM9QFW9XPirqeIDOAMsBC3vtFtPlXPDmFaH1tmGy00IQqXiz82';
+    await Stripe.instance.applySettings();
+
+    debugPrint('Background services initialized successfully');
+  } catch (e, stack) {
+    debugPrint('Error initializing services in background: $e');
+    debugPrint(stack.toString());
+  }
 }
 
 class MyApp extends StatelessWidget {
