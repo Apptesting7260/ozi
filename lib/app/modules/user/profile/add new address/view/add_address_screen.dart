@@ -36,12 +36,6 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
         debugPrint("setLocaleIdentifier failed: $e");
       }
       await context.read<AddAddressProvider>().moveToCurrentLocation();
-      // Extra safety: agar upar wala fail bhi ho jaye to bhi try karo
-      if (context.read<AddAddressProvider>().selectedLatLng != null) {
-        await context.read<AddAddressProvider>().onCameraIdle(
-          context.read<AddAddressProvider>().selectedLatLng!,
-        );
-      }
     });
   }
 
@@ -116,6 +110,18 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
                               ),
                             ),
                           ),
+
+                          // Loading Overlay
+                          if (provider.isLoading &&
+                              provider.selectedLatLng == null)
+                            Container(
+                              color: Colors.white.withOpacity(0.5),
+                              child: Center(
+                                child: CircularProgressIndicator(
+                                  color: AppColors.primary,
+                                ),
+                              ),
+                            ),
                         ],
                       ),
                     ),
@@ -205,6 +211,77 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
                                 label: "Country / Country Code*",
                                 hintText: "e.g. India or IN",
                                 borderRadius: 12,
+                              ),
+                              hBox(15),
+
+                              // Receiver Name
+                              CustomTextFormField(
+                                controller: provider.receiverNameController,
+                                label: "Receiver name*",
+                                hintText: "e.g. John Doe",
+                                borderRadius: 12,
+                              ),
+                              hBox(15),
+
+                              // Receiver Mobile Number
+                              CustomTextFormField(
+                                controller: provider.receiverMobileController,
+                                label: "Receiver mobile number*",
+                                hintText: "e.g. 9876543210",
+                                borderRadius: 40,
+                                textInputType: TextInputType.phone,
+                                inputFormatters: [
+                                  FilteringTextInputFormatter.digitsOnly,
+                                  LengthLimitingTextInputFormatter(
+                                    provider.getExpectedPhoneLength(
+                                      provider.receiverCountry?.phoneCode ??
+                                          '91',
+                                    ),
+                                  ),
+                                ],
+                                prefix: Padding(
+                                  padding: EdgeInsets.only(left: 16.w),
+                                  child: GestureDetector(
+                                    onTap: () {
+                                      showCountryPicker(
+                                        context: context,
+                                        showPhoneCode: true,
+                                        onSelect: (Country country) {
+                                          // Condition: if user changes country code or even if they pick the same one,
+                                          // show only the subscriber digits (strip redundant country code if present).
+                                          provider.updateReceiverCountry(
+                                            country,
+                                          );
+                                        },
+                                      );
+                                    },
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Text(
+                                          "+${provider.receiverCountry?.phoneCode ?? '91'}",
+                                          style: AppFontStyle.text_16_600(
+                                            AppColors.darkText,
+                                          ),
+                                        ),
+                                        const Icon(
+                                          Icons.keyboard_arrow_down,
+                                          size: 20,
+                                        ),
+                                        wBox(10),
+                                        // Vertical divider line
+                                        Container(
+                                          height: 24,
+                                          width: 1,
+                                          color: AppColors.grey.withOpacity(
+                                            0.3,
+                                          ),
+                                        ),
+                                        wBox(10),
+                                      ],
+                                    ),
+                                  ),
+                                ),
                               ),
                               hBox(20),
 

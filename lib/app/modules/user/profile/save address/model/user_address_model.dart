@@ -39,6 +39,10 @@ class Data {
   String? updatedAt;
   String? landmark;
   String? state;
+  String? country;
+  String? receiverName;
+  String? receiverMobile;
+  String? receiverCountryCode;
 
   Data({
     this.id,
@@ -55,6 +59,10 @@ class Data {
     this.updatedAt,
     this.landmark,
     this.state,
+    this.country,
+    this.receiverName,
+    this.receiverMobile,
+    this.receiverCountryCode,
   });
 
   Data.fromJson(Map<String, dynamic> json) {
@@ -72,6 +80,10 @@ class Data {
     updatedAt = json['updated_at'];
     landmark = json['landmark'];
     state = json['state'];
+    country = json['country'];
+    receiverName = json['extra_name'];
+    receiverMobile = json['mobile'];
+    receiverCountryCode = json['country_code'];
   }
 
   Map<String, dynamic> toJson() {
@@ -88,6 +100,10 @@ class Data {
     data['longitude'] = longitude;
     data['created_at'] = createdAt;
     data['updated_at'] = updatedAt;
+    data['country'] = country;
+    data['extra_name'] = receiverName;
+    data['mobile'] = receiverMobile;
+    data['country_code'] = receiverCountryCode;
     return data;
   }
 }

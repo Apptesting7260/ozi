@@ -8,7 +8,20 @@ import '../../../../../shared/widgets/custom_text_form_field.dart';
 import '../provider/edit_user_address_provider.dart';
 
 class EditUserAddressScreen extends StatefulWidget {
-  const EditUserAddressScreen({super.key});
+  final String? lat;
+  final String? lng;
+  final String? receiverName;
+  final String? receiverMobile;
+  final String? countryCode;
+
+  const EditUserAddressScreen({
+    this.lat,
+    this.lng,
+    this.receiverName,
+    this.receiverMobile,
+    this.countryCode,
+    super.key,
+  });
 
   @override
   State<EditUserAddressScreen> createState() => _EditUserAddressScreenState();
@@ -28,7 +41,14 @@ class _EditUserAddressScreenState extends State<EditUserAddressScreen> {
         final savedProvider = context.read<SavedAddressProvider>();
         final editProvider = context.read<EditUserAddressProvider>();
         editProvider.reset();
-        editProvider.init(savedProvider.editingAddress);
+        editProvider.init(
+          savedProvider.editingAddress,
+          lat: widget.lat,
+          lng: widget.lng,
+          receiverName: widget.receiverName,
+          receiverMobile: widget.receiverMobile,
+          countryCode: widget.countryCode,
+        );
       });
     }
   }
@@ -61,7 +81,7 @@ class _EditUserAddressScreenState extends State<EditUserAddressScreen> {
                               target:
                                   provider.selectedLatLng ??
                                   provider.initialLocation,
-                              zoom: 15,
+                              zoom: 17,
                             ),
                             onMapCreated: provider.setMapController,
                             onCameraMove: (position) {
@@ -183,6 +203,78 @@ class _EditUserAddressScreenState extends State<EditUserAddressScreen> {
                                 label: "Country / Country Code*",
                                 hintText: "e.g. India or IN",
                                 borderRadius: 12,
+                              ),
+                              hBox(15),
+
+                              // Receiver Name
+                              CustomTextFormField(
+                                controller: provider.receiverNameController,
+                                label: "Receiver name*",
+                                hintText: "e.g. John Doe",
+                                borderRadius: 12,
+                              ),
+                              hBox(15),
+
+                              // Receiver Mobile Number
+                              CustomTextFormField(
+                                controller: provider.receiverMobileController,
+                                label: "Receiver mobile number*",
+                                hintText: "e.g. 9876543210",
+                                borderRadius: 40,
+                                textInputType: TextInputType.phone,
+                                inputFormatters: [
+                                  FilteringTextInputFormatter.digitsOnly,
+                                  LengthLimitingTextInputFormatter(
+                                    provider.getExpectedPhoneLength(
+                                      provider.receiverCountry?.phoneCode ??
+                                          '91',
+                                    ),
+                                  ),
+                                ],
+                                prefix: Padding(
+                                  padding: EdgeInsets.only(left: 16.w),
+                                  child: GestureDetector(
+                                    onTap: () {
+                                      showCountryPicker(
+                                        context: context,
+                                        showPhoneCode: true,
+                                        onSelect: (Country country) {
+                                          // Condition: check if country changed or not
+                                          // Both cases are handled by the provider method to ensure
+                                          // mobile digits are cleaned/stripped of redundant country code.
+                                          provider.updateReceiverCountry(
+                                            country,
+                                          );
+                                        },
+                                      );
+                                    },
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Text(
+                                          "+${provider.receiverCountry?.phoneCode ?? '91'}",
+                                          style: AppFontStyle.text_16_600(
+                                            AppColors.darkText,
+                                          ),
+                                        ),
+                                        const Icon(
+                                          Icons.keyboard_arrow_down,
+                                          size: 20,
+                                        ),
+                                        wBox(10),
+                                        // Vertical divider line
+                                        Container(
+                                          height: 24,
+                                          width: 1,
+                                          color: AppColors.grey.withOpacity(
+                                            0.3,
+                                          ),
+                                        ),
+                                        wBox(10),
+                                      ],
+                                    ),
+                                  ),
+                                ),
                               ),
                               hBox(20),
                               Text(
@@ -327,7 +419,7 @@ class _EditUserAddressScreenState extends State<EditUserAddressScreen> {
     EditUserAddressProvider provider,
   ) {
     final searchCtrl = TextEditingController(
-      text: provider.streetAddressController.text.trim(),
+      text: provider.streetController.text.trim(),
     );
     List<Prediction> predictions = [];
     bool isLoading = false;
@@ -567,7 +659,7 @@ class _EditUserAddressScreenState extends State<EditUserAddressScreen> {
                                       Navigator.pop(sheetContext);
 
                                       // Update provider after pop
-                                      provider.streetAddressController.text =
+                                      provider.streetController.text =
                                           selectedDescription;
                                       await provider.selectManualPlace(pred);
                                     },

@@ -334,8 +334,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     color: AppColors.lightGrey2,
                     isOutlined: true,
                     onPressed: () async {
-
-                      await loginProvider.guestLogin();   // Call Guest API first
+                      await loginProvider.guestLogin(); // Call Guest API first
 
                       Navigator.pushReplacement(
                         navigatorKey.currentContext!,

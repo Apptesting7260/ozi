@@ -80,27 +80,48 @@ class _ScheduleServiceScreenContentState
     //   }).toList();
     // }
 
-    // Auto-set default address once addresses are loaded,
-    // but only if user hasn't previously selected one
+    // ───────────────────────────────────────────────────────────────
+    // ADDRESS SELECTION & VALIDATION LOGIC (Handles Deletion Sync)
+    // ───────────────────────────────────────────────────────────────
+    if (!addressProvider.isLoading) {
+      if (addressProvider.addresses.isNotEmpty) {
+        // 1. If an address is currently selected, verify it still exists in the latest list
+        if (_selectedAddress != null) {
+          final int index = addressProvider.addresses.indexWhere(
+            (addr) => addr.id.toString() == _selectedAddress?.id.toString(),
+          );
 
-    if (!_hasAutoSetDefault &&
-        !addressProvider.isLoading &&
-        addressProvider.addresses.isNotEmpty) {
-      _hasAutoSetDefault = true;
-      // If a previous selection exists, verify it's still valid
-      if (_selectedIndex != null &&
-          _selectedIndex! >= 0 &&
-          _selectedIndex! < addressProvider.addresses.length) {
-        _selectedAddress = addressProvider.addresses[_selectedIndex!];
-      } else {
-        // No previous selection — use default address
-        final defaultIndex = addressProvider.addresses.indexWhere(
-          (addr) => addr.isDefault == true,
-        );
-        if (defaultIndex != -1) {
-          _selectedAddress = addressProvider.addresses[defaultIndex];
-          _selectedIndex = defaultIndex;
+          if (index != -1) {
+            // Address exists: Sync with latest object from list (handles edits)
+            _selectedAddress = addressProvider.addresses[index];
+            _selectedIndex = index;
+          } else {
+            // Address was deleted: Reset selection
+            _selectedAddress = null;
+            _selectedIndex = null;
+          }
         }
+
+        // 2. If no address is selected (initially or after deletion), auto-pick default
+        if (_selectedAddress == null) {
+          final int defaultIndex = addressProvider.addresses.indexWhere(
+            (addr) => addr.isDefault == true,
+          );
+          if (defaultIndex != -1) {
+            _selectedAddress = addressProvider.addresses[defaultIndex];
+            _selectedIndex = defaultIndex;
+          } else if (!_hasAutoSetDefault) {
+            // Fallback to first available on first load if no default marked
+            _selectedAddress = addressProvider.addresses[0];
+            _selectedIndex = 0;
+          }
+        }
+        _hasAutoSetDefault = true;
+      } else {
+        // 3. All addresses have been deleted
+        _selectedAddress = null;
+        _selectedIndex = null;
+        _hasAutoSetDefault = true;
       }
     }
 
