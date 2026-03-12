@@ -47,28 +47,81 @@ class _ScheduleServiceScreenContentState
   Widget build(BuildContext context) {
     final addressProvider = context.watch<SavedAddressProvider>();
     final provider = context.watch<ScheduleProvider>();
-    final times = provider.availableTimesForSelectedDay;
+    List<String> times = provider.availableTimesForSelectedDay;
 
-    // Auto-set default address once addresses are loaded,
-    // but only if user hasn't previously selected one
-    if (!_hasAutoSetDefault &&
-        !addressProvider.isLoading &&
-        addressProvider.addresses.isNotEmpty) {
-      _hasAutoSetDefault = true;
-      // If a previous selection exists, verify it's still valid
-      if (_selectedIndex != null &&
-          _selectedIndex! >= 0 &&
-          _selectedIndex! < addressProvider.addresses.length) {
-        _selectedAddress = addressProvider.addresses[_selectedIndex!];
-      } else {
-        // No previous selection — use default address
-        final defaultIndex = addressProvider.addresses.indexWhere(
-          (addr) => addr.isDefault == true,
-        );
-        if (defaultIndex != -1) {
-          _selectedAddress = addressProvider.addresses[defaultIndex];
-          _selectedIndex = defaultIndex;
+    // Additional UI-level filtering to ensure past slots are hidden for today
+    // final now = DateTime.now();
+    // final isToday =
+    //     provider.selectedDate.year == now.year &&
+    //     provider.selectedDate.month == now.month &&
+    //     provider.selectedDate.day == now.day;
+
+    // if (isToday) {
+
+    //   final nowInMinutes = now.hour * 60 + now.minute;
+
+    //   times = times.where((time) {
+    //     try {
+    //       // Parse string like "9:00 AM" to minutes
+    //       final parts = time.split(' ');
+    //       final timeParts = parts[0].split(':');
+    //       int hour = int.parse(timeParts[0]);
+    //       final minute = int.parse(timeParts[1]);
+    //       final amPm = parts[1];
+
+    //       if (amPm == 'PM' && hour != 12) hour += 12;
+    //       if (amPm == 'AM' && hour == 12) hour = 0;
+
+    //       final slotInMinutes = hour * 60 + minute;
+    //       return slotInMinutes > nowInMinutes;
+    //     } catch (e) {
+    //       return true; // Fallback to show if parsing fails
+    //     }
+    //   }).toList();
+    // }
+
+    // ───────────────────────────────────────────────────────────────
+    // ADDRESS SELECTION & VALIDATION LOGIC (Handles Deletion Sync)
+    // ───────────────────────────────────────────────────────────────
+    if (!addressProvider.isLoading) {
+      if (addressProvider.addresses.isNotEmpty) {
+        // 1. If an address is currently selected, verify it still exists in the latest list
+        if (_selectedAddress != null) {
+          final int index = addressProvider.addresses.indexWhere(
+            (addr) => addr.id.toString() == _selectedAddress?.id.toString(),
+          );
+
+          if (index != -1) {
+            // Address exists: Sync with latest object from list (handles edits)
+            _selectedAddress = addressProvider.addresses[index];
+            _selectedIndex = index;
+          } else {
+            // Address was deleted: Reset selection
+            _selectedAddress = null;
+            _selectedIndex = null;
+          }
         }
+
+        // 2. If no address is selected (initially or after deletion), auto-pick default
+        if (_selectedAddress == null) {
+          final int defaultIndex = addressProvider.addresses.indexWhere(
+            (addr) => addr.isDefault == true,
+          );
+          if (defaultIndex != -1) {
+            _selectedAddress = addressProvider.addresses[defaultIndex];
+            _selectedIndex = defaultIndex;
+          } else if (!_hasAutoSetDefault) {
+            // Fallback to first available on first load if no default marked
+            _selectedAddress = addressProvider.addresses[0];
+            _selectedIndex = 0;
+          }
+        }
+        _hasAutoSetDefault = true;
+      } else {
+        // 3. All addresses have been deleted
+        _selectedAddress = null;
+        _selectedIndex = null;
+        _hasAutoSetDefault = true;
       }
     }
 

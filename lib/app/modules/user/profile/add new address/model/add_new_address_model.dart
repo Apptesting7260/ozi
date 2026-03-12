@@ -38,6 +38,10 @@ class AddNewAddressData {
   String? createdAt;
   int? id;
   String? fullAddress;
+  String? country;
+  String? receiverName;
+  String? receiverMobile;
+  String? receiverCountryCode;
 
   AddNewAddressData({
     this.userId,
@@ -53,6 +57,10 @@ class AddNewAddressData {
     this.createdAt,
     this.id,
     this.fullAddress,
+    this.country,
+    this.receiverName,
+    this.receiverMobile,
+    this.receiverCountryCode,
   });
 
   AddNewAddressData.fromJson(Map<String, dynamic> json) {
@@ -70,6 +78,10 @@ class AddNewAddressData {
     createdAt = json['created_at'];
     id = json['id'];
     fullAddress = json['full_address'];
+    country = json['country'];
+    receiverName = json['extra_name'];
+    receiverMobile = json['mobile'];
+    receiverCountryCode = json['country_code'];
   }
 
   Map<String, dynamic> toJson() {
@@ -87,6 +99,10 @@ class AddNewAddressData {
     data['created_at'] = createdAt;
     data['id'] = id;
     data['full_address'] = fullAddress;
+    data['country'] = country;
+    data['extra_name'] = receiverName;
+    data['mobile'] = receiverMobile;
+    data['country_code'] = receiverCountryCode;
     return data;
   }
 }

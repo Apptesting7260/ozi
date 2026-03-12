@@ -130,7 +130,14 @@ class _SavedAddressScreenState extends State<SavedAddressScreen> {
                                               EditUserAddressProvider(),
                                         ),
                                       ],
-                                      child: const EditUserAddressScreen(),
+                                      child: EditUserAddressScreen(
+                                        lat: address.latitude,
+                                        lng: address.longitude,
+                                        receiverName: address.receiverName,
+                                        receiverMobile: address.receiverMobile,
+                                        countryCode:
+                                            address.receiverCountryCode,
+                                      ),
                                     ),
                                   ),
                                 ).then((_) => provider.fetchUserAddresses());

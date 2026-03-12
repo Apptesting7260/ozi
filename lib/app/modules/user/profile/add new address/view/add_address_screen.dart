@@ -36,12 +36,6 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
         debugPrint("setLocaleIdentifier failed: $e");
       }
       await context.read<AddAddressProvider>().moveToCurrentLocation();
-      // Extra safety: agar upar wala fail bhi ho jaye to bhi try karo
-      if (context.read<AddAddressProvider>().selectedLatLng != null) {
-        await context.read<AddAddressProvider>().onCameraIdle(
-          context.read<AddAddressProvider>().selectedLatLng!,
-        );
-      }
     });
   }
 
@@ -68,7 +62,7 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
                           GoogleMap(
                             initialCameraPosition: CameraPosition(
                               target:
-                              provider.selectedLatLng ??
+                                  provider.selectedLatLng ??
                                   provider.initialLocation,
                               zoom: 15,
                             ),
@@ -116,6 +110,18 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
                               ),
                             ),
                           ),
+
+                          // Loading Overlay
+                          if (provider.isLoading &&
+                              provider.selectedLatLng == null)
+                            Container(
+                              color: Colors.white.withOpacity(0.5),
+                              child: Center(
+                                child: CircularProgressIndicator(
+                                  color: AppColors.primary,
+                                ),
+                              ),
+                            ),
                         ],
                       ),
                     ),
@@ -169,7 +175,7 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
                               CustomTextFormField(
                                 controller: provider.apartmentController,
                                 label: "Apartment / Area / Landmark (Optional)",
-                                hintText: "e.g. Near Central Park",
+                                hintText: "e.g. 123 Main St, Apt 4B",
                                 borderRadius: 12,
                               ),
                               hBox(15),
@@ -205,6 +211,77 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
                                 label: "Country / Country Code*",
                                 hintText: "e.g. India or IN",
                                 borderRadius: 12,
+                              ),
+                              hBox(15),
+
+                              // Receiver Name
+                              CustomTextFormField(
+                                controller: provider.receiverNameController,
+                                label: "Receiver name*",
+                                hintText: "e.g. John Doe",
+                                borderRadius: 12,
+                              ),
+                              hBox(15),
+
+                              // Receiver Mobile Number
+                              CustomTextFormField(
+                                controller: provider.receiverMobileController,
+                                label: "Receiver mobile number*",
+                                hintText: "e.g. 9876543210",
+                                borderRadius: 40,
+                                textInputType: TextInputType.phone,
+                                inputFormatters: [
+                                  FilteringTextInputFormatter.digitsOnly,
+                                  LengthLimitingTextInputFormatter(
+                                    provider.getExpectedPhoneLength(
+                                      provider.receiverCountry?.phoneCode ??
+                                          '91',
+                                    ),
+                                  ),
+                                ],
+                                prefix: Padding(
+                                  padding: EdgeInsets.only(left: 16.w),
+                                  child: GestureDetector(
+                                    onTap: () {
+                                      showCountryPicker(
+                                        context: context,
+                                        showPhoneCode: true,
+                                        onSelect: (Country country) {
+                                          // Condition: if user changes country code or even if they pick the same one,
+                                          // show only the subscriber digits (strip redundant country code if present).
+                                          provider.updateReceiverCountry(
+                                            country,
+                                          );
+                                        },
+                                      );
+                                    },
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Text(
+                                          "+${provider.receiverCountry?.phoneCode ?? '91'}",
+                                          style: AppFontStyle.text_16_600(
+                                            AppColors.darkText,
+                                          ),
+                                        ),
+                                        const Icon(
+                                          Icons.keyboard_arrow_down,
+                                          size: 20,
+                                        ),
+                                        wBox(10),
+                                        // Vertical divider line
+                                        Container(
+                                          height: 24,
+                                          width: 1,
+                                          color: AppColors.grey.withOpacity(
+                                            0.3,
+                                          ),
+                                        ),
+                                        wBox(10),
+                                      ],
+                                    ),
+                                  ),
+                                ),
                               ),
                               hBox(20),
 
@@ -277,24 +354,24 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
                                 onPressed: provider.isLoading
                                     ? null
                                     : () async {
-                                  bool success = await provider
-                                      .addNewAddress(context);
-                                  if (success && context.mounted) {
-                                    context
-                                        .read<SavedAddressProvider>()
-                                        .fetchUserAddresses();
-                                    Navigator.pop(context, true);
-                                  }
-                                },
+                                        bool success = await provider
+                                            .addNewAddress(context);
+                                        if (success && context.mounted) {
+                                          context
+                                              .read<SavedAddressProvider>()
+                                              .fetchUserAddresses();
+                                          Navigator.pop(context, true);
+                                        }
+                                      },
                                 child: provider.isLoading
                                     ? SizedBox(
-                                  height: 20,
-                                  width: 20,
-                                  child: CircularProgressIndicator(
-                                    color: AppColors.white,
-                                    strokeWidth: 2,
-                                  ),
-                                )
+                                        height: 20,
+                                        width: 20,
+                                        child: CircularProgressIndicator(
+                                          color: AppColors.white,
+                                          strokeWidth: 2,
+                                        ),
+                                      )
                                     : null,
                               ),
                               hBox(20),
@@ -354,8 +431,10 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
     );
   }
 
-  void showCustomLocationBottomSheet(BuildContext context,
-      AddAddressProvider provider,) {
+  void showCustomLocationBottomSheet(
+    BuildContext context,
+    AddAddressProvider provider,
+  ) {
     final searchCtrl = TextEditingController(
       text: provider.streetAddressController.text.trim(),
     );
@@ -364,8 +443,10 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
     bool isClosed = false;
     Timer? debounceTimer;
 
-    Future<void> fetchSuggestions(String input,
-        void Function(VoidCallback fn) setModalStateWrapper,) async {
+    Future<void> fetchSuggestions(
+      String input,
+      void Function(VoidCallback fn) setModalStateWrapper,
+    ) async {
       if (isClosed || !context.mounted) return;
 
       setModalStateWrapper(() => isLoading = true);
@@ -374,19 +455,18 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
         final String baseUrl =
             'https://maps.googleapis.com/maps/api/place/autocomplete/json';
         final String locationParam = provider.selectedLatLng != null
-            ? '&location=${provider.selectedLatLng!.latitude},${provider
-            .selectedLatLng!.longitude}&radius=50000&strictbounds=false'
+            ? '&location=${provider.selectedLatLng!.latitude},${provider.selectedLatLng!.longitude}&radius=50000&strictbounds=false'
             : '';
 
         String effectiveInput = input.isEmpty ? "near" : input;
 
         final uri = Uri.parse(
           '$baseUrl?input=${Uri.encodeComponent(effectiveInput)}'
-              '&key=AIzaSyApdA5sIEfZoPmhlWuAr5wTgyOXvhl9jsQ'
-              '&components=country:in'
-              '&language=en'
-              '$locationParam'
-              '&types=geocode|establishment',
+          '&key=AIzaSyApdA5sIEfZoPmhlWuAr5wTgyOXvhl9jsQ'
+          '&components=country:in'
+          '&language=en'
+          '$locationParam'
+          '&types=geocode|establishment',
         );
 
         final response = await http.get(uri);
@@ -421,6 +501,7 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
         });
       }
     }
+
     bool isInitialFetchDone = false;
 
     showModalBottomSheet(
@@ -509,7 +590,7 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
                             debounceTimer?.cancel();
                             debounceTimer = Timer(
                               const Duration(milliseconds: 800),
-                                  () {
+                              () {
                                 if (isClosed || !sheetContext.mounted) return;
                                 fetchSuggestions(value, setModalState);
                               },
@@ -521,89 +602,87 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
                       Expanded(
                         child: isLoading && predictions.isEmpty
                             ? const Center(
-                          child: CircularProgressIndicator(
-                            color: Colors.white,
-                          ),
-                        )
+                                child: CircularProgressIndicator(
+                                  color: Colors.white,
+                                ),
+                              )
                             : predictions.isEmpty
                             ? Center(
-                          child: Text(
-                            searchCtrl.text.isEmpty
-                                ? "Showing nearby places..."
-                                : "No results found – try different keyword",
-                            style: TextStyle(
-                              color: Colors.grey[400],
-                              fontSize: 16,
-                            ),
-                          ),
-                        )
+                                child: Text(
+                                  searchCtrl.text.isEmpty
+                                      ? "Showing nearby places..."
+                                      : "No results found – try different keyword",
+                                  style: TextStyle(
+                                    color: Colors.grey[400],
+                                    fontSize: 16,
+                                  ),
+                                ),
+                              )
                             : ListView.builder(
-                          controller: scrollController,
-                          itemCount: predictions.length,
-                          itemBuilder: (ctx, i) {
-                            final pred = predictions[i];
-                            final main =
-                                pred.description
-                                    ?.split(', ')
-                                    .first ??
-                                    pred.description ??
-                                    "Unknown";
-                            final sub =
-                                pred.description
-                                    ?.split(', ')
-                                    .skip(1)
-                                    .join(', ') ??
-                                    "";
+                                controller: scrollController,
+                                itemCount: predictions.length,
+                                itemBuilder: (ctx, i) {
+                                  final pred = predictions[i];
+                                  final main =
+                                      pred.description?.split(', ').first ??
+                                      pred.description ??
+                                      "Unknown";
+                                  final sub =
+                                      pred.description
+                                          ?.split(', ')
+                                          .skip(1)
+                                          .join(', ') ??
+                                      "";
 
-                            return ListTile(
-                              key: ValueKey(
-                                pred.placeId ??
-                                    pred.description ??
-                                    i.toString(),
+                                  return ListTile(
+                                    key: ValueKey(
+                                      pred.placeId ??
+                                          pred.description ??
+                                          i.toString(),
+                                    ),
+                                    leading: const Icon(
+                                      Icons.location_on,
+                                      color: Colors.white70,
+                                      size: 28,
+                                    ),
+                                    title: Text(
+                                      main,
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                    subtitle: Text(
+                                      sub,
+                                      style: TextStyle(
+                                        color: Colors.grey[400],
+                                        fontSize: 13,
+                                      ),
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                    onTap: () async {
+                                      if (isClosed || !sheetContext.mounted)
+                                        return;
+
+                                      debounceTimer?.cancel();
+
+                                      // Copy description before closing/clearing anything
+                                      final selectedDescription =
+                                          pred.description ?? "";
+
+                                      // Close sheet first
+                                      Navigator.pop(sheetContext);
+
+                                      // Update provider after pop
+                                      provider.streetAddressController.text =
+                                          selectedDescription;
+                                      await provider.selectManualPlace(pred);
+                                    },
+                                  );
+                                },
                               ),
-                              leading: const Icon(
-                                Icons.location_on,
-                                color: Colors.white70,
-                                size: 28,
-                              ),
-                              title: Text(
-                                main,
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                              subtitle: Text(
-                                sub,
-                                style: TextStyle(
-                                  color: Colors.grey[400],
-                                  fontSize: 13,
-                                ),
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                              onTap: () async {
-                                if (isClosed || !sheetContext.mounted)
-                                  return;
-
-                                debounceTimer?.cancel();
-
-                                // Copy description before closing/clearing anything
-                                final selectedDescription =
-                                    pred.description ?? "";
-
-                                // Close sheet first
-                                Navigator.pop(sheetContext);
-
-                                // Update provider after pop
-                                provider.streetAddressController.text =
-                                    selectedDescription;
-                                await provider.selectManualPlace(pred);
-                              },
-                            );
-                          },
-                        ),
                       ),
                     ],
                   ),
@@ -624,4 +703,3 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
     });
   }
 }
-

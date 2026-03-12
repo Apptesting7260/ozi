@@ -11,6 +11,88 @@ class AddAddressProvider extends ChangeNotifier {
   final _repository = Repository();
   bool _disposed = false;
   bool _isFetchingAddress = false;
+
+  static const Map<String, Map<String, dynamic>> countryPhoneConfig = {
+    '1': {'length': 10, 'name': 'USA/Canada'},
+    '7': {'length': 10, 'name': 'Russia'},
+    '20': {'length': 10, 'name': 'Egypt'},
+    '27': {'length': 9, 'name': 'South Africa'},
+    '30': {'length': 10, 'name': 'Greece'},
+    '31': {'length': 9, 'name': 'Netherlands'},
+    '32': {'length': 9, 'name': 'Belgium'},
+    '33': {'length': 9, 'name': 'France'},
+    '34': {'length': 9, 'name': 'Spain'},
+    '36': {'length': 9, 'name': 'Hungary'},
+    '39': {'length': 10, 'name': 'Italy'},
+    '40': {'length': 10, 'name': 'Romania'},
+    '41': {'length': 9, 'name': 'Switzerland'},
+    '43': {'length': 10, 'name': 'Austria'},
+    '44': {'length': 10, 'name': 'UK'},
+    '45': {'length': 8, 'name': 'Denmark'},
+    '46': {'length': 9, 'name': 'Sweden'},
+    '47': {'length': 8, 'name': 'Norway'},
+    '48': {'length': 9, 'name': 'Poland'},
+    '49': {'length': 10, 'name': 'Germany'},
+    '51': {'length': 9, 'name': 'Peru'},
+    '52': {'length': 10, 'name': 'Mexico'},
+    '53': {'length': 8, 'name': 'Cuba'},
+    '54': {'length': 10, 'name': 'Argentina'},
+    '55': {'length': 11, 'name': 'Brazil'},
+    '56': {'length': 9, 'name': 'Chile'},
+    '57': {'length': 10, 'name': 'Colombia'},
+    '58': {'length': 10, 'name': 'Venezuela'},
+    '60': {'length': 9, 'name': 'Malaysia'},
+    '61': {'length': 9, 'name': 'Australia'},
+    '62': {'length': 10, 'name': 'Indonesia'},
+    '63': {'length': 10, 'name': 'Philippines'},
+    '64': {'length': 9, 'name': 'New Zealand'},
+    '65': {'length': 8, 'name': 'Singapore'},
+    '66': {'length': 9, 'name': 'Thailand'},
+    '81': {'length': 10, 'name': 'Japan'},
+    '82': {'length': 10, 'name': 'South Korea'},
+    '84': {'length': 9, 'name': 'Vietnam'},
+    '86': {'length': 11, 'name': 'China'},
+    '90': {'length': 10, 'name': 'Turkey'},
+    '91': {'length': 10, 'name': 'India'},
+    '92': {'length': 10, 'name': 'Pakistan'},
+    '93': {'length': 9, 'name': 'Afghanistan'},
+    '94': {'length': 9, 'name': 'Sri Lanka'},
+    '95': {'length': 9, 'name': 'Myanmar'},
+    '98': {'length': 10, 'name': 'Iran'},
+    '971': {'length': 9, 'name': 'UAE'},
+    '974': {'length': 8, 'name': 'Qatar'},
+  };
+
+  int getExpectedPhoneLength(String countryCode) {
+    final config = countryPhoneConfig[countryCode];
+    return config?['length'] ?? 10;
+  }
+
+  String getCountryName(String countryCode) {
+    final config = countryPhoneConfig[countryCode];
+    return config?['name'] ?? 'This country';
+  }
+
+  String? validatePhoneNumber(String phoneNumber, String countryCode) {
+    if (phoneNumber.trim().isEmpty) {
+      return 'Please enter receiver mobile number';
+    }
+    final cleanNumber = phoneNumber.replaceAll(RegExp(r'[^\d]'), '');
+    if (cleanNumber.isEmpty) {
+      return 'Please enter a valid mobile number';
+    }
+    final expectedLength = getExpectedPhoneLength(countryCode);
+    final countryName = getCountryName(countryCode);
+
+    if (cleanNumber.length < expectedLength) {
+      return '$countryName requires $expectedLength digits. You entered ${cleanNumber.length}';
+    }
+    if (cleanNumber.length > expectedLength) {
+      return '$countryName allows only $expectedLength digits.';
+    }
+    return null;
+  }
+
   @override
   void dispose() {
     _disposed = true;
@@ -19,6 +101,8 @@ class AddAddressProvider extends ChangeNotifier {
     cityController.dispose();
     zipCodeController.dispose();
     countryController.dispose();
+    receiverNameController.dispose();
+    receiverMobileController.dispose();
     super.dispose();
   }
 
@@ -34,6 +118,31 @@ class AddAddressProvider extends ChangeNotifier {
   final TextEditingController cityController = TextEditingController();
   final TextEditingController zipCodeController = TextEditingController();
   final TextEditingController countryController = TextEditingController();
+
+  final TextEditingController receiverNameController = TextEditingController();
+  final TextEditingController receiverMobileController =
+      TextEditingController();
+
+  Country? _receiverCountry = Country.parse('IN');
+  Country? get receiverCountry => _receiverCountry;
+
+  void updateReceiverCountry(Country country) {
+    if (_receiverCountry?.phoneCode != country.phoneCode) {
+      _receiverCountry = country;
+    }
+
+    // Strip redundant country code if present in the mobile number
+    String currentMobile =
+        receiverMobileController.text.trim().replaceAll(RegExp(r'\D'), '');
+    String phoneCode = country.phoneCode;
+    int expectedLength = getExpectedPhoneLength(phoneCode);
+
+    if (currentMobile.startsWith(phoneCode) &&
+        currentMobile.length == phoneCode.length + expectedLength) {
+      receiverMobileController.text = currentMobile.substring(phoneCode.length);
+    }
+    safeNotifyListeners();
+  }
 
   int _selectedType = 0; // 0 = Home, 1 = Work, 2 = Other
   int get selectedType => _selectedType;
@@ -73,6 +182,13 @@ class AddAddressProvider extends ChangeNotifier {
 
   void setMapController(GoogleMapController ctrl) {
     mapController = ctrl;
+    if (selectedLatLng != null) {
+      mapController?.animateCamera(
+        CameraUpdate.newCameraPosition(
+          CameraPosition(target: selectedLatLng!, zoom: 17),
+        ),
+      );
+    }
   }
 
   // Get address type string
@@ -103,7 +219,19 @@ class AddAddressProvider extends ChangeNotifier {
   // Move to Current Location
   Future<void> moveToCurrentLocation() async {
     try {
-      LocationPermission permission = await Geolocator.checkPermission();
+      bool serviceEnabled;
+      LocationPermission permission;
+
+      // 1. Check if location services are enabled
+      serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) {
+        _errorMessage = "Location services are disabled. Please enable them.";
+        safeNotifyListeners();
+        return;
+      }
+
+      // 2. Check and request permission
+      permission = await Geolocator.checkPermission();
       if (permission == LocationPermission.denied) {
         permission = await Geolocator.requestPermission();
         if (permission == LocationPermission.denied) {
@@ -116,27 +244,65 @@ class AddAddressProvider extends ChangeNotifier {
 
       if (permission == LocationPermission.deniedForever) {
         _isLocationPermissionDenied = true;
-        _errorMessage = "Location permission permanently denied";
+        _errorMessage =
+            "Location permission permanently denied. Please enable it in settings.";
         safeNotifyListeners();
         return;
       }
 
+      // Permission granted
       _isLocationPermissionDenied = false;
+      _isLoading = true; // Show loading while fetching high accuracy position
+      safeNotifyListeners();
 
-      Position position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high,
-      );
+      // 3. Fetch current position
+      Position position =
+          await Geolocator.getCurrentPosition(
+            desiredAccuracy: LocationAccuracy.high,
+            timeLimit: const Duration(seconds: 10),
+          ).catchError((e) async {
+            // Fallback to last known position if getCurrentPosition fails/times out
+            return await Geolocator.getLastKnownPosition() ??
+                Position(
+                  longitude: 0,
+                  latitude: 0,
+                  timestamp: DateTime.now(),
+                  accuracy: 0,
+                  altitude: 0,
+                  heading: 0,
+                  speed: 0,
+                  speedAccuracy: 0,
+                  altitudeAccuracy: 0,
+                  headingAccuracy: 0,
+                );
+          });
+
+      if (position.latitude == 0 && position.longitude == 0) {
+        throw Exception("Could not fetch location");
+      }
 
       LatLng latLng = LatLng(position.latitude, position.longitude);
 
-      _updateMarker(latLng); // Update marker immediately
-      await mapController?.animateCamera(
-        CameraUpdate.newCameraPosition(
-          CameraPosition(target: latLng, zoom: 17),
-        ),
-      );
+      // 4. Store values
+      selectedLatLng = latLng;
+      _updateMarker(latLng);
+
+      // 5. Open map at current location (animate camera)
+      if (mapController != null) {
+        await mapController!.animateCamera(
+          CameraUpdate.newCameraPosition(
+            CameraPosition(target: latLng, zoom: 17),
+          ),
+        );
+      }
+
+      // 6. Automatically fetch address for this location
+      await onCameraIdle(latLng);
     } catch (e) {
       _errorMessage = "Error fetching location: $e";
+      Get.showToast(_errorMessage, type: ToastType.error);
+    } finally {
+      _isLoading = false;
       safeNotifyListeners();
     }
   }
@@ -165,42 +331,6 @@ class AddAddressProvider extends ChangeNotifier {
     );
     safeNotifyListeners();
   }
-
-  // Common function for address fetching
-  // Future<void> _updateLocationAndAddress(LatLng latLng) async {
-  //   if (_disposed || _isFetchingAddress) return;
-
-  //   _isFetchingAddress = true;
-  //   safeNotifyListeners();
-
-  //   try {
-  //     List<Placemark> placemarks = await placemarkFromCoordinates(
-  //       latLng.latitude,
-  //       latLng.longitude,
-  //     );
-
-  //     if (placemarks.isNotEmpty && !_disposed) {
-  //       Placemark place = placemarks.first;
-
-  //       streetAddressController.text =
-  //           "${place.street ?? ''} ${place.subLocality ?? ''}".trim();
-  //       cityController.text = place.locality ?? '';
-  //       zipCodeController.text = place.postalCode ?? '';
-  //       countryController.text = place.country ?? '';
-
-  //       if (cityController.text.isEmpty) {
-  //         cityController.text = place.subAdministrativeArea ?? '';
-  //       }
-  //     }
-  //   } catch (e) {
-  //     if (kDebugMode) {
-  //       print("Unable to fetch address: $e");
-  //     }
-  //   } finally {
-  //     _isFetchingAddress = false;
-  //     safeNotifyListeners();
-  //   }
-  // }
 
   Future<void> _updateLocationAndAddress(LatLng latLng) async {
     if (_disposed || _isFetchingAddress) return;
@@ -353,6 +483,9 @@ class AddAddressProvider extends ChangeNotifier {
         'latitude': selectedLatLng?.latitude.toString(),
         'longitude': selectedLatLng?.longitude.toString(),
         'is_default': _isDefaultAddress ? 1 : 0,
+        'extra_name': receiverNameController.text.trim() ?? "",
+        'mobile': receiverMobileController.text.trim() ?? "",
+        'country_code': _receiverCountry?.phoneCode ?? "",
       };
 
       dynamic response = await _repository.addNewUserAddressApi(requestData);
@@ -551,6 +684,9 @@ class AddAddressProvider extends ChangeNotifier {
     cityController.clear();
     zipCodeController.clear();
     countryController.clear();
+    receiverNameController.clear();
+    receiverMobileController.clear();
+    _receiverCountry = Country.parse('IN');
     markers.clear();
     selectedLatLng = null;
     _selectedType = 0;

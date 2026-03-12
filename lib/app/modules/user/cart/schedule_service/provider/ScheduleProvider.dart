@@ -92,28 +92,134 @@ class ScheduleProvider extends ChangeNotifier {
   String? get selectedTime => _selectedTime;
   BookServiceModel? get bookService => _bookService;
   // Returns the available time slots for the selected day
+  bool get isToday {
+    final selected = DateTime(
+      _selectedDate.year,
+      _selectedDate.month,
+      _selectedDate.day,
+    );
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    return selected == today;
+  }
+
   List<String> get availableTimesForSelectedDay {
     final dayName = _getDayName(_selectedDate);
-    final slots = _dayAvailability[dayName];
+    final slots = _dayAvailability[dayName] ?? [];
 
-    if (slots == null || slots.isEmpty) return [];
+    if (slots.isEmpty) return [];
+
+    final now = DateTime.now();
+    final nowMinutes = now.hour * 60 + now.minute;
+
+    // Debug prints (remove later if you want)
+    print('Time slots debug ───────────────────────────────');
+    print('Selected: ${_selectedDate.toString().substring(0, 10)}');
+    print('Today:    ${now.toString().substring(0, 10)}');
+    print('isToday:  $isToday');
+    print(
+      'Now:      ${now.hour}:${now.minute.toString().padLeft(2, '0')} ($nowMinutes min)',
+    );
 
     List<String> times = [];
-    for (var slot in slots) {
-      if (slot.from != null && slot.to != null) {
-        DateTime startTime = _parseTime(slot.from!);
-        DateTime endTime = _parseTime(slot.to!);
 
-        // Generate hourly slots
-        DateTime current = startTime;
-        while (!current.isAfter(endTime)) {
-          times.add(_formatTime(current));
-          current = current.add(const Duration(hours: 1));
+    for (var slot in slots) {
+      if (slot.from == null || slot.to == null) continue;
+
+      DateTime start = _parseTime(slot.from!);
+      DateTime end = _parseTime(slot.to!);
+
+      DateTime current = start;
+
+      while (!current.add(const Duration(hours: 1)).isAfter(end)) {
+        final slotMinutes = current.hour * 60 + current.minute;
+
+        bool shouldShow = true;
+
+        // Main condition: hide past + current hour for today
+        if (isToday && slotMinutes <= nowMinutes) {
+          shouldShow = false;
+          print(
+            '   Hidden: ${_formatTime(current)} ($slotMinutes min)  ≤  $nowMinutes',
+          );
         }
+
+        // Alternative stricter version (uncomment if you want buffer)
+        // if (isToday && slotMinutes < now.hour * 60 + 30) {
+        //   shouldShow = false;
+        //   print('   Hidden (buffer): ${_formatTime(current)}');
+        // }
+
+        if (shouldShow) {
+          times.add(_formatTime(current));
+        }
+
+        current = current.add(const Duration(hours: 1));
       }
     }
+
+    print('Shown (${times.length}): $times');
+    print('─────────────────────────────────────────────────');
+
     return times;
   }
+
+  // List<String> get availableTimesForSelectedDay {
+  //   final dayName = _getDayName(_selectedDate);
+  //   final slots = _dayAvailability[dayName];
+
+  //   if (slots == null || slots.isEmpty) return [];
+
+  //   List<String> times = [];
+  //   final now = DateTime.now();
+
+  //   // Check if selected date is today (Comparing only year, month, day)
+  //   final isToday =
+  //       _selectedDate.year == now.year &&
+  //       _selectedDate.month == now.month &&
+  //       _selectedDate.day == now.day;
+
+  //   final nowTimeInMinutes = now.hour * 60 + now.minute;
+
+  //   if (kDebugMode && isToday) {
+  //     print("--- Time Filtering Debug ---");
+  //     print("Selected Date is TODAY");
+  //     print("Current Time: ${now.hour}:${now.minute} ($nowTimeInMinutes min)");
+  //   }
+
+  //   for (var slot in slots) {
+  //     if (slot.from != null && slot.to != null) {
+  //       DateTime startTime = _parseTime(slot.from!);
+  //       DateTime endTime = _parseTime(slot.to!);
+
+  //       DateTime current = startTime;
+  //       while (!current.add(const Duration(hours: 1)).isAfter(endTime)) {
+  //         bool isFutureSlot = true;
+
+  //         if (isToday) {
+  //           final slotTimeInMinutes = current.hour * 60 + current.minute;
+
+  //           // LOGIC: Hide slot if it starts at or before the current time
+  //           if (slotTimeInMinutes <= nowTimeInMinutes) {
+  //             isFutureSlot = false;
+  //           }
+
+  //           if (kDebugMode && !isFutureSlot) {
+  //             print(
+  //               "Hiding Slot: ${_formatTime(current)} ($slotTimeInMinutes min) <= Current ($nowTimeInMinutes min)",
+  //             );
+  //           }
+  //         }
+
+  //         if (isFutureSlot) {
+  //           times.add(_formatTime(current));
+  //         }
+  //         current = current.add(const Duration(hours: 1));
+  //       }
+  //     }
+  //   }
+  //   return times;
+  // }
 
   String _formatTime(DateTime time) {
     int displayHour = time.hour % 12;
@@ -139,8 +245,21 @@ class ScheduleProvider extends ChangeNotifier {
 
   DateTime _parseTime(String time) {
     // Assumes HH:mm (24-hour format)
-    final parts = time.split(':');
-    return DateTime(0, 0, 0, int.parse(parts[0]), int.parse(parts[1]));
+    try {
+      final parts = time.split(':');
+      final hour = int.parse(parts[0]);
+      final minute = int.parse(parts[1]);
+      return DateTime(
+        2000,
+        1,
+        1,
+        hour,
+        minute,
+      ); // Use a stable date for parsing hours/mins
+    } catch (e) {
+      debugPrint("Error parsing time: $time => $e");
+      return DateTime(2000, 1, 1, 0, 0);
+    }
   }
 
   void selectDate(DateTime date, {bool isCustom = false}) {
@@ -221,7 +340,7 @@ class ScheduleProvider extends ChangeNotifier {
           DateTime endTime = _parseTime(slot.to!);
 
           DateTime current = startTime;
-          while (!current.isAfter(endTime)) {
+          while (!current.add(const Duration(hours: 1)).isAfter(endTime)) {
             if (_formatTime(current) == _selectedTime) {
               // Create a 1-hour slot for the selection
               String fromStr =
