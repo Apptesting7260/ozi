@@ -117,7 +117,7 @@ class VendorBookingDetailsScreen extends StatelessWidget {
                                 _paymentSummary(
                                   serviceFee:provider.homeModel.data?.data?.serviceFee??'' ,
                                   subTotal: provider.homeModel.data?.data?.subtotal??'',
-                                  discount: provider.homeModel.data?.data?.serviceFee??'',
+                                  discount: provider.homeModel.data?.data?.discountFee??'',
                                   total: provider.homeModel.data?.data?.total??''
                                 ),
 

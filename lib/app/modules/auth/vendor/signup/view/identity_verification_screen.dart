@@ -60,7 +60,7 @@ class _IdentityVerificationContent extends StatelessWidget {
       backgroundColor: AppColors.white,
 
       // -------- BOTTOM BUTTON --------
-      bottomNavigationBar: Padding(
+      bottomNavigationBar:isFromProfile ? SizedBox.shrink()  : Padding(
         padding: const EdgeInsets.all(16),
         child: CustomButton(
           isLoading: provider.submitLoading,
@@ -344,6 +344,10 @@ class _IdentityVerificationContent extends StatelessWidget {
               ),
             )
           else
+
+            if(isFromProfile)
+              SizedBox.shrink()
+            else
             GestureDetector(
               onTap: onUpload,
               child: CustomPaint(
