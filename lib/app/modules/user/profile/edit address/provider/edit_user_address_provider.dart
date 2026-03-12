@@ -1,5 +1,7 @@
+import 'package:flutter_google_places_hoc081098/flutter_google_places_hoc081098.dart';
+import 'package:flutter_google_places_hoc081098/google_maps_webservice_places.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:geocoding/geocoding.dart';
+import 'package:geocoding/geocoding.dart' hide Location;
 import 'package:geolocator/geolocator.dart';
 import '../../../../../core/appExports/app_export.dart';
 import '../../../../../data/repository/repository.dart';
@@ -12,7 +14,10 @@ class EditUserAddressProvider extends ChangeNotifier {
   TextEditingController apartmentController = TextEditingController();
   TextEditingController cityController = TextEditingController();
   TextEditingController zipController = TextEditingController();
+  TextEditingController countryController = TextEditingController();
 
+  final TextEditingController zipCodeController = TextEditingController();
+  final TextEditingController streetAddressController = TextEditingController();
   int selectedType = 0;
   bool _initialized = false;
   bool get initialized => _initialized;
@@ -23,6 +28,31 @@ class EditUserAddressProvider extends ChangeNotifier {
   int? _addressId;
   String? _lat;
   String? _lng;
+  bool _disposed = false;
+  void safeNotifyListeners() {
+    if (!_disposed) {
+      notifyListeners();
+    }
+  }
+
+  @override
+  void dispose() {
+    _disposed = true;
+    streetAddressController.dispose();
+    apartmentController.dispose();
+    cityController.dispose();
+    zipCodeController.dispose();
+    countryController.dispose();
+    super.dispose();
+  }
+
+  bool _isDefaultAddress = false;
+  bool get isDefaultAddress => _isDefaultAddress;
+
+  void toggleDefaultAddress(bool? value) {
+    _isDefaultAddress = value ?? false;
+    safeNotifyListeners();
+  }
 
   // Map related state
   GoogleMapController? mapController;
@@ -142,6 +172,169 @@ class EditUserAddressProvider extends ChangeNotifier {
     await _updateLocationAndAddress(latLng);
   }
 
+  Future<void> selectManualPlace(Prediction prediction) async {
+    if (prediction.placeId == null) return;
+
+    final places = GoogleMapsPlaces(
+      apiKey: "AIzaSyApdA5sIEfZoPmhlWuAr5wTgyOXvhl9jsQ",
+    );
+    PlacesDetailsResponse detail = await places.getDetailsByPlaceId(
+      prediction.placeId!,
+      fields: ["address_components", "geometry", "formatted_address"],
+    );
+    if (!detail.isOkay || detail.result.geometry == null) return;
+
+    final lat = detail.result.geometry!.location.lat;
+    final lng = detail.result.geometry!.location.lng;
+    final newLatLng = LatLng(lat, lng);
+
+    // Update marker (if you have one)
+    _updateMarker(newLatLng);
+    try {
+      final detail = await places.getDetailsByPlaceId(
+        prediction.placeId!,
+        fields: ["address_components", "geometry", "formatted_address"],
+      );
+
+      if (!detail.isOkay || detail.result.geometry == null) return;
+
+      final lat = detail.result.geometry!.location.lat;
+      final lng = detail.result.geometry!.location.lng;
+      final newLatLng = LatLng(lat, lng);
+
+      // Update map
+      await mapController?.animateCamera(
+        CameraUpdate.newCameraPosition(
+          CameraPosition(target: newLatLng, zoom: 17),
+        ),
+      );
+
+      _updateMarker(newLatLng);
+
+      // Fill fields
+      String street = "",
+          subLocality = "",
+          city = "",
+          postal = "",
+          country = "";
+
+      for (var comp in detail.result.addressComponents) {
+        final types = comp.types;
+        if (types.contains("street_number") || types.contains("route")) {
+          street += "${comp.longName} ";
+        }
+        if (types.contains("sublocality")) subLocality = comp.longName;
+        if (types.contains("locality")) city = comp.longName;
+        if (types.contains("postal_code")) postal = comp.longName;
+        if (types.contains("country")) country = comp.longName;
+      }
+
+      streetAddressController.text =
+          detail.result.formattedAddress ??
+          "${street.trim()} ${subLocality.trim()}".trim();
+      cityController.text = city;
+      zipCodeController.text = postal;
+      countryController.text = country;
+
+      apartmentController.text =
+          prediction.description?.split(', ').skip(1).take(2).join(', ') ?? "";
+
+      safeNotifyListeners();
+    } catch (e) {
+      if (kDebugMode) {
+        print("Error in selectManualPlace: $e");
+      }
+    }
+  }
+
+  static const String kGoogleApiKey = "AIzaSyApdA5sIEfZoPmhlWuAr5wTgyOXvhl9jsQ";
+
+  Future<void> showLocationSearch(BuildContext context) async {
+    Prediction? prediction = await PlacesAutocomplete.show(
+      context: context,
+      apiKey: kGoogleApiKey,
+      mode: Mode.overlay,
+      language: "en",
+      components: [Component(Component.country, "in")],
+      hint: "Search area, street name, landmark...",
+      location: selectedLatLng != null
+          ? Location(
+              lat: selectedLatLng!.latitude,
+              lng: selectedLatLng!.longitude,
+            )
+          : null,
+      radius: 50000, // suggestions nearby bias
+      offset: 0,
+    );
+
+    if (prediction != null && prediction.placeId != null) {
+      await _processSelectedPlace(prediction, context);
+    }
+  }
+
+  Future<void> _processSelectedPlace(
+    Prediction prediction,
+    BuildContext context,
+  ) async {
+    final places = GoogleMapsPlaces(apiKey: kGoogleApiKey);
+    PlacesDetailsResponse detail = await places.getDetailsByPlaceId(
+      prediction.placeId!,
+      fields: ["address_components", "geometry", "formatted_address"],
+    );
+
+    if (!detail.isOkay || detail.result.geometry == null) {
+      // Optional: show error toast
+      return;
+    }
+
+    final lat = detail.result.geometry!.location.lat;
+    final lng = detail.result.geometry!.location.lng;
+    final newLatLng = LatLng(lat, lng);
+
+    // Map update (existing map safe rahega)
+    await mapController?.animateCamera(
+      CameraUpdate.newCameraPosition(
+        CameraPosition(target: newLatLng, zoom: 17),
+      ),
+    );
+
+    // Marker if needed (central pin already handle kar raha hai)
+    _updateMarker(newLatLng);
+
+    // Fields fill
+    String street = "";
+    String subLocality = "";
+    String city = "";
+    String postal = "";
+    String country = "";
+
+    for (var comp in detail.result.addressComponents) {
+      final types = comp.types;
+      if (types.contains("street_number") || types.contains("route")) {
+        street += "${comp.longName} ";
+      }
+      if (types.contains("sublocality")) subLocality = comp.longName;
+      if (types.contains("locality")) city = comp.longName;
+      if (types.contains("postal_code")) postal = comp.longName;
+      if (types.contains("country")) country = comp.longName;
+    }
+
+    streetAddressController.text =
+        detail.result.formattedAddress ??
+        "${street.trim()} ${subLocality.trim()}".trim();
+    cityController.text = city;
+    zipCodeController.text = postal;
+    countryController.text = country;
+
+    // Landmark / extra info
+    apartmentController.text =
+        prediction.description ??
+        prediction.description?.split(', ').skip(1).take(2).join(', ') ??
+        "";
+
+    safeNotifyListeners();
+  }
+
   void _updateMarker(LatLng latLng) {
     selectedLatLng = latLng;
     _lat = latLng.latitude.toString();
@@ -158,36 +351,78 @@ class EditUserAddressProvider extends ChangeNotifier {
   }
 
   Future<void> _updateLocationAndAddress(LatLng latLng) async {
-    if (_isFetchingAddress) return;
+    if (_disposed || _isFetchingAddress) return;
 
     _isFetchingAddress = true;
-    notifyListeners();
+    safeNotifyListeners();
 
     try {
+      // Optional: Set desired locale once (you can also call this in initState or earlier)
+      // Best place: call it once when provider initializes or app starts
+      // await setLocaleIdentifier("en_IN");   // Uncomment if you want India-English style
+
       List<Placemark> placemarks = await placemarkFromCoordinates(
         latLng.latitude,
         latLng.longitude,
       );
 
-      if (placemarks.isNotEmpty) {
-        Placemark place = placemarks.first;
-
-        streetController.text =
-            "${place.street ?? ''} ${place.subLocality ?? ''}".trim();
-        cityController.text = place.locality ?? '';
-        zipController.text = place.postalCode ?? '';
-
-        if (cityController.text.isEmpty) {
-          cityController.text = place.subAdministrativeArea ?? '';
+      if (placemarks.isNotEmpty && !_disposed) {
+        // Pick the most useful placemark (first is usually good, but we try to improve)
+        Placemark? bestPlace;
+        for (var place in placemarks) {
+          if ((place.thoroughfare?.isNotEmpty ?? false) ||
+              (place.subThoroughfare?.isNotEmpty ?? false)) {
+            bestPlace = place;
+            break;
+          }
         }
+        bestPlace ??= placemarks.first;
+
+        String fullStreetAddress =
+            [
+                  bestPlace.name,
+                  bestPlace.subThoroughfare,
+                  bestPlace.thoroughfare,
+                  bestPlace.subLocality,
+                  bestPlace.locality,
+                  bestPlace.subAdministrativeArea,
+                ]
+                .where((s) => s != null && s.isNotEmpty)
+                .cast<String>()
+                .fold<List<String>>([], (acc, s) {
+                  if (acc.every(
+                    (existing) =>
+                        !existing.contains(s) && !s.contains(existing),
+                  )) {
+                    acc.add(s);
+                  }
+                  return acc;
+                })
+                .join(', ')
+                .trim();
+
+        if (fullStreetAddress.isEmpty) {
+          fullStreetAddress = bestPlace.name ?? 'Unknown location';
+        }
+
+        // Update controllers (no 'mounted' check needed here)
+        streetAddressController.text = fullStreetAddress;
+        cityController.text =
+            bestPlace.locality ?? bestPlace.subAdministrativeArea ?? '';
+        zipCodeController.text = bestPlace.postalCode ?? '';
+        countryController.text = bestPlace.country ?? 'India';
+
+        // Optional: you can also fill apartment / landmark if useful
+        // apartmentController.text = bestPlace.name ?? '';
       }
     } catch (e) {
-      if (kDebugMode) {
-        print("Unable to fetch address: $e");
-      }
+      debugPrint("Reverse geocoding error: $e");
+      // Optionally show toast / error to user
     } finally {
       _isFetchingAddress = false;
-      notifyListeners();
+      if (!_disposed) {
+        safeNotifyListeners();
+      }
     }
   }
 
@@ -251,6 +486,8 @@ class EditUserAddressProvider extends ChangeNotifier {
         "zip_code": zipController.text.trim(),
         "latitude": _lat,
         "longitude": _lng,
+        "country": countryController.text.trim(),
+        "is_default": _isDefaultAddress ? 1 : 0,
       };
 
       final response = await _repository.editUserAddressApi(_addressId!, data);

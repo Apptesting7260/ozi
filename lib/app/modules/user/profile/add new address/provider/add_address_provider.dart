@@ -166,42 +166,6 @@ class AddAddressProvider extends ChangeNotifier {
     safeNotifyListeners();
   }
 
-  // Common function for address fetching
-  // Future<void> _updateLocationAndAddress(LatLng latLng) async {
-  //   if (_disposed || _isFetchingAddress) return;
-
-  //   _isFetchingAddress = true;
-  //   safeNotifyListeners();
-
-  //   try {
-  //     List<Placemark> placemarks = await placemarkFromCoordinates(
-  //       latLng.latitude,
-  //       latLng.longitude,
-  //     );
-
-  //     if (placemarks.isNotEmpty && !_disposed) {
-  //       Placemark place = placemarks.first;
-
-  //       streetAddressController.text =
-  //           "${place.street ?? ''} ${place.subLocality ?? ''}".trim();
-  //       cityController.text = place.locality ?? '';
-  //       zipCodeController.text = place.postalCode ?? '';
-  //       countryController.text = place.country ?? '';
-
-  //       if (cityController.text.isEmpty) {
-  //         cityController.text = place.subAdministrativeArea ?? '';
-  //       }
-  //     }
-  //   } catch (e) {
-  //     if (kDebugMode) {
-  //       print("Unable to fetch address: $e");
-  //     }
-  //   } finally {
-  //     _isFetchingAddress = false;
-  //     safeNotifyListeners();
-  //   }
-  // }
-
   Future<void> _updateLocationAndAddress(LatLng latLng) async {
     if (_disposed || _isFetchingAddress) return;
 
