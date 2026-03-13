@@ -539,7 +539,7 @@ class VendorBookingDetailsScreen extends StatelessWidget {
                   ],
                 ),
               ),
-              if (status != 'rejected') ...[
+              if (status != 'rejected' && status != 'cancelled') ...[
                 GestureDetector(
                   onTap: () {
                     bookingProvider.sendMessage(id.toString());
