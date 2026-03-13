@@ -6,6 +6,8 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final Widget? columnChild;
   final double? height;
   final VoidCallback? onBackTap;
+  final int? maxLines;
+  final TextOverflow? overflow;
 
   const CustomAppBar({
     super.key,
@@ -14,6 +16,8 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.columnChild,
     this.height,
     this.onBackTap,
+    this.maxLines,
+    this.overflow,
   });
 
   @override
@@ -48,9 +52,13 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                     ),
                   ),
                 ),
-                Center(
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 48),
                   child: Text(
                     title,
+                    textAlign: TextAlign.center,
+                    maxLines: maxLines ?? 1,
+                    overflow: overflow ?? TextOverflow.ellipsis,
                     style: AppFontStyle.text_18_600(
                       AppColors.darkText,
                       fontFamily: AppFontFamily.bold,
@@ -59,6 +67,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                 ),
                 if (child != null)
                   Align(alignment: Alignment.centerRight, child: child!),
+
               ],
             ),
           ),

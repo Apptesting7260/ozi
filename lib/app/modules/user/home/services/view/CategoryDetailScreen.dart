@@ -7,10 +7,7 @@ import '../provider/category_detail_provider.dart';
 class CategoryDetailScreen extends StatelessWidget {
   final Data category;
 
-  const CategoryDetailScreen({
-    super.key,
-    required this.category,
-  });
+  const CategoryDetailScreen({super.key, required this.category});
 
   @override
   Widget build(BuildContext context) {
@@ -24,10 +21,7 @@ class CategoryDetailScreen extends StatelessWidget {
 class CategoryDetailView extends StatelessWidget {
   final Data category;
 
-  const CategoryDetailView({
-    super.key,
-    required this.category,
-  });
+  const CategoryDetailView({super.key, required this.category});
 
   @override
   Widget build(BuildContext context) {
@@ -39,35 +33,33 @@ class CategoryDetailView extends StatelessWidget {
           children: [
             Padding(
               padding: const EdgeInsets.all(10),
-              child: CustomAppBar(
-                title: category.categoryName ?? "",
-              ),
+              child: CustomAppBar(title: category.categoryName ?? ""),
             ),
             Expanded(
               child: provider.subcategories.isEmpty
                   ? Center(
-                child: Text(
-                  'No subcategories available',
-                  style: AppFontStyle.text_16_400(AppColors.grey),
-                ),
-              )
+                      child: Text(
+                        'No subcategories available',
+                        style: AppFontStyle.text_16_400(AppColors.grey),
+                      ),
+                    )
                   : Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: GridView.builder(
-                  gridDelegate:
-                  const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    crossAxisSpacing: 16,
-                    mainAxisSpacing: 16,
-                    childAspectRatio: 1.4,
-                  ),
-                  itemCount: provider.subcategories.length,
-                  itemBuilder: (context, index) {
-                    final sub = provider.subcategories[index];
-                    return _buildSubCategoryCard(context, sub, index + 1);
-                  },
-                ),
-              ),
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      child: GridView.builder(
+                        gridDelegate:
+                            const SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 2,
+                              crossAxisSpacing: 16,
+                              mainAxisSpacing: 16,
+                              childAspectRatio: 1.4,
+                            ),
+                        itemCount: provider.subcategories.length,
+                        itemBuilder: (context, index) {
+                          final sub = provider.subcategories[index];
+                          return _buildSubCategoryCard(context, sub, index + 1);
+                        },
+                      ),
+                    ),
             ),
           ],
         ),
@@ -76,14 +68,23 @@ class CategoryDetailView extends StatelessWidget {
   }
 
   Widget _buildSubCategoryCard(
-      BuildContext context,
-      Subcategories sub,
-      int index,
-      ) {
+    BuildContext context,
+    Subcategories sub,
+    int index,
+  ) {
     String formattedIndex = index < 10 ? '0$index' : '$index';
 
     return GestureDetector(
       onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => ServiceDetailScreen(
+              service: sub,
+              categoryId: sub.parentId ?? 0,
+            ),
+          ),
+        );
         debugPrint("Subcategory tapped: ${sub.categoryName}");
       },
       child: Container(

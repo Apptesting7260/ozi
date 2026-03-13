@@ -14,6 +14,7 @@ import '../../../vendor/home/notification/provider/vendor_ notification_provider
 import '../../profile/view/profile_provider/profile_provider.dart';
 import '../model/category_model.dart';
 import '../provider/HomeScreenProvider.dart';
+import '../../profile/setting/provider/settingprovider.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -31,6 +32,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       if (mounted) {
         context.read<AuthGuestProvider>().loadStatus();
         context.read<ProfileProvider>().fetchUserProfile();
+        context.read<Settingprovider>().settingsApi();
         context.read<HomeScreenProvider>().loadOnce(context);
       }
     });
@@ -71,7 +73,9 @@ class HomeScreenView extends StatelessWidget {
         child: RefreshIndicator(
           onRefresh: () => provider.refreshData(),
           child: SingleChildScrollView(
-            // physics: BouncingScrollPhysics(),
+            physics: const AlwaysScrollableScrollPhysics(
+              parent: BouncingScrollPhysics(),
+            ),
             child: Padding(
               padding: EdgeInsets.all(20.0),
               child: Column(
@@ -87,7 +91,6 @@ class HomeScreenView extends StatelessWidget {
                   hBox(10),
                   Consumer<AuthGuestProvider>(
                     builder: (context, auth, child) {
-
                       if (auth.isGuest) {
                         return _buildBecomeProviderCard(context, provider);
                       }
@@ -110,8 +113,7 @@ class HomeScreenView extends StatelessWidget {
     final profile = context.watch<ProfileProvider>();
     final firstName = profile.firstName;
 
-    final displayName =
-    auth.isGuest
+    final displayName = auth.isGuest
         ? "Guest"
         : (firstName.trim().isNotEmpty ?? false)
         ? firstName
@@ -225,6 +227,7 @@ class HomeScreenView extends StatelessWidget {
               ),
             ),
             wBox(12),
+
             // GestureDetector(
             //   onTap: () async {
             //     final bool allowed = await AuthGuard.requireLogin(context);
@@ -244,12 +247,11 @@ class HomeScreenView extends StatelessWidget {
             //     width: 46,
             //   ),
             // ),
-
             Consumer<VendorNotificationProvider>(
               builder: (context, provider, _) {
                 return InkWell(
                   borderRadius: BorderRadius.circular(40),
-                  onTap: () async{
+                  onTap: () async {
                     bool allowed = await AuthGuard.requireLogin(context);
 
                     if (!allowed) return;
@@ -313,7 +315,7 @@ class HomeScreenView extends StatelessWidget {
                   ),
                 );
               },
-            )
+            ),
           ],
         ),
       ],
@@ -549,7 +551,13 @@ class HomeScreenView extends StatelessWidget {
                       ),
                       hBox(6),
                       CustomButton(
-                        onPressed: () => provider.onBecomeProviderTap(context),
+                        onPressed: () async {
+                          final bool allowed = await AuthGuard.requireLogin(
+                            context,
+                          );
+                          if (!allowed) return;
+                        },
+                        //  => provider.onBecomeProviderTap(context),
                         text: 'Apply Now',
                         textStyle: AppFontStyle.text_12_600(
                           AppColors.black,
