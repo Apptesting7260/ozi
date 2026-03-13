@@ -4,11 +4,120 @@ import '../../../../../core/appExports/app_export.dart';
 import '../../../../../data/models/vendor_home_model.dart';
 import '../../../../../shared/widgets/custom_app_bar.dart';
 import '../../../bookings/booking details/view/vendor_booking_details_screen.dart';
+import '../../provider/vendor_home_provider.dart';
 import '../../request_card/view/request_card_view.dart';
 import '../provider/new_requests_provider.dart';
 
 class NewRequestsScreen extends StatelessWidget {
   const NewRequestsScreen({super.key});
+
+
+  void _showRejectWarning(
+      BuildContext context,
+      VoidCallback onConfirm,
+      ) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return  Dialog(
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 28),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(24),
+            ),
+            child: Consumer<VendorHomeProvider>(
+              builder: (context, provider, _) {
+                if (provider.popupLoading) {
+                  return const SizedBox(
+                    height: 100,
+                    child: Center(child: CircularProgressIndicator()),
+                  );
+                }
+                return Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      "Reject Request",
+                      textAlign: TextAlign.center,
+                      style: AppFontStyle.text_22_600(
+                        Color.fromRGBO(28, 29, 33, 1),
+                      ),
+                    ),
+
+                    const SizedBox(height: 12),
+
+                    Text(
+                      maxLines: 5,
+                      "Are you sure you want to reject this request?\nThis action cannot be undone.",
+                      textAlign: TextAlign.center,
+                      style: AppFontStyle.text_16_300(
+                        Color.fromRGBO(112, 108, 108, 1),
+                      ),
+                    ),
+
+                    const SizedBox(height: 28),
+
+                    Row(
+                      children: [
+                        Expanded(
+                          child: GestureDetector(
+                            onTap: () {
+                              Navigator.pop(context);
+                            },
+                            child: Container(
+                              height: 48,
+                              alignment: Alignment.center,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(30),
+                                border: Border.all(
+                                  color: Colors.grey.shade400,
+                                ),
+                              ),
+                              child: Text(
+                                "Cancel",
+                                style: AppFontStyle.text_16_600(
+                                  const Color.fromRGBO(112, 108, 108, 1),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+
+                        const SizedBox(width: 16),
+
+                        Expanded(
+                          child: GestureDetector(
+                            onTap: () async {
+                              Navigator.pop(context);
+                              onConfirm();
+                            },
+                            child: Container(
+                              height: 48,
+                              alignment: Alignment.center,
+                              decoration: BoxDecoration(
+                                color: AppColors.red,
+                                borderRadius: BorderRadius.circular(30),
+                              ),
+                              child: Text(
+                                "Reject",
+                                style: AppFontStyle.text_16_600(
+                                  const Color.fromRGBO(255, 255, 255, 1),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                );
+              },
+            ),
+          ),
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -80,10 +189,13 @@ class NewRequestsScreen extends StatelessWidget {
                                   },
 
                                   onReject: () async {
-                                    await provider.acceptOrRejectRequest(
-                                      'reject',
-                                      request.bookingId ?? '',
-                                    );
+
+                                    _showRejectWarning(context, () async{
+                                      await provider.acceptOrRejectRequest(
+                                        'reject',
+                                        request.bookingId ?? '',
+                                      );
+                                    });
                                   },
                                   request: request
                               );
@@ -111,117 +223,5 @@ class NewRequestsScreen extends StatelessWidget {
       ),
     );
   }
-
-  // --------------------------------------------------------------------------
-  // Widget _requestCard(
-  //     BuildContext context,
-  //     NewRequestsProvider provider,
-  //     BookingRequest item,
-  //     int index,
-  //     ) {
-  //   return Container(
-  //     padding: const EdgeInsets.all(14),
-  //     decoration: BoxDecoration(
-  //       color: AppColors.white,
-  //       borderRadius: BorderRadius.circular(16),
-  //       boxShadow: [
-  //         BoxShadow(
-  //           color: Colors.black.withOpacity(0.05),
-  //           blurRadius: 10,
-  //           offset: const Offset(0, 4),
-  //         ),
-  //       ],
-  //     ),
-  //     child: Column(
-  //       crossAxisAlignment: CrossAxisAlignment.start,
-  //       children: [
-  //         /// HEADER
-  //         Row(
-  //           children: [
-  //             CircleAvatar(
-  //               radius: 18,
-  //               backgroundImage:
-  //               const NetworkImage("https://i.pravatar.cc/150?img=3"),
-  //             ),
-  //             wBox(10),
-  //             Expanded(
-  //               child: Column(
-  //                 crossAxisAlignment: CrossAxisAlignment.start,
-  //                 children: [
-  //                   Text(
-  //                     item.name,
-  //                     style: AppFontStyle.text_14_600(
-  //                       AppColors.darkText,
-  //                       fontFamily: AppFontFamily.semiBold,
-  //                     ),
-  //                   ),
-  //                   Text(
-  //                     item.service,
-  //                     style: AppFontStyle.text_12_400(AppColors.grey),
-  //                   ),
-  //                 ],
-  //               ),
-  //             ),
-  //             _statusBadge(item.status),
-  //           ],
-  //         ),
-  //
-  //         hBox(12),
-  //
-  //         /// DETAILS
-  //         _infoRow(Icons.calendar_today, "${item.date}"),
-  //         hBox(6),
-  //         _infoRow(Icons.access_time, item.time),
-  //         hBox(6),
-  //         _infoRow(Icons.location_on_outlined, item.address),
-  //
-  //         hBox(14),
-  //
-  //         /// PRICE + ACTIONS
-  //         Row(
-  //           children: [
-  //             Text(
-  //               "\$${item.price.toStringAsFixed(2)}",
-  //               style: AppFontStyle.text_16_600(AppColors.primary),
-  //             ),
-  //             const Spacer(),
-  //
-  //             if (item.status == BookingStatus.newRequest) ...[
-  //               CustomButton(
-  //                 height: 34,
-  //                 width: 80,
-  //                 isOutlined: true,
-  //                 color: AppColors.red,
-  //                 text: "Reject",
-  //                 textStyle: AppFontStyle.text_14_500(AppColors.red),
-  //                 onPressed: () => provider.rejectRequest(index),
-  //               ),
-  //               wBox(8),
-  //               CustomButton(
-  //                 height: 34,
-  //                 width: 80,
-  //                 text: "Accept",
-  //                 onPressed: () => provider.acceptRequest(index),
-  //               ),
-  //             ] else
-  //               Container(
-  //                 height: 34,
-  //                 width: 34,
-  //                 decoration:  BoxDecoration(
-  //                   color: AppColors.primary,
-  //                   shape: BoxShape.circle,
-  //                 ),
-  //                 child: const Icon(
-  //                   Icons.phone,
-  //                   color: Colors.white,
-  //                   size: 18,
-  //                 ),
-  //               ),
-  //           ],
-  //         ),
-  //       ],
-  //     ),
-  //   );
-  // }
 
 }

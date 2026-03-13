@@ -22,7 +22,9 @@ class VendorNotificationProvider extends ChangeNotifier {
   int get unreadCount => _unreadCount;
 
   List<NotificationItem> _notifications = [];
+  List<GetNotificationModel> _notificationsModel = [];
   List<NotificationItem> get notifications => _notifications;
+  List<GetNotificationModel> get notificationModel => _notificationsModel;
 
 
 

@@ -1,8 +1,6 @@
 import 'package:ozi/app/core/constants/app_urls.dart';
 import 'package:ozi/app/modules/vendor/home/provider/vendor_home_provider.dart';
-
 import '../../../../core/appExports/app_export.dart';
-import '../../../../data/models/vendor_home_model.dart';
 import '../../../../data/response/api_response.dart';
 import '../../../../data/response/api_status.dart';
 import '../../../../shared/widgets/custom_toggle_switch.dart';
@@ -106,32 +104,6 @@ class _VendorHomeScreenState extends State<VendorHomeScreen> {
       },
     );
   }
-
-  //  return AlertDialog(
-  //
-  //           title: const Text("Reject Request"),
-  //           content: const Text(
-  //             "Are you sure you want to reject this request?\nThis action cannot be undone.",
-  //           ),
-  //           actions: [
-  //             TextButton(
-  //               onPressed: () {
-  //                 Navigator.pop(context); // close dialog
-  //               },
-  //               child: const Text("Cancel"),
-  //             ),
-  //             TextButton(
-  //               onPressed: () {
-  //                 Navigator.pop(context); // close dialog
-  //                 onConfirm(); // call reject API
-  //               },
-  //               child: const Text(
-  //                 "Reject",
-  //                 style: TextStyle(color: Colors.red),
-  //               ),
-  //             ),
-  //           ],
-  //         );
 
   Widget _requestsList(VendorHomeProvider value) {
 
