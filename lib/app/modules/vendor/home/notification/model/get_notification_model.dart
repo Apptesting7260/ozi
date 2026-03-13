@@ -8,11 +8,13 @@ String getNotificationModelToJson(GetNotificationModel data) =>
 
 class GetNotificationModel {
   bool? status;
+  String? userRole;
   int? unreadCount;
   NotificationData? data;
 
   GetNotificationModel({
     this.status,
+    this.userRole,
     this.unreadCount,
     this.data,
   });
@@ -20,6 +22,7 @@ class GetNotificationModel {
   factory GetNotificationModel.fromJson(Map<String, dynamic> json) =>
       GetNotificationModel(
         status: json["status"],
+        userRole: json["user_role"],
         unreadCount: json["unread_count"],
         data: json["data"] == null
             ? null
