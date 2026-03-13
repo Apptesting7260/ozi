@@ -81,6 +81,10 @@ class PushNotificationService {
   static String? fcmToken;
   static String? apnsToken;
 
+  /// Stores notification data when app is launched from terminated state.
+  /// The splash screen should call [consumePendingNotification] to handle it.
+  static Map<String, dynamic>? _pendingNotificationData;
+
   static final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
       FlutterLocalNotificationsPlugin();
 
@@ -193,24 +197,42 @@ class PushNotificationService {
       debugPrint('APNs token: $token');
     }
 
-    // ── 9. App opened from terminated state ──────────────────────────────────
-    RemoteMessage? initialMessage = await FirebaseMessaging.instance
-        .getInitialMessage();
+    // ── 9. REMOVED — getInitialMessage is now handled by checkInitialMessage()
+    //    which the splash screen calls directly before navigating.
+  }
 
-    if (initialMessage != null) {
-      debugPrint("📩 App opened via notification (terminated state)");
+  /// Checks if the app was launched by tapping a notification from killed state.
+  /// Call this from the splash screen BEFORE navigating to detect pending
+  /// notification taps. This method awaits Firebase's getInitialMessage().
+  ///
+  /// Safe to call multiple times — it only stores data once.
+  static Future<void> checkInitialMessage() async {
+    try {
+      // Ensure Firebase is initialized (idempotent — safe to call again)
+      await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
-      final String screen = initialMessage.data['screen'] ?? '';
-      final String bookingId = initialMessage.data['booking_id'] ?? '';
-      final String type = initialMessage.data['type'] ?? '';
+      RemoteMessage? initialMessage = await FirebaseMessaging.instance
+          .getInitialMessage();
 
-      if (screen.isNotEmpty && bookingId.isNotEmpty) {
-        await navigateFromNotification(
-          screen: screen,
-          bookingId: bookingId,
-          type: type,
-        );
+      if (initialMessage != null) {
+        debugPrint("📩 App opened via notification (terminated state)");
+        debugPrint("📩 Data: ${initialMessage.data}");
+
+        final String screen = initialMessage.data['screen'] ?? '';
+        final String bookingId = initialMessage.data['booking_id'] ?? '';
+        final String type = initialMessage.data['type'] ?? '';
+
+        if (screen.isNotEmpty && bookingId.isNotEmpty) {
+          _pendingNotificationData = {
+            'screen': screen,
+            'booking_id': bookingId,
+            'type': type,
+          };
+          debugPrint("📩 Stored pending notification for splash to consume");
+        }
       }
+    } catch (e) {
+      debugPrint("❌ Error checking initial message: $e");
     }
   }
 
@@ -399,6 +421,40 @@ class PushNotificationService {
   //     duration: const Duration(seconds: 3),
   //   ).show(context);
   // }
+
+  // ── PENDING NOTIFICATION (terminated state) ──────────────────────────────
+  /// Returns true if the app was opened by tapping a notification
+  /// from terminated/killed state and hasn't been consumed yet.
+  static bool get hasPendingNotification => _pendingNotificationData != null;
+
+  /// Consumes the pending notification (if any) and navigates to the
+  /// appropriate screen. Call this from the splash screen AFTER auth checks
+  /// to ensure the notification navigation takes priority over default routing.
+  ///
+  /// Returns `true` if there was a pending notification and navigation was triggered.
+  static Future<bool> consumePendingNotification() async {
+    final data = _pendingNotificationData;
+    if (data == null) return false;
+
+    // Clear it so it's only consumed once
+    _pendingNotificationData = null;
+
+    final String screen = data['screen'] ?? '';
+    final String bookingId = data['booking_id'] ?? '';
+    final String type = data['type'] ?? '';
+
+    debugPrint("📩 Consuming pending notification: screen=$screen, bookingId=$bookingId, type=$type");
+
+    if (screen.isNotEmpty && bookingId.isNotEmpty) {
+      await navigateFromNotification(
+        screen: screen,
+        bookingId: bookingId,
+        type: type,
+      );
+      return true;
+    }
+    return false;
+  }
 
   // ── NAVIGATION ──────────────────────────────────────────────────────────────
   static Future<void> navigateFromNotification({

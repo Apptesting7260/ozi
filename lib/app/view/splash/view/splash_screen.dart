@@ -1,4 +1,5 @@
 import '../../../core/appExports/app_export.dart';
+import '../../../core/push notification/push_notification.dart';
 import '../../../data/storage/user_preference.dart';
 import '../../../modules/auth/vendor/signup/view/identity_verification_screen.dart';
 import '../../../modules/auth/vendor/signup/view/ready_to_go_livescreen.dart';
@@ -41,6 +42,15 @@ class _SplashScreenState extends State<SplashScreen> {
     bool isDocumentVerified =
         await UserPreference.returnIsDocumentVerified() ?? false;
 
+    // ── Check if app was opened by tapping a notification (killed state) ────
+    // This must be called before navigating, so we know whether to redirect.
+    // Try/catch because Firebase may still be initializing from background.
+    try {
+      await PushNotificationService.checkInitialMessage();
+    } catch (e) {
+      debugPrint("⚠️ Could not check initial message yet: $e");
+    }
+
     if (kDebugMode) {
       print("========== SPLASH AUTH INIT ==========");
       print("isLogin: $isLogin");
@@ -48,6 +58,9 @@ class _SplashScreenState extends State<SplashScreen> {
       print("step: $step");
       print("role: $role");
       print("userId: $userId");
+      print(
+        "hasPendingNotification: ${PushNotificationService.hasPendingNotification}",
+      );
       print("======================================");
     }
 
@@ -80,7 +93,6 @@ class _SplashScreenState extends State<SplashScreen> {
         String? phoneNumber = await UserPreference.returnMobile();
         bool isMobileVerified =
             await UserPreference.returnIsMobileVerified() ?? false;
-
 
         Navigator.pushReplacement(
           navigatorKey.currentContext!,
@@ -115,14 +127,22 @@ class _SplashScreenState extends State<SplashScreen> {
       } else if (step == '4' && role == 'vendor' && !isDocumentVerified) {
         Navigator.push(
           navigatorKey.currentContext!,
-          MaterialPageRoute(
-            builder: (_) => ReadyToGoLiveScreen(),
-          ),
+          MaterialPageRoute(builder: (_) => ReadyToGoLiveScreen()),
         );
-      }else {
-        loginWithSaveTokenRedirection(role, token);
+      } else {
+        // ── Check if there's a pending notification to navigate to ──────
+        if (PushNotificationService.hasPendingNotification) {
+          // User tapped a notification from killed state →
+          // Navigate directly to notification target (skips home screen)
+          debugPrint(
+            "📩 Splash: Pending notification found, navigating to target",
+          );
+          await PushNotificationService.consumePendingNotification();
+        } else {
+          // Normal flow → navigate to home screen
+          loginWithSaveTokenRedirection(role, token);
+        }
       }
-
     } else {
       Navigator.pushAndRemoveUntil(
         context,
@@ -147,7 +167,9 @@ class _SplashScreenState extends State<SplashScreen> {
     } else if (role == 'vendor') {
       Navigator.push(
         navigatorKey.currentContext!,
-        MaterialPageRoute(builder: (_) => VendorNavigationTabScreen()),
+        MaterialPageRoute(
+          builder: (_) => VendorNavigationTabScreen(initialIndex: 3),
+        ),
       );
     }
   }
