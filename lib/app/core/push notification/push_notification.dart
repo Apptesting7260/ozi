@@ -17,32 +17,36 @@ import '../utils/get_utils.dart';
 import '../../../firebase_options.dart';
 
 // ─── BACKGROUND HANDLER ──────────────────────────────────────────────────────
-// ⚠️  iOS IMPORTANT:
-//   On iOS, this handler runs in a SEPARATE background isolate.
-//   flutter_local_notifications CANNOT show notifications from a background
-//   isolate on iOS — Apple forbids it. The APNs system notification
-//   (sent by Firebase via your server payload) is what iOS users will see
-//   in background/terminated state. We only suppress it in foreground (step 2).
+// When the app is in background/terminated state and the server sends an FCM
+// message with a `notification` payload, Firebase's NATIVE Android SDK
+// automatically displays a system tray notification.
 //
-// ✅  Android:
-//   We CAN show a local notification from here. Firebase suppresses its own
-//   system tray notification when onBackgroundMessage is registered, so we
-//   must show one manually to ensure it appears.
+// ⚠️  DO NOT show any local notification here.
+//     If we call flutterLocalNotificationsPlugin.show() here, users will see
+//     TWO identical notifications — one from Firebase native + one from us.
+//
+// This handler exists ONLY for:
+//   • Logging / analytics
+//   • Updating local state (e.g., badge count, cache)
+//   • Processing data-only messages that need silent work
 @pragma('vm:entry-point')
 Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   log("Background Notification: ${message.notification?.body}");
+  log("Background Data: ${message.data}");
 
-  // Only show local notification on Android — iOS handles it via APNs system
-  if (!Platform.isIOS) {
-    await PushNotificationService.initLocalNotification();
-    await PushNotificationService.showNotification(
-      message.notification,
-      message.data,
-      messageId: message.messageId,
-    );
-  }
+  // ❌ Do NOT show a local notification here.
+  //    Firebase's native SDK already displays the notification
+  //    for background/terminated state when `notification` payload is present.
+  //
+  //    For data-only messages (message.notification == null), Firebase does NOT
+  //    auto-display — but if you need to show one, you can uncomment below:
+  //
+  // if (!Platform.isIOS && message.notification == null) {
+  //   await PushNotificationService.initLocalNotification();
+  //   await PushNotificationService.showNotificationFromData(message.data, message.messageId);
+  // }
 }
 
 // ─── BACKGROUND TAP HANDLER (Android only) ───────────────────────────────────
@@ -76,6 +80,10 @@ class PushNotificationService {
 
   static String? fcmToken;
   static String? apnsToken;
+
+  /// Stores notification data when app is launched from terminated state.
+  /// The splash screen should call [consumePendingNotification] to handle it.
+  static Map<String, dynamic>? _pendingNotificationData;
 
   static final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
       FlutterLocalNotificationsPlugin();
@@ -189,24 +197,42 @@ class PushNotificationService {
       debugPrint('APNs token: $token');
     }
 
-    // ── 9. App opened from terminated state ──────────────────────────────────
-    RemoteMessage? initialMessage = await FirebaseMessaging.instance
-        .getInitialMessage();
+    // ── 9. REMOVED — getInitialMessage is now handled by checkInitialMessage()
+    //    which the splash screen calls directly before navigating.
+  }
 
-    if (initialMessage != null) {
-      debugPrint("📩 App opened via notification (terminated state)");
+  /// Checks if the app was launched by tapping a notification from killed state.
+  /// Call this from the splash screen BEFORE navigating to detect pending
+  /// notification taps. This method awaits Firebase's getInitialMessage().
+  ///
+  /// Safe to call multiple times — it only stores data once.
+  static Future<void> checkInitialMessage() async {
+    try {
+      // Ensure Firebase is initialized (idempotent — safe to call again)
+      await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
-      final String screen = initialMessage.data['screen'] ?? '';
-      final String bookingId = initialMessage.data['booking_id'] ?? '';
-      final String type = initialMessage.data['type'] ?? '';
+      RemoteMessage? initialMessage = await FirebaseMessaging.instance
+          .getInitialMessage();
 
-      if (screen.isNotEmpty && bookingId.isNotEmpty) {
-        await navigateFromNotification(
-          screen: screen,
-          bookingId: bookingId,
-          type: type,
-        );
+      if (initialMessage != null) {
+        debugPrint("📩 App opened via notification (terminated state)");
+        debugPrint("📩 Data: ${initialMessage.data}");
+
+        final String screen = initialMessage.data['screen'] ?? '';
+        final String bookingId = initialMessage.data['booking_id'] ?? '';
+        final String type = initialMessage.data['type'] ?? '';
+
+        if (screen.isNotEmpty && bookingId.isNotEmpty) {
+          _pendingNotificationData = {
+            'screen': screen,
+            'booking_id': bookingId,
+            'type': type,
+          };
+          debugPrint("📩 Stored pending notification for splash to consume");
+        }
       }
+    } catch (e) {
+      debugPrint("❌ Error checking initial message: $e");
     }
   }
 
@@ -396,13 +422,47 @@ class PushNotificationService {
   //   ).show(context);
   // }
 
+  // ── PENDING NOTIFICATION (terminated state) ──────────────────────────────
+  /// Returns true if the app was opened by tapping a notification
+  /// from terminated/killed state and hasn't been consumed yet.
+  static bool get hasPendingNotification => _pendingNotificationData != null;
+
+  /// Consumes the pending notification (if any) and navigates to the
+  /// appropriate screen. Call this from the splash screen AFTER auth checks
+  /// to ensure the notification navigation takes priority over default routing.
+  ///
+  /// Returns `true` if there was a pending notification and navigation was triggered.
+  static Future<bool> consumePendingNotification() async {
+    final data = _pendingNotificationData;
+    if (data == null) return false;
+
+    // Clear it so it's only consumed once
+    _pendingNotificationData = null;
+
+    final String screen = data['screen'] ?? '';
+    final String bookingId = data['booking_id'] ?? '';
+    final String type = data['type'] ?? '';
+
+    debugPrint("📩 Consuming pending notification: screen=$screen, bookingId=$bookingId, type=$type");
+
+    if (screen.isNotEmpty && bookingId.isNotEmpty) {
+      await navigateFromNotification(
+        screen: screen,
+        bookingId: bookingId,
+        type: type,
+      );
+      return true;
+    }
+    return false;
+  }
+
   // ── NAVIGATION ──────────────────────────────────────────────────────────────
   static Future<void> navigateFromNotification({
     required String screen,
     required dynamic bookingId,
     required String type,
   }) async {
-    await Future.delayed(const Duration(milliseconds: 300));
+    await Future.delayed(const Duration(milliseconds: 500));
 
     final context = navigatorKey.currentContext;
     if (context == null) {
@@ -427,8 +487,13 @@ class PushNotificationService {
     String type,
     dynamic bookingId,
   ) {
-    final int tabIndex = switch (type) {
-      "booking_request" || "booking_confirm" || "booking_completed" => 1,
+    int tabIndex = switch (type) {
+      "booking_request" => 1,
+      "credit" => 2,
+      "booking_cancelled" => 1,
+      "booking_confirm" => 1,
+      "booking_completed" => 1,
+      "booking_rejected" => 1,
       _ => 0,
     };
 
@@ -446,11 +511,13 @@ class PushNotificationService {
     String type,
     dynamic bookingId,
   ) {
-    final int tabIndex = switch (type) {
-      "booking_confirm" ||
-      "booking_cancelled" ||
-      "booking_rejected" ||
+    int tabIndex = switch (type) {
+      "booking_confirm" => 2,
+      "booking_cancelled" => 2,
+      "booking_rejected" => 2,
       "booking_completed" => 2,
+      "booking_ongoing" => 2,
+      "booking_payment_failed" => 1,
       _ => 0,
     };
 

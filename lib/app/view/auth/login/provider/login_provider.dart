@@ -1,7 +1,4 @@
-import 'dart:async';
-
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:intl/intl.dart';
 import 'package:ozi/app/core/appExports/app_export.dart';
@@ -14,6 +11,7 @@ import 'package:ozi/app/modules/auth/vendor/signup/view/set_availability.dart';
 import 'package:ozi/app/modules/user/navigation%20tab/view/navigation_tab_screen.dart';
 import 'package:ozi/app/modules/vendor/navigation%20tab/view/vendor_navigation_tab_screen.dart';
 import 'package:ozi/app/shared/widgets/customoverlayloader.dart';
+import 'package:ozi/app/view/auth/login/view/contact_to_admin.dart';
 import 'package:ozi/app/view/user_role/choose_your_role/view/choose_role.dart';
 import '../../../../core/device info/get_device_Info.dart';
 import '../../../../data/Exception/app_exceptions.dart';
@@ -345,24 +343,38 @@ class LoginProvider extends ChangeNotifier {
 
       final response = await Repository().accountChecker(body);
 
-      final isDeleted = response.data?.isDeleted == true;
-      final canRestore = response.data?.canRestore == true;
+      if (response.status == false) {
+        final isDeleted = response.data?.isDeleted == true;
+        final canRestore = response.data?.canRestore == true;
 
-      if (isDeleted) {
-        if (canRestore) {
-          _setLoading(false);
-
-          final bool? restore = await showAccountCheckerPopupOtp(context);
-
-          if (restore != true) {
-            restoreCancelled = true;
+        if (isDeleted) {
+          if (canRestore) {
+            _setLoading(false);
+            final bool? restore = await showAccountCheckerPopupOtp(context);
+            if (restore != true) {
+              restoreCancelled = true;
+              return false;
+            }
+            return await sendOtp("+$regionCode$phone");
+          } else {
+            _setLoading(false);
+            restoreCancelled = true; // Prevent default toast in LoginScreen
+            await showAccountDeletedAdminPopup(
+              response.message ??
+                  "Account deleted by admin. Please contact admin.",
+              context,
+            );
             return false;
           }
-
-          return await sendOtp("+$regionCode$phone");
         }
 
-        errorMessageFirebase = response.message ?? "Account deleted";
+        // Generic error
+        _setLoading(false);
+        restoreCancelled = true;
+        Get.showToast(
+          response.message ?? "Something went wrong",
+          type: ToastType.error,
+        );
         return false;
       }
 
@@ -372,6 +384,7 @@ class LoginProvider extends ChangeNotifier {
         print("HANDLE CONTINUE ERROR: $e");
       }
 
+      restoreCancelled = true;
       Get.showToast(
         "Something went wrong. Please try again.",
         type: ToastType.warning,
@@ -629,6 +642,15 @@ class LoginProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  bool _issocialLoader = false;
+
+  bool get issocialLoader => _issocialLoader;
+
+  updateSocialLoading(bool value) {
+    _issocialLoader = value;
+    notifyListeners();
+  }
+
   Future<void> checkSocialUserApi(
     BuildContext context,
     String googleId,
@@ -639,6 +661,7 @@ class LoginProvider extends ChangeNotifier {
     String lastName,
   ) async {
     try {
+      updateSocialLoading(true);
       print("account is deleted. checking user");
       final value = await _repository.checkSocialUser(googleId, email);
 
@@ -670,17 +693,21 @@ class LoginProvider extends ChangeNotifier {
           email,
         );
       }
+      updateSocialLoading(false);
     } catch (e) {
+      updateSocialLoading(false);
+      CustomOverlayLoader.hide();
       print("error in checkSocialUserApi: $e");
-      socialLoginApi(
-        context,
-        idToken,
-        googleId,
-        utcTime,
-        firstName,
-        lastName,
-        email,
-      );
+      showAccountDeletedAdminPopup(e.toString(), context);
+      // socialLoginApi(
+      //   context,
+      //   idToken,
+      //   googleId,
+      //   utcTime,
+      //   firstName,
+      //   lastName,
+      //   email,
+      // );
       debugPrint('Error in checkSocialUserApi: $e');
     }
   }
@@ -765,6 +792,7 @@ class LoginProvider extends ChangeNotifier {
                       Expanded(
                         child: GestureDetector(
                           onTap: () async {
+                            Navigator.pop(context);
                             socialLoginApi(
                               context,
                               idToken,
@@ -788,6 +816,124 @@ class LoginProvider extends ChangeNotifier {
                                 Color.fromRGBO(255, 255, 255, 1),
                               ),
                             ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Future<bool?> showAccountDeletedAdminPopup(
+    String errorMessage,
+    BuildContext context,
+  ) async {
+    return await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        return WillPopScope(
+          onWillPop: () async => false,
+          child: Dialog(
+            insetPadding: const EdgeInsets.symmetric(horizontal: 24),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(24),
+            ),
+            child: Container(
+              // width: 340,
+              // height: 257,
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 28),
+              // margin: EdgeInsets.all(15),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(24),
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    'Account Deleted',
+                    textAlign: TextAlign.center,
+                    style: AppFontStyle.text_22_600(
+                      Color.fromRGBO(28, 29, 33, 1),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    maxLines: 3,
+                    errorMessage
+                        .replaceAll('Exception:', '')
+                        .replaceAll('Exception', '')
+                        .trim(),
+                    textAlign: TextAlign.center,
+                    style: AppFontStyle.text_16_300(
+                      Color.fromRGBO(112, 108, 108, 1),
+                    ),
+                  ),
+                  const SizedBox(height: 28),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: GestureDetector(
+                          onTap: () {
+                            Navigator.pop(context, false);
+                            Get.showToast(
+                              "You can not continue with this account because it was deleted by admin.",
+
+                              type: ToastType.warning,
+                            );
+                          },
+                          child: Container(
+                            height: 48,
+                            alignment: Alignment.center,
+                            decoration: BoxDecoration(
+                              color: Colors.transparent,
+                              borderRadius: BorderRadius.circular(30),
+                              border: Border.all(color: Colors.grey.shade400),
+                            ),
+                            child: Text(
+                              'Cancel',
+                              style: AppFontStyle.text_16_600(
+                                Color.fromRGBO(112, 108, 108, 1),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: GestureDetector(
+                          onTap: () async {
+                            Navigator.pop(context);
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const ContactToAdmin(),
+                              ),
+                            );
+                          },
+                          child: Container(
+                            height: 48,
+                            padding: EdgeInsets.symmetric(horizontal: 10),
+                            alignment: Alignment.center,
+                            decoration: BoxDecoration(
+                              color: AppColors.primary,
+                              borderRadius: BorderRadius.circular(30),
+                            ),
+                            child: issocialLoader
+                                ? CircularProgressIndicator(color: Colors.white)
+                                : Text(
+                                    'Contact to admin',
+                                    maxLines: 2,
+                                    style: AppFontStyle.text_14_600(
+                                      Color.fromRGBO(255, 255, 255, 1),
+                                    ),
+                                  ),
                           ),
                         ),
                       ),

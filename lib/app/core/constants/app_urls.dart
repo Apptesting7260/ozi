@@ -7,7 +7,8 @@ class AppUrls {
   static const String guestUser = "$baseUrl/guest-login";
   static const String socialLogin = "$baseUrl/social-login";
   static const String verification = "$baseUrl/verify-otp";
-  static const String documentStatusCheck = "$baseUrl/get-vendorDoc-verified-status";
+  static const String documentStatusCheck =
+      "$baseUrl/get-vendorDoc-verified-status";
   static const String verificationFirebase = "$baseUrl/verify-otp-firebase";
   static const String chooseRole = "$baseUrl/select-user-role";
   static const String completeRegistration = "$baseUrl/complete-registration";
@@ -60,6 +61,7 @@ class AppUrls {
   static const String fetchLatLong = "$baseUrl/get-vendor-location";
   static const String checkMobileExists = "$baseUrl/check-mobile-exists";
   static const String checkSocialUser = "$baseUrl/check-social-user";
+  static const String admindltApi = "$baseUrl/account-restore-request";
   // Vendor APIs
   static const String getAllCategories = "$baseUrl/get-all-categories";
   static const String saveCategoryForVendor = "$baseUrl/vendor-categories";
