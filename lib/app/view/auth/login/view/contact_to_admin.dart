@@ -4,7 +4,9 @@ import 'package:ozi/app/core/constants/image_constant.dart';
 import 'package:ozi/app/core/utils/get_utils.dart';
 import 'package:ozi/app/core/utils/sizedBox.dart';
 import 'package:ozi/app/shared/widgets/auth_guard.dart';
+import 'package:ozi/app/shared/widgets/custom_app_bar.dart';
 import 'package:ozi/app/shared/widgets/custom_text_form_field.dart';
+import 'package:ozi/app/view/auth/login/provider/contact_provider.dart';
 
 class ContactToAdmin extends StatefulWidget {
   const ContactToAdmin({super.key});
@@ -14,129 +16,79 @@ class ContactToAdmin extends StatefulWidget {
 }
 
 class _ContactToAdminState extends State<ContactToAdmin> {
+  ContactProvider provider = ContactProvider();
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+
   @override
   Widget build(BuildContext context) {
-    return const Scaffold();
+    return Scaffold(
+      appBar: CustomAppBar(title: "Contact To Admin"),
+      body: SafeArea(
+        child: ChangeNotifierProvider.value(
+          value: provider,
+          child: _supportWidget(context, provider),
+        ),
+      ),
+    );
   }
 
-  Widget _supportWidget(BuildContext context, HelpUserProvider provider) {
+  Widget _supportWidget(BuildContext context, ContactProvider provider) {
     // final contact = provider.contactInfo;
-    return SingleChildScrollView(
-      padding: REdgeInsets.symmetric(horizontal: 16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _inputBox("Full Name", "Enter full name", _emailController),
-          hBox(16),
-          _inputBox("Email Address", "Enter email address", _emailController),
-          hBox(16),
-
-          _inputBox("Subject", "Enter your subject", _subjectController),
-          hBox(16),
-
-          _largeInput("Message", "Write your message...", _messageController),
-          hBox(16),
-
-          CustomButton(
-            text: provider.isLoading ? "Sending..." : "Send Message",
-            onPressed: provider.isLoading
-                ? null
-                : () async {
-                    final bool allowed = await AuthGuard.requireLogin(context);
-
-                    if (!allowed) return;
-
-                    if (_emailController.text.trim().isEmpty ||
-                        _subjectController.text.trim().isEmpty ||
-                        _messageController.text.trim().isEmpty) {
-                      Get.showToast(
-                        "Please fill all fields",
-                        type: ToastType.error,
-                      );
-                      return;
+    return Consumer<ContactProvider>(
+      builder: (context, provider, child) {
+        return SingleChildScrollView(
+          padding: REdgeInsets.symmetric(horizontal: 16),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _inputBox(
+                  "Full Name",
+                  "Enter full name",
+                  provider.nameController,
+                ),
+                hBox(16),
+                _inputBox(
+                  "Email Address",
+                  "Enter email address",
+                  provider.emailController,
+                ),
+                hBox(16),
+                _inputBox(
+                  "Subject",
+                  "Enter your subject",
+                  provider.subjectController,
+                ),
+                hBox(16),
+                _largeInput(
+                  "Message",
+                  "Write your message...",
+                  provider.messageController,
+                ),
+                hBox(16),
+                CustomButton(
+                  isLoading: provider.isLoading,
+                  text: "Send Message",
+                  onPressed: () {
+                    if (_formKey.currentState!.validate()) {
+                      provider.sendToAdmin({
+                        "full_name": provider.nameController.text.trim(),
+                        "email": provider.emailController.text.trim(),
+                        "subject": provider.subjectController.text.trim(),
+                        "message": provider.messageController.text.trim(),
+                      }, context);
                     }
-
-                    if (!Get.isValidEmail(_emailController.text.trim())) {
-                      Get.showToast(
-                        "Please enter a valid email address",
-                        type: ToastType.error,
-                      );
-                      return;
-                    }
-
-                    provider.sendSupportMessage(
-                      email: _emailController.text.trim(),
-                      subject: _subjectController.text.trim(),
-                      message: _messageController.text.trim(),
-                    );
                   },
-            height: 50,
-            borderRadius: BorderRadius.circular(60),
+                  height: 50,
+                  borderRadius: BorderRadius.circular(60),
+                ),
+                hBox(24),
+              ],
+            ),
           ),
-
-          hBox(24),
-
-          Text(
-            "Quick Actions",
-            style: AppFontStyle.text_16_600(AppColors.darkText),
-          ),
-
-          hBox(12),
-          // if (contact?.callUs != null)
-          _quickActionCard(
-            imagePath: ImageConstants.call,
-            title: "Call Us",
-            subtitle: provider.helpModel?.actions?.callUs.toString() ?? "",
-            buttonText: "Call Now",
-            onTap: () async {
-              final bool allowed = await AuthGuard.requireLogin(context);
-
-              if (!allowed) return;
-
-              Get.dialCall(
-                provider.helpModel?.actions?.callUs.toString() ?? "",
-              );
-            },
-          ),
-
-          // _quickActionCard(
-          //   imagePath: ImageConstants.call,
-          //   title: "Call Us",
-          //   subtitle: provider.helpModel?.data?[0].callUs.toString() ?? "",
-          //   buttonText: "Call Now",
-          //   onTap: () {
-          //     if (provider.helpModel?.data?[0].callUs != null) {
-          //       Get.dialCall(provider.helpModel!.data![0].callUs!.toString());
-          //     }
-          //   },
-          // ),
-          hBox(12),
-
-          _quickActionCard(
-            imagePath: ImageConstants.mail,
-            title: "Email Us",
-            subtitle: provider.helpModel?.actions?.emailUs ?? "",
-            buttonText: "Send Email",
-            onTap: () async {
-              final bool allowed = await AuthGuard.requireLogin(context);
-
-              if (!allowed) return;
-
-              final email = provider.helpModel?.actions?.emailUs?.trim();
-              if (email != null && email.isNotEmpty) {
-                Get.sendEmail(email);
-              } else {
-                Get.showToast(
-                  "Email address not available",
-                  type: ToastType.error,
-                );
-              }
-            },
-          ),
-
-          hBox(40),
-        ],
-      ),
+        );
+      },
     );
   }
 
@@ -169,71 +121,6 @@ class _ContactToAdminState extends State<ContactToAdmin> {
         }
         return null;
       },
-    );
-  }
-
-  Widget _quickActionCard({
-    required String imagePath,
-    required String title,
-    required String subtitle,
-    required String buttonText,
-    required VoidCallback onTap,
-  }) {
-    return Container(
-      padding: EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: AppColors.primary.withOpacity(0.08),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Row(
-        children: [
-          /// ICON CONTAINER
-          Container(
-            height: 40,
-            width: 40,
-            decoration: BoxDecoration(
-              color: AppColors.white,
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Center(
-              child: CustomImage(path: imagePath, color: AppColors.primary),
-            ),
-          ),
-
-          SizedBox(width: 12),
-
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: AppFontStyle.text_14_600(AppColors.darkText),
-                ),
-                SizedBox(height: 2),
-                Text(subtitle, style: AppFontStyle.text_12_400(AppColors.grey)),
-              ],
-            ),
-          ),
-
-          SizedBox(width: 8),
-
-          GestureDetector(
-            onTap: onTap,
-            child: Container(
-              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              decoration: BoxDecoration(
-                color: AppColors.primary,
-                borderRadius: BorderRadius.circular(30),
-              ),
-              child: Text(
-                buttonText,
-                style: AppFontStyle.text_12_600(Colors.white),
-              ),
-            ),
-          ),
-        ],
-      ),
     );
   }
 

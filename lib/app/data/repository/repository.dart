@@ -66,21 +66,17 @@ class Repository {
     }
   }
 
-  Future<DocumentStatusModel> documentStatusCheck ()async
-  {
-  try{
-    final url = AppUrls.documentStatusCheck;
-    dynamic response = await _apiService.getApi(
-      url
-    );
-    return DocumentStatusModel.fromJson(response);
-  }
-  catch(e)
-    {
+  Future<DocumentStatusModel> documentStatusCheck() async {
+    try {
+      final url = AppUrls.documentStatusCheck;
+      dynamic response = await _apiService.getApi(url);
+      return DocumentStatusModel.fromJson(response);
+    } catch (e) {
       throw Exception(e);
     }
   }
-   //************************************************** Verification API **************************************************//
+
+  //************************************************** Verification API **************************************************//
   Future<VerifyOtp> verificationUser(Map<String, dynamic> data) async {
     try {
       dynamic response = await _apiService.postApiWithoutToken(
@@ -600,6 +596,23 @@ class Repository {
       return response;
     } catch (e) {
       dev.log('Error in decreaseCartItemApi: $e');
+      throw Exception(e);
+    }
+  }
+
+  Future<dynamic> sendToAdminApi(Map<String, String> fields) async {
+    try {
+      final url = AppUrls.admindltApi;
+
+      dev.log('sendToAdminApi URL: $url');
+
+      dynamic response = await _apiService.postApi(fields, url);
+
+      dev.log('sendToAdminApi Raw Response: $response');
+
+      return response;
+    } catch (e) {
+      dev.log('Error in sendToAdminApi: $e');
       throw Exception(e);
     }
   }

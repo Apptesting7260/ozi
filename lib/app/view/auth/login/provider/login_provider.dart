@@ -1,7 +1,4 @@
-import 'dart:async';
-
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:intl/intl.dart';
 import 'package:ozi/app/core/appExports/app_export.dart';
@@ -14,6 +11,7 @@ import 'package:ozi/app/modules/auth/vendor/signup/view/set_availability.dart';
 import 'package:ozi/app/modules/user/navigation%20tab/view/navigation_tab_screen.dart';
 import 'package:ozi/app/modules/vendor/navigation%20tab/view/vendor_navigation_tab_screen.dart';
 import 'package:ozi/app/shared/widgets/customoverlayloader.dart';
+import 'package:ozi/app/view/auth/login/view/contact_to_admin.dart';
 import 'package:ozi/app/view/user_role/choose_your_role/view/choose_role.dart';
 import '../../../../core/device info/get_device_Info.dart';
 import '../../../../data/Exception/app_exceptions.dart';
@@ -345,24 +343,38 @@ class LoginProvider extends ChangeNotifier {
 
       final response = await Repository().accountChecker(body);
 
-      final isDeleted = response.data?.isDeleted == true;
-      final canRestore = response.data?.canRestore == true;
+      if (response.status == false) {
+        final isDeleted = response.data?.isDeleted == true;
+        final canRestore = response.data?.canRestore == true;
 
-      if (isDeleted) {
-        if (canRestore) {
-          _setLoading(false);
-
-          final bool? restore = await showAccountCheckerPopupOtp(context);
-
-          if (restore != true) {
-            restoreCancelled = true;
+        if (isDeleted) {
+          if (canRestore) {
+            _setLoading(false);
+            final bool? restore = await showAccountCheckerPopupOtp(context);
+            if (restore != true) {
+              restoreCancelled = true;
+              return false;
+            }
+            return await sendOtp("+$regionCode$phone");
+          } else {
+            _setLoading(false);
+            restoreCancelled = true; // Prevent default toast in LoginScreen
+            await showAccountDeletedAdminPopup(
+              response.message ??
+                  "Account deleted by admin. Please contact admin.",
+              context,
+            );
             return false;
           }
-
-          return await sendOtp("+$regionCode$phone");
         }
 
-        errorMessageFirebase = response.message ?? "Account deleted";
+        // Generic error
+        _setLoading(false);
+        restoreCancelled = true;
+        Get.showToast(
+          response.message ?? "Something went wrong",
+          type: ToastType.error,
+        );
         return false;
       }
 
@@ -372,6 +384,7 @@ class LoginProvider extends ChangeNotifier {
         print("HANDLE CONTINUE ERROR: $e");
       }
 
+      restoreCancelled = true;
       Get.showToast(
         "Something went wrong. Please try again.",
         type: ToastType.warning,
@@ -629,6 +642,15 @@ class LoginProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  bool _issocialLoader = false;
+
+  bool get issocialLoader => _issocialLoader;
+
+  updateSocialLoading(bool value) {
+    _issocialLoader = value;
+    notifyListeners();
+  }
+
   Future<void> checkSocialUserApi(
     BuildContext context,
     String googleId,
@@ -639,6 +661,7 @@ class LoginProvider extends ChangeNotifier {
     String lastName,
   ) async {
     try {
+      updateSocialLoading(true);
       print("account is deleted. checking user");
       final value = await _repository.checkSocialUser(googleId, email);
 
@@ -670,7 +693,9 @@ class LoginProvider extends ChangeNotifier {
           email,
         );
       }
+      updateSocialLoading(false);
     } catch (e) {
+      updateSocialLoading(false);
       CustomOverlayLoader.hide();
       print("error in checkSocialUserApi: $e");
       showAccountDeletedAdminPopup(e.toString(), context);
@@ -767,6 +792,7 @@ class LoginProvider extends ChangeNotifier {
                       Expanded(
                         child: GestureDetector(
                           onTap: () async {
+                            Navigator.pop(context);
                             socialLoginApi(
                               context,
                               idToken,
@@ -883,15 +909,13 @@ class LoginProvider extends ChangeNotifier {
                       Expanded(
                         child: GestureDetector(
                           onTap: () async {
-                            // socialLoginApi(
-                            //   context,
-                            //   idToken,
-                            //   googleId,
-                            //   utcTime,
-                            //   firstName,
-                            //   lastName,
-                            //   email,
-                            // );
+                            Navigator.pop(context);
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const ContactToAdmin(),
+                              ),
+                            );
                           },
                           child: Container(
                             height: 48,
@@ -901,13 +925,15 @@ class LoginProvider extends ChangeNotifier {
                               color: AppColors.primary,
                               borderRadius: BorderRadius.circular(30),
                             ),
-                            child: Text(
-                              'Contact to admin',
-                              maxLines: 2,
-                              style: AppFontStyle.text_14_600(
-                                Color.fromRGBO(255, 255, 255, 1),
-                              ),
-                            ),
+                            child: issocialLoader
+                                ? CircularProgressIndicator(color: Colors.white)
+                                : Text(
+                                    'Contact to admin',
+                                    maxLines: 2,
+                                    style: AppFontStyle.text_14_600(
+                                      Color.fromRGBO(255, 255, 255, 1),
+                                    ),
+                                  ),
                           ),
                         ),
                       ),
