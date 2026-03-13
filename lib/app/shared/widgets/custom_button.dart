@@ -10,6 +10,7 @@ class CustomButton extends StatelessWidget {
   final Color? forGroundColor;
   final VoidCallback? onPressed;
   final Widget? child;
+  final Widget? prefixIcon;
   final bool? isLoading;
   final String text;
   final TextStyle? textStyle;
@@ -26,6 +27,7 @@ class CustomButton extends StatelessWidget {
     this.forGroundColor,
     required this.onPressed,
     this.child,
+    this.prefixIcon,
     this.isLoading,
     this.text = "",
     this.textStyle,
@@ -67,23 +69,30 @@ class CustomButton extends StatelessWidget {
             width: 1,
           ),
         ),
-        child:
-            child ??
+        child: child ??
             (isLoading == true
                 ? LoadingAnimationWidget.threeArchedCircle(
-                    color: forGroundColor ?? AppColors.white,
-                    size: 30,
-                  )
-                : Text(
-                    text,
-                    style:
-                        textStyle ??
-                        AppFontStyle.text_14_600(
-                          effectiveTextColor,
-                          fontFamily: AppFontFamily.semiBold,
-                        ),
-                    textAlign: TextAlign.center,
-                  )),
+              color: forGroundColor ?? AppColors.white,
+              size: 30,
+            )
+                : Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                if (prefixIcon != null) ...[
+                  prefixIcon!,
+                  const SizedBox(width: 8),
+                ],
+                Text(
+                  text,
+                  style: textStyle ??
+                      AppFontStyle.text_14_600(
+                        effectiveTextColor,
+                        fontFamily: AppFontFamily.semiBold,
+                      ),
+                  textAlign: TextAlign.center,
+                ),
+              ],
+            )),
       ),
     );
   }

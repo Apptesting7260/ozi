@@ -5,13 +5,10 @@ import '../../../../core/constants/app_urls.dart';
 import '../../../../data/models/vendor_home_model.dart';
 import '../../../../data/network/network_api_services.dart';
 import '../../../../data/response/api_response.dart';
+import '../../../../data/storage/user_preference.dart';
 
 class VendorHomeProvider extends ChangeNotifier {
   final NetworkApiServices _apiService = NetworkApiServices();
-
-  // VendorHomeProvider() {
-  //   getHomeData();
-  // }
 
   ApiResponse<VendorHomeModel> _homeModel = ApiResponse.loading();
 
@@ -33,6 +30,14 @@ class VendorHomeProvider extends ChangeNotifier {
 
     try {
       final response = await _apiService.getApi(AppUrls.vendorHome);
+
+      await UserPreference.saveIsDocumentVerified(response['vendor_status']['verified_by_admin'] ?? false);
+
+      if (kDebugMode) {
+        print(response);
+        final savedUserId = await UserPreference.returnIsDocumentVerified();
+        print("IsDocumentVerified :  $savedUserId");
+      }
 
       if (kDebugMode) {
         print(response);

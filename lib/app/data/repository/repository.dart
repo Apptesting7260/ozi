@@ -1,5 +1,6 @@
 import 'dart:developer' as dev;
 import 'package:ozi/app/data/models/vendorservicedetailmodel.dart';
+import 'package:ozi/app/modules/auth/vendor/signup/model/document_verify_check_model.dart';
 import 'package:ozi/app/modules/user/Reviews%20Section/model/reviewmodel.dart';
 import 'package:ozi/app/modules/user/booking/model/bookingdetailsmodel.dart'
     as details;
@@ -65,7 +66,21 @@ class Repository {
     }
   }
 
-  //************************************************** Verification API **************************************************//
+  Future<DocumentStatusModel> documentStatusCheck ()async
+  {
+  try{
+    final url = AppUrls.documentStatusCheck;
+    dynamic response = await _apiService.getApi(
+      url
+    );
+    return DocumentStatusModel.fromJson(response);
+  }
+  catch(e)
+    {
+      throw Exception(e);
+    }
+  }
+   //************************************************** Verification API **************************************************//
   Future<VerifyOtp> verificationUser(Map<String, dynamic> data) async {
     try {
       dynamic response = await _apiService.postApiWithoutToken(

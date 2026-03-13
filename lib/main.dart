@@ -16,6 +16,7 @@ import 'package:webview_flutter_wkwebview/webview_flutter_wkwebview.dart';
 import 'app/core/appExports/app_export.dart';
 import 'app/core/push notification/push_notification.dart';
 import 'app/data/network/web_socket_connection_service.dart';
+import 'app/modules/auth/vendor/signup/provider/ready_to_go_livescreen_provider.dart';
 import 'app/modules/user/home/provider/HomeScreenProvider.dart';
 import 'app/modules/user/navigation tab/provider/navigation_provider.dart';
 import 'app/modules/user/profile/address map/provider/location_picker_provider.dart';
@@ -123,6 +124,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => ChangeAddressProvider()),
         ChangeNotifierProvider(create: (_) => LocationPickerProvider()),
         ChangeNotifierProvider(create: (_) => VendorNotificationProvider()),
+        ChangeNotifierProvider(create: (_) => ReadyToGoLivescreenProvider()..getDocumentStatus()),
         ChangeNotifierProvider(
           create: (_) => AuthGuestProvider()..loadStatus(),
         ),

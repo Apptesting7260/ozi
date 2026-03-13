@@ -37,6 +37,16 @@ class UserPreference {
     await saveIsLoggedIn(value);
   }
 
+  static saveIsDocumentVerified(bool value) async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    pref.setBool("isDocumentVerified", value);
+  }
+
+  static Future<bool?> returnIsDocumentVerified() async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    return pref.getBool("isDocumentVerified");
+  }
+
   static Future<bool?> returnIsLoggedIn() async {
     SharedPreferences pref = await SharedPreferences.getInstance();
     bool? isLoggedIn = pref.getBool("isLoggedIn");
@@ -166,5 +176,6 @@ class UserPreference {
     pref.remove('isMobileVerified');
     pref.remove('isRoleSelected');
     pref.remove('location_consent');
+    pref.remove('isDocumentVerified');
   }
 }
