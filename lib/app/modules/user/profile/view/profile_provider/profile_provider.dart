@@ -54,7 +54,11 @@ class ProfileProvider extends ChangeNotifier {
           Navigator.pushNamedAndRemoveUntil(
             context,
             AppRoutes.splashScreen,
-                (route) => false,
+            (route) => false,
+          );
+          Get.showToast(
+            response.message ?? 'Logout successfully',
+            type: ToastType.success,
           );
         }
       } else {

@@ -14,6 +14,9 @@ class Settingprovider with ChangeNotifier {
   settingsModel? get settingsData => _settingsModel;
 
   Future<void> settingsApi() async {
+    final role = await UserPreference.returnRole();
+    if (role == "guest") return;
+
     _isLoading = true;
     notifyListeners();
     try {

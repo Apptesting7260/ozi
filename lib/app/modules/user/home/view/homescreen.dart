@@ -14,6 +14,7 @@ import '../../../vendor/home/notification/provider/vendor_ notification_provider
 import '../../profile/view/profile_provider/profile_provider.dart';
 import '../model/category_model.dart';
 import '../provider/HomeScreenProvider.dart';
+import '../../profile/setting/provider/settingprovider.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -31,6 +32,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       if (mounted) {
         context.read<AuthGuestProvider>().loadStatus();
         context.read<ProfileProvider>().fetchUserProfile();
+        context.read<Settingprovider>().settingsApi();
         context.read<HomeScreenProvider>().loadOnce(context);
       }
     });
@@ -71,7 +73,9 @@ class HomeScreenView extends StatelessWidget {
         child: RefreshIndicator(
           onRefresh: () => provider.refreshData(),
           child: SingleChildScrollView(
-            // physics: BouncingScrollPhysics(),
+            physics: const AlwaysScrollableScrollPhysics(
+              parent: BouncingScrollPhysics(),
+            ),
             child: Padding(
               padding: EdgeInsets.all(20.0),
               child: Column(

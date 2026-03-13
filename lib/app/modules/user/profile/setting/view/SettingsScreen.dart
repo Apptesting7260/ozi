@@ -20,111 +20,110 @@ class _SettingsScreenState extends State<SettingsScreen> {
   // String privacyUrl =
   //     "https://www.iubenda.com/en/help/2859-terms-and-conditions-when-are-they-needed";
 
-  Settingprovider provider = Settingprovider();
   @override
   void initState() {
     super.initState();
-    provider.settingsApi();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        context.read<Settingprovider>().settingsApi();
+      }
+    });
   }
 
   @override
   Widget build(BuildContext context) {
+    final provider = context.watch<Settingprovider>();
     return Scaffold(
-      body: ChangeNotifierProvider.value(
-        value: provider,
-        child: Consumer<Settingprovider>(
-          builder: (context, provider, child) {
-            return Column(
+      body: Column(
+        children: [
+          CustomAppBar(title: "Settings"),
+
+          Expanded(
+            child: ListView(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
               children: [
-                CustomAppBar(title: "Settings"),
+                hBox(18),
 
-                Expanded(
-                  child: ListView(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    children: [
-                      hBox(18),
-
-                      _settingsTile(
-                        icon: ImageConstants.bell,
-                        title: "Push Notifications",
-                        toggle: true,
-                        notificationType: 'push',
-                      ),
-
-                      _settingsTile(
-                        icon: ImageConstants.email,
-                        title: "Email Notifications",
-                        toggle: true,
-                        notificationType: 'email',
-                      ),
-
-                      _settingsTile(
-                        icon: ImageConstants.lock,
-                        title: "Login Details",
-                        showArrow: true,
-                        onTap: () {
-                          Navigator.pushNamed(context, AppRoutes.loginDetails);
-                        },
-                      ),
-
-                      _settingsTile(
-                        icon: ImageConstants.document,
-                        title: "Terms & Conditions",
-                        showArrow: true,
-                        onTap: () {
-                          final url =
-                              provider.settingsData?.data?.termsUrl ?? "";
-
-                          Navigator.pushNamed(
-                            context,
-                            AppRoutes.commonScreen,
-                            arguments: CommonScreenArgs(
-                              type: "Terms & Conditions ",
-                              url: url,
-                            ),
-                          );
-                        },
-                      ),
-
-                      _settingsTile(
-                        icon: ImageConstants.document,
-                        title: "Privacy Policy",
-                        showArrow: true,
-                        onTap: () async {
-                          // final url =
-                          //     provider.settingsData?.data?.privacyUrl ?? "";
-                          // print("Launching URL: $url");
-                          // if (url.isNotEmpty) {
-                          //   final uri = Uri.parse(url);
-                          //   if (!await launchUrl(
-                          //     uri,
-                          //     mode: LaunchMode.externalApplication,
-                          //   )) {
-                          //     print("Could not launch $url");
-                          //   }
-                          // }
-                          final url =
-                              provider.settingsData?.data?.privacyUrl ?? "";
-
-                          Navigator.pushNamed(
-                            context,
-                            AppRoutes.commonScreen,
-                            arguments: CommonScreenArgs(
-                              type: "Privacy Policy",
-                              url: url,
-                            ),
-                          );
-                        },
-                      ),
-
-                      _deleteTile(),
-                    ],
-                  ),
+                _settingsTile(
+                  icon: ImageConstants.bell,
+                  title: "Push Notifications",
+                  toggle: true,
+                  notificationType: 'push',
+                  provider: provider,
                 ),
+
+                _settingsTile(
+                  icon: ImageConstants.email,
+                  title: "Email Notifications",
+                  toggle: true,
+                  notificationType: 'email',
+                  provider: provider,
+                ),
+
+                _settingsTile(
+                  icon: ImageConstants.lock,
+                  title: "Login Details",
+                  showArrow: true,
+                  onTap: () {
+                    Navigator.pushNamed(context, AppRoutes.loginDetails);
+                  },
+                ),
+
+                _settingsTile(
+                  icon: ImageConstants.document,
+                  title: "Terms & Conditions",
+                  showArrow: true,
+                  onTap: () {
+                    final url =
+                        provider.settingsData?.data?.termsUrl ?? "";
+
+                    Navigator.pushNamed(
+                      context,
+                      AppRoutes.commonScreen,
+                      arguments: CommonScreenArgs(
+                        type: "Terms & Conditions ",
+                        url: url,
+                      ),
+                    );
+                  },
+                ),
+
+                _settingsTile(
+                  icon: ImageConstants.document,
+                  title: "Privacy Policy",
+                  showArrow: true,
+                  onTap: () async {
+                    // final url =
+                    //     provider.settingsData?.data?.privacyUrl ?? "";
+                    // print("Launching URL: $url");
+                    // if (url.isNotEmpty) {
+                    //   final uri = Uri.parse(url);
+                    //   if (!await launchUrl(
+                    //     uri,
+                    //     mode: LaunchMode.externalApplication,
+                    //   )) {
+                    //     print("Could not launch $url");
+                    //   }
+                    // }
+                    final url =
+                        provider.settingsData?.data?.privacyUrl ?? "";
+
+                    Navigator.pushNamed(
+                      context,
+                      AppRoutes.commonScreen,
+                      arguments: CommonScreenArgs(
+                        type: "Privacy Policy",
+                        url: url,
+                      ),
+                    );
+                  },
+                ),
+
+                _deleteTile(provider),
               ],
-            );
-          },
-        ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -140,6 +139,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     bool showArrow = false,
     VoidCallback? onTap,
     String? notificationType,
+    Settingprovider? provider,
   }) {
     return GestureDetector(
       onTap: onTap,
@@ -167,7 +167,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
             ),
 
-            if (toggle)
+            if (toggle && provider != null)
               CustomToggleSwitch(
                 value: notificationType == 'push'
                     ? provider.settingsData?.data?.isNotificationOn ?? false
@@ -175,15 +175,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 onChanged: (val) {
                   if (notificationType == 'push') {
                     provider.updateNotificationApi(context, pushValue: val);
-                    setState(
-                      () => provider.settingsData?.data?.isNotificationOn = val,
-                    );
                   } else {
                     provider.updateNotificationApi(context, emailValue: val);
-                    setState(
-                      () =>
-                          provider.settingsData?.data?.emailnotification = val,
-                    );
                   }
                 },
               ),
@@ -199,10 +192,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
   // DELETE TILE
   // --------------------------------------------------------------------------
 
-  Widget _deleteTile() {
+  Widget _deleteTile(Settingprovider provider) {
     return InkWell(
       onTap: () {
-        showDeleteDialog(context);
+        showDeleteDialog(context, provider);
       },
       child: Container(
         height: 52,
@@ -237,7 +230,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
   // DELETE POPUP
   // --------------------------------------------------------------------------
 
-  Future<void> showDeleteDialog(BuildContext context) async {
+  Future<void> showDeleteDialog(
+    BuildContext context,
+    Settingprovider provider,
+  ) async {
     showDialog(
       context: context,
       barrierDismissible: true,
@@ -248,7 +244,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
             borderRadius: BorderRadius.circular(18),
           ),
           backgroundColor: AppColors.white,
-
           child: Padding(
             padding: EdgeInsets.symmetric(horizontal: 22, vertical: 22),
             child: Column(
@@ -261,17 +256,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     fontFamily: AppFontFamily.semiBold,
                   ),
                 ),
-
                 SizedBox(height: 12),
-
                 Text(
                   "Are you sure you want to delete\nyour account?",
                   style: AppFontStyle.text_14_400(AppColors.grey),
                   textAlign: TextAlign.center,
                 ),
-
                 SizedBox(height: 22),
-
                 CustomButton(
                   text: "Yes, Delete",
                   borderRadius: BorderRadius.circular(30),

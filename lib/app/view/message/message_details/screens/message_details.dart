@@ -39,7 +39,6 @@ class _MessageDetailsScreenState extends State<MessageDetailsScreen> {
     );
     messageDetailsProvider.receivePersonalMessage();
     messageDetailsProvider.startScrollListener();
-
   }
 
   @override
@@ -49,7 +48,6 @@ class _MessageDetailsScreenState extends State<MessageDetailsScreen> {
 
     super.dispose();
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -64,20 +62,20 @@ class _MessageDetailsScreenState extends State<MessageDetailsScreen> {
           switch (value.messageListData.status) {
             case ApiStatus.loading:
               return Scaffold(
-               // backgroundColor: AppColors.chatScaffold,
-               //  appBar: AppBar(
-               //    backgroundColor: AppColors.chatAppBarColor,
-               //    title: Row(
-               //      children: [
-               //        ShimmerBox(width: 45, height: 45, radius: 45),
-               //        SizedBox(width: 12),
-               //        ShimmerBox(width: 140, height: 20),
-               //      ],
-               //    ),
-               //  ),
+                // backgroundColor: AppColors.chatScaffold,
+                //  appBar: AppBar(
+                //    backgroundColor: AppColors.chatAppBarColor,
+                //    title: Row(
+                //      children: [
+                //        ShimmerBox(width: 45, height: 45, radius: 45),
+                //        SizedBox(width: 12),
+                //        ShimmerBox(width: 140, height: 20),
+                //      ],
+                //    ),
+                //  ),
                 body: Column(
                   children: [
-                  //  Divider(height: 1),
+                    //  Divider(height: 1),
                     Expanded(
                       child: ListView.builder(
                         padding: EdgeInsets.all(12),
@@ -198,7 +196,7 @@ class _MessageDetailsScreenState extends State<MessageDetailsScreen> {
                     },
                     child: Padding(
                       padding: EdgeInsetsGeometry.only(left: 10),
-                      child:const Icon(
+                      child: const Icon(
                         Icons.arrow_back_ios_new,
                         color: Colors.black87,
                         size: 20,
@@ -219,8 +217,9 @@ class _MessageDetailsScreenState extends State<MessageDetailsScreen> {
                     children: [
                       CircularProfileImage(
                         size: 45,
-                        imageUrl: value.userData?.conversationImage != null &&
-                            value.userData!.conversationImage!.isNotEmpty
+                        imageUrl:
+                            value.userData?.conversationImage != null &&
+                                value.userData!.conversationImage!.isNotEmpty
                             ? '${AppUrls.imageBaseUrl}${value.userData!.conversationImage}'
                             : null,
                         name: value.userData?.conversationName ?? '',
@@ -230,53 +229,50 @@ class _MessageDetailsScreenState extends State<MessageDetailsScreen> {
                       Expanded(
                         child: Text(
                           value.userData?.conversationName ?? '',
-                          style: AppFontStyle.text_18_600(AppColors.chatAppBarTextColor),
+                          style: AppFontStyle.text_18_600(
+                            AppColors.chatAppBarTextColor,
+                          ),
                         ),
                       ),
                     ],
                   ),
-                  actions: [
-                    PopupMenuButton<String>(
-                      icon: Icon(
-                        Icons.more_vert,
-                        color: AppColors.chatAppBarMenuIconColor,
-                      ),
-                      onSelected: (value) {
-                        switch (value) {
-                          case 'view_profile':
-
-                            break;
-
-                          case 'clear_chat':
-
-                            break;
-
-                          case 'block':
-
-                            break;
-                        }
-                      },
-                      itemBuilder: (BuildContext context) => [
-                        const PopupMenuItem(
-                          value: 'view_profile',
-                          child: Text('View Profile'),
-                        ),
-                        const PopupMenuItem(
-                          value: 'clear_chat',
-                          child: Text('Clear Chat'),
-                        ),
-                        const PopupMenuItem(
-                          value: 'block',
-                          child: Text('Block User'),
-                        ),
-                      ],
-                    ),
-                  ],
+                  // actions: [
+                  //   PopupMenuButton<String>(
+                  //     icon: Icon(
+                  //       Icons.more_vert,s
+                  //       color: AppColors.chatAppBarMenuIconColor,
+                  //     ),
+                  //     onSelected: (value) {
+                  //       switch (value) {
+                  //         case 'view_profile':
+                  //           break;
+                  //         case 'clear_chat':
+                  //           break;
+                  //         case 'block':
+                  //           break;
+                  //       }
+                  //     },
+                  //     itemBuilder: (BuildContext context) => [
+                  //       const PopupMenuItem(
+                  //         value: 'view_profile',
+                  //         child: Text('View Profile'),
+                  //       ),
+                  //       const PopupMenuItem(
+                  //         value: 'clear_chat',
+                  //         child: Text('Clear Chat'),
+                  //       ),
+                  //       const PopupMenuItem(
+                  //         value: 'block',
+                  //         child: Text('Block User'),
+                  //       ),
+                  //     ],
+                  //   ),
+                  // ],
                 ),
                 body: Column(
                   children: [
                     hBox(14),
-                 //   Divider(color: AppColors.primary, height: 1),// MessageScreen.adsWidget,
+                    //   Divider(color: AppColors.primary, height: 1),// MessageScreen.adsWidget,
                     Expanded(
                       child: ListView.builder(
                         controller: value.scrollController,
@@ -318,7 +314,7 @@ class _MessageDetailsScreenState extends State<MessageDetailsScreen> {
   }
 
   Widget buildMessageItem(
-      String profileImage,
+    String profileImage,
     MessageListModelData msg,
     BuildContext context,
     bool isGroup,
@@ -361,8 +357,7 @@ class _MessageDetailsScreenState extends State<MessageDetailsScreen> {
 
     Widget content;
 
-    content =
-        SizedBox();
+    content = SizedBox();
 
     switch (msg.dataLink != null
         ? "link"
@@ -451,9 +446,7 @@ class _MessageDetailsScreenState extends State<MessageDetailsScreen> {
         );
       case 'link':
         content = GestureDetector(
-          onTap: () {
-
-          },
+          onTap: () {},
           child: ClipRRect(
             borderRadius: BorderRadius.circular(8),
             child: Column(
@@ -480,9 +473,7 @@ class _MessageDetailsScreenState extends State<MessageDetailsScreen> {
 
       case 'video':
         content = GestureDetector(
-          onTap: () {
-
-          },
+          onTap: () {},
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -512,9 +503,7 @@ class _MessageDetailsScreenState extends State<MessageDetailsScreen> {
         break;
 
       case 'audio':
-        content = Text(
-          'audio',
-        );
+        content = Text('audio');
         break;
     }
 
@@ -568,8 +557,10 @@ class _MessageDetailsScreenState extends State<MessageDetailsScreen> {
                         ),
                         decoration: BoxDecoration(
                           color: isSent
-                              ? AppColors.chatSenderColor   // green sender bubble
-                              : AppColors.chatReciverColor,  // light grey receiver bubble
+                              ? AppColors
+                                    .chatSenderColor // green sender bubble
+                              : AppColors
+                                    .chatReciverColor, // light grey receiver bubble
                           borderRadius: BorderRadius.only(
                             topLeft: const Radius.circular(16),
                             topRight: const Radius.circular(16),
@@ -580,7 +571,6 @@ class _MessageDetailsScreenState extends State<MessageDetailsScreen> {
                         child: content,
                       ),
                     ),
-
                   ],
                 ),
                 if (msg.reactions != null && msg.reactions!.isNotEmpty)
@@ -602,9 +592,7 @@ class _MessageDetailsScreenState extends State<MessageDetailsScreen> {
                   Row(
                     mainAxisSize: MainAxisSize.min,
                     mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      if (msg.status == 'waiting') SizedBox.shrink(),
-                    ],
+                    children: [if (msg.status == 'waiting') SizedBox.shrink()],
                   ),
               ],
             ),
@@ -625,7 +613,6 @@ class _MessageDetailsScreenState extends State<MessageDetailsScreen> {
   }
 
   String getFileType(String url) {
-
     final lowerUrl = url.toLowerCase();
 
     // Check for image extensions
@@ -649,8 +636,6 @@ class _MessageDetailsScreenState extends State<MessageDetailsScreen> {
     // Default if unknown
     return 'file';
   }
-
-
 
   void _showMessageOptions({
     required BuildContext context,
@@ -773,7 +758,7 @@ class _MessageDetailsScreenState extends State<MessageDetailsScreen> {
         return Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Divider(color: AppColors.dividerColor,),
+            Divider(color: AppColors.dividerColor),
             Container(
               margin: const EdgeInsets.symmetric(horizontal: 15, vertical: 12),
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
@@ -785,7 +770,7 @@ class _MessageDetailsScreenState extends State<MessageDetailsScreen> {
                     color: Colors.black.withOpacity(0.05),
                     blurRadius: 10,
                     offset: const Offset(0, 2),
-                  )
+                  ),
                 ],
               ),
               child: TextFormField(
@@ -835,7 +820,4 @@ class _MessageDetailsScreenState extends State<MessageDetailsScreen> {
       },
     );
   }
-
 }
-
-

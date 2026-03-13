@@ -51,6 +51,8 @@ class ServiceDetailView extends StatelessWidget {
               padding: const EdgeInsets.all(10),
               child: CustomAppBar(
                 title: service.categoryName ?? 'Service Details',
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
             ),
             Expanded(
@@ -329,7 +331,6 @@ class ServiceDetailView extends StatelessWidget {
   Widget _buildViewButton(BuildContext context, ServiceData serviceData) {
     return InkWell(
       onTap: () async {
-
         if (serviceData.vendorId != null) {
           Navigator.push(
             context,

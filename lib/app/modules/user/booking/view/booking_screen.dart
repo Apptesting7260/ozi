@@ -546,8 +546,9 @@ class MyBookingsScreen extends StatelessWidget {
           width: double.infinity,
           height: 46,
           decoration: BoxDecoration(
-            color: AppColors.lightGrey2,
+            color: AppColors.white,
             borderRadius: BorderRadius.circular(30),
+            border: Border.all(color: AppColors.red),
           ),
           alignment: Alignment.center,
           child: Text(
