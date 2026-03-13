@@ -671,16 +671,18 @@ class LoginProvider extends ChangeNotifier {
         );
       }
     } catch (e) {
+      CustomOverlayLoader.hide();
       print("error in checkSocialUserApi: $e");
-      socialLoginApi(
-        context,
-        idToken,
-        googleId,
-        utcTime,
-        firstName,
-        lastName,
-        email,
-      );
+      showAccountDeletedAdminPopup(e.toString(), context);
+      // socialLoginApi(
+      //   context,
+      //   idToken,
+      //   googleId,
+      //   utcTime,
+      //   firstName,
+      //   lastName,
+      //   email,
+      // );
       debugPrint('Error in checkSocialUserApi: $e');
     }
   }
@@ -785,6 +787,124 @@ class LoginProvider extends ChangeNotifier {
                             child: Text(
                               'Restore',
                               style: AppFontStyle.text_16_600(
+                                Color.fromRGBO(255, 255, 255, 1),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Future<bool?> showAccountDeletedAdminPopup(
+    String errorMessage,
+    BuildContext context,
+  ) async {
+    return await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        return WillPopScope(
+          onWillPop: () async => false,
+          child: Dialog(
+            insetPadding: const EdgeInsets.symmetric(horizontal: 24),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(24),
+            ),
+            child: Container(
+              // width: 340,
+              // height: 257,
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 28),
+              // margin: EdgeInsets.all(15),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(24),
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    'Account Deleted',
+                    textAlign: TextAlign.center,
+                    style: AppFontStyle.text_22_600(
+                      Color.fromRGBO(28, 29, 33, 1),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    maxLines: 3,
+                    errorMessage
+                        .replaceAll('Exception:', '')
+                        .replaceAll('Exception', '')
+                        .trim(),
+                    textAlign: TextAlign.center,
+                    style: AppFontStyle.text_16_300(
+                      Color.fromRGBO(112, 108, 108, 1),
+                    ),
+                  ),
+                  const SizedBox(height: 28),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: GestureDetector(
+                          onTap: () {
+                            Navigator.pop(context, false);
+                            Get.showToast(
+                              "You can not continue with this account because it was deleted by admin.",
+
+                              type: ToastType.warning,
+                            );
+                          },
+                          child: Container(
+                            height: 48,
+                            alignment: Alignment.center,
+                            decoration: BoxDecoration(
+                              color: Colors.transparent,
+                              borderRadius: BorderRadius.circular(30),
+                              border: Border.all(color: Colors.grey.shade400),
+                            ),
+                            child: Text(
+                              'Cancel',
+                              style: AppFontStyle.text_16_600(
+                                Color.fromRGBO(112, 108, 108, 1),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: GestureDetector(
+                          onTap: () async {
+                            // socialLoginApi(
+                            //   context,
+                            //   idToken,
+                            //   googleId,
+                            //   utcTime,
+                            //   firstName,
+                            //   lastName,
+                            //   email,
+                            // );
+                          },
+                          child: Container(
+                            height: 48,
+                            padding: EdgeInsets.symmetric(horizontal: 10),
+                            alignment: Alignment.center,
+                            decoration: BoxDecoration(
+                              color: AppColors.primary,
+                              borderRadius: BorderRadius.circular(30),
+                            ),
+                            child: Text(
+                              'Contact to admin',
+                              maxLines: 2,
+                              style: AppFontStyle.text_14_600(
                                 Color.fromRGBO(255, 255, 255, 1),
                               ),
                             ),
