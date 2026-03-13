@@ -383,13 +383,17 @@ class _VendorHomeScreenState extends State<VendorHomeScreen> {
               builder: (context, provider, _) {
                 return InkWell(
                   borderRadius: BorderRadius.circular(40),
-                  onTap: () {
-                    Navigator.push(
+                  onTap: () async {
+                    await Navigator.push(
                       context,
                       MaterialPageRoute(
                         builder: (_) => const NotificationsScreen(),
                       ),
                     );
+
+                    if (!mounted) return;
+
+                    context.read<VendorNotificationProvider>().getNotifications(isRefresh: true);
                   },
                   child: Stack(
                     clipBehavior: Clip.none,
