@@ -10,13 +10,15 @@ import '../../model/bookingdetailsmodel.dart' as model;
 import 'package:ozi/app/shared/widgets/custom_date_picker.dart';
 
 class BookingDetailsScreen extends StatefulWidget {
-  final Map<String, dynamic> bookingData;
+  final Map<String, dynamic>? bookingData;
+  final String? bookingId;
   final int tabIndex;
 
   const BookingDetailsScreen({
     super.key,
-    required this.bookingData,
-    required this.tabIndex,
+    this.bookingData,
+    this.bookingId,
+    this.tabIndex = 0,
   });
 
   @override
@@ -26,11 +28,21 @@ class BookingDetailsScreen extends StatefulWidget {
 class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
   bool _isOtpHidden = false;
 
+  int? get currentBookingId {
+    if (widget.bookingId != null) {
+      return int.tryParse(widget.bookingId!);
+    }
+    if (widget.bookingData != null && widget.bookingData!['id'] != null) {
+      return int.tryParse(widget.bookingData!['id'].toString());
+    }
+    return null;
+  }
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final bookingId = widget.bookingData['id'];
+      final bookingId = currentBookingId;
       if (bookingId != null) {
         Provider.of<BookingProvider>(
           context,
@@ -76,7 +88,7 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
                             width: 120,
                             height: 40,
                             onPressed: () {
-                              final bookingId = widget.bookingData['id'];
+                              final bookingId = currentBookingId;
                               if (bookingId != null) {
                                 provider.getBookingDetails(bookingId);
                               }
@@ -99,7 +111,7 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
 
                   return RefreshIndicator(
                     onRefresh: () async {
-                      final bookingId = widget.bookingData['id'];
+                      final bookingId = currentBookingId;
                       if (bookingId != null) {
                         await provider.getBookingDetails(bookingId);
                       }
@@ -167,7 +179,10 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
       textStyle: AppFontStyle.text_16_600(AppColors.red),
       height: 52,
       onPressed: () {
-        showCancelBookingDialog(context, widget.bookingData['id']);
+        final bookingId = currentBookingId;
+        if (bookingId != null) {
+          showCancelBookingDialog(context, bookingId);
+        }
       },
     );
   }
@@ -182,7 +197,10 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
       borderColor: AppColors.primary,
       height: 52,
       onPressed: () {
-        showRescheduleBottomSheet(context, widget.bookingData['id'], provider);
+        final bookingId = currentBookingId;
+        if (bookingId != null) {
+          showRescheduleBottomSheet(context, bookingId, provider);
+        }
       },
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -332,10 +350,10 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
                         : AppColors.lightGrey2,
                     onPressed: provider.selectedRescheduleTime != null
                         ? () {
-                            provider.rescheduleBooking(
-                              widget.bookingData['id'],
-                              context,
-                            );
+                            final bookingId = currentBookingId;
+                            if (bookingId != null) {
+                              provider.rescheduleBooking(bookingId, context);
+                            }
                           }
                         : null,
                   ),
@@ -864,12 +882,14 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
                   shape: BoxShape.circle,
                   color: const Color.fromARGB(153, 221, 220, 220),
                 ),
-                child: Image.network(
-                  provider.getFullImageUrl(vendor.proImg),
-                  fit: BoxFit.cover,
-                  errorBuilder: (_, __, ___) {
-                    return Icon(Icons.person_3_outlined);
-                  },
+                child: CircleAvatar(
+                  child: Image.network(
+                    provider.getFullImageUrl(vendor.proImg),
+                    fit: BoxFit.cover,
+                    errorBuilder: (_, __, ___) {
+                      return Icon(Icons.person_3_outlined);
+                    },
+                  ),
                 ),
               ),
               wBox(12),

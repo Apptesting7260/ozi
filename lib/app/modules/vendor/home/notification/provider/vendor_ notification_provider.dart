@@ -21,11 +21,10 @@ class VendorNotificationProvider extends ChangeNotifier {
   int _unreadCount = 0;
   int get unreadCount => _unreadCount;
 
-  List<NotificationItem> _notifications = [];
-  List<NotificationItem> get notifications => _notifications;
+  List<Items> _notifications = [];
+  List<Items> get notifications => _notifications;
 
-
-
+  GetNotificationModel model = GetNotificationModel();
   VendorNotificationProvider() {
     getNotifications();
   }
@@ -45,8 +44,7 @@ class VendorNotificationProvider extends ChangeNotifier {
 
       notifyListeners();
 
-      final response =
-      await _repository.fetchNotifications(page: _currentPage);
+      final response = await _repository.fetchNotifications(page: _currentPage);
 
       _notifications = response.data?.data ?? [];
 
@@ -75,8 +73,7 @@ class VendorNotificationProvider extends ChangeNotifier {
 
       _currentPage++;
 
-      final response =
-      await _repository.fetchNotifications(page: _currentPage);
+      final response = await _repository.fetchNotifications(page: _currentPage);
 
       final newData = response.data?.data ?? [];
 
@@ -113,9 +110,7 @@ class VendorNotificationProvider extends ChangeNotifier {
   }
 
   void markAsRead(int index) {
-    if (index < _notifications.length &&
-        _notifications[index].isRead != true) {
-
+    if (index < _notifications.length && _notifications[index].isRead != true) {
       _notifications[index].isRead = true;
 
       if (_unreadCount > 0) {

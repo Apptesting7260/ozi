@@ -1,112 +1,215 @@
 import 'dart:convert';
 
-GetNotificationModel getNotificationModelFromJson(String str) =>
-    GetNotificationModel.fromJson(json.decode(str));
-
-String getNotificationModelToJson(GetNotificationModel data) =>
-    json.encode(data.toJson());
+import 'package:ozi/app/data/models/vendorservicedetailmodel.dart';
 
 class GetNotificationModel {
   bool? status;
+  String? userRole;
   int? unreadCount;
-  NotificationData? data;
+  Data? data;
 
   GetNotificationModel({
     this.status,
+    this.userRole,
     this.unreadCount,
     this.data,
   });
 
-  factory GetNotificationModel.fromJson(Map<String, dynamic> json) =>
-      GetNotificationModel(
-        status: json["status"],
-        unreadCount: json["unread_count"],
-        data: json["data"] == null
-            ? null
-            : NotificationData.fromJson(json["data"]),
-      );
+  GetNotificationModel.fromJson(Map<String, dynamic> json) {
+    status = json['status'];
+    userRole = json['user_role'];
+    unreadCount = json['unread_count'];
+    data = json['data'] != null ? new Data.fromJson(json['data']) : null;
+  }
 
-  Map<String, dynamic> toJson() => {
-    "status": status,
-    "unread_count": unreadCount,
-    "data": data?.toJson(),
-  };
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    data['status'] = this.status;
+    data['user_role'] = this.userRole;
+    data['unread_count'] = this.unreadCount;
+    if (this.data != null) {
+      data['data'] = this.data!.toJson();
+    }
+    return data;
+  }
 }
 
-class NotificationData {
+class Data {
   int? currentPage;
-  List<NotificationItem>? data;
+  List<Items>? data;
+  String? firstPageUrl;
+  int? from;
   int? lastPage;
+  String? lastPageUrl;
+  List<Links>? links;
+  Null? nextPageUrl;
+  String? path;
+  int? perPage;
+  Null? prevPageUrl;
+  int? to;
   int? total;
-  String? nextPageUrl;
 
-  NotificationData({
+  Data({
     this.currentPage,
     this.data,
+    this.firstPageUrl,
+    this.from,
     this.lastPage,
-    this.total,
+    this.lastPageUrl,
+    this.links,
     this.nextPageUrl,
+    this.path,
+    this.perPage,
+    this.prevPageUrl,
+    this.to,
+    this.total,
   });
 
-  factory NotificationData.fromJson(Map<String, dynamic> json) =>
-      NotificationData(
-        currentPage: json["current_page"],
-        data: json["data"] == null
-            ? []
-            : List<NotificationItem>.from(
-          json["data"].map(
-                (x) => NotificationItem.fromJson(x),
-          ),
-        ),
-        lastPage: json["last_page"],
-        total: json["total"],
-        nextPageUrl: json["next_page_url"],
-      );
+  Data.fromJson(Map<String, dynamic> json) {
+    currentPage = json['current_page'];
+    if (json['data'] != null) {
+      data = <Items>[];
+      json['data'].forEach((v) {
+        data!.add(new Items.fromJson(v));
+      });
+    }
+    firstPageUrl = json['first_page_url'];
+    from = json['from'];
+    lastPage = json['last_page'];
+    lastPageUrl = json['last_page_url'];
+    if (json['links'] != null) {
+      links = <Links>[];
+      json['links'].forEach((v) {
+        links!.add(new Links.fromJson(v));
+      });
+    }
+    nextPageUrl = json['next_page_url'];
+    path = json['path'];
+    perPage = json['per_page'];
+    prevPageUrl = json['prev_page_url'];
+    to = json['to'];
+    total = json['total'];
+  }
 
-  Map<String, dynamic> toJson() => {
-    "current_page": currentPage,
-    "data": data == null
-        ? []
-        : List<dynamic>.from(data!.map((x) => x.toJson())),
-    "last_page": lastPage,
-    "total": total,
-    "next_page_url": nextPageUrl,
-  };
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    data['current_page'] = this.currentPage;
+    if (this.data != null) {
+      data['data'] = this.data!.map((v) => v.toJson()).toList();
+    }
+    data['first_page_url'] = this.firstPageUrl;
+    data['from'] = this.from;
+    data['last_page'] = this.lastPage;
+    data['last_page_url'] = this.lastPageUrl;
+    if (this.links != null) {
+      data['links'] = this.links!.map((v) => v.toJson()).toList();
+    }
+    data['next_page_url'] = this.nextPageUrl;
+    data['path'] = this.path;
+    data['per_page'] = this.perPage;
+    data['prev_page_url'] = this.prevPageUrl;
+    data['to'] = this.to;
+    data['total'] = this.total;
+    return data;
+  }
 }
 
-class NotificationItem {
+class Items {
   int? id;
+  int? notifiableId;
+  String? notifiableType;
+  String? type;
   String? title;
   String? message;
-  String? time;
+  Type? data;
   bool? isRead;
-  String? type;
+  String? createdAt;
+  String? updatedAt;
 
-  NotificationItem({
+  Items({
     this.id,
+    this.notifiableId,
+    this.notifiableType,
+    this.type,
     this.title,
     this.message,
-    this.time,
+    this.data,
     this.isRead,
-    this.type,
+    this.createdAt,
+    this.updatedAt,
   });
 
-  factory NotificationItem.fromJson(Map<String, dynamic> json) =>
-      NotificationItem(
-        id: json["id"],
-        title: json["title"],
-        message: json["message"],
-        time: json["created_at"],
-        isRead: json["is_read"] == true || json["is_read"] == 1,
-        type: json["type"],
-      );
+  Items.fromJson(Map<String, dynamic> json) {
+    id = json['id'];
+    notifiableId = json['notifiable_id'];
+    notifiableType = json['notifiable_type'];
+    type = json['type'];
+    title = json['title'];
+    message = json['message'];
+    data = json['data'] != null ? new Type.fromJson(json['data']) : null;
+    isRead = json['is_read'];
+    createdAt = json['created_at'];
+    updatedAt = json['updated_at'];
+  }
 
-  Map<String, dynamic> toJson() => {
-    "id": id,
-    "title": title,
-    "message": message,
-    "time": time,
-    "is_read": isRead,
-    "type": type,
-  };
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    data['id'] = this.id;
+    data['notifiable_id'] = this.notifiableId;
+    data['notifiable_type'] = this.notifiableType;
+    data['type'] = this.type;
+    data['title'] = this.title;
+    data['message'] = this.message;
+    if (this.data != null) {
+      data['data'] = this.data!.toJson();
+    }
+    data['is_read'] = this.isRead;
+    data['created_at'] = this.createdAt;
+    data['updated_at'] = this.updatedAt;
+    return data;
+  }
+}
+
+class Type {
+  int? bookingId;
+  String? screen;
+  String? type;
+
+  Type({this.bookingId, this.screen, this.type});
+
+  Type.fromJson(Map<String, dynamic> json) {
+    bookingId = json['booking_id'];
+    screen = json['screen'];
+    type = json['type'];
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    data['booking_id'] = this.bookingId;
+    data['screen'] = this.screen;
+    data['type'] = this.type;
+    return data;
+  }
+}
+
+class Links {
+  String? url;
+  String? label;
+  bool? active;
+
+  Links({this.url, this.label, this.active});
+
+  Links.fromJson(Map<String, dynamic> json) {
+    url = json['url'];
+    label = json['label'];
+    active = json['active'];
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    data['url'] = this.url;
+    data['label'] = this.label;
+    data['active'] = this.active;
+    return data;
+  }
 }

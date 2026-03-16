@@ -67,6 +67,9 @@ class HomeScreenProvider extends ChangeNotifier {
   }
 
   bool _isManualLocation = false;
+  bool _isInitLocationLoading = false;
+  bool _hasRequestedConsentThisSession = false;
+  bool _hasRequestedOSPermissionThisSession = false;
 
   void setSearchQuery(String query) {
     _searchQuery = query;
@@ -91,65 +94,72 @@ class HomeScreenProvider extends ChangeNotifier {
   final Repository _repository = Repository();
 
   Future<void> loadOnce(BuildContext context) async {
-    final String userId = await UserPreference.returnUserId() ?? "guest";
-    debugPrint(
-      "loadOnce: userId=$userId, isLoaded=$_isLoaded, lastFetchTime=$_lastFetchTime",
-    );
-
-    // If already loaded and within 30 mins, and we have consent, just return
-    if (_isLoaded &&
-        _lastFetchTime != null &&
-        DateTime.now().difference(_lastFetchTime!).inMinutes < 30) {
-      debugPrint("loadOnce: Already loaded within 30 mins. Skipping.");
+    if (_isInitLocationLoading) {
+      debugPrint("loadOnce: Already executing, skipping.");
       return;
     }
+    _isInitLocationLoading = true;
+    try {
+      final String userId = await UserPreference.returnUserId() ?? "guest";
+      debugPrint(
+        "loadOnce: userId=$userId, isLoaded=$_isLoaded, lastFetchTime=$_lastFetchTime",
+      );
 
-    // Restore consent from persistent storage if not already in memory
-    if (!(_sessionConsentMap[userId] ?? false)) {
-      final persistedConsent = await UserPreference.returnLocationConsent();
-      debugPrint("loadOnce: persistedConsent from storage = $persistedConsent");
-      if (persistedConsent == true) {
-        _sessionConsentMap[userId] = true;
-        debugPrint("Restored location consent from storage for user: $userId");
+      // If already loaded and within 30 mins, and we have consent, just return
+      if (_isLoaded &&
+          _lastFetchTime != null &&
+          DateTime.now().difference(_lastFetchTime!).inMinutes < 30) {
+        debugPrint("loadOnce: Already loaded within 30 mins. Skipping.");
+        return;
       }
-    } else {
-      debugPrint("loadOnce: Already have in-memory consent for user: $userId");
-    }
 
-    // Check session consent
-    if (!(_sessionConsentMap[userId] ?? false)) {
-      debugPrint("loadOnce: No consent found. Showing dialog...");
-      if (context.mounted) {
-        await requestLocationPermission(context);
+      // Restore consent from persistent storage if not already in memory
+      if (!(_sessionConsentMap[userId] ?? false)) {
+        final persistedConsent = await UserPreference.returnLocationConsent();
+        debugPrint("loadOnce: persistedConsent from storage = $persistedConsent");
+        if (persistedConsent == true) {
+          _sessionConsentMap[userId] = true;
+          debugPrint("Restored location consent from storage for user: $userId");
+        }
+      } else {
+        debugPrint("loadOnce: Already have in-memory consent for user: $userId");
       }
-      return;
+
+      // Check session consent
+      if (!(_sessionConsentMap[userId] ?? false)) {
+        if (!_hasRequestedConsentThisSession) {
+          _hasRequestedConsentThisSession = true;
+          debugPrint("loadOnce: No consent found. Showing dialog...");
+          if (context.mounted) {
+            await requestLocationPermission(context);
+          }
+        } else {
+          debugPrint("loadOnce: Consent already requested this session. Skipping auto-prompt.");
+        }
+        return;
+      }
+
+      debugPrint("loadOnce: Consent found. Fetching location...");
+
+      bool success = await getCurrentLocation();
+      if (success) {
+        _isLoaded = true;
+        _lastFetchTime = DateTime.now();
+      }
+      notifyListeners();
+    } finally {
+      _isInitLocationLoading = false;
     }
-
-    debugPrint("loadOnce: Consent found. Fetching location...");
-
-    _isLoading = true;
-    notifyListeners();
-
-    bool success = await getCurrentLocation();
-    if (success) {
-      _isLoaded = true;
-      _lastFetchTime = DateTime.now();
-    }
-    _isLoading = false;
-    notifyListeners();
   }
 
   Future<void> refreshData() async {
-    _isLoading = true;
     _isManualLocation = false; // Reset manual flag on manual refresh
-    notifyListeners();
 
     bool success = await getCurrentLocation();
     if (success) {
       _isLoaded = true;
       _lastFetchTime = DateTime.now();
     }
-    _isLoading = false;
     notifyListeners();
   }
 
@@ -310,12 +320,17 @@ class HomeScreenProvider extends ChangeNotifier {
 
       permission = await Geolocator.checkPermission();
       if (permission == LocationPermission.denied) {
-        permission = await Geolocator.requestPermission();
-        if (permission == LocationPermission.denied) {
-          Get.showToast(
-            'Location permission is required.',
-            type: ToastType.error,
-          );
+        if (!_hasRequestedOSPermissionThisSession) {
+          _hasRequestedOSPermissionThisSession = true;
+          permission = await Geolocator.requestPermission();
+          if (permission == LocationPermission.denied) {
+            Get.showToast(
+              'Location permission is required.',
+              type: ToastType.error,
+            );
+            return false;
+          }
+        } else {
           return false;
         }
       }
@@ -335,6 +350,7 @@ class HomeScreenProvider extends ChangeNotifier {
       }
 
       // Indicate loading start for address specifically
+      _isLoading = true;
       _selectedLocation = "Fetching location...";
       notifyListeners();
 
@@ -344,7 +360,11 @@ class HomeScreenProvider extends ChangeNotifier {
       );
 
       // Final check before updating state
-      if (_isManualLocation) return true;
+      if (_isManualLocation) {
+        _isLoading = false;
+        notifyListeners();
+        return true;
+      }
 
       lat = position.latitude.toStringAsFixed(6);
       lng = position.longitude.toStringAsFixed(6);
@@ -363,7 +383,11 @@ class HomeScreenProvider extends ChangeNotifier {
         ).timeout(const Duration(seconds: 5));
 
         // Re-check manual flag after geocoding too
-        if (_isManualLocation) return true;
+        if (_isManualLocation) {
+          _isLoading = false;
+          notifyListeners();
+          return true;
+        }
 
         if (placemarks.isNotEmpty) {
           Placemark place = placemarks.first;
@@ -382,6 +406,7 @@ class HomeScreenProvider extends ChangeNotifier {
         // Keep "Current Location"
       }
 
+      _isLoading = false;
       notifyListeners();
       return true;
     } catch (e) {
@@ -389,6 +414,7 @@ class HomeScreenProvider extends ChangeNotifier {
       if (_selectedLocation == "Fetching location...") {
         _selectedLocation = "Location error";
       }
+      _isLoading = false;
       notifyListeners();
       return false;
     }
@@ -484,12 +510,7 @@ class HomeScreenProvider extends ChangeNotifier {
 
     // Now check/request OS level permission
     if (await LocationPermissionHelper.handleLocationPermission(context)) {
-      _isLoading = true;
-      notifyListeners();
-
       bool success = await getCurrentLocation();
-
-      _isLoading = false;
 
       if (success) {
         _isLoaded = true;

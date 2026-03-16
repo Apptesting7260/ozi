@@ -1,22 +1,19 @@
+import 'package:ozi/app/modules/user/booking/booking details/view/booking_details_screen.dart';
+import 'package:ozi/app/modules/vendor/bookings/booking details/view/vendor_booking_details_screen.dart';
 
 import '../../../../../core/appExports/app_export.dart';
 import '../../../../../shared/widgets/custom_app_bar.dart';
 import '../model/get_notification_model.dart';
 import '../provider/vendor_ notification_provider.dart';
 
-
 class NotificationsScreen extends StatefulWidget {
   const NotificationsScreen({super.key});
 
   @override
-  State<NotificationsScreen> createState() =>
-      NotificationsContentState();
+  State<NotificationsScreen> createState() => NotificationsContentState();
 }
 
-
-class NotificationsContentState
-    extends State<NotificationsScreen> {
-
+class NotificationsContentState extends State<NotificationsScreen> {
   final ScrollController _scrollController = ScrollController();
   late VendorNotificationProvider _provider;
 
@@ -56,77 +53,80 @@ class NotificationsContentState
               Expanded(
                 child: provider.isLoading
                     ? const Center(child: CircularProgressIndicator())
-
-                // EMPTY STATE
+                    // EMPTY STATE
                     : provider.notifications.isEmpty
                     ? Center(
-                  child: Center(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 32),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Container(
-                            height: 60,
-                            width: 60,
-                            decoration: BoxDecoration(
-                              color: AppColors.primary.withValues(alpha: 0.08),
-                              shape: BoxShape.circle,
-                            ),
-                            child: Icon(
-                              Icons.notifications_none_rounded,
-                              size: 32,
-                              color: AppColors.primary,
-                            ),
-                          ),
-
-                          hBox(24),
-
-                          Text(
-                            "No new notifications",
-                            textAlign: TextAlign.center,
-                            style: AppFontStyle.text_16_600(AppColors.darkText),
-                          ),
-
-                          hBox(8),
-
-                          Text(
-                            maxLines: 3,
-                            "Everything looks good. We’ll notify you when something requires your attention.",
-                            textAlign: TextAlign.center,
-                            style: AppFontStyle.text_14_400(AppColors.grey),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                )
-
-                    : ListView.separated(
-                  controller: _scrollController,
-                  itemCount: provider.notifications.length +
-                      (provider.isPaginationLoading ? 1 : 0),
-                  separatorBuilder: (_, __) => hBox(12),
-                  itemBuilder: (context, index) {
-                    if (index == provider.notifications.length) {
-                      return const Padding(
-                        padding: EdgeInsets.all(16),
                         child: Center(
-                          child: CircularProgressIndicator(),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 32),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Container(
+                                  height: 60,
+                                  width: 60,
+                                  decoration: BoxDecoration(
+                                    color: AppColors.primary.withValues(
+                                      alpha: 0.08,
+                                    ),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: Icon(
+                                    Icons.notifications_none_rounded,
+                                    size: 32,
+                                    color: AppColors.primary,
+                                  ),
+                                ),
+
+                                hBox(24),
+
+                                Text(
+                                  "No new notifications",
+                                  textAlign: TextAlign.center,
+                                  style: AppFontStyle.text_16_600(
+                                    AppColors.darkText,
+                                  ),
+                                ),
+
+                                hBox(8),
+
+                                Text(
+                                  maxLines: 3,
+                                  "Everything looks good. We’ll notify you when something requires your attention.",
+                                  textAlign: TextAlign.center,
+                                  style: AppFontStyle.text_14_400(
+                                    AppColors.grey,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
                         ),
-                      );
-                    }
+                      )
+                    : ListView.separated(
+                        controller: _scrollController,
+                        itemCount:
+                            provider.notifications.length +
+                            (provider.isPaginationLoading ? 1 : 0),
+                        separatorBuilder: (_, __) => hBox(12),
+                        itemBuilder: (context, index) {
+                          if (index == provider.notifications.length) {
+                            return const Padding(
+                              padding: EdgeInsets.all(16),
+                              child: Center(child: CircularProgressIndicator()),
+                            );
+                          }
 
-                    final notification =
-                    provider.notifications[index];
-
-                    return _notificationTile(
-                      notification,
-                      onTap: () =>
-                          provider.markAsRead(index),
-                    );
-                  },
-                ),
+                          final notification = provider.notifications[index];
+                          final data = provider.model;
+                          return _notificationTile(
+                            data,
+                            notification,
+                            onTap: () => provider.markAsRead(index),
+                            context: context,
+                          );
+                        },
+                      ),
               ),
             ],
           ),
@@ -137,11 +137,32 @@ class NotificationsContentState
 }
 
 Widget _notificationTile(
-    NotificationItem  notification, {
-      required VoidCallback onTap,
-    }) {
+  GetNotificationModel data,
+  Items notification, {
+  required VoidCallback onTap,
+  required BuildContext context,
+}) {
   return GestureDetector(
-    onTap: onTap,
+    onTap: () {
+      print("Click on this notification tile");
+      data.userRole == "vendor"
+          ? Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => VendorBookingDetailsScreen(
+                  bookingId: notification.data!.bookingId.toString(),
+                ),
+              ),
+            )
+          : Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => BookingDetailsScreen(
+                  bookingId: notification.data!.bookingId.toString(),
+                ),
+              ),
+            );
+    },
     child: Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
@@ -167,14 +188,15 @@ Widget _notificationTile(
                 hBox(4),
                 Text(
                   notification.message ?? "",
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                   style: AppFontStyle.text_13_400(AppColors.grey),
                 ),
                 hBox(6),
                 Text(
-                  Get.formatTime(notification.time),
+                  Get.formatTime(notification.createdAt),
                   style: AppFontStyle.text_11_400(AppColors.grey),
                 ),
-
               ],
             ),
           ),
@@ -194,7 +216,6 @@ Widget _notificationTile(
   );
 }
 
-
 Widget _icon(String? type) {
   IconData icon;
   Color bg;
@@ -210,7 +231,6 @@ Widget _icon(String? type) {
       icon = Icons.attach_money;
       bg = AppColors.white;
       break;
-
 
     case "booking_cancelled":
       icon = Icons.close;
@@ -230,11 +250,6 @@ Widget _icon(String? type) {
       color: bg,
       borderRadius: BorderRadius.circular(12),
     ),
-    child: Icon(
-      icon,
-      size: 20,
-      color: iconColor ??  AppColors.primary,
-    ),
+    child: Icon(icon, size: 20, color: iconColor ?? AppColors.primary),
   );
 }
-
