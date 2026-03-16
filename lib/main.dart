@@ -65,8 +65,8 @@ Future<void> _initServicesInBackground() async {
       }
     }
 
-    ChuckerFlutter.showOnRelease = true;
-    ChuckerFlutter.isDebugMode = true;
+    ChuckerFlutter.showOnRelease = false;
+    ChuckerFlutter.isDebugMode = false;
 
     // Heavy initializations
     await Firebase.initializeApp(

@@ -1,8 +1,11 @@
 import 'package:ozi/app/modules/user/booking/booking details/view/booking_details_screen.dart';
+import 'package:ozi/app/modules/user/booking/provider/booking_provider.dart';
 import 'package:ozi/app/modules/vendor/bookings/booking details/view/vendor_booking_details_screen.dart';
 
 import '../../../../../core/appExports/app_export.dart';
 import '../../../../../shared/widgets/custom_app_bar.dart';
+import '../../../../user/booking/booking details/view/booking_details_screen.dart';
+import '../../../bookings/booking details/view/vendor_booking_details_screen.dart';
 import '../model/get_notification_model.dart';
 import '../provider/vendor_ notification_provider.dart';
 
@@ -41,6 +44,7 @@ class NotificationsContentState extends State<NotificationsScreen> {
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<VendorNotificationProvider>();
+    final booking = context.watch<BookingProvider>();
 
     return Scaffold(
       body: SafeArea(
@@ -116,7 +120,6 @@ class NotificationsContentState extends State<NotificationsScreen> {
                               child: Center(child: CircularProgressIndicator()),
                             );
                           }
-
                           final notification = provider.notifications[index];
                           final data = provider.model;
                           return _notificationTile(
@@ -187,8 +190,9 @@ Widget _notificationTile(
                 ),
                 hBox(4),
                 Text(
+                  maxLines: 3,
                   notification.message ?? "",
-                  maxLines: 2,
+
                   overflow: TextOverflow.ellipsis,
                   style: AppFontStyle.text_13_400(AppColors.grey),
                 ),
