@@ -7,6 +7,9 @@ import '../model/category_model.dart';
 import '../services/view/CategoryDetailScreen.dart';
 import '../../cart/change address/provider/ChangeAddressProvider.dart';
 import '../../../../core/utils/location_permission_helper.dart';
+import 'package:provider/provider.dart';
+import '../../../../core/device info/datainfoservices.dart';
+import '../../profile/setting/provider/settingprovider.dart';
 
 class HomeScreenProvider extends ChangeNotifier {
   HomeScreenProvider() {
@@ -116,13 +119,19 @@ class HomeScreenProvider extends ChangeNotifier {
       // Restore consent from persistent storage if not already in memory
       if (!(_sessionConsentMap[userId] ?? false)) {
         final persistedConsent = await UserPreference.returnLocationConsent();
-        debugPrint("loadOnce: persistedConsent from storage = $persistedConsent");
+        debugPrint(
+          "loadOnce: persistedConsent from storage = $persistedConsent",
+        );
         if (persistedConsent == true) {
           _sessionConsentMap[userId] = true;
-          debugPrint("Restored location consent from storage for user: $userId");
+          debugPrint(
+            "Restored location consent from storage for user: $userId",
+          );
         }
       } else {
-        debugPrint("loadOnce: Already have in-memory consent for user: $userId");
+        debugPrint(
+          "loadOnce: Already have in-memory consent for user: $userId",
+        );
       }
 
       // Check session consent
@@ -134,14 +143,16 @@ class HomeScreenProvider extends ChangeNotifier {
             await requestLocationPermission(context);
           }
         } else {
-          debugPrint("loadOnce: Consent already requested this session. Skipping auto-prompt.");
+          debugPrint(
+            "loadOnce: Consent already requested this session. Skipping auto-prompt.",
+          );
         }
         return;
       }
 
       debugPrint("loadOnce: Consent found. Fetching location...");
 
-      bool success = await getCurrentLocation();
+      bool success = await getCurrentLocation(context: context);
       if (success) {
         _isLoaded = true;
         _lastFetchTime = DateTime.now();
@@ -152,10 +163,10 @@ class HomeScreenProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> refreshData() async {
+  Future<void> refreshData({BuildContext? context}) async {
     _isManualLocation = false; // Reset manual flag on manual refresh
 
-    bool success = await getCurrentLocation();
+    bool success = await getCurrentLocation(context: context);
     if (success) {
       _isLoaded = true;
       _lastFetchTime = DateTime.now();
@@ -304,7 +315,7 @@ class HomeScreenProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<bool> getCurrentLocation() async {
+  Future<bool> getCurrentLocation({BuildContext? context}) async {
     try {
       bool serviceEnabled;
       LocationPermission permission;
@@ -400,6 +411,37 @@ class HomeScreenProvider extends ChangeNotifier {
             place.administrativeArea,
             place.country,
           ].where((e) => e != null && e.isNotEmpty).join(', ');
+
+          if (context != null && lat != null && lng != null) {
+            String city = place.locality ?? '';
+            String state = place.administrativeArea ?? '';
+            String country = place.country ?? '';
+            String deviceName = await DeviceIdService.getDeviceName();
+            if (context.mounted) {
+              final settingProvider = Provider.of<Settingprovider>(
+                context,
+                listen: false,
+              );
+
+              settingProvider.fetchCurrentLocation(
+                latitude: position.latitude,
+                longitude: position.longitude,
+                locality: city,
+                adminArea: state,
+                country: country,
+                featureName: place.name ?? "",
+              );
+
+              settingProvider.locationSendToBackend(
+                context,
+                lat!,
+                lng!,
+                city,
+                state,
+                country,
+              );
+            }
+          }
         }
       } catch (geocodingError) {
         debugPrint("Geocoding failed: $geocodingError");
@@ -510,7 +552,7 @@ class HomeScreenProvider extends ChangeNotifier {
 
     // Now check/request OS level permission
     if (await LocationPermissionHelper.handleLocationPermission(context)) {
-      bool success = await getCurrentLocation();
+      bool success = await getCurrentLocation(context: context);
 
       if (success) {
         _isLoaded = true;

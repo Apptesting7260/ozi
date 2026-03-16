@@ -75,7 +75,8 @@ class AppUrls {
   static const String vendorUpdateLocation = "$baseUrl/vendor-update-location";
   static const String vendorAllBookings = "$baseUrl/vendor-home-all-bookings";
   static const String vendorServiceDetails = "$baseUrl/vendor-service-detail";
-
+  static const String updateDeviceLoginLocation =
+      "$baseUrl/update-device-login-location";
   static const String vendorMyBookings =
       "$baseUrl/my-bookings?page={page}&limit=10";
   static const String vendorMyBookingsDetails =

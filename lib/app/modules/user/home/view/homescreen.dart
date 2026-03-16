@@ -71,7 +71,7 @@ class HomeScreenView extends StatelessWidget {
     return Scaffold(
       body: SafeArea(
         child: RefreshIndicator(
-          onRefresh: () => provider.refreshData(),
+          onRefresh: () => provider.refreshData(context: context),
           child: SingleChildScrollView(
             physics: const AlwaysScrollableScrollPhysics(
               parent: BouncingScrollPhysics(),

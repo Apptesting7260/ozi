@@ -617,6 +617,23 @@ class Repository {
     }
   }
 
+  Future<dynamic> locationSendToBackend(Map<String, String> fields) async {
+    try {
+      final url = AppUrls.updateDeviceLoginLocation;
+
+      dev.log('locationSendToBackend URL: $url');
+
+      dynamic response = await _apiService.postApi(fields, url);
+
+      dev.log('locationSendToBackend Raw Response: $response');
+
+      return response;
+    } catch (e) {
+      dev.log('Error in locationSendToBackend: $e');
+      throw Exception(e);
+    }
+  }
+
   Future<dynamic> checkSocialUser(String googleId, String email) async {
     try {
       final url = AppUrls.checkSocialUser;
