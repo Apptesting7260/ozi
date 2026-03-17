@@ -168,7 +168,7 @@ class _SplashScreenState extends State<SplashScreen> {
       Navigator.push(
         navigatorKey.currentContext!,
         MaterialPageRoute(
-          builder: (_) => VendorNavigationTabScreen(initialIndex: 3),
+          builder: (_) => VendorNavigationTabScreen(),
         ),
       );
     }
