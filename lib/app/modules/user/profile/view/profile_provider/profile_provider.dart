@@ -53,7 +53,7 @@ class ProfileProvider extends ChangeNotifier {
 
           Navigator.pushNamedAndRemoveUntil(
             context,
-            AppRoutes.splashScreen,
+            AppRoutes.login,
             (route) => false,
           );
           Get.showToast(
@@ -111,7 +111,7 @@ class ProfileProvider extends ChangeNotifier {
   //   }
   // }
   Future<void> fetchUserProfile() async {
-    // 🔐 STEP 1: Check token first
+    //  STEP 1: Check token first
     final role = await UserPreference.returnRole();
 
     // Stop API for guest users
@@ -125,7 +125,6 @@ class ProfileProvider extends ChangeNotifier {
 
     try {
       dynamic response = await _repository.getProfileApi();
-
       _userProfile = UserProfileModel.fromJson(response);
       UserPreference.saveUserId(_userProfile?.data?.id.toString() ?? '');
 
@@ -139,9 +138,7 @@ class ProfileProvider extends ChangeNotifier {
     } catch (e) {
       _isProfileLoading = false;
       _errorMessage = e.toString().replaceAll('Exception: ', '');
-
       Get.showToast(_errorMessage, type: ToastType.error);
-
       notifyListeners();
     }
   }
