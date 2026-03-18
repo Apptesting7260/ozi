@@ -395,13 +395,14 @@ class AppFontStyle {
     );
   }
 
-  static text_14_500(Color color, {fontFamily, height}) {
+  static text_14_500(Color color, {fontFamily, height, overflow}) {
     return _textStyle(
       color,
       14.0,
       FontWeight.w500,
       height: height,
       fontFamily: fontFamily,
+      overflow: overflow,
     );
   }
 

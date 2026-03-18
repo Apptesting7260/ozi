@@ -45,6 +45,7 @@ class VendorNotificationProvider extends ChangeNotifier {
       notifyListeners();
 
       final response = await _repository.fetchNotifications(page: _currentPage);
+      model = response;
 
       _notifications = response.data?.data ?? [];
 
@@ -74,6 +75,7 @@ class VendorNotificationProvider extends ChangeNotifier {
       _currentPage++;
 
       final response = await _repository.fetchNotifications(page: _currentPage);
+      model = response;
 
       final newData = response.data?.data ?? [];
 

@@ -1,6 +1,7 @@
 import 'package:intl/intl.dart';
 import 'package:ozi/app/modules/user/navigation%20tab/view/navigation_tab_screen.dart';
 import 'package:ozi/app/modules/user/singleService/screen/singleservicescreen.dart';
+import 'package:ozi/app/shared/widgets/cutom_nodata_widget.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../../core/appExports/app_export.dart';
@@ -101,12 +102,15 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
 
                   final data = provider.bookingDetails?.data;
                   if (data == null) {
-                    return Center(
-                      child: Text(
-                        "No details found",
-                        style: AppFontStyle.text_14_400(AppColors.grey),
-                      ),
+                    return NoDataFoundWidget(
+                      message: "These booking details is no longer avaiable",
                     );
+                    // Center(
+                    //   child: Text(
+                    //     "No details found",
+                    //     style: AppFontStyle.text_14_400(AppColors.grey),
+                    //   ),
+                    // );
                   }
 
                   return RefreshIndicator(
@@ -1018,6 +1022,7 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
           "Address",
           data.address?.fullAddress ?? data.address?.streetAddress ?? "N/A",
         ),
+        hBox(12),
       ],
     );
   }
@@ -1041,7 +1046,15 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
             children: [
               Text(label, style: AppFontStyle.text_12_400(AppColors.grey)),
               hBox(2),
-              Text(value, style: AppFontStyle.text_14_500(AppColors.black)),
+              Text(
+                value,
+                maxLines: 4,
+                overflow: TextOverflow.ellipsis,
+                style: AppFontStyle.text_14_500(
+                  AppColors.black,
+                  overflow: TextOverflow.visible,
+                ),
+              ),
             ],
           ),
         ),

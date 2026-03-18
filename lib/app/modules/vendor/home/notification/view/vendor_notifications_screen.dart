@@ -148,7 +148,7 @@ Widget _notificationTile(
   return GestureDetector(
     onTap: () {
       print("Click on this notification tile");
-      data.userRole == "vendor"
+      data.userRole?.toLowerCase() == "vendor"
           ? Navigator.push(
               context,
               MaterialPageRoute(

@@ -36,6 +36,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
         context.read<ProfileProvider>().fetchUserProfile();
         context.read<Settingprovider>().settingsApi();
         context.read<HomeScreenProvider>().loadOnce(context);
+        context.read<VendorNotificationProvider>().getNotifications();
       }
     });
   }
@@ -165,8 +166,10 @@ class HomeScreenView extends StatelessWidget {
                       final result = await Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) =>
-                              const SavedAddressScreen(isservice: false, isHome: true),
+                          builder: (context) => const SavedAddressScreen(
+                            isservice: false,
+                            isHome: true,
+                          ),
                         ),
                       );
                       if (result != null) {
