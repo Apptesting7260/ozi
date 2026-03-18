@@ -164,7 +164,9 @@ class _LoginDetailsScreenState extends State<LoginDetailsScreen> {
                 ),
                 wBox(10),
                 Text(
-                  "Last used on ${DateFormat('dd MMM yyyy').format(DateTime.parse(lastUsedAt))} ",
+                  isCurrent
+                      ? ""
+                      : "Last used on ${DateFormat('dd MMM yyyy').format(DateTime.parse(lastUsedAt))} ",
                   style: AppFontStyle.text_13_400(
                     AppColors.primary,
                     fontFamily: AppFontFamily.regular,

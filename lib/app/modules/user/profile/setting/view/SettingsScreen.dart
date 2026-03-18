@@ -63,7 +63,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
                 _settingsTile(
                   icon: ImageConstants.lock,
-                  title: "Login Details",
+                  title: "Where you're logged in",
                   showArrow: true,
                   onTap: () {
                     final homeProvider = context.read<HomeScreenProvider>();

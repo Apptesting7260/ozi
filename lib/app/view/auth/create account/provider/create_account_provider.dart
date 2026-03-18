@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:ozi/app/core/device%20info/datainfoservices.dart';
 import 'package:ozi/app/core/device%20info/get_device_Info.dart';
 import 'package:ozi/app/core/push%20notification/push_notification.dart';
 import 'package:ozi/app/data/Exception/app_exceptions.dart';
@@ -626,7 +627,7 @@ class CreateAccountProvider with ChangeNotifier {
     }
 
     updateLoading(true);
-
+    String finalDeviceId = await DeviceIdService.getFinalUniqueId();
     try {
       final response = await _apiService.postApiWithoutToken({
         "user_id": userId,
@@ -638,6 +639,7 @@ class CreateAccountProvider with ChangeNotifier {
         "fcm_token": await PushNotificationService.getToken() ?? "",
         "device_name": deviceInfo["device_name"] ?? "",
         "device_type": deviceInfo["device_type"] ?? "",
+        "device_id": finalDeviceId,
       }, AppUrls.completeRegistration);
       updateLoading(false);
       if (kDebugMode) {
