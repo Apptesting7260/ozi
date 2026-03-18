@@ -7,9 +7,14 @@ import '../../edit address/view/edit_user_address_screen.dart';
 import '../provider/saved_address_provider.dart';
 
 class SavedAddressScreen extends StatefulWidget {
-  const SavedAddressScreen({this.isservice = false, super.key});
+  const SavedAddressScreen({
+    this.isservice = false,
+    this.isHome = false,
+    super.key,
+  });
 
   final bool isservice;
+  final bool isHome;
 
   @override
   State<SavedAddressScreen> createState() => _SavedAddressScreenState();
@@ -69,7 +74,7 @@ class _SavedAddressScreenState extends State<SavedAddressScreen> {
                         // ───────────────────────────────────────────────
                         // Always show CURRENT LOCATION as first item
                         // ───────────────────────────────────────────────
-                        if (!widget.isservice) ...[
+                        if (!widget.isservice || widget.isHome) ...[
                           _addressTile(
                             provider: provider,
                             index: -2,
@@ -190,7 +195,7 @@ class _SavedAddressScreenState extends State<SavedAddressScreen> {
               child: CustomButton(
                 text: "Continue",
                 onPressed: () {
-                  Navigator.pop(context);
+                  Navigator.pop(context, provider.selectedIndex);
                 },
                 height: 56,
                 borderRadius: BorderRadius.circular(60),

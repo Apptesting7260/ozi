@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:ozi/app/data/models/vendorservicedetailmodel.dart';
 
 class GetNotificationModel {
@@ -16,14 +15,21 @@ class GetNotificationModel {
   });
 
   GetNotificationModel.fromJson(Map<String, dynamic> json) {
-    status = json['status'];
-    userRole = json['user_role'];
-    unreadCount = json['unread_count'];
-    data = json['data'] != null ? new Data.fromJson(json['data']) : null;
+    status =
+        json['status'] == true ||
+        json['status'] == 'true' ||
+        json['status'] == 1;
+    userRole = json['user_role']?.toString();
+    unreadCount = json['unread_count'] != null
+        ? int.tryParse(json['unread_count'].toString())
+        : null;
+    data = (json['data'] != null && json['data'] is Map<String, dynamic>)
+        ? Data.fromJson(json['data'])
+        : null;
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
+    final Map<String, dynamic> data = <String, dynamic>{};
     data['status'] = this.status;
     data['user_role'] = this.userRole;
     data['unread_count'] = this.unreadCount;
@@ -42,10 +48,10 @@ class Data {
   int? lastPage;
   String? lastPageUrl;
   List<Links>? links;
-  Null? nextPageUrl;
+  String? nextPageUrl;
   String? path;
   int? perPage;
-  Null? prevPageUrl;
+  String? prevPageUrl;
   int? to;
   int? total;
 
@@ -66,33 +72,51 @@ class Data {
   });
 
   Data.fromJson(Map<String, dynamic> json) {
-    currentPage = json['current_page'];
-    if (json['data'] != null) {
+    currentPage = json['current_page'] != null
+        ? int.tryParse(json['current_page'].toString())
+        : null;
+
+    if (json['data'] != null && json['data'] is List) {
       data = <Items>[];
       json['data'].forEach((v) {
-        data!.add(new Items.fromJson(v));
+        if (v is Map<String, dynamic>) {
+          data!.add(Items.fromJson(v));
+        }
       });
+    } else {
+      data = [];
     }
-    firstPageUrl = json['first_page_url'];
-    from = json['from'];
-    lastPage = json['last_page'];
-    lastPageUrl = json['last_page_url'];
-    if (json['links'] != null) {
+
+    firstPageUrl = json['first_page_url']?.toString();
+    from = json['from'] != null ? int.tryParse(json['from'].toString()) : null;
+    lastPage = json['last_page'] != null
+        ? int.tryParse(json['last_page'].toString())
+        : null;
+    lastPageUrl = json['last_page_url']?.toString();
+
+    if (json['links'] != null && json['links'] is List) {
       links = <Links>[];
       json['links'].forEach((v) {
-        links!.add(new Links.fromJson(v));
+        if (v is Map<String, dynamic>) {
+          links!.add(Links.fromJson(v));
+        }
       });
     }
-    nextPageUrl = json['next_page_url'];
-    path = json['path'];
-    perPage = json['per_page'];
-    prevPageUrl = json['prev_page_url'];
-    to = json['to'];
-    total = json['total'];
+
+    nextPageUrl = json['next_page_url']?.toString();
+    path = json['path']?.toString();
+    perPage = json['per_page'] != null
+        ? int.tryParse(json['per_page'].toString())
+        : null;
+    prevPageUrl = json['prev_page_url']?.toString();
+    to = json['to'] != null ? int.tryParse(json['to'].toString()) : null;
+    total = json['total'] != null
+        ? int.tryParse(json['total'].toString())
+        : null;
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
+    final Map<String, dynamic> data = <String, dynamic>{};
     data['current_page'] = this.currentPage;
     if (this.data != null) {
       data['data'] = this.data!.map((v) => v.toJson()).toList();
@@ -140,20 +164,31 @@ class Items {
   });
 
   Items.fromJson(Map<String, dynamic> json) {
-    id = json['id'];
-    notifiableId = json['notifiable_id'];
-    notifiableType = json['notifiable_type'];
-    type = json['type'];
-    title = json['title'];
-    message = json['message'];
-    data = json['data'] != null ? new Type.fromJson(json['data']) : null;
-    isRead = json['is_read'];
-    createdAt = json['created_at'];
-    updatedAt = json['updated_at'];
+    id = json['id'] != null ? int.tryParse(json['id'].toString()) : null;
+    notifiableId = json['notifiable_id'] != null
+        ? int.tryParse(json['notifiable_id'].toString())
+        : null;
+    notifiableType = json['notifiable_type']?.toString();
+    type = json['type']?.toString();
+    title = json['title']?.toString();
+    message = json['message']?.toString();
+
+    if (json['data'] != null && json['data'] is Map<String, dynamic>) {
+      data = Type.fromJson(json['data']);
+    } else {
+      data = null;
+    }
+
+    isRead =
+        json['is_read'] == true ||
+        json['is_read'] == 'true' ||
+        json['is_read'] == 1;
+    createdAt = json['created_at']?.toString();
+    updatedAt = json['updated_at']?.toString();
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
+    final Map<String, dynamic> data = <String, dynamic>{};
     data['id'] = this.id;
     data['notifiable_id'] = this.notifiableId;
     data['notifiable_type'] = this.notifiableType;
@@ -178,13 +213,15 @@ class Type {
   Type({this.bookingId, this.screen, this.type});
 
   Type.fromJson(Map<String, dynamic> json) {
-    bookingId = json['booking_id'];
-    screen = json['screen'];
-    type = json['type'];
+    bookingId = json['booking_id'] != null
+        ? int.tryParse(json['booking_id'].toString())
+        : null;
+    screen = json['screen']?.toString();
+    type = json['type']?.toString();
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
+    final Map<String, dynamic> data = <String, dynamic>{};
     data['booking_id'] = this.bookingId;
     data['screen'] = this.screen;
     data['type'] = this.type;
@@ -200,13 +237,16 @@ class Links {
   Links({this.url, this.label, this.active});
 
   Links.fromJson(Map<String, dynamic> json) {
-    url = json['url'];
-    label = json['label'];
-    active = json['active'];
+    url = json['url']?.toString();
+    label = json['label']?.toString();
+    active =
+        json['active'] == true ||
+        json['active'] == 'true' ||
+        json['active'] == 1;
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
+    final Map<String, dynamic> data = <String, dynamic>{};
     data['url'] = this.url;
     data['label'] = this.label;
     data['active'] = this.active;

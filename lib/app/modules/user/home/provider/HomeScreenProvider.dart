@@ -1,5 +1,6 @@
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:ozi/app/modules/user/profile/save%20address/provider/saved_address_provider.dart';
 import '../../../../core/appExports/app_export.dart';
 import '../../../../data/repository/repository.dart';
 import '../../../../data/storage/user_preference.dart';
@@ -222,7 +223,7 @@ class HomeScreenProvider extends ChangeNotifier {
 
   Future<void> updateFromSelection(
     int index,
-    ChangeAddressProvider addressProvider,
+    SavedAddressProvider addressProvider,
   ) async {
     _isManualLocation = true; // Mark that user has manually chosen a location
     _isLoading = true;
