@@ -4,6 +4,7 @@ import 'package:ozi/app/view/message/circular_profile_image.dart';
 import '../../../../core/appExports/app_export.dart';
 import '../../../../data/models/chat_models/message_list_model.dart';
 import '../../../../data/models/chat_models/page_status_model.dart';
+import '../../../../data/network/web_socket_connection_service.dart';
 import '../../../../data/response/api_status.dart';
 import '../../../../shared/widgets/custom_shimmer_box.dart';
 import '../provider/message_details_provider.dart';
@@ -32,6 +33,8 @@ class _MessageDetailsScreenState extends State<MessageDetailsScreen> {
     if (kDebugMode) {
       print('conversion id is ${widget.conversionId}');
     }
+    messageDetailsProvider.socket =   navigatorKey.currentContext!.read<SocketController>();
+    messageDetailsProvider.socket.ensureOnline();
     messageDetailsProvider.changePageStatus(
       widget.conversionId,
       messageForSend: widget.messageForSend,

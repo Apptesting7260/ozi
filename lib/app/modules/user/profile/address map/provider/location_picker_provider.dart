@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
+import '../../../../../core/appExports/app_export.dart';
 import '../../../../../core/constants/app_urls.dart';
 import '../../../../../core/utils/get_utils.dart';
 import '../../../../../data/network/network_api_services.dart';
@@ -15,6 +16,9 @@ class LocationPickerProvider extends ChangeNotifier {
 
   LatLng selectedLatLng = const LatLng(28.6139, 77.2090);
   String address = '';
+  String city = '';
+  String state = '';
+  String country = '';
   bool isLoadingAddress = false;
   bool isLoadingApi = false;
 
@@ -77,10 +81,22 @@ class LocationPickerProvider extends ChangeNotifier {
 
       final place = placemarks.first;
 
+      //  Existing (keep as it is)
       address =
-          '${place.street ?? ''}, ${place.subLocality ?? ''}, ${place.locality ?? ''}';
+      '${place.street ?? ''}, ${place.subLocality ?? ''}, ${place.locality ?? ''}';
+
+      //  ADD THESE 3 LINES ONLY
+      city = place.locality ?? '';
+      state = place.administrativeArea ?? '';
+      country = place.country ?? '';
+
     } catch (_) {
       address = 'Unable to fetch address';
+
+      //  ADD fallback (important)
+      city = '';
+      state = '';
+      country = '';
     }
 
     isLoadingAddress = false;
@@ -164,9 +180,25 @@ class LocationPickerProvider extends ChangeNotifier {
 
   Future<void> updateLocationFromLatLng(LatLng latLng) async {
     try {
+      if (kDebugMode) {
+        print({
+        "latitude": latLng.latitude,
+        "longitude": latLng.longitude,
+        "address": address,
+        "city": city,
+        "state": state,
+        "country": country,
+      });
+      }
+
       final _ = await _apiService.postApi({
         "latitude": latLng.latitude,
         "longitude": latLng.longitude,
+        "address": address,
+        "city": city,
+        "state": state,
+        "country": country,
+
       }, AppUrls.vendorUpdateLocation);
     } catch (e) {
       Get.showToast(e.toString(), type: ToastType.error);

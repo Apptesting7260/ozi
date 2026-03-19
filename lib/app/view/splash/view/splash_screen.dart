@@ -65,7 +65,7 @@ class _SplashScreenState extends State<SplashScreen> {
     }
 
     if (isLogin) {
-      if (!isRoleSelected && (role == null || role.isEmpty)) {
+      if (!isRoleSelected || role == null || role.isEmpty) {
         String? firstName = await UserPreference.returnFirstName();
         String? lastName = await UserPreference.returnLastName();
         String? email = await UserPreference.returnEmail();
@@ -74,7 +74,7 @@ class _SplashScreenState extends State<SplashScreen> {
             await UserPreference.returnIsMobileVerified() ?? false;
 
         Navigator.pushReplacement(
-          navigatorKey.currentContext!,
+          context,
           MaterialPageRoute(
             builder: (_) => ChooseRoleScreen(
               userId: userId,

@@ -157,11 +157,32 @@ class VendorHomeProvider extends ChangeNotifier {
   // }
 
 
+  String address = '';
+  String city = '';
+  String state = '';
+  String country = '';
+
   Future<void> updateLocationFromLatLng(LatLng latLng) async {
     try {
+      if (kDebugMode) {
+        print({
+          "latitude": latLng.latitude,
+          "longitude": latLng.longitude,
+          "address": address,
+          "city": city,
+          "state": state,
+          "country": country,
+        });
+      }
+
       final _ = await _apiService.postApi({
         "latitude": latLng.latitude,
-        "longitude": latLng.longitude, //  fixed
+        "longitude": latLng.longitude,
+        "address": address,
+        "city": city,
+        "state": state,
+        "country": country,
+
       }, AppUrls.vendorUpdateLocation);
     } catch (e) {
       Get.showToast(e.toString(), type: ToastType.error);
@@ -383,15 +404,21 @@ class VendorHomeProvider extends ChangeNotifier {
                         child: GestureDetector(
                           onTap: () async {
                             try {
-                              final LatLng? result =
-                              await Navigator.pushNamed(
+                              final result = await Navigator.pushNamed(
                                 context,
                                 '/locationPickerScreen',
-                              )
-                              as LatLng?;
+                              ) as Map<String, dynamic>?;
 
                               if (result != null) {
-                                await updateLocationFromLatLng(result);
+                                final LatLng latLng = result["latLng"];
+
+                                // ✅ SET DATA BEFORE API CALL
+                                address = result["address"] ?? '';
+                                city = result["city"] ?? '';
+                                state = result["state"] ?? '';
+                                country = result["country"] ?? '';
+
+                                await updateLocationFromLatLng(latLng);
                                 Navigator.of(context).pop();
 
                                 await getHomeData(showScreenLoader: false);

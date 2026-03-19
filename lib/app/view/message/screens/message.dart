@@ -8,7 +8,8 @@ import '../circular_profile_image.dart';
 import '../provider/message_provider.dart';
 
 class MessageScreen extends StatefulWidget {
-  const MessageScreen({super.key,this.sharedContent});
+  dynamic openConversationId;
+   MessageScreen({super.key,this.sharedContent,this.openConversationId});
 
   // static const adsWidget = AddsCommanScreen();
   final String? sharedContent;
@@ -28,6 +29,17 @@ class _MessageScreenState extends State<MessageScreen> {
     super.initState();
     sharedContent = widget.sharedContent;
     context.read<MessageProvider>().getAllConversions(true);
+    if (widget.openConversationId != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        Navigator.pushNamed(
+          context,
+          AppRoutes.messageDetailsScreen,
+          arguments: {
+            "conversion_id": widget.openConversationId,
+          },
+        );
+      });
+    }
   }
 
 
@@ -265,109 +277,3 @@ class _MessageScreenState extends State<MessageScreen> {
     );
   }
 }
-
-
-
-//
-//
-// import '../../../../../core/appExports/app_export.dart';
-//
-//  class MessageScreen extends StatelessWidget {
-//   const MessageScreen({super.key});
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       backgroundColor: context.white,
-//       appBar: AppBar(
-//         scrolledUnderElevation: 0,
-//         backgroundColor: context.white,
-//         elevation: 0,
-//         title: Text(
-//           "Messages",
-//           style: AppFontStyle.text_30_500(context.darkBlack),
-//         ),
-//         actions: [
-//           InkWell(
-//             onTap: () {
-//               Navigator.pushNamed(context, AppRoutes.callHistoryScreen);
-//             },
-//             child: Padding(
-//               padding:  REdgeInsets.only(right: 15),
-//               child: CustomImage(path: ImageConstants.notificationIcon),
-//             ),
-//           )
-//         ],
-//       ),
-//       body: ListView.builder(
-//         itemCount: 10,
-//         padding: const EdgeInsets.symmetric(vertical: 8),
-//         itemBuilder: (context, index) {
-//           return InkWell(
-//             onTap: () {
-//               Navigator.pushNamed(context, AppRoutes.messageDetailsScreen);
-//             },
-//             child: Padding(
-//               padding:  REdgeInsets.symmetric(horizontal: 16, vertical: 10),
-//               child: Row(
-//                 children: [
-//
-//                   CircularProfileImage(
-//                     child: CustomImage(
-//                         shimmerChild: Container(color: Colors.grey,),
-//                         width: 60,
-//                         height: 60,
-//                         path: "https://img.freepik.com/free-photo/side-view-woman-posing-studio_23-2149883733.jpg?ga=GA1.1.566530418.1743653700&semt=ais_hybrid&w=740")
-//                   ),
-//                   wBox(12),
-//
-//                   Expanded(
-//                     child: Column(
-//                       crossAxisAlignment: CrossAxisAlignment.start,
-//                       children:  [
-//                         Text(
-//                           "robertaanny_123",
-//                           style: AppFontStyle.text_16_500(context.darkText),
-//                         ),
-//                         SizedBox(height: 4),
-//                         Text(
-//                           "Recent message preview goes here...",
-//                           style: AppFontStyle.text_16_300(context.subTitleColor),
-//                           overflow: TextOverflow.ellipsis,
-//                         ),
-//                       ],
-//                     ),
-//                   ),
-//
-//                   const SizedBox(width: 8),
-//
-//                    Text(
-//                     "1h",
-//                     style: AppFontStyle.text_14_300(context.subTitleColor),
-//                   ),
-//                 ],
-//               ),
-//             ),
-//           );
-//         },
-//       ),
-//       floatingActionButton: Theme(
-//         data: Theme.of(context).copyWith(
-//           floatingActionButtonTheme: FloatingActionButtonThemeData(
-//             shape: RoundedRectangleBorder(
-//               borderRadius: BorderRadius.circular(100),
-//             ),
-//           ),
-//         ),
-//         child: FloatingActionButton.extended(
-//           onPressed: () {
-//
-//           },
-//           icon: const Icon(Icons.add,color: context.white,size: 24,),
-//           label:  Text("Create",style: AppFontStyle.text_18_500(context.white),),
-//           backgroundColor: context.yellow,
-//         ),
-//       ),
-//     );
-//   }
-// }
