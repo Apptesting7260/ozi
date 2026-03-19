@@ -65,7 +65,7 @@ class _SplashScreenState extends State<SplashScreen> {
     }
 
     if (isLogin) {
-      if (!isRoleSelected || (role == null || role.isEmpty)) {
+      if ((role == null || role.isEmpty) || (!isRoleSelected && step == '0')) {
         String? firstName = await UserPreference.returnFirstName();
         String? lastName = await UserPreference.returnLastName();
         String? email = await UserPreference.returnEmail();

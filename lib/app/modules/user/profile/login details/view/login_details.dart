@@ -166,7 +166,9 @@ class _LoginDetailsScreenState extends State<LoginDetailsScreen> {
                 Text(
                   isCurrent
                       ? ""
-                      : "Last used on ${DateFormat('dd MMM yyyy').format(DateTime.parse(lastUsedAt))} ",
+                      : lastUsedAt == "Active now"
+                      ? lastUsedAt
+                      : "Last used on $lastUsedAt",
                   style: AppFontStyle.text_13_400(
                     AppColors.primary,
                     fontFamily: AppFontFamily.regular,

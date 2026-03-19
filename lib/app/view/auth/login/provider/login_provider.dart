@@ -988,7 +988,10 @@ class LoginProvider extends ChangeNotifier {
               ? user['step_completed']
               : int.tryParse(user['step_completed']?.toString() ?? '0') ?? 0;
 
-          final bool isRoleSelected = user['is_role_selected'] ?? false;
+          final bool isRoleSelected = (user['is_role_selected'] == true ||
+                  user['is_role_selected'] == 1 ||
+                  user['is_role_selected'] == '1') ||
+              (userRole != null && userRole.isNotEmpty);
           final bool isMobileVerified = user['is_mobile_verified'] ?? false;
 
           await UserPreference.saveAccessToken(apiToken);
