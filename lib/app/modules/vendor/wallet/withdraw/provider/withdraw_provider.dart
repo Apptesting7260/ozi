@@ -1,5 +1,6 @@
 import '../../../../../core/appExports/app_export.dart';
 import '../../../../../data/repository/repository.dart';
+import '../../view/wallet_screen.dart';
 
 class WithdrawProvider extends ChangeNotifier {
   final Repository _repository = Repository();
@@ -39,7 +40,7 @@ class WithdrawProvider extends ChangeNotifier {
   bool _isLoading = false;
   bool get isLoading => _isLoading;
 
-  Future<bool> withDrawMoney({
+  Future<Map<String, dynamic>?> withDrawMoney({
     required String amount,
   }) async {
     try {
@@ -49,8 +50,10 @@ class WithdrawProvider extends ChangeNotifier {
       final response = await _repository.withDrawMoney(amount: amount);
 
       return response;
+
     } catch (e) {
-      return false;
+      debugPrint("Withdraw Error: $e");
+      return {"status": false, "message": "Something went wrong"};
     } finally {
       _isLoading = false;
       notifyListeners();

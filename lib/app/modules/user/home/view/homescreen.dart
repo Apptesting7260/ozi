@@ -11,6 +11,7 @@ import '../../../../shared/widgets/auth_guard.dart';
 import '../../../../shared/widgets/custom_image_path_helper.dart';
 import '../../../../shared/widgets/custom_shimmer_box.dart';
 import '../../../../shared/widgets/custom_text_form_field.dart';
+import '../../../../view/message/provider/message_provider.dart';
 import '../../../../view/message/screens/message.dart';
 import '../../../vendor/home/notification/provider/vendor_ notification_provider.dart';
 import '../../profile/view/profile_provider/profile_provider.dart';
@@ -227,22 +228,39 @@ class HomeScreenView extends StatelessWidget {
 
         Row(
           children: [
-            GestureDetector(
-              onTap: () async {
-                final bool allowed = await AuthGuard.requireLogin(context);
 
-                if (!allowed) return;
+            Consumer<MessageProvider>(
+              builder: (context, value, child) {
+                final count = value.unreadChatCount;
 
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => MessageScreen()),
+                return GestureDetector(
+                  onTap: () async{
+                    final bool allowed = await AuthGuard.requireLogin(context);
+
+                    if (!allowed) return;
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => MessageScreen()));
+                  },
+                  child: Stack(
+                    children: [
+                      Image.asset("assets/images/msgimg.png", height: 40, width: 40),
+
+                      if (count > 0)
+                        Positioned(
+                          right: 0,
+                          top: 0,
+                          child: Container(
+                            padding: EdgeInsets.all(5),
+                            decoration: BoxDecoration(color: Colors.red, shape: BoxShape.circle),
+                            constraints: BoxConstraints(minWidth: 18, minHeight: 18),
+                            child: Center(
+                              child: Text(count.toString(), style: TextStyle(color: Colors.white, fontSize: 10)),
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
                 );
               },
-              child: Image.asset(
-                "assets/images/msgimg.png",
-                height: 46,
-                width: 46,
-              ),
             ),
             wBox(12),
 

@@ -324,7 +324,7 @@ class _MessageDetailsScreenState extends State<MessageDetailsScreen> {
     int index,
     MessageDetailsProvider messageDetailsProvider,
   ) {
-    List<AllParticipants> participants =
+    List<AllParticipants> _ =
         messageDetailsProvider.userData?.allParticipants
             ?.where((element) => element.id == msg.senderId)
             .toList() ??
@@ -370,7 +370,7 @@ class _MessageDetailsScreenState extends State<MessageDetailsScreen> {
       case 'text':
         content = Column(
           mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment:isSent ? CrossAxisAlignment.end : CrossAxisAlignment.start,
           children: [
             Flexible(
               child: Text(
@@ -780,15 +780,22 @@ class _MessageDetailsScreenState extends State<MessageDetailsScreen> {
                 controller: provider.controller,
                 focusNode: provider.focusNode,
                 style: AppFontStyle.text_18_400(AppColors.primary),
+
+                keyboardType: TextInputType.multiline,
+                textInputAction: TextInputAction.newline,
+
+                minLines: 1,
+                maxLines: 5, // 👈 controls expansion limit
+
                 onTapOutside: (event) {
-                  FocusManager.instance.primaryFocus!.unfocus();
+                  FocusManager.instance.primaryFocus?.unfocus();
                 },
+
                 decoration: InputDecoration(
                   hintText: "Type a message...",
                   hintStyle: AppFontStyle.text_18_300(AppColors.hintText),
                   border: InputBorder.none,
                   isDense: true,
-
                   contentPadding: const EdgeInsets.symmetric(vertical: 10),
 
                   suffixIcon: Row(
@@ -816,7 +823,7 @@ class _MessageDetailsScreenState extends State<MessageDetailsScreen> {
                     ],
                   ),
                 ),
-              ),
+              )
             ),
           ],
         );

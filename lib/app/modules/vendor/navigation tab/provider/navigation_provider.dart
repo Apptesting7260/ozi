@@ -27,13 +27,7 @@ class VendorNavigationProvider extends ChangeNotifier {
 
   // --------------------------------------------------------
 
-  final List<Widget> pages = [
-    VendorHomeScreen(),  // 0
-    VendorMybookingsScreen(), // 1
-    VendorMyWalletScreen(), // 2
-    VendorServicesScreen(),  // 3
-    ProfileScreen(), // 4
-  ];
+
 
   // --------------------------------------------------------
   String getIconPath(int index, bool isActive) {
