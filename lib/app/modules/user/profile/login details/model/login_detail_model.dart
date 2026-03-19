@@ -28,20 +28,30 @@ class Data {
   int? id;
   String? deviceName;
   String? lastUsedAt;
+  String? city;
+  String? state;
+  String? country;
   String? loggedInAt;
   bool? isCurrentDevice;
 
-  Data(
-      {this.id,
-        this.deviceName,
-        this.lastUsedAt,
-        this.loggedInAt,
-        this.isCurrentDevice});
+  Data({
+    this.id,
+    this.deviceName,
+    this.lastUsedAt,
+    this.city,
+    this.state,
+    this.country,
+    this.loggedInAt,
+    this.isCurrentDevice,
+  });
 
   Data.fromJson(Map<String, dynamic> json) {
     id = json['id'];
     deviceName = json['device_name'];
     lastUsedAt = json['last_used_at'];
+    city = json['deivce_city'];
+    state = json['device_state'];
+    country = json['device_country'];
     loggedInAt = json['logged_in_at'];
     isCurrentDevice = json['is_current_device'];
   }

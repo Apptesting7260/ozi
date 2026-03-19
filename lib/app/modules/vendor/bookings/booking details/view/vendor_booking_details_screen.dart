@@ -1,4 +1,3 @@
-
 import 'package:ozi/app/core/constants/app_urls.dart';
 import 'package:ozi/app/data/models/booking_detail_model.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
@@ -12,13 +11,11 @@ class VendorBookingDetailsScreen extends StatelessWidget {
   final String bookingId;
   final int tabIndex;
 
-   const VendorBookingDetailsScreen({
+  const VendorBookingDetailsScreen({
     super.key,
     required this.bookingId,
-    this.tabIndex = 1
+    this.tabIndex = 1,
   });
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -26,219 +23,257 @@ class VendorBookingDetailsScreen extends StatelessWidget {
     return ChangeNotifierProvider<VendorBookingDetailsProvider>(
       create: (context) => VendorBookingDetailsProvider(bookingId),
       child: Builder(
-          builder: (context) {
-            final provider = context.watch<VendorBookingDetailsProvider>();
-            return Scaffold(
+        builder: (context) {
+          final provider = context.watch<VendorBookingDetailsProvider>();
+          return Scaffold(
             backgroundColor: AppColors.white,
             body: SafeArea(
               child: Column(
                 children: [
                   CustomAppBar(title: "Booking Details"),
                   switch (provider.homeModel.status) {
-                    ApiStatus.loading =>
-                        Expanded( child: const Center(child: CircularProgressIndicator())),
+                    ApiStatus.loading => Expanded(
+                      child: const Center(child: CircularProgressIndicator()),
+                    ),
 
-                    ApiStatus.completed =>
-                        Expanded(
-                          child: SingleChildScrollView(
-                            physics: BouncingScrollPhysics(),
-                            padding: EdgeInsets.all(16),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                _bookingIdAndTotal(),
-                                hBox(20),
-                                _serviceCards(provider.homeModel.data?.data?.items),
-                                hBox(20),
-                                _serviceProvider(
-                                    provider.homeModel.data?.data?.user?.firstName??'',
-                                    '${provider.homeModel.data?.data?.user?.countryCode??''}${provider.homeModel.data?.data?.user?.mobile??''}',
-                                    provider.homeModel.data?.data?.user?.lastName??'',
-                                    '${AppUrls.imageBaseUrl}${provider.homeModel.data?.data?.user?.proImg??''}',
-                                  provider.homeModel.data?.data?.status??'',
-                                  provider.homeModel.data?.data?.user?.id??'',
-                                    bookingProvider,
+                    ApiStatus.completed => Expanded(
+                      child: SingleChildScrollView(
+                        physics: BouncingScrollPhysics(),
+                        padding: EdgeInsets.all(16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _bookingIdAndTotal(),
+                            hBox(20),
+                            _serviceCards(provider.homeModel.data?.data?.items),
+                            hBox(20),
+                            _serviceProvider(
+                              provider.homeModel.data?.data?.user?.firstName ??
+                                  '',
+                              '${provider.homeModel.data?.data?.user?.countryCode ?? ''}${provider.homeModel.data?.data?.user?.mobile ?? ''}',
+                              provider.homeModel.data?.data?.user?.lastName ??
+                                  '',
+                              '${AppUrls.imageBaseUrl}${provider.homeModel.data?.data?.user?.proImg ?? ''}',
+                              provider.homeModel.data?.data?.status ?? '',
+                              provider.homeModel.data?.data?.user?.id ?? '',
+                              bookingProvider,
+                            ),
+                            hBox(20),
+                            _bookingDetailsSection(
+                              address:
+                                  provider
+                                      .homeModel
+                                      .data
+                                      ?.data
+                                      ?.address
+                                      ?.fullAddress ??
+                                  '',
+                              date: Get.getFormattedDate2(
+                                provider.homeModel.data?.data?.serviceDate ??
+                                    '',
+                              ),
+                              time:
+                                  provider.homeModel.data?.data?.serviceTime ??
+                                  '',
+                            ),
+                            hBox(20),
+                            SizedBox(
+                              width: double.infinity,
+                              height: 46,
+                              child: OutlinedButton(
+                                onPressed: () {
+                                  //
+                                  // final encodedAddress = Uri.encodeComponent(provider.homeModel.data?.data?.address?.fullAddress??'');
+                                  //
+                                  // final url = "https://www.google.com/maps/search/$encodedAddress";
+                                  //
+                                  // Navigator.pushNamed(
+                                  //   context,
+                                  //   AppRoutes.commonScreen,
+                                  //   arguments: CommonScreenArgs(
+                                  //     type: "Navigate to Customer",
+                                  //     url: url,
+                                  //   ),
+                                  // );
+                                  provider.navigateToCustomer();
+                                },
+                                style: OutlinedButton.styleFrom(
+                                  side: const BorderSide(
+                                    color: Color(0x1A13AC6F),
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(30),
+                                  ),
+                                  backgroundColor: Color(0x1A13AC6F),
                                 ),
-                                hBox(20),
-                                _bookingDetailsSection(
-                                  address: provider.homeModel.data?.data?.address?.fullAddress??'',
-                                  date: Get.getFormattedDate2(provider.homeModel.data?.data?.serviceDate??''),
-                                  time:provider.homeModel.data?.data?.serviceTime ??''
-                                ),
-                                hBox(20),
-                                SizedBox(
-                                width: double.infinity,
-                                height: 46,
-                                child: OutlinedButton(
-                                  onPressed: () {
-                                    //
-                                    // final encodedAddress = Uri.encodeComponent(provider.homeModel.data?.data?.address?.fullAddress??'');
-                                    //
-                                    // final url = "https://www.google.com/maps/search/$encodedAddress";
-                                    //
-                                    // Navigator.pushNamed(
-                                    //   context,
-                                    //   AppRoutes.commonScreen,
-                                    //   arguments: CommonScreenArgs(
-                                    //     type: "Navigate to Customer",
-                                    //     url: url,
-                                    //   ),
-                                    // );
-                                    provider.navigateToCustomer();
-                                    },
-                                  style: OutlinedButton.styleFrom(
-                                    side: const BorderSide(color: Color(0x1A13AC6F)),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(30),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    CustomImage(
+                                      path: ImageConstants.navigationIcon,
                                     ),
-                                    backgroundColor: Color(0x1A13AC6F)
-                                  ),
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      CustomImage(path: ImageConstants.navigationIcon),
-                                      wBox(10),
-                                      const Text(
-                                        "Navigate to Customer",
-                                        style: TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.w500,
-                                          color: Color(0xFF13AC6F),
-                                        ),
+                                    wBox(10),
+                                    const Text(
+                                      "Navigate to Customer",
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w500,
+                                        color: Color(0xFF13AC6F),
                                       ),
-                                    ],
-                                  ),
+                                    ),
+                                  ],
                                 ),
                               ),
-
-                                hBox(20),
-                                _paymentMethod(provider.homeModel.data?.data?.paymentMethod ?? ""),
-                                hBox(20),
-                                _paymentSummary(
-                                  serviceFee:provider.homeModel.data?.data?.serviceFee??'' ,
-                                  subTotal: provider.homeModel.data?.data?.subtotal??'',
-                                  discount: provider.homeModel.data?.data?.discountFee??'',
-                                  total: provider.homeModel.data?.data?.total??''
-                                ),
-
-                                hBox(10),
-
-                                if (provider.homeModel.data?.data?.status == 'ongoing' &&
-                                    provider.homeModel.data?.data?.paymentMethod == 'cash') ...[
-
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                                    margin: const EdgeInsets.only(top: 8),
-                                    decoration: BoxDecoration(
-                                      color: Colors.orange.shade50,
-                                      borderRadius: BorderRadius.circular(12),
-                                      border: Border.all(color: Colors.orange.shade200),
-                                    ),
-                                    child: Row(
-                                      children: [
-                                        Checkbox(
-                                          value: provider.isCashCollected,
-                                          activeColor: Colors.orange,
-                                          onChanged: (value) {
-                                         provider.setCashCollected(value ?? false);
-                                          },
-                                        ),
-                                        const SizedBox(width: 8),
-                                        const Expanded(
-                                          child: Text(
-                                            "Please collect the payment from the customer.",
-                                            style: TextStyle(
-                                              fontSize: 14,
-                                              fontWeight: FontWeight.w500,
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-
-
-                                hBox(10),
-
-
-                                if (provider.homeModel.data?.data?.status == 'confirmed')
-                                  CustomButton(
-                                    isLoading: provider.otpVerifyLoading,
-                                    text: 'Start Job',
-                                    onPressed: () {
-                                      _showOtpBottomSheet(context, provider, bookingId);
-                                    },
-                                  ),
-
-                                if (provider.homeModel.data?.data?.status == 'ongoing')
-                                  CustomButton(
-                                    isLoading: provider.completeJobLoading,
-                                    text: 'Complete Job',
-                                    onPressed: provider.completeJobLoading
-                                        ? null
-                                        : () async {
-                                      final data = provider.homeModel.data?.data;
-                                      final isCashPayment = data?.paymentMethod == 'cash';
-                                      final isCollected = provider.isCashCollected;
-
-                                      if (isCashPayment && !isCollected) {
-                                        ScaffoldMessenger.of(context).showSnackBar(
-                                          const SnackBar(
-                                            showCloseIcon: true,
-                                            closeIconColor: Colors.white,
-                                            content: Text(
-                                              "Please confirm that you have collected the cash payment before completing the job.",
-                                            ),
-                                            backgroundColor: Colors.redAccent,
-                                          ),
-                                        );
-                                        return;
-                                      }
-
-                                      final success =
-                                      await provider.completeTheJob(bookingId);
-
-                                      if (success && context.mounted) {
-                                        Navigator.pop(context, true);
-                                      }
-                                    },
-                                  ),
-
-
-                                if (tabIndex == 2)
-                                  hBox(100)
-                                else
-                                  hBox(20),
-                              ],
                             ),
-                          ),
+
+                            hBox(20),
+                            _paymentMethod(
+                              provider.homeModel.data?.data?.paymentMethod ??
+                                  "",
+                            ),
+                            hBox(20),
+                            _paymentSummary(
+                              serviceFee:
+                                  provider.homeModel.data?.data?.serviceFee ??
+                                  '',
+                              subTotal:
+                                  provider.homeModel.data?.data?.subtotal ?? '',
+                              discount:
+                                  provider.homeModel.data?.data?.discountFee ??
+                                  '',
+                              total: provider.homeModel.data?.data?.total ?? '',
+                            ),
+
+                            hBox(10),
+
+                            if (provider.homeModel.data?.data?.status ==
+                                    'ongoing' &&
+                                provider.homeModel.data?.data?.paymentMethod ==
+                                    'cash') ...[
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 10,
+                                ),
+                                margin: const EdgeInsets.only(top: 8),
+                                decoration: BoxDecoration(
+                                  color: Colors.orange.shade50,
+                                  borderRadius: BorderRadius.circular(12),
+                                  border: Border.all(
+                                    color: Colors.orange.shade200,
+                                  ),
+                                ),
+                                child: Row(
+                                  children: [
+                                    Checkbox(
+                                      value: provider.isCashCollected,
+                                      activeColor: Colors.orange,
+                                      onChanged: (value) {
+                                        provider.setCashCollected(
+                                          value ?? false,
+                                        );
+                                      },
+                                    ),
+                                    const SizedBox(width: 8),
+                                    const Expanded(
+                                      child: Text(
+                                        "Please collect the payment from the customer.",
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+
+                            hBox(10),
+
+                            if (provider.homeModel.data?.data?.status ==
+                                'confirmed')
+                              CustomButton(
+                                isLoading: provider.otpVerifyLoading,
+                                text: 'Start Job',
+                                onPressed: () {
+                                  _showOtpBottomSheet(
+                                    context,
+                                    provider,
+                                    bookingId,
+                                  );
+                                },
+                              ),
+
+                            if (provider.homeModel.data?.data?.status ==
+                                'ongoing')
+                              CustomButton(
+                                isLoading: provider.completeJobLoading,
+                                text: 'Complete Job',
+                                onPressed: provider.completeJobLoading
+                                    ? null
+                                    : () async {
+                                        final data =
+                                            provider.homeModel.data?.data;
+                                        final isCashPayment =
+                                            data?.paymentMethod == 'cash';
+                                        final isCollected =
+                                            provider.isCashCollected;
+
+                                        if (isCashPayment && !isCollected) {
+                                          ScaffoldMessenger.of(
+                                            context,
+                                          ).showSnackBar(
+                                            const SnackBar(
+                                              showCloseIcon: true,
+                                              closeIconColor: Colors.white,
+                                              content: Text(
+                                                "Please confirm that you have collected the cash payment before completing the job.",
+                                              ),
+                                              backgroundColor: Colors.redAccent,
+                                            ),
+                                          );
+                                          return;
+                                        }
+
+                                        final success = await provider
+                                            .completeTheJob(bookingId);
+
+                                        if (success && context.mounted) {
+                                          Navigator.pop(context, true);
+                                        }
+                                      },
+                              ),
+
+                            if (tabIndex == 2) hBox(100) else hBox(20),
+                          ],
                         ),
+                      ),
+                    ),
 
-                    ApiStatus.error =>
-                        Expanded(child: const Center(child: Text('Something went wrong'))),
+                    ApiStatus.error => Expanded(
+                      child: const Center(child: Text('Something went wrong')),
+                    ),
 
-                    _ =>
-                    const SizedBox.shrink(),
+                    _ => const SizedBox.shrink(),
                   },
 
                   // Bottom Button - Only for Upcoming (Cancel Booking in RED)
-                  if (tabIndex == 2)
-                    _bottomButton(context),
+                  if (tabIndex == 2) _bottomButton(context),
                 ],
               ),
             ),
           );
-        }
+        },
       ),
     );
   }
 
   void _showOtpBottomSheet(
-      BuildContext context,
-      VendorBookingDetailsProvider provider,
-      String bookingId,
-      ) {
+    BuildContext context,
+    VendorBookingDetailsProvider provider,
+    String bookingId,
+  ) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -299,11 +334,11 @@ class VendorBookingDetailsScreen extends StatelessWidget {
                   selectedColor: AppColors.primary,
                   borderWidth: 0,
                 ),
-                  onChanged: (_) {
-                    if (provider.errorMessage != null) {
-                      provider.updateErrorMessage(null);
-                    }
+                onChanged: (_) {
+                  if (provider.errorMessage != null) {
+                    provider.updateErrorMessage(null);
                   }
+                },
               ),
 
               if (provider.errorMessage != null) ...[
@@ -349,10 +384,7 @@ class VendorBookingDetailsScreen extends StatelessWidget {
           ),
         ],
       ),
-      child: SafeArea(
-        top: false,
-        child: _getBottomButton(context),
-      ),
+      child: SafeArea(top: false, child: _getBottomButton(context)),
     );
   }
 
@@ -374,7 +406,7 @@ class VendorBookingDetailsScreen extends StatelessWidget {
 
   Widget _bookingIdAndTotal() {
     return Consumer<VendorBookingDetailsProvider>(
-      builder: (context,provider,_) {
+      builder: (context, provider, _) {
         final booking = provider.homeModel.data?.data;
         return Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -388,31 +420,27 @@ class VendorBookingDetailsScreen extends StatelessWidget {
                 ),
                 hBox(4),
                 Text(
-                  booking?.bookingCode??'',
+                  booking?.bookingCode ?? '',
                   style: AppFontStyle.text_16_600(AppColors.black),
                 ),
 
-                _StatusChip(status: booking?.status??'',)
-
+                _StatusChip(status: booking?.status ?? ''),
               ],
             ),
             Column(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                Text(
-                  "Total",
-                  style: AppFontStyle.text_12_400(AppColors.grey),
-                ),
+                Text("Total", style: AppFontStyle.text_12_400(AppColors.grey)),
                 hBox(4),
                 Text(
-                  "\$${booking?.total??''}",
+                  "\$${booking?.total ?? ''}",
                   style: AppFontStyle.text_16_700(AppColors.primary),
                 ),
               ],
             ),
           ],
         );
-      }
+      },
     );
   }
 
@@ -420,21 +448,25 @@ class VendorBookingDetailsScreen extends StatelessWidget {
     return ListView.separated(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
-      itemCount: services?.length??0,
+      itemCount: services?.length ?? 0,
       separatorBuilder: (_, __) => hBox(12),
       itemBuilder: (context, index) {
         return _serviceCard(
-          services?[index].quantity??'',
-          services?[index].serviceName??'',
-          services?[index].unitPrice??'',
-          '${AppUrls.imageBaseUrl}${services?[index].image??''}',
+          services?[index].quantity ?? '',
+          services?[index].serviceName ?? '',
+          services?[index].unitPrice ?? '',
+          '${AppUrls.imageBaseUrl}${services?[index].image ?? ''}',
         );
       },
     );
   }
 
-
-  Widget _serviceCard( String quantity,String title, String price,String image) {
+  Widget _serviceCard(
+    String quantity,
+    String title,
+    String price,
+    String image,
+  ) {
     return Container(
       padding: EdgeInsets.all(12),
       child: Row(
@@ -442,8 +474,7 @@ class VendorBookingDetailsScreen extends StatelessWidget {
           ClipRRect(
             borderRadius: BorderRadius.circular(25),
             child: Selector<VendorBookingDetailsProvider, String>(
-              selector: (_, p) =>
-              p.homeModel.data?.data?.user?.proImg ?? '',
+              selector: (_, p) => p.homeModel.data?.data?.user?.proImg ?? '',
               builder: (_, img, __) {
                 return CustomImage(
                   path: image,
@@ -466,10 +497,7 @@ class VendorBookingDetailsScreen extends StatelessWidget {
                   style: AppFontStyle.text_14_600(AppColors.black),
                 ),
                 hBox(4),
-                Text(
-                  price,
-                  style: AppFontStyle.text_14_600(AppColors.primary),
-                ),
+                Text(price, style: AppFontStyle.text_14_600(AppColors.primary)),
               ],
             ),
           ),
@@ -483,19 +511,21 @@ class VendorBookingDetailsScreen extends StatelessWidget {
               "Qty: $quantity",
               style: AppFontStyle.text_14_600(AppColors.primary),
             ),
-          )
-
+          ),
         ],
-
-
       ),
     );
   }
 
-
-
-
-  Widget _serviceProvider( String customerName , String contact , String subHeading , String image , String status , String id ,bookingProvider) {
+  Widget _serviceProvider(
+    String customerName,
+    String contact,
+    String subHeading,
+    String image,
+    String status,
+    String id,
+    bookingProvider,
+  ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -512,14 +542,14 @@ class VendorBookingDetailsScreen extends StatelessWidget {
                 borderRadius: BorderRadius.circular(25),
                 child: image.isNotEmpty
                     ? Image.network(
-                  image,
-                  height: 50,
-                  width: 50,
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) {
-                    return _nameAvatar(customerName);
-                  },
-                )
+                        image,
+                        height: 50,
+                        width: 50,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) {
+                          return _nameAvatar(customerName);
+                        },
+                      )
                     : _nameAvatar(customerName),
               ),
               wBox(12),
@@ -570,18 +600,13 @@ class VendorBookingDetailsScreen extends StatelessWidget {
                       color: AppColors.primary,
                       shape: BoxShape.circle,
                     ),
-                    child: Icon(
-                      Icons.phone,
-                      color: AppColors.white,
-                      size: 20,
-                    ),
+                    child: Icon(Icons.phone, color: AppColors.white, size: 20),
                   ),
                 ),
-              ]
+              ],
+
               // else
               //   SizedBox.shrink()
-
-
             ],
           ),
         ),
@@ -589,7 +614,11 @@ class VendorBookingDetailsScreen extends StatelessWidget {
     );
   }
 
-  Widget _bookingDetailsSection({required String date,required String time,required String address}) {
+  Widget _bookingDetailsSection({
+    required String date,
+    required String time,
+    required String address,
+  }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -598,23 +627,11 @@ class VendorBookingDetailsScreen extends StatelessWidget {
           style: AppFontStyle.text_16_600(AppColors.black),
         ),
         hBox(12),
-        _detailRow(
-          Icons.calendar_today_outlined,
-          "Date",
-          date,
-        ),
+        _detailRow(Icons.calendar_today_outlined, "Date", date),
         hBox(12),
-        _detailRow(
-          Icons.access_time,
-          "Time",
-          time,
-        ),
+        _detailRow(Icons.access_time, "Time", time),
         hBox(12),
-        _detailRow(
-          Icons.location_on_outlined,
-          "Address",
-          address,
-        ),
+        _detailRow(Icons.location_on_outlined, "Address", address),
       ],
     );
   }
@@ -645,26 +662,16 @@ class VendorBookingDetailsScreen extends StatelessWidget {
             color: AppColors.primary.withOpacity(0.1),
             borderRadius: BorderRadius.circular(8),
           ),
-          child: Icon(
-            icon,
-            size: 18,
-            color: AppColors.primary,
-          ),
+          child: Icon(icon, size: 18, color: AppColors.primary),
         ),
         wBox(12),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                label,
-                style: AppFontStyle.text_12_400(AppColors.grey),
-              ),
+              Text(label, style: AppFontStyle.text_12_400(AppColors.grey)),
               hBox(2),
-              Text(
-                value,
-                style: AppFontStyle.text_14_500(AppColors.black),
-              ),
+              Text(value, style: AppFontStyle.text_14_500(AppColors.black)),
             ],
           ),
         ),
@@ -689,11 +696,13 @@ class VendorBookingDetailsScreen extends StatelessWidget {
               Container(
                 padding: EdgeInsets.all(8),
 
-                child:paymentMethod == "pay_online" ?  Icon(
-                  Icons.credit_card,
-                  color: AppColors.primary,
-                  size: 24,
-                ) : SvgPicture.asset(ImageConstants.cash),
+                child: paymentMethod == "pay_online"
+                    ? Icon(
+                        Icons.credit_card,
+                        color: AppColors.primary,
+                        size: 24,
+                      )
+                    : SvgPicture.asset(ImageConstants.cash),
               ),
               wBox(12),
 
@@ -708,7 +717,12 @@ class VendorBookingDetailsScreen extends StatelessWidget {
     );
   }
 
-  Widget _paymentSummary({required String subTotal,required String serviceFee,required String discount,required String total}) {
+  Widget _paymentSummary({
+    required String subTotal,
+    required String serviceFee,
+    required String discount,
+    required String total,
+  }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -727,7 +741,10 @@ class VendorBookingDetailsScreen extends StatelessWidget {
               hBox(12),
               _summaryRow("Discount", "\$$discount"),
               hBox(16),
-              Divider(color: AppColors.black.withValues(alpha: 0.10), thickness: 2,),
+              Divider(
+                color: AppColors.black.withValues(alpha: 0.10),
+                thickness: 2,
+              ),
               hBox(12),
               _summaryRow("Total", "\$$total", isTotal: true),
             ],
@@ -847,9 +864,9 @@ class _StatusChip extends StatelessWidget {
         textColor = AppColors.red;
         break;
       default:
-        bg =  AppColors.white;
+        bg = AppColors.white;
         text = status;
-        textColor =  AppColors.black;
+        textColor = AppColors.black;
     }
 
     return Container(
@@ -858,19 +875,15 @@ class _StatusChip extends StatelessWidget {
         borderRadius: BorderRadius.circular(30),
       ),
       child: Padding(
-        padding:  EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+        padding: EdgeInsets.symmetric(horizontal: 12, vertical: 5),
         child: Text(
-            text,
-            style: AppFontStyle.text_14_600(textColor, fontFamily: AppFontFamily.medium)
+          text,
+          style: AppFontStyle.text_14_600(
+            textColor,
+            fontFamily: AppFontFamily.medium,
+          ),
         ),
       ),
     );
   }
 }
-
-
-
-
-
-
-

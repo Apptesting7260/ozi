@@ -961,7 +961,7 @@ class LoginProvider extends ChangeNotifier {
 
     try {
       String deviceName = await DeviceIdService.getDeviceName();
-
+      String finalDeviceId = await DeviceIdService.getFinalUniqueId();
       final value = await _repository.socialLoginApi({
         "id_token": idToken,
         "device_name": deviceName,
@@ -972,8 +972,9 @@ class LoginProvider extends ChangeNotifier {
         "first_name": firstName,
         "last_name": lastName,
         "email": email,
+        "device_id": finalDeviceId,
       });
-
+      print("Typess;------------------------  $finalDeviceId");
       // Only interact with context if widget is still mounted
       if (context.mounted) {
         if (value['status'] == true) {

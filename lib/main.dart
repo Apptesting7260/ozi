@@ -124,7 +124,9 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => ChangeAddressProvider()),
         ChangeNotifierProvider(create: (_) => LocationPickerProvider()),
         ChangeNotifierProvider(create: (_) => VendorNotificationProvider()),
-        ChangeNotifierProvider(create: (_) => ReadyToGoLivescreenProvider()..getDocumentStatus()),
+        ChangeNotifierProvider(
+          create: (_) => ReadyToGoLivescreenProvider()..getDocumentStatus(),
+        ),
         ChangeNotifierProvider(
           create: (_) => AuthGuestProvider()..loadStatus(),
         ),

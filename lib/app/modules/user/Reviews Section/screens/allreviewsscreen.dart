@@ -1,3 +1,5 @@
+import 'package:ozi/app/shared/widgets/cutom_nodata_widget.dart';
+
 import '../../../../core/appExports/app_export.dart';
 import '../../../../shared/widgets/custom_app_bar.dart';
 import '../../../../shared/widgets/custom_image_path_helper.dart';
@@ -73,12 +75,7 @@ class _AllReviewsViewState extends State<AllReviewsView> {
                       ),
                     )
                   : provider.reviews.isEmpty
-                  ? Center(
-                      child: Text(
-                        "No reviews found",
-                        style: AppFontStyle.text_16_600(AppColors.black),
-                      ),
-                    )
+                  ? NoDataFoundWidget(message: "No reviews found")
                   : ListView.separated(
                       controller: _scrollController,
                       padding: EdgeInsets.symmetric(

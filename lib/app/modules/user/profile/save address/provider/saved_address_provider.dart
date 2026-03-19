@@ -17,8 +17,11 @@ class SavedAddressProvider extends ChangeNotifier {
   List<Data> _addresses = [];
   List<Data> get addresses => _addresses;
 
+  String? _currentLocationAddress;
+  String? get currentLocationAddress => _currentLocationAddress;
   int _selectedIndex = -1;
   int get selectedIndex => _selectedIndex;
+  bool _hasUserSelectedAddress = false;
 
   // For editing
   Data? _editingAddress;
@@ -40,13 +43,26 @@ class SavedAddressProvider extends ChangeNotifier {
 
   String _currentAddress = "Fetching current location...";
   String get currentAddress => _currentAddress;
+  bool _isLocationLoading = false;
+  bool get isLocationLoading => _isLocationLoading;
+  double? _currentLat;
+  double? get currentLat => _currentLat;
 
+  double? _currentLng;
+  double? get currentLng => _currentLng;
   // New method to fetch current location
   Future<void> fetchCurrentLocation() async {
+    _isLocationLoading = true;
+    notifyListeners();
+
     try {
       bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
       if (!serviceEnabled) {
-        _currentAddress = "Location services disabled";
+        Get.showToast(
+          'Please enable location services',
+          type: ToastType.notice,
+        );
+        _isLocationLoading = false;
         notifyListeners();
         return;
       }
@@ -55,30 +71,36 @@ class SavedAddressProvider extends ChangeNotifier {
       if (permission == LocationPermission.denied) {
         permission = await Geolocator.requestPermission();
         if (permission == LocationPermission.denied) {
-          _currentAddress = "Location permission denied";
+          Get.showToast('Location permission denied', type: ToastType.notice);
+          _isLocationLoading = false;
           notifyListeners();
           return;
         }
       }
 
       if (permission == LocationPermission.deniedForever) {
-        _currentAddress = "Location permission permanently denied";
+        Get.showToast(
+          'Location permission permanently denied',
+          type: ToastType.notice,
+        );
+        _isLocationLoading = false;
         notifyListeners();
         return;
       }
 
-      _currentPosition = await Geolocator.getCurrentPosition(
+      Position position = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high,
+        timeLimit: const Duration(seconds: 10),
       );
 
       // Reverse geocoding for readable address
       List<Placemark> placemarks = await placemarkFromCoordinates(
-        _currentPosition!.latitude,
-        _currentPosition!.longitude,
+        position.latitude,
+        position.longitude,
       );
 
       if (placemarks.isNotEmpty) {
-        Placemark place = placemarks[0];
+        Placemark place = placemarks.first;
         _currentAddress = [
           place.street,
           place.subLocality,
@@ -88,8 +110,11 @@ class SavedAddressProvider extends ChangeNotifier {
         ].where((e) => e?.isNotEmpty == true).join(", ");
       } else {
         _currentAddress =
-            "Current Location (${_currentPosition!.latitude.toStringAsFixed(4)}, ${_currentPosition!.longitude.toStringAsFixed(4)})";
+            "Current Location (${position.latitude.toStringAsFixed(4)}, ${position.longitude.toStringAsFixed(4)})";
       }
+      _currentLocationAddress = _currentAddress;
+      _currentLat = position.latitude;
+      _currentLng = position.longitude;
     } catch (e) {
       _currentAddress = "Unable to fetch current location";
       print("Current location error: $e");
@@ -112,7 +137,7 @@ class SavedAddressProvider extends ChangeNotifier {
         _addresses = addressModel.data ?? [];
 
         // Set default selected index to the default address
-        if (_addresses.isNotEmpty) {
+        if (_addresses.isNotEmpty && !_hasUserSelectedAddress) {
           int defaultIndex = _addresses.indexWhere(
             (addr) => addr.isDefault == true,
           );
@@ -137,6 +162,7 @@ class SavedAddressProvider extends ChangeNotifier {
 
   // Select an address
   void selectAddress(int index) {
+    _hasUserSelectedAddress = true;
     if (index == -2) {
       _selectedIndex = -2;
       notifyListeners();

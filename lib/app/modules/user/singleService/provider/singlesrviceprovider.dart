@@ -38,7 +38,7 @@ class SingleServiceProvider extends ChangeNotifier {
         await fetchCartItems();
       }
     } catch (e) {
-      _error = e.toString();
+      Get.showToast(e.toString(), type: ToastType.error);
     } finally {
       _isLoading = false;
       notifyListeners();

@@ -1,6 +1,7 @@
 import 'package:intl/intl.dart';
 import 'package:ozi/app/modules/user/navigation%20tab/view/navigation_tab_screen.dart';
 import 'package:ozi/app/modules/user/singleService/screen/singleservicescreen.dart';
+import 'package:ozi/app/shared/widgets/cutom_nodata_widget.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../../core/appExports/app_export.dart';
@@ -10,13 +11,15 @@ import '../../model/bookingdetailsmodel.dart' as model;
 import 'package:ozi/app/shared/widgets/custom_date_picker.dart';
 
 class BookingDetailsScreen extends StatefulWidget {
-  final Map<String, dynamic> bookingData;
+  final Map<String, dynamic>? bookingData;
+  final String? bookingId;
   final int tabIndex;
 
   const BookingDetailsScreen({
     super.key,
-    required this.bookingData,
-    required this.tabIndex,
+    this.bookingData,
+    this.bookingId,
+    this.tabIndex = 0,
   });
 
   @override
@@ -26,11 +29,21 @@ class BookingDetailsScreen extends StatefulWidget {
 class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
   bool _isOtpHidden = false;
 
+  int? get currentBookingId {
+    if (widget.bookingId != null) {
+      return int.tryParse(widget.bookingId!);
+    }
+    if (widget.bookingData != null && widget.bookingData!['id'] != null) {
+      return int.tryParse(widget.bookingData!['id'].toString());
+    }
+    return null;
+  }
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final bookingId = widget.bookingData['id'];
+      final bookingId = currentBookingId;
       if (bookingId != null) {
         Provider.of<BookingProvider>(
           context,
@@ -76,7 +89,7 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
                             width: 120,
                             height: 40,
                             onPressed: () {
-                              final bookingId = widget.bookingData['id'];
+                              final bookingId = currentBookingId;
                               if (bookingId != null) {
                                 provider.getBookingDetails(bookingId);
                               }
@@ -89,17 +102,20 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
 
                   final data = provider.bookingDetails?.data;
                   if (data == null) {
-                    return Center(
-                      child: Text(
-                        "No details found",
-                        style: AppFontStyle.text_14_400(AppColors.grey),
-                      ),
+                    return NoDataFoundWidget(
+                      message: "These booking details is no longer avaiable",
                     );
+                    // Center(
+                    //   child: Text(
+                    //     "No details found",
+                    //     style: AppFontStyle.text_14_400(AppColors.grey),
+                    //   ),
+                    // );
                   }
 
                   return RefreshIndicator(
                     onRefresh: () async {
-                      final bookingId = widget.bookingData['id'];
+                      final bookingId = currentBookingId;
                       if (bookingId != null) {
                         await provider.getBookingDetails(bookingId);
                       }
@@ -167,7 +183,10 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
       textStyle: AppFontStyle.text_16_600(AppColors.red),
       height: 52,
       onPressed: () {
-        showCancelBookingDialog(context, widget.bookingData['id']);
+        final bookingId = currentBookingId;
+        if (bookingId != null) {
+          showCancelBookingDialog(context, bookingId);
+        }
       },
     );
   }
@@ -182,7 +201,10 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
       borderColor: AppColors.primary,
       height: 52,
       onPressed: () {
-        showRescheduleBottomSheet(context, widget.bookingData['id'], provider);
+        final bookingId = currentBookingId;
+        if (bookingId != null) {
+          showRescheduleBottomSheet(context, bookingId, provider);
+        }
       },
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -332,10 +354,10 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
                         : AppColors.lightGrey2,
                     onPressed: provider.selectedRescheduleTime != null
                         ? () {
-                            provider.rescheduleBooking(
-                              widget.bookingData['id'],
-                              context,
-                            );
+                            final bookingId = currentBookingId;
+                            if (bookingId != null) {
+                              provider.rescheduleBooking(bookingId, context);
+                            }
                           }
                         : null,
                   ),
@@ -864,12 +886,14 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
                   shape: BoxShape.circle,
                   color: const Color.fromARGB(153, 221, 220, 220),
                 ),
-                child: Image.network(
-                  provider.getFullImageUrl(vendor.proImg),
-                  fit: BoxFit.cover,
-                  errorBuilder: (_, __, ___) {
-                    return Icon(Icons.person_3_outlined);
-                  },
+                child: CircleAvatar(
+                  child: Image.network(
+                    provider.getFullImageUrl(vendor.proImg),
+                    fit: BoxFit.cover,
+                    errorBuilder: (_, __, ___) {
+                      return Icon(Icons.person_3_outlined);
+                    },
+                  ),
                 ),
               ),
               wBox(12),
@@ -998,6 +1022,7 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
           "Address",
           data.address?.fullAddress ?? data.address?.streetAddress ?? "N/A",
         ),
+        hBox(12),
       ],
     );
   }
@@ -1021,7 +1046,15 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
             children: [
               Text(label, style: AppFontStyle.text_12_400(AppColors.grey)),
               hBox(2),
-              Text(value, style: AppFontStyle.text_14_500(AppColors.black)),
+              Text(
+                value,
+                maxLines: 4,
+                overflow: TextOverflow.ellipsis,
+                style: AppFontStyle.text_14_500(
+                  AppColors.black,
+                  overflow: TextOverflow.visible,
+                ),
+              ),
             ],
           ),
         ),

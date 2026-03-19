@@ -5,6 +5,7 @@ import '../../../../../routes/app_routes.dart';
 import '../../../../../shared/widgets/custom_app_bar.dart';
 import '../../../../../shared/widgets/custom_toggle_switch.dart';
 import '../../common screen/provider/comman_screen_provider.dart';
+import '../../../home/provider/HomeScreenProvider.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -62,9 +63,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
                 _settingsTile(
                   icon: ImageConstants.lock,
-                  title: "Login Details",
+                  title: "Where you're logged in",
                   showArrow: true,
                   onTap: () {
+                    final homeProvider = context.read<HomeScreenProvider>();
+                    provider.syncHomeLocation(
+                      context,
+                      homeProvider.lat ?? "",
+                      homeProvider.lng ?? "",
+                    );
                     Navigator.pushNamed(context, AppRoutes.loginDetails);
                   },
                 ),
@@ -74,8 +81,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   title: "Terms & Conditions",
                   showArrow: true,
                   onTap: () {
-                    final url =
-                        provider.settingsData?.data?.termsUrl ?? "";
+                    final url = provider.settingsData?.data?.termsUrl ?? "";
 
                     Navigator.pushNamed(
                       context,
@@ -105,8 +111,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     //     print("Could not launch $url");
                     //   }
                     // }
-                    final url =
-                        provider.settingsData?.data?.privacyUrl ?? "";
+                    final url = provider.settingsData?.data?.privacyUrl ?? "";
 
                     Navigator.pushNamed(
                       context,

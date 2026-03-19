@@ -639,6 +639,7 @@ class _OtpDialogContentState extends State<_OtpDialogContent> {
                                     response['status'] == 200) {
                                   startTimer(clearSuccess: false);
                                   setState(() {
+                                    otpCode = "";
                                     successMessage = "OTP resent successfully";
                                   });
                                 } else {

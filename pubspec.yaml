@@ -63,6 +63,7 @@ dependencies:
   http: ^1.6.0
   google_places_autocomplete: ^2.1.2
   lottie: ^3.3.2
+  flutter_native_splash: ^2.4.7
 
 dependency_overrides:
   google_maps_flutter_android: 2.14.0
@@ -73,6 +74,7 @@ dev_dependencies:
 
 
   flutter_lints: ^5.0.0
+  image: ^4.8.0
 
 flutter:
   uses-material-design: true
@@ -102,4 +104,13 @@ flutter:
     - family: Onest-SemiBold
       fonts:
         - asset: assets/fonts/Onest-SemiBold.ttf
+
+flutter_native_splash:
+  color: "#13AC6F"
+  image: "assets/images/playstore_splash.png"
+  android: true
+  ios: true
+  android_12:
+    color: "#13AC6F"
+    image: "assets/images/playstore_splash.png"
  

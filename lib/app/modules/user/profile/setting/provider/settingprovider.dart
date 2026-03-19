@@ -1,8 +1,30 @@
 import 'package:ozi/app/core/appExports/app_export.dart';
+import 'package:ozi/app/core/device%20info/get_device_Info.dart';
 import 'package:ozi/app/data/repository/repository.dart';
 import 'package:ozi/app/data/storage/user_preference.dart';
 import 'package:ozi/app/routes/app_routes.dart';
+
+import 'package:geocoding/geocoding.dart';
+import 'package:ozi/app/core/device info/datainfoservices.dart';
 import '../model/settingsmodel.dart';
+
+class CurrentLocationInfo {
+  final double latitude;
+  final double longitude;
+  final String locality;
+  final String adminArea;
+  final String country;
+  final String featureName;
+
+  CurrentLocationInfo({
+    required this.latitude,
+    required this.longitude,
+    required this.locality,
+    required this.adminArea,
+    required this.country,
+    required this.featureName,
+  });
+}
 
 class Settingprovider with ChangeNotifier {
   final Repository _repository = Repository();
@@ -12,6 +34,66 @@ class Settingprovider with ChangeNotifier {
 
   settingsModel? _settingsModel;
   settingsModel? get settingsData => _settingsModel;
+
+  CurrentLocationInfo? _currentLocation;
+  CurrentLocationInfo? get currentLocation => _currentLocation;
+
+  Future<void> syncHomeLocation(
+    BuildContext context,
+    String lat,
+    String lng,
+  ) async {
+    try {
+      String city = "";
+      String state = "";
+      String country = "";
+
+      if (lat.isNotEmpty && lng.isNotEmpty && lat != "null" && lng != "null") {
+        List<Placemark> placemarks = await placemarkFromCoordinates(
+          double.parse(lat),
+          double.parse(lng),
+        );
+        if (placemarks.isNotEmpty) {
+          city = placemarks.first.locality ?? "";
+          state = placemarks.first.administrativeArea ?? "";
+          country = placemarks.first.country ?? "";
+        }
+      }
+      String deviceName = await DeviceIdService.getDeviceName();
+      if (context.mounted) {
+        await locationSendToBackend(context, lat, lng, city, state, country);
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print("syncHomeLocation error: $e");
+      }
+    }
+  }
+
+  void fetchCurrentLocation({
+    required double latitude,
+    required double longitude,
+    required String locality,
+    required String adminArea,
+    required String country,
+    required String featureName,
+  }) {
+    try {
+      _currentLocation = CurrentLocationInfo(
+        latitude: latitude,
+        longitude: longitude,
+        locality: locality,
+        adminArea: adminArea,
+        country: country,
+        featureName: featureName,
+      );
+      notifyListeners();
+    } catch (e) {
+      if (kDebugMode) {
+        print("Error updating location: $e");
+      }
+    }
+  }
 
   Future<void> settingsApi() async {
     final role = await UserPreference.returnRole();
@@ -31,6 +113,45 @@ class Settingprovider with ChangeNotifier {
     } finally {
       _isLoading = false;
       notifyListeners();
+    }
+  }
+
+  Future<void> locationSendToBackend(
+    BuildContext context,
+    String lat,
+    String lng,
+    String city,
+    String state,
+    String country,
+  ) async {
+    _isLoading = true;
+    notifyListeners();
+
+    final deviceInfo = await getDeviceInfo();
+    try {
+      Map<String, String> body = {
+        "latitude": lat,
+        "longitude": lng,
+        "city": city,
+        "state": state,
+        "country": country,
+        "device_name": deviceInfo["device_name"]?.toString() ?? "",
+      };
+      final response = await _repository.locationSendToBackend(body);
+      if (response != null && response['status'] == true) {
+        print("locationSendToBackend suucess ");
+        _isLoading = false;
+        notifyListeners();
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error in locationSendToBackend: $e');
+      }
+    } finally {
+      if (_isLoading) {
+        _isLoading = false;
+        notifyListeners();
+      }
     }
   }
 

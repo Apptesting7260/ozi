@@ -1,8 +1,8 @@
 import 'package:flutter/cupertino.dart';
+import 'package:intl/intl.dart';
 import 'package:ozi/app/core/appExports/app_export.dart';
 import '../../../../../shared/widgets/custom_app_bar.dart';
 import '../provider/login_details_provider.dart';
-
 
 class LoginDetailsScreen extends StatefulWidget {
   const LoginDetailsScreen({super.key});
@@ -12,23 +12,27 @@ class LoginDetailsScreen extends StatefulWidget {
 }
 
 class _LoginDetailsScreenState extends State<LoginDetailsScreen> {
-
   @override
   void initState() {
     super.initState();
-    Future.microtask(() =>
-        Provider.of<LoginDetailsProvider>(context, listen: false)
-            .fetchLoginDetails());
+    Future.microtask(
+      () => Provider.of<LoginDetailsProvider>(
+        context,
+        listen: false,
+      ).fetchLoginDetails(),
+    );
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.white,
       body: SafeArea(
         child: RefreshIndicator(
-          onRefresh: () =>
-              Provider.of<LoginDetailsProvider>(context, listen: false)
-                  .fetchLoginDetails(),
+          onRefresh: () => Provider.of<LoginDetailsProvider>(
+            context,
+            listen: false,
+          ).fetchLoginDetails(),
           child: Column(
             children: [
               const CustomAppBar(title: "Login Details"),
@@ -39,7 +43,9 @@ class _LoginDetailsScreenState extends State<LoginDetailsScreen> {
                       return const Center(child: CupertinoActivityIndicator());
                     }
                     if (provider.devices.isEmpty) {
-                      return const Center(child: Text("No login details found"));
+                      return const Center(
+                        child: Text("No login details found"),
+                      );
                     }
                     return ListView.separated(
                       padding: const EdgeInsets.symmetric(vertical: 10),
@@ -55,32 +61,42 @@ class _LoginDetailsScreenState extends State<LoginDetailsScreen> {
 
                         return _DeviceTile(
                           deviceName: device.deviceName ?? "",
-                          location: device.loggedInAt ?? "",
+                          city: device.city ?? "",
+                          state: device.state ?? "",
+                          country: device.country ?? "",
                           isCurrent: device.isCurrentDevice ?? false,
+                          lastUsedAt: device.loggedInAt ?? "",
                           onTap: () {
-                            if (!provider.isLogoutLoading(device.id.toString())) {
+                            if (!provider.isLogoutLoading(
+                              device.id.toString(),
+                            )) {
                               showDeleteDialog(context, () {
                                 Navigator.pop(context);
                                 provider.logoutFromDevice(device.id.toString());
-                              },);
+                              });
                             }
                           },
                           provider: provider,
                           child: provider.isLogoutLoading(device.id.toString())
                               ? const SizedBox(
-                            height: 14,
-                            width: 14,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          )
+                                  height: 14,
+                                  width: 14,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                  ),
+                                )
                               : const Text(
-                            "Log out",
-                            style: TextStyle(fontSize: 12, color: Colors.black87),
-                          ),
+                                  "Log out",
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.black87,
+                                  ),
+                                ),
                         );
                       },
                     );
                   },
-                )
+                ),
               ),
             ],
           ),
@@ -91,10 +107,13 @@ class _LoginDetailsScreenState extends State<LoginDetailsScreen> {
 
   Widget _DeviceTile({
     required String deviceName,
-    required String location,
+    required String city,
+    required String state,
+    required String country,
     required bool isCurrent,
     required VoidCallback onTap,
     required LoginDetailsProvider provider,
+    required String lastUsedAt,
     required Widget child,
   }) {
     return Container(
@@ -106,7 +125,6 @@ class _LoginDetailsScreenState extends State<LoginDetailsScreen> {
       ),
       child: Row(
         children: [
-
           Container(
             height: 46,
             width: 46,
@@ -136,11 +154,21 @@ class _LoginDetailsScreenState extends State<LoginDetailsScreen> {
                     fontFamily: AppFontFamily.regular,
                   ),
                 ),
-               wBox(6),
+                wBox(6),
                 Text(
-                  location,
+                  " $city, $state, $country" ?? "",
                   style: AppFontStyle.text_13_400(
                     AppColors.grey,
+                    fontFamily: AppFontFamily.regular,
+                  ),
+                ),
+                wBox(10),
+                Text(
+                  isCurrent
+                      ? ""
+                      : "Last used on ${DateFormat('dd MMM yyyy').format(DateTime.parse(lastUsedAt))} ",
+                  style: AppFontStyle.text_13_400(
+                    AppColors.primary,
                     fontFamily: AppFontFamily.regular,
                   ),
                 ),
@@ -150,47 +178,53 @@ class _LoginDetailsScreenState extends State<LoginDetailsScreen> {
 
           isCurrent
               ? Container(
-            padding: const EdgeInsets.symmetric(
-                horizontal: 10, vertical: 4),
-            decoration: BoxDecoration(
-              color: const Color(0xffe0f4ec),
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: const Text(
-              "Current",
-              style: TextStyle(
-                color: Color(0xff2E7D32),
-                fontSize: 12,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          )
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 4,
+                  ),
+                  decoration: BoxDecoration(
+                    color: const Color(0xffe0f4ec),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: const Text(
+                    "Current",
+                    style: TextStyle(
+                      color: Color(0xff2E7D32),
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                )
               : OutlinedButton(
-            style: OutlinedButton.styleFrom(
-              padding: const EdgeInsets.symmetric(
-                  horizontal: 16, vertical: 6),
-              side: const BorderSide(color: Color(0xffcfd1d4)),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
-              ),
-            ),
-            onPressed: onTap,
-            // child: provider.isLogoutLoading ? const CircularProgressIndicator() : const Text(
-            //   "Log out",
-            //   style: TextStyle(
-            //     fontSize: 12,
-            //     color: Colors.black87,
-            //   ),
-            // ),
-            child: child
-          ),
+                  style: OutlinedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 6,
+                    ),
+                    side: const BorderSide(color: Color(0xffcfd1d4)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                  ),
+                  onPressed: onTap,
+                  // child: provider.isLogoutLoading ? const CircularProgressIndicator() : const Text(
+                  //   "Log out",
+                  //   style: TextStyle(
+                  //     fontSize: 12,
+                  //     color: Colors.black87,
+                  //   ),
+                  // ),
+                  child: child,
+                ),
         ],
       ),
     );
   }
 
   Future<void> showDeleteDialog(
-      BuildContext context,VoidCallback onTap) async {
+    BuildContext context,
+    VoidCallback onTap,
+  ) async {
     showDialog(
       context: context,
       barrierDismissible: true,
@@ -202,7 +236,7 @@ class _LoginDetailsScreenState extends State<LoginDetailsScreen> {
           ),
           backgroundColor: AppColors.white,
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal:22, vertical:22),
+            padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 22),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [

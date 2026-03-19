@@ -1,5 +1,7 @@
 import 'package:ozi/app/modules/user/cart/change%20address/view/ChangeAddressScreen.dart';
 import 'package:ozi/app/modules/user/cart/change%20address/provider/ChangeAddressProvider.dart';
+import 'package:ozi/app/modules/user/profile/save%20address/provider/saved_address_provider.dart';
+import 'package:ozi/app/modules/user/profile/save%20address/view/SavedAddressScreen.dart';
 import '../../../../core/utils/location_permission_helper.dart';
 import 'package:ozi/app/modules/vendor/home/notification/view/vendor_notifications_screen.dart';
 
@@ -34,6 +36,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
         context.read<ProfileProvider>().fetchUserProfile();
         context.read<Settingprovider>().settingsApi();
         context.read<HomeScreenProvider>().loadOnce(context);
+        context.read<VendorNotificationProvider>().getNotifications();
       }
     });
   }
@@ -71,7 +74,7 @@ class HomeScreenView extends StatelessWidget {
     return Scaffold(
       body: SafeArea(
         child: RefreshIndicator(
-          onRefresh: () => provider.refreshData(),
+          onRefresh: () => provider.refreshData(context: context),
           child: SingleChildScrollView(
             physics: const AlwaysScrollableScrollPhysics(
               parent: BouncingScrollPhysics(),
@@ -163,16 +166,31 @@ class HomeScreenView extends StatelessWidget {
                       final result = await Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) =>
-                              const ChangeAddressScreen(isFromHome: true),
+                          builder: (context) => const SavedAddressScreen(
+                            isservice: false,
+                            isHome: true,
+                          ),
                         ),
                       );
                       if (result != null) {
                         provider.updateFromSelection(
                           result as int,
-                          context.read<ChangeAddressProvider>(),
+                          context.read<SavedAddressProvider>(),
                         );
                       }
+                      // final result = await Navigator.push(
+                      //   context,
+                      //   MaterialPageRoute(
+                      //     builder: (context) =>
+                      //         const ChangeAddressScreen(isFromHome: true),
+                      //   ),
+                      // );
+                      // if (result != null) {
+                      //   provider.updateFromSelection(
+                      //     result as int,
+                      //     context.read<ChangeAddressProvider>(),
+                      //   );
+                      // }
                     }
                   }
                 },
