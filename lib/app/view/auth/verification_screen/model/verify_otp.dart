@@ -38,7 +38,10 @@ class VerifyOtp {
       type = data['type'];
       isRegistrationComplete = data['is_registration_complete'];
       isLoggedIn = data['is_logged_in'];
-      isRoleSelected = data['is_role_selected'];
+      isRoleSelected = (data['is_role_selected'] == true ||
+              data['is_role_selected'] == 1 ||
+              data['is_role_selected'] == '1') ||
+          (data['user_role'] != null && data['user_role'].toString().isNotEmpty);
       nextStep = data['next_step'];
       role = data['user_role'];
       token = data['api_token'];

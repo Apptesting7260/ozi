@@ -84,7 +84,6 @@ class DeviceIdService {
   //     return uuid;
   //   }
   // }
-  // Keychain storage setup (iOS ke liye)
   static const _storage = FlutterSecureStorage();
   static final DeviceInfoPlugin _deviceInfo = DeviceInfoPlugin();
 
@@ -115,7 +114,6 @@ class DeviceIdService {
     }
     return deviceId ?? "unknown_id";
   }
-  // Keychain storage setup (iOS ke liye)
   // static const _storagee = FlutterSecureStorage();
   // static final DeviceInfoPlugin _deviceInfo = DeviceInfoPlugin();
 
