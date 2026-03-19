@@ -1,11 +1,17 @@
 import 'package:ozi/app/modules/vendor/navigation%20tab/provider/navigation_provider.dart';
 
 import '../../../../core/appExports/app_export.dart';
+import '../../../user/profile/view/profile_screen.dart';
+import '../../bookings/view/vendor_mybookings_screen.dart';
+import '../../home/view/vendor_home_screen.dart';
+import '../../services/view/service_screen.dart';
+import '../../wallet/view/wallet_screen.dart';
 
 class VendorNavigationTabScreen extends StatefulWidget {
+  dynamic conversationId;
   final int? initialIndex;
 
-   VendorNavigationTabScreen({super.key, this.initialIndex});
+   VendorNavigationTabScreen({super.key, this.initialIndex,this.conversationId});
 
   @override
   State<VendorNavigationTabScreen> createState() => _VendorNavigationTabScreenState();
@@ -30,6 +36,14 @@ class _VendorNavigationTabScreenState extends State<VendorNavigationTabScreen> {
     );
   }
 
+  late final List<Widget> pages = [
+    VendorHomeScreen(openConversationId: widget.conversationId,),  // 0
+    VendorMybookingsScreen(), // 1
+    VendorMyWalletScreen(), // 2
+    VendorServicesScreen(),  // 3
+    ProfileScreen(), // 4
+  ];
+
   @override
   Widget build(BuildContext context) {
     return PopScope(
@@ -47,7 +61,7 @@ class _VendorNavigationTabScreenState extends State<VendorNavigationTabScreen> {
       child: Scaffold(
         body: Consumer<VendorNavigationProvider>(
           builder: (context, navProvider, _) {
-            return navProvider.pages[navProvider.currentIndex];
+            return pages[navProvider.currentIndex];
           },
         ),
         bottomNavigationBar: Consumer<VendorNavigationProvider>(

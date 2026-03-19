@@ -163,22 +163,7 @@ class _MyServicesContent extends StatelessWidget {
 
                       if (list.isEmpty) {
                         return Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(
-                                Icons.list_alt,
-                                size: 80,
-                                color: AppColors.grey.withValues(alpha: 0.3),
-                              ),
-                              hBox(16),
-                              NoDataFoundWidget(),
-                              // Text(
-                              //   "No services available",
-                              //   style: AppFontStyle.text_16_400(AppColors.grey),
-                              // ),
-                            ],
-                          ),
+                          child:  NoDataFoundWidget(),
                         );
                       }
 

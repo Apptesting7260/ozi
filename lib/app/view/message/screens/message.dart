@@ -29,33 +29,9 @@ class _MessageScreenState extends State<MessageScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<MessageProvider>().getAllConversions(true);
 
-      if (widget.openConversationId != null) {
-        Navigator.pushNamed(
-          context,
-          AppRoutes.messageDetailsScreen,
-          arguments: {"conversion_id": widget.openConversationId},
-        );
-      }
+
     });
   }
-  // @override
-  // void initState() {
-  //   // TODO: implement initState
-  //   super.initState();
-  //   sharedContent = widget.sharedContent;
-  //   context.read<MessageProvider>().getAllConversions(true);
-  //   if (widget.openConversationId != null) {
-  //     WidgetsBinding.instance.addPostFrameCallback((_) {
-  //       Navigator.pushNamed(
-  //         context,
-  //         AppRoutes.messageDetailsScreen,
-  //         arguments: {
-  //           "conversion_id": widget.openConversationId,
-  //         },
-  //       );
-  //     });
-  //   }
-  // }
 
   @override
   Widget build(BuildContext context) {
@@ -83,36 +59,41 @@ class _MessageScreenState extends State<MessageScreen> {
                       },
                       child: SingleChildScrollView(
                         physics: AlwaysScrollableScrollPhysics(),
-                        child: SizedBox(
-                          height: Get.height() * 0.7,
-                          child: Center(child: Text('No Data Found')),
-                        ),
-                      ),
-                    )
-                  : RefreshIndicator(
-                      onRefresh: () async {
-                        value.getAllConversions(true);
-                      },
-                      child: Column(
-                        children: [
-                          hBox(14),
-                          Divider(color: AppColors.primary, height: 1),
-                          // MessageScreen.adsWidget,
-                          Expanded(
-                            child: ListView.builder(
-                              controller: value.scrollController,
-                              physics: AlwaysScrollableScrollPhysics(),
-                              itemCount:
-                                  value.allConversionData.data?.data?.length ??
-                                  0,
-                              padding: const EdgeInsets.symmetric(vertical: 8),
-                              itemBuilder: (context, index) {
-                                ConversionListModelData? message =
-                                    value.allConversionData.data?.data?[index];
-                                final isGroup = message?.chatType != 'personal';
-                                final displayName = isGroup
-                                    ? message?.groupName ?? ''
-                                    : message?.receiver?.userName ?? '';
+                        itemCount:value.allConversionData.data?.data?.length??0,
+                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        itemBuilder: (context, index) {
+                          ConversionListModelData? message = value.allConversionData.data?.data?[index];
+                          final isGroup = message?.chatType!='personal';
+                          final displayName = isGroup
+                              ? message?.groupName??''
+                              : message?.receiver?.userName??'';
+
+                          return InkWell(
+                            onTap: () async {
+
+                              if (kDebugMode) {
+                                print('shared content is ${widget.sharedContent}');
+                              }
+                              value.readAllCounts(message?.sId??'');
+                               await Navigator.pushNamed(
+                                navigatorKey.currentContext!,
+                                AppRoutes.messageDetailsScreen,
+                                arguments: {
+                                  "conversion_id": message?.sId ?? '',
+                                  "receiver_id": message?.receiver?.id ?? '',
+                                  "isGroup": isGroup,
+                                  "dataLink": sharedContent
+                                },
+                              );
+
+
+                                context.read<MessageProvider>().getAllConversions(true);
+                               sharedContent = null;
+                            },
+                            child: Padding(
+                              padding: REdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                              child: Row(
+                                children: [
 
                                 return InkWell(
                                   onTap: () async {

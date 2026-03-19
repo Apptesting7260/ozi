@@ -23,6 +23,15 @@ class MessageProvider extends ChangeNotifier {
     initProvider();
   }
 
+  int get unreadChatCount {
+    final list = allConversionData.data?.data ?? [];
+
+    return list.where((chat) {
+      final count = int.tryParse(chat.unreadMsgCount ?? '0') ?? 0;
+      return count > 0;
+    }).length;
+  }
+
   Future<void> initProvider() async {
     await initUser();
     _socket = navigatorKey.currentContext?.read<SocketController>();

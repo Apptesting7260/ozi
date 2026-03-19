@@ -1058,7 +1058,7 @@ class Repository {
     }
   }
 
-  Future<bool> withDrawMoney({required String amount}) async {
+  Future<Map<String, dynamic>> withDrawMoney({required String amount}) async {
     try {
       dev.log("withDrawMoney URL: ${AppUrls.withDrawMoney}");
 
@@ -1068,15 +1068,15 @@ class Repository {
 
       dev.log("Withdraw response: $response");
 
-      //  Adjust according to your API structure
-      if (response != null && response["status"] == true) {
-        return true;
-      } else {
-        return false;
-      }
+      return response;
+
     } catch (e) {
       dev.log("Error in withDrawMoney: $e");
-      return false;
+
+      return {
+        "status": false,
+        "message": "Something went wrong"
+      };
     }
   }
 
