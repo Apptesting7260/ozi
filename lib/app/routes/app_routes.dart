@@ -119,6 +119,9 @@ class AppRoutes {
         );
       case messageDetailsScreen:
         final args = setting.arguments as Map<String, dynamic>;
+        if (kDebugMode) {
+          print("Here Args ============================> ${args['messageForSend']}");
+        }
         return MaterialPageRoute(
           builder: (context) => MessageDetailsScreen(
             conversionId: args['conversion_id'],

@@ -8,11 +8,13 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:ozi/app/data/network/web_socket_connection_service.dart';
 import 'package:permission_handler/permission_handler.dart';
 import '../../data/storage/user_preference.dart';
 import '../../modules/user/navigation tab/view/navigation_tab_screen.dart';
 import '../../modules/vendor/navigation tab/view/vendor_navigation_tab_screen.dart';
 import '../../routes/app_routes.dart';
+import '../../view/message/screens/message.dart';
 import '../utils/get_utils.dart';
 import '../../../firebase_options.dart';
 
@@ -35,6 +37,12 @@ Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   log("Background Notification: ${message.notification?.body}");
   log("Background Data: ${message.data}");
+
+  debugPrint("Background Notification: ${message.notification?.body}");
+  debugPrint("📨 Foreground Message ID: ${message.messageId}");
+  debugPrint('🔔 Title: ${message.notification?.title}');
+  debugPrint('📝 Body : ${message.notification?.body}');
+  debugPrint('📦 Data : ${message.data}');
 
   // ❌ Do NOT show a local notification here.
   //    Firebase's native SDK already displays the notification
@@ -64,6 +72,7 @@ void backgroundNotificationTap(NotificationResponse notificationResponse) {
     PushNotificationService.navigateFromNotification(
       screen: data['screen'] ?? '',
       bookingId: data['booking_id'] ?? '',
+      conversationId: data['conversationId'] ?? '',
       type: data['type'] ?? '',
     );
   } catch (e) {
@@ -122,7 +131,7 @@ class PushNotificationService {
       if (message.messageId != null) {
         if (_handledMessageIds.contains(message.messageId)) {
           debugPrint(
-            "♻️ Duplicate foreground message ignored: ${message.messageId}",
+              "♻️ Duplicate foreground message ignored: ${message.messageId}",
           );
           return;
         }
@@ -158,12 +167,21 @@ class PushNotificationService {
 
       final String screen = message.data['screen'] ?? '';
       final String bookingId = message.data['booking_id'] ?? '';
+      final String conversationId = message.data['conversationId'] ?? '';
       final String type = message.data['type'] ?? '';
 
-      if (screen.isNotEmpty && bookingId.isNotEmpty) {
+      if (type == "message" && conversationId.isNotEmpty) {
+        await navigateFromNotification(
+          screen: '',
+          bookingId: '',
+          conversationId: conversationId,
+          type: type,
+        );
+      } else if (bookingId.isNotEmpty) {
         await navigateFromNotification(
           screen: screen,
           bookingId: bookingId,
+          conversationId: conversationId,
           type: type,
         );
       }
@@ -215,20 +233,29 @@ class PushNotificationService {
           .getInitialMessage();
 
       if (initialMessage != null) {
+        _pendingNotificationData = initialMessage.data;
         debugPrint("📩 App opened via notification (terminated state)");
         debugPrint("📩 Data: ${initialMessage.data}");
 
         final String screen = initialMessage.data['screen'] ?? '';
         final String bookingId = initialMessage.data['booking_id'] ?? '';
+        final String conversationId = initialMessage.data['conversationId'] ?? '';
         final String type = initialMessage.data['type'] ?? '';
 
-        if (screen.isNotEmpty && bookingId.isNotEmpty) {
-          _pendingNotificationData = {
-            'screen': screen,
-            'booking_id': bookingId,
-            'type': type,
-          };
-          debugPrint("📩 Stored pending notification for splash to consume");
+        if (type == "message" && conversationId.isNotEmpty) {
+          await navigateFromNotification(
+            screen: '',
+            bookingId: '',
+            conversationId: conversationId,
+            type: type,
+          );
+        } else if (bookingId.isNotEmpty) {
+          await navigateFromNotification(
+            screen: screen,
+            bookingId: bookingId,
+            conversationId: conversationId,
+            type: type,
+          );
         }
       }
     } catch (e) {
@@ -380,12 +407,21 @@ class PushNotificationService {
 
       final String screen = data['screen'] ?? '';
       final String bookingId = data['booking_id'] ?? '';
+      final String conversationId = data['conversationId'] ?? '';
       final String type = data['type'] ?? '';
 
-      if (screen.isNotEmpty && bookingId.isNotEmpty) {
+      if (type == "message" && conversationId.isNotEmpty) {
+        await navigateFromNotification(
+          screen: '',
+          bookingId: '',
+          conversationId: conversationId,
+          type: type,
+        );
+      } else if (bookingId.isNotEmpty) {
         await navigateFromNotification(
           screen: screen,
           bookingId: bookingId,
+          conversationId: conversationId,
           type: type,
         );
       }
@@ -441,17 +477,27 @@ class PushNotificationService {
 
     final String screen = data['screen'] ?? '';
     final String bookingId = data['booking_id'] ?? '';
+    final String conversationId =data['conversationId'] ?? '';
     final String type = data['type'] ?? '';
 
-    debugPrint("📩 Consuming pending notification: screen=$screen, bookingId=$bookingId, type=$type");
+    debugPrint("📩 Consuming pending notification: screen=$screen, bookingId=$bookingId, type=$type,conversationId  = $conversationId");
 
-    if (screen.isNotEmpty && bookingId.isNotEmpty) {
+
+
+    if (type == "message" && conversationId.isNotEmpty) {
+      await navigateFromNotification(
+        screen: '',
+        bookingId: '',
+        conversationId: conversationId,
+        type: type,
+      );
+    } else if (bookingId.isNotEmpty) {
       await navigateFromNotification(
         screen: screen,
         bookingId: bookingId,
+        conversationId: conversationId,
         type: type,
       );
-      return true;
     }
     return false;
   }
@@ -460,33 +506,68 @@ class PushNotificationService {
   static Future<void> navigateFromNotification({
     required String screen,
     required dynamic bookingId,
+    required String conversationId,
     required String type,
   }) async {
-    await Future.delayed(const Duration(milliseconds: 500));
-
     final context = navigatorKey.currentContext;
     if (context == null) {
       debugPrint("❌ navigatorKey context null");
       return;
     }
 
+    SocketController? _socket;
+
+    // ✅ WAIT for socket connection
+    // await _socket.socket.
+
+    // ✅ IMPORTANT: tell backend user is online
+    // SocketController.instance.goOnline();
+
+    debugPrint("✅ Socket connected & online event sent");
+
     String? role = await UserPreference.returnRole();
-    debugPrint(
-      "ROLE=$role | SCREEN=$screen | BOOKING_ID=$bookingId | TYPE=$type",
-    );
 
     if (role == "vendor") {
-      _handleVendorNavigation(context, type, bookingId);
+      _handleVendorNavigation(context, type, bookingId, conversationId);
     } else {
-      _handleUserNavigation(context, type, bookingId);
+      _handleUserNavigation(context, type, bookingId, conversationId);
     }
   }
 
   static void _handleVendorNavigation(
-    BuildContext context,
-    String type,
-    dynamic bookingId,
-  ) {
+      BuildContext context,
+      String type,
+      dynamic bookingId,
+      dynamic conversationId,
+      ) {
+    print("🔔 Navigation Triggered");
+    print("Type: $type");
+    print("BookingId: $bookingId");
+    print("ConversationId: $conversationId");
+
+    if (type == "message") {
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(
+          builder: (_) => VendorNavigationTabScreen(initialIndex: 0),
+        ),
+            (route) => false,
+      );
+
+      Future.delayed(const Duration(milliseconds: 300), () {
+        Navigator.push(
+          navigatorKey.currentContext!,
+          MaterialPageRoute(
+            builder: (_) => MessageScreen(
+              openConversationId: conversationId,
+            ),
+          ),
+        );
+      });
+
+      return;
+    }
+
     int tabIndex = switch (type) {
       "booking_request" => 1,
       "credit" => 2,
@@ -497,12 +578,14 @@ class PushNotificationService {
       _ => 0,
     };
 
+    print("➡️ Navigating to Vendor Tab Index: $tabIndex");
+
     Navigator.pushAndRemoveUntil(
       context,
       MaterialPageRoute(
         builder: (_) => VendorNavigationTabScreen(initialIndex: tabIndex),
       ),
-      (route) => false,
+          (route) => false,
     );
   }
 
@@ -510,7 +593,39 @@ class PushNotificationService {
     BuildContext context,
     String type,
     dynamic bookingId,
+      dynamic conversationId,
   ) {
+
+    print("ConversationId: $conversationId");
+
+    if (type == "message") {
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(
+          builder: (_) => VendorNavigationTabScreen(initialIndex: 0),
+        ),
+            (route) => false,
+      );
+
+      Future.delayed(const Duration(milliseconds: 300), () {
+        Navigator.push(
+          navigatorKey.currentContext!,
+          MaterialPageRoute(builder: (_) => MessageScreen()),
+        );
+
+        Future.delayed(const Duration(milliseconds: 200), () {
+          Navigator.pushNamed(
+            navigatorKey.currentContext!,
+            AppRoutes.messageDetailsScreen,
+            arguments: {"conversion_id": conversationId},
+          );
+        });
+      });
+
+      return;
+    }
+
+
     int tabIndex = switch (type) {
       "booking_confirm" => 2,
       "booking_cancelled" => 2,

@@ -250,7 +250,13 @@ class _MapPickerPageState extends State<MapPickerPage> {
                     Navigator.pop(context);
                   }
                 : () {
-                    Navigator.pop(context, provider.selectedLatLng);
+              Navigator.pop(context, {
+                "latLng": provider.selectedLatLng,
+                "address": provider.address,
+                "city": provider.city,
+                "state": provider.state,
+                "country": provider.country,
+              });
                   },
             child: Container(
               color: AppColors.primary,

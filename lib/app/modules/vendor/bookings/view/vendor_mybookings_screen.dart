@@ -25,7 +25,6 @@ class _MyBookingsContent extends StatelessWidget {
   Widget build(BuildContext context) {
     final provider = context.watch<VendorMybookingsProvider>();
 
-
     return Scaffold(
       body: SafeArea(
         child: Column(
