@@ -289,7 +289,7 @@ class ProfileScreenView extends StatelessWidget {
                               // },
                               onPressed: () {
                                 if (!profileProvider.isLoading) {
-                                  showDeleteDialog(context, profileProvider);
+                                  showLogoutDialog(context, profileProvider);
                                 }
                               },
                               child: profileProvider.isLoading
@@ -440,7 +440,7 @@ class ProfileScreenView extends StatelessWidget {
     );
   }
 
-  Future<void> showDeleteDialog(
+  Future<void> showLogoutDialog(
     BuildContext context,
     ProfileProvider provider,
   ) async {

@@ -4,6 +4,7 @@ import '../../../../core/appExports/app_export.dart';
 import '../../../../data/response/api_response.dart';
 import '../../../../data/response/api_status.dart';
 import '../../../../shared/widgets/custom_toggle_switch.dart';
+import '../../../../view/message/provider/message_provider.dart';
 import '../../../../view/message/screens/message.dart';
 import '../../../user/profile/view/profile_provider/profile_provider.dart';
 import '../new requests/view/new_request_screen.dart';
@@ -26,6 +27,8 @@ class _VendorHomeScreenState extends State<VendorHomeScreen> {
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (!mounted) return;
+
+      context.read<MessageProvider>().getAllConversions(true);
 
       final homeProvider = context.read<VendorHomeProvider>();
       final notificationProvider = context.read<VendorNotificationProvider>();

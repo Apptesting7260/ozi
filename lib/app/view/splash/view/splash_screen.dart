@@ -167,7 +167,9 @@ class _SplashScreenState extends State<SplashScreen> {
     } else if (role == 'vendor') {
       Navigator.push(
         navigatorKey.currentContext!,
-        MaterialPageRoute(builder: (_) => VendorNavigationTabScreen()),
+        MaterialPageRoute(
+          builder: (_) => VendorNavigationTabScreen(),
+        ),
       );
     }
   }

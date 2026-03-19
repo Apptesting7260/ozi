@@ -411,6 +411,8 @@ class VerificationProvider extends ChangeNotifier {
   Future<void> resendOtp(String phone, String countryCode) async {
     if (resendTime > 0) return;
 
+    otpController.clear();
+
     isLoading = true;
     errorMessage = null;
     notifyListeners();

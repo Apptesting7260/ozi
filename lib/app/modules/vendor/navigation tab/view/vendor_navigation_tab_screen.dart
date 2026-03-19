@@ -5,7 +5,7 @@ import '../../../../core/appExports/app_export.dart';
 class VendorNavigationTabScreen extends StatefulWidget {
   final int? initialIndex;
 
-  const VendorNavigationTabScreen({super.key, this.initialIndex});
+   VendorNavigationTabScreen({super.key, this.initialIndex});
 
   @override
   State<VendorNavigationTabScreen> createState() => _VendorNavigationTabScreenState();
