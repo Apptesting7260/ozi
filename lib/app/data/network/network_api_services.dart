@@ -258,21 +258,35 @@ class NetworkApiServices extends BaseApiServices {
   // }
 
   dynamic returnResponse(Response response, String url) {
+    final statusCode = response.statusCode ?? 0;
+    final data = response.data;
 
-    if (response.statusCode == 200 || response.statusCode == 201) {
-      return response.data;
-    }
-
-    else if (response.statusCode == 401) {
+    if (statusCode == 401) {
       _handleLogout();
       throw UnauthenticatedException();
     }
 
-    else {
+    if (statusCode >= 500) {
       throw FetchDataException(
-        response.data?['message'] ?? 'Error ${response.statusCode}',
+        "Server error (${response.statusCode}). Please try again later.",
       );
     }
+
+    if (data != null) {
+      // If backend sends structured response
+      if (data is Map<String, dynamic>) {
+        return data;
+      }
+
+      // If backend sends plain response (rare case)
+      return {
+        "status": true,
+        "message": "Success",
+        "data": data,
+      };
+    }
+
+    throw FetchDataException("Empty response from server");
   }
 
 

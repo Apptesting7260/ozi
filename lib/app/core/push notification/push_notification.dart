@@ -549,21 +549,12 @@ class PushNotificationService {
       Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(
-          builder: (_) => VendorNavigationTabScreen(initialIndex: 0),
+          builder: (_) => VendorNavigationTabScreen(initialIndex: 0,conversationId: conversationId,),
         ),
             (route) => false,
       );
 
-      Future.delayed(const Duration(milliseconds: 300), () {
-        Navigator.push(
-          navigatorKey.currentContext!,
-          MaterialPageRoute(
-            builder: (_) => MessageScreen(
-              openConversationId: conversationId,
-            ),
-          ),
-        );
-      });
+
 
       return;
     }

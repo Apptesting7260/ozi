@@ -8,8 +8,8 @@ import '../circular_profile_image.dart';
 import '../provider/message_provider.dart';
 
 class MessageScreen extends StatefulWidget {
-  dynamic openConversationId;
-   MessageScreen({super.key,this.sharedContent,this.openConversationId});
+
+   MessageScreen({super.key,this.sharedContent});
 
   // static const adsWidget = AddsCommanScreen();
   final String? sharedContent;
@@ -25,23 +25,16 @@ class _MessageScreenState extends State<MessageScreen> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
-    sharedContent = widget.sharedContent;
-    context.read<MessageProvider>().getAllConversions(true);
-    if (widget.openConversationId != null) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        Navigator.pushNamed(
-          context,
-          AppRoutes.messageDetailsScreen,
-          arguments: {
-            "conversion_id": widget.openConversationId,
-          },
-        );
-      });
-    }
-  }
 
+    sharedContent = widget.sharedContent;
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<MessageProvider>().getAllConversions(true);
+
+
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -100,11 +93,19 @@ class _MessageScreenState extends State<MessageScreen> {
                                 print('shared content is ${widget.sharedContent}');
                               }
                               value.readAllCounts(message?.sId??'');
-                              await Navigator.pushNamed(
+                               await Navigator.pushNamed(
                                 navigatorKey.currentContext!,
                                 AppRoutes.messageDetailsScreen,
-                                arguments: {"conversion_id": message?.sId??'',"receiver_id":message?.receiver?.id??'',"isGroup":isGroup,"dataLink":sharedContent},
+                                arguments: {
+                                  "conversion_id": message?.sId ?? '',
+                                  "receiver_id": message?.receiver?.id ?? '',
+                                  "isGroup": isGroup,
+                                  "dataLink": sharedContent
+                                },
                               );
+
+
+                                context.read<MessageProvider>().getAllConversions(true);
                                sharedContent = null;
                             },
                             child: Padding(

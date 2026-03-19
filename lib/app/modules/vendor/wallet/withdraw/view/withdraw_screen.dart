@@ -135,27 +135,27 @@ class _WithdrawContent extends StatelessWidget {
                         . withValues( alpha: 0.70 ),
                     onPressed: provider.canContinue && !provider.isLoading
                         ? () async {
-                      final success = await provider.withDrawMoney(
+                      final response = await provider.withDrawMoney(
                         amount: provider.controller.text,
                       );
 
-                      if (success == true) {
-                        // ScaffoldMessenger.of(context).showSnackBar(
-                        //   const SnackBar(content: Text("Withdrawal Successful")),
-                        // );
-                        Get.showToast("Withdrawal Successful", type: ToastType.success);
+                      if (response == null) return;
+
+                      if (response['status'] == true) {
+                        Get.showToast(response['message'], type: ToastType.success);
+                        await Future.delayed(const Duration(milliseconds: 300));
+
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (_) => const VendorMyWalletScreen()),
+                            builder: (_) => const VendorMyWalletScreen(),
+                          ),
                         );
                       } else {
-                        // ScaffoldMessenger.of(context).showSnackBar(
-                        //   const SnackBar(content: Text("Withdrawal Failed")),
-                        // );
-                        Get.showToast("Withdrawal Failed", type: ToastType.error);
+                        Get.showToast(response['message'].toString(), type: ToastType.error);
                       }
-                    } : null,
+                    }
+                        : null,
 
                   ),
 
