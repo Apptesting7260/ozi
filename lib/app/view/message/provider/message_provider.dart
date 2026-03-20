@@ -5,6 +5,7 @@ import '../../../data/network/web_socket_connection_service.dart';
 import '../../../data/response/api_response.dart';
 import '../../../data/storage/user_preference.dart';
 import '../message_isolates/message_isolates.dart';
+import '../../../core/utils/toast.dart';
 
 class MessageProvider extends ChangeNotifier {
   String? userId;
@@ -18,6 +19,8 @@ class MessageProvider extends ChangeNotifier {
   ApiResponse<ConversionListModel> get allConversionData => _allConversionData;
 
   SocketController? _socket;
+  SocketController? get socket =>
+      _socket ??= navigatorKey.currentContext?.read<SocketController>();
 
   MessageProvider() {
     initProvider();
@@ -34,7 +37,7 @@ class MessageProvider extends ChangeNotifier {
 
   Future<void> initProvider() async {
     await initUser();
-    _socket = navigatorKey.currentContext?.read<SocketController>();
+    _socket = socket;
     startScrollListener();
     // listenToConversationUpdates();
   }
@@ -73,7 +76,7 @@ class MessageProvider extends ChangeNotifier {
   }
 
   Future<void> getAllConversions(bool resetPage) async {
-    if(isLoading) return;
+    if (isLoading) return;
     try {
       if (userId == null || userId == '') {
         await initUser();
@@ -81,40 +84,33 @@ class MessageProvider extends ChangeNotifier {
       if (resetPage) {
         updateAllConversionData(ApiResponse.loading());
         page = 1;
+        isPagination = true;
       }
 
       isLoading = true;
       await initUser();
 
       // Cancel previous listeners
-      _socket?.off(AppUrls.conversationListEvent);
+      socket?.off(AppUrls.conversationListEvent);
 
-      // Create a completer to wait for the socket response
       final completer = Completer<void>();
-
-      // Start 7 second timeout
-      final timeoutTimer = Timer(const Duration(seconds: 7), () {
+      final timeoutTimer = Timer(const Duration(seconds: 15), () {
         if (!completer.isCompleted) {
-           completer.completeError("Request timed out");
-          _socket?.off(AppUrls.conversationListEvent);
+          completer.completeError("Request timed out");
+          socket?.off(AppUrls.conversationListEvent);
         }
       });
 
-      // Send socket request
-      _socket?.sendMessage(AppUrls.conversationListEvent, {
-        "userId": userId ?? '',
-        "page": page,
-        "limit": 10,
-      });
+      // 1. LISTEN FIRST - Listen for response BEFORE sending message
+      socket?.listenToEvent(AppUrls.conversationListEvent, (p0) async {
+        if (completer.isCompleted) return;
 
-      // Listen for response
-      _socket?.listenToEvent(AppUrls.conversationListEvent, (p0) async {
-        // if (completer.isCompleted) return; // ignore if timeout already happened
-      if(listen==false){
-        listenToConversationUpdates();
-      }
-        _socket?.off(AppUrls.conversationListEvent);
-        timeoutTimer.cancel(); // stop timeout timer
+        if (listen == false) {
+          listenToConversationUpdates();
+        }
+
+        socket?.off(AppUrls.conversationListEvent);
+        timeoutTimer.cancel();
 
         if (p0 is Map<String, dynamic>) {
           final data = p0;
@@ -131,31 +127,48 @@ class MessageProvider extends ChangeNotifier {
 
           isLoading = false;
           page++;
-          completer.complete(); // mark response completed
+          completer.complete();
+        } else {
+          completer.completeError("Invalid response format");
         }
       });
 
+      // 2. SEND MESSAGE - Pass resetPage as forceReconnect to fix the reported issue
+      await socket?.sendMessage(
+        AppUrls.conversationListEvent,
+        {"userId": userId ?? '', "page": page, "limit": 10},
+        forceReconnect:
+            resetPage, // This ensures socket is re-established on pull-to-refresh
+      );
+
       // Wait for either response OR timeout
       await completer.future;
-
     } catch (e) {
       debugPrint("Error while processing conversation list: $e");
-      updateAllConversionData(ApiResponse.error("Communication Error"));
+      String errorMsg = "Connection Error, Please try again later.";
+      if (e.toString().contains("timeout")) {
+        errorMsg = "Request timed out";
+      } else if (e.toString().contains("Connection error") ||
+          e.toString().contains("WebSocketException")) {
+        errorMsg = "Connection Error, Please try again later.";
+      }
+
+      updateAllConversionData(ApiResponse.error(errorMsg));
       isLoading = false;
+
+      if (navigatorKey.currentContext != null) {
+        errorToast(navigatorKey.currentContext!, errorMsg);
+      }
     }
   }
-
-
-
 
   bool listen = false;
 
   void listenToConversationUpdates() {
     listen = true;
-    _socket?.listenToEvent(AppUrls.updateConverstationEvent, (p0) async {
+    socket?.listenToEvent(AppUrls.updateConverstationEvent, (p0) async {
       if (p0 is Map<String, dynamic> && p0['status'] == true) {
-        final updatedData =
-        await parseConversationListInBackground(p0['data']);
+        final updatedData = await parseConversationListInBackground(p0['data']);
         final list = allConversionData.data?.data ?? [];
         final index = list.indexWhere((e) => e.sId == updatedData.sId);
         if (index != -1) {
@@ -170,12 +183,8 @@ class MessageProvider extends ChangeNotifier {
   @override
   void dispose() {
     scrollController.dispose();
-    _socket?.off(AppUrls.conversationListEvent);
-    _socket?.off(AppUrls.updateConverstationEvent);
+    socket?.off(AppUrls.conversationListEvent);
+    socket?.off(AppUrls.updateConverstationEvent);
     super.dispose();
   }
-
-
 }
-
-

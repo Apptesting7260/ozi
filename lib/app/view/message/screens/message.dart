@@ -3,6 +3,7 @@ import '../../../core/constants/app_urls.dart';
 import '../../../data/models/chat_models/conversion_list_model.dart';
 import '../../../data/response/api_status.dart';
 import '../../../routes/app_routes.dart';
+import '../../../shared/widgets/cutom_nodata_widget.dart';
 import '../circular_profile_image.dart';
 import '../provider/message_provider.dart';
 
@@ -52,19 +53,23 @@ class _MessageScreenState extends State<MessageScreen> {
                       value.allConversionData.data?.data?.length == 0
                   ? RefreshIndicator(
                       onRefresh: () async {
-                        value.getAllConversions(true);
+                        await value.getAllConversions(true);
                       },
-                      child: SingleChildScrollView(
+                      child: ListView(
                         physics: AlwaysScrollableScrollPhysics(),
-                        child: SizedBox(
-                          height: Get.height() * 0.7,
-                          child: Center(child: Text('No Data Found')),
-                        ),
+                        children: [
+                          SizedBox(
+                            height: Get.height() * 0.7,
+                            child: NoDataFoundWidget(
+                              message: "No conversations found",
+                            ),
+                          ),
+                        ],
                       ),
                     )
                   : RefreshIndicator(
                       onRefresh: () async {
-                        value.getAllConversions(true);
+                        await value.getAllConversions(true);
                       },
                       child: Column(
                         children: [
@@ -255,43 +260,41 @@ class _MessageScreenState extends State<MessageScreen> {
                         ],
                       ),
                     ),
-              // floatingActionButton: Theme(
-              //   data: Theme.of(context).copyWith(
-              //     floatingActionButtonTheme: FloatingActionButtonThemeData(
-              //       shape: RoundedRectangleBorder(
-              //         borderRadius: BorderRadius.circular(100),
-              //       ),
-              //     ),
-              //   ),
-              //   child: FloatingActionButton.extended(
-              //     onPressed: () async {
-              //       // List<GetAllUserSearchedDataData>? usersList = await Navigator.push(
-              //       //   context,
-              //       //   MaterialPageRoute(builder: (context) => Tagpeople1Screen(selectedUsersOld: [],
-              //       //                                   isTagged: false,
-              //       //
-              //       //   )),
-              //       // );
-              //       // if (usersList != null&&usersList.isNotEmpty) {
-              //       //   List<String> memebers = [];
-              //       //   usersList.forEach((e){
-              //       //     memebers.add(e.id??'');
-              //       //   });
-              //       //   Navigator.push(context, MaterialPageRoute(builder: (context) => CreateGroupScreen(members: memebers,),));
-              //       // }
-              //     },
-              //     icon: Icon(Icons.add, color: AppColors.white, size: 24),
-              //     label: Text("Create", style: AppFontStyle.text_18_500(AppColors.white)),
-              //     backgroundColor: AppColors.yellow,
-              //   ),
-              // ),
+            );
+          case ApiStatus.error:
+            return Scaffold(
+              backgroundColor: AppColors.white,
+              appBar: _messageAppBar(context),
+              body: RefreshIndicator(
+                onRefresh: () async {
+                  await value.getAllConversions(true);
+                },
+                child: ListView(
+                  physics: AlwaysScrollableScrollPhysics(),
+                  children: [
+                    SizedBox(
+                      height: Get.height() * 0.7,
+                      child: NoDataFoundWidget(
+                        message:
+                            value.allConversionData.message ??
+                            "Connection failed. Please pull to refresh.",
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             );
           default:
-            return GestureDetector(
-              onTap: () {
-                value.getAllConversions(true);
-              },
-              child: Text("Error Occured!! Retry"),
+            return Scaffold(
+              appBar: _messageAppBar(context),
+              body: Center(
+                child: GestureDetector(
+                  onTap: () {
+                    value.getAllConversions(true);
+                  },
+                  child: Text("Error Occurred!! Retry"),
+                ),
+              ),
             );
         }
       },
