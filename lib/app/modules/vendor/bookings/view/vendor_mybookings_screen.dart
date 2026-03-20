@@ -2,6 +2,7 @@ import 'package:ozi/app/core/appExports/app_export.dart';
 import 'package:ozi/app/core/constants/app_urls.dart';
 import '../../../../data/models/all_bookings_model.dart';
 import '../../../../data/response/api_status.dart';
+import '../../../../shared/widgets/cutom_nodata_widget.dart';
 import '../../home/new requests/provider/new_requests_provider.dart';
 import '../booking details/view/vendor_booking_details_screen.dart';
 import '../provider/vendor_mybookings_provider.dart';
@@ -89,15 +90,16 @@ class _MyBookingsContent extends StatelessWidget {
                     child: RefreshIndicator(
                       onRefresh: provider.refreshBookings,
                       child:provider.homeModel.data?.data==null ||provider.homeModel.data!.data!.isEmpty
-                          ? Center(
-                        child: Text(
-                          "No ${provider.tabConfig[provider.selectedTab]["label"].toLowerCase()} bookings",
-                          style:  TextStyle(
-                            fontSize: 14,
-                            color: AppColors.grey,
-                          ),
-                        ),
-                      )
+                      //     ? Center(
+                      //   child: Text(
+                      //     "No ${provider.tabConfig[provider.selectedTab]["label"].toLowerCase()} bookings",
+                      //     style:  TextStyle(
+                      //       fontSize: 14,
+                      //       color: AppColors.grey,
+                      //     ),
+                      //   ),
+                      // )
+                        ?NoDataFoundWidget(message: "No ${provider.tabConfig[provider.selectedTab]["label"].toLowerCase()} bookings",)
                           : ListView.builder(
                         padding:  EdgeInsets.symmetric(horizontal: 16),
                         itemCount: provider.homeModel.data!.data!.length,

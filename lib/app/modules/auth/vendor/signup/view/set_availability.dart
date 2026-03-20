@@ -260,6 +260,10 @@ class _SetAvailabilityContent extends StatelessWidget {
 
   // Helper method to parse time string to TimeOfDay
   TimeOfDay _parseTime(String time) {
+    if (!time.contains(':')) {
+      return const TimeOfDay(hour: 9, minute: 0);
+    }
+
     final parts = time.split(':');
     return TimeOfDay(
       hour: int.parse(parts[0]),
