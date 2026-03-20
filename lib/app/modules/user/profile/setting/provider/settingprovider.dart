@@ -5,7 +5,8 @@ import 'package:ozi/app/data/storage/user_preference.dart';
 import 'package:ozi/app/routes/app_routes.dart';
 
 import 'package:geocoding/geocoding.dart';
-import 'package:ozi/app/core/device info/datainfoservices.dart';
+import 'package:geolocator/geolocator.dart';
+import '../../../../../core/utils/location_permission_helper.dart';
 import '../model/settingsmodel.dart';
 
 class CurrentLocationInfo {
@@ -48,20 +49,75 @@ class Settingprovider with ChangeNotifier {
       String state = "";
       String country = "";
 
-      if (lat.isNotEmpty && lng.isNotEmpty && lat != "null" && lng != "null") {
-        List<Placemark> placemarks = await placemarkFromCoordinates(
-          double.parse(lat),
-          double.parse(lng),
-        );
-        if (placemarks.isNotEmpty) {
-          city = placemarks.first.locality ?? "";
-          state = placemarks.first.administrativeArea ?? "";
-          country = placemarks.first.country ?? "";
+      String finalLat = lat;
+      String finalLng = lng;
+
+      // Check if the provided lat/lng are invalid or empty
+      bool locationMissing = finalLat.isEmpty ||
+          finalLat == "null" ||
+          finalLng.isEmpty ||
+          finalLng == "null";
+
+      if (locationMissing) {
+        // 1. Try to use stored current location if available
+        if (_currentLocation != null) {
+          finalLat = _currentLocation!.latitude.toString();
+          finalLng = _currentLocation!.longitude.toString();
+          city = _currentLocation!.locality;
+          state = _currentLocation!.adminArea;
+          country = _currentLocation!.country;
+          locationMissing = false;
+        } else {
+          // 2. Try to fetch current location from GPS if permission is granted
+          bool hasPermission = await LocationPermissionHelper.handleLocationPermission(context);
+          if (hasPermission) {
+            Position position = await Geolocator.getCurrentPosition(
+              desiredAccuracy: LocationAccuracy.high,
+              timeLimit: const Duration(seconds: 10),
+            );
+            finalLat = position.latitude.toString();
+            finalLng = position.longitude.toString();
+            locationMissing = false;
+          }
         }
       }
-      String deviceName = await DeviceIdService.getDeviceName();
-      if (context.mounted) {
-        await locationSendToBackend(context, lat, lng, city, state, country);
+
+      // If we now have valid coordinates, try to get address details if they are still missing
+      if (!locationMissing && (city.isEmpty || state.isEmpty)) {
+        try {
+          List<Placemark> placemarks = await placemarkFromCoordinates(
+            double.parse(finalLat),
+            double.parse(finalLng),
+          ).timeout(const Duration(seconds: 5));
+
+          if (placemarks.isNotEmpty) {
+            city = placemarks.first.locality ?? "";
+            state = placemarks.first.administrativeArea ?? "";
+            country = placemarks.first.country ?? "";
+
+            // Update local state so we have it for next time
+            _currentLocation = CurrentLocationInfo(
+              latitude: double.parse(finalLat),
+              longitude: double.parse(finalLng),
+              locality: city,
+              adminArea: state,
+              country: country,
+              featureName: placemarks.first.name ?? "",
+            );
+            notifyListeners();
+          }
+        } catch (e) {
+          debugPrint("syncHomeLocation geocoding error: $e");
+        }
+      }
+
+      // Only send to backend if we have a valid location now
+      if (finalLat.isNotEmpty && finalLat != "null" && finalLng.isNotEmpty && finalLng != "null") {
+        if (context.mounted) {
+          await locationSendToBackend(context, finalLat, finalLng, city, state, country);
+        }
+      } else {
+        debugPrint("syncHomeLocation: Still no location after attempts. Not sending to backend.");
       }
     } catch (e) {
       if (kDebugMode) {
