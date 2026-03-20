@@ -69,7 +69,7 @@ class _VendorHomeScreenState extends State<VendorHomeScreen> {
       final notificationProvider = context.read<VendorNotificationProvider>();
 
       homeProvider.setHomeModel(ApiResponse.loading());
-
+      await context.read<ProfileProvider>().fetchUserProfile();
       await notificationProvider.getNotifications();
       await homeProvider.getHomeData();
 
