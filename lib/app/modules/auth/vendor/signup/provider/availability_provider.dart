@@ -51,39 +51,39 @@ class AvailabilityProvider extends ChangeNotifier {
   void addSlot(String day) {
     final slots = availability[day]!.slots;
 
-    if (slots.isNotEmpty) {
-      final lastSlot = slots.last;
-
-      // Convert last "to" time to minutes
-      final parts = lastSlot.to.split(':');
-      int hour = int.parse(parts[0]);
-      int minute = int.parse(parts[1]);
-
-      // Start new slot from last slot's end
-      int newFromHour = hour;
-      int newFromMinute = minute;
-
-      // Default 1 hour duration
-      int newToHour = newFromHour + 1;
-      int newToMinute = newFromMinute;
-
-      // Prevent overflow after 23:59
-      if (newToHour >= 24) {
-        return; // stop adding if day ends
-      }
-
-      String newFrom =
-          "${newFromHour.toString().padLeft(2, '0')}:${newFromMinute.toString().padLeft(2, '0')}";
-
-      String newTo =
-          "${newToHour.toString().padLeft(2, '0')}:${newToMinute.toString().padLeft(2, '0')}";
-
-      slots.add(TimeSlot(from: newFrom, to: newTo));
-    } else {
+    if (slots.isEmpty) {
       slots.add(TimeSlot(from: "09:00", to: "10:00"));
+      notifyListeners();
+      return;
     }
 
+    final last = slots.last;
+
+    int start = _toMinutes(last.to);
+    int end = start + 60;
+
+    if (end > 24 * 60) {
+      _error("No more time slots can be added for this day");
+      return;
+    }
+
+    slots.add(TimeSlot(
+      from: _fromMinutes(start),
+      to: _fromMinutes(end),
+    ));
+
     notifyListeners();
+  }
+
+  int _toMinutes(String time) {
+    final p = time.split(':');
+    return int.parse(p[0]) * 60 + int.parse(p[1]);
+  }
+
+  String _fromMinutes(int minutes) {
+    int h = minutes ~/ 60;
+    int m = minutes % 60;
+    return "${h.toString().padLeft(2, '0')}:${m.toString().padLeft(2, '0')}";
   }
 
 
@@ -97,33 +97,44 @@ class AvailabilityProvider extends ChangeNotifier {
 
   void updateSlotTime(String day, int index, {String? from, String? to}) {
     final slot = availability[day]!.slots[index];
+    final slots = availability[day]!.slots;
 
-    int convertToMinutes(String time) {
-      final parts = time.split(':');
-      return int.parse(parts[0]) * 60 + int.parse(parts[1]);
+    String newFrom = from ?? slot.from;
+    String newTo = to ?? slot.to;
+
+    int fromMin = _toMinutes(newFrom);
+    int toMin = _toMinutes(newTo);
+
+
+    if (fromMin >= toMin) {
+      _error("Please select an end time after the start time");
+      return;
     }
 
-    if (from != null) {
-      int fromMinutes = convertToMinutes(from);
-      int toMinutes = convertToMinutes(slot.to);
+// ❗ Rule 2: prevent overlap
+    for (int i = 0; i < slots.length; i++) {
+      if (i == index) continue;
 
-      if (fromMinutes < toMinutes) {
-        slot.from = from;
-      } else {
-        return; // prevent invalid
+      int eFrom = _toMinutes(slots[i].from);
+      int eTo = _toMinutes(slots[i].to);
+      if (fromMin < eTo && toMin > eFrom) {
+        _error("This time conflicts with another slot. Please choose a different time");
+
+        fromMin = eTo;
+        toMin = fromMin + 60;
+
+        newFrom = _fromMinutes(fromMin);
+        newTo = _fromMinutes(toMin);
       }
     }
 
-    if (to != null) {
-      int toMinutes = convertToMinutes(to);
-      int fromMinutes = convertToMinutes(slot.from);
+// ✅ apply
+    slot.from = newFrom;
+    slot.to = newTo;
 
-      if (toMinutes > fromMinutes) {
-        slot.to = to;
-      } else {
-        return; // prevent invalid
-      }
-    }
+// ✅ keep sorted (important)
+    slots.sort((a, b) =>
+        _toMinutes(a.from).compareTo(_toMinutes(b.from)));
 
     notifyListeners();
   }
@@ -236,6 +247,14 @@ class TimeSlot {
     "to": to,
   };
 }
+
+void _error(String message) {
+  Get.showToast(
+    message,
+    type: ToastType.warning
+  );
+}
+
 
 class DayAvailability {
   bool enabled;

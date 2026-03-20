@@ -5,6 +5,7 @@ import '../../../../data/response/api_response.dart';
 import '../../../../data/response/api_status.dart';
 import '../../../../routes/app_routes.dart';
 import '../../../../shared/widgets/custom_toggle_switch.dart';
+import '../../../../shared/widgets/cutom_nodata_widget.dart';
 import '../../../../view/message/provider/message_provider.dart';
 import '../../../../view/message/screens/message.dart';
 import '../../../user/profile/view/profile_provider/profile_provider.dart';
@@ -137,11 +138,12 @@ class _VendorHomeScreenState extends State<VendorHomeScreen> {
   }
 
   Widget _requestsList(VendorHomeProvider value) {
+
     if (value.homeModel.data?.requests == null || value.homeModel.data!.requests!.isEmpty) {
       return SizedBox(
-        height: 150,
-        child: Center(child: Text("No new requests available", style: AppFontStyle.text_16_500(AppColors.grey))),
-      );
+          height: 150,
+          child: Center(child: NoDataFoundWidget(message:"No new requests available",lottieHeight: 105.h,textStyle: AppFontStyle.text_16_500(AppColors.grey),),
+          ));
     }
 
     return ListView.builder(
