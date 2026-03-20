@@ -36,7 +36,6 @@ class NotificationsContentState extends State<NotificationsScreen> {
 
   @override
   void dispose() {
-    _provider.readNotifications();
     _scrollController.dispose();
     super.dispose();
   }

@@ -301,10 +301,9 @@ class _VendorHomeScreenState extends State<VendorHomeScreen> {
                 return InkWell(
                   borderRadius: BorderRadius.circular(40),
                   onTap: () async {
+                    context.read<VendorNotificationProvider>().readNotifications();
                     await Navigator.push(context, MaterialPageRoute(builder: (_) => const NotificationsScreen()));
-
                     if (!mounted) return;
-
                     context.read<VendorNotificationProvider>().getNotifications(isRefresh: true);
                   },
                   child: Stack(
