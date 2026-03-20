@@ -7,8 +7,7 @@ import '../circular_profile_image.dart';
 import '../provider/message_provider.dart';
 
 class MessageScreen extends StatefulWidget {
-  dynamic openConversationId;
-  MessageScreen({super.key, this.sharedContent, this.openConversationId});
+  MessageScreen({super.key, this.sharedContent});
 
   // static const adsWidget = AddsCommanScreen();
   final String? sharedContent;
@@ -28,8 +27,6 @@ class _MessageScreenState extends State<MessageScreen> {
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<MessageProvider>().getAllConversions(true);
-
-
     });
   }
 
@@ -59,41 +56,36 @@ class _MessageScreenState extends State<MessageScreen> {
                       },
                       child: SingleChildScrollView(
                         physics: AlwaysScrollableScrollPhysics(),
-                        itemCount:value.allConversionData.data?.data?.length??0,
-                        padding: const EdgeInsets.symmetric(vertical: 8),
-                        itemBuilder: (context, index) {
-                          ConversionListModelData? message = value.allConversionData.data?.data?[index];
-                          final isGroup = message?.chatType!='personal';
-                          final displayName = isGroup
-                              ? message?.groupName??''
-                              : message?.receiver?.userName??'';
-
-                          return InkWell(
-                            onTap: () async {
-
-                              if (kDebugMode) {
-                                print('shared content is ${widget.sharedContent}');
-                              }
-                              value.readAllCounts(message?.sId??'');
-                               await Navigator.pushNamed(
-                                navigatorKey.currentContext!,
-                                AppRoutes.messageDetailsScreen,
-                                arguments: {
-                                  "conversion_id": message?.sId ?? '',
-                                  "receiver_id": message?.receiver?.id ?? '',
-                                  "isGroup": isGroup,
-                                  "dataLink": sharedContent
-                                },
-                              );
-
-
-                                context.read<MessageProvider>().getAllConversions(true);
-                               sharedContent = null;
-                            },
-                            child: Padding(
-                              padding: REdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                              child: Row(
-                                children: [
+                        child: SizedBox(
+                          height: Get.height() * 0.7,
+                          child: Center(child: Text('No Data Found')),
+                        ),
+                      ),
+                    )
+                  : RefreshIndicator(
+                      onRefresh: () async {
+                        value.getAllConversions(true);
+                      },
+                      child: Column(
+                        children: [
+                          hBox(14),
+                          Divider(color: AppColors.primary, height: 1),
+                          // MessageScreen.adsWidget,
+                          Expanded(
+                            child: ListView.builder(
+                              controller: value.scrollController,
+                              physics: AlwaysScrollableScrollPhysics(),
+                              itemCount:
+                                  value.allConversionData.data?.data?.length ??
+                                  0,
+                              padding: const EdgeInsets.symmetric(vertical: 8),
+                              itemBuilder: (context, index) {
+                                ConversionListModelData? message =
+                                    value.allConversionData.data?.data?[index];
+                                final isGroup = message?.chatType != 'personal';
+                                final displayName = isGroup
+                                    ? message?.groupName ?? ''
+                                    : message?.receiver?.userName ?? '';
 
                                 return InkWell(
                                   onTap: () async {
@@ -114,6 +106,10 @@ class _MessageScreenState extends State<MessageScreen> {
                                         "dataLink": sharedContent,
                                       },
                                     );
+
+                                    context
+                                        .read<MessageProvider>()
+                                        .getAllConversions(true);
                                     sharedContent = null;
                                   },
                                   child: Padding(

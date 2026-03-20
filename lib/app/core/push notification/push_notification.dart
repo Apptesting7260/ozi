@@ -526,10 +526,13 @@ class PushNotificationService {
     debugPrint("✅ Socket connected & online event sent");
 
     String? role = await UserPreference.returnRole();
+    debugPrint("🔔 Role identified for navigation: $role");
 
-    if (role == "vendor") {
+    // Explicitly handle vendor vs user navigation
+    if (role?.toLowerCase() == "vendor") {
       _handleVendorNavigation(context, type, bookingId, conversationId);
     } else {
+      // Default to user navigation for all other roles (including null/guest)
       _handleUserNavigation(context, type, bookingId, conversationId);
     }
   }
@@ -593,24 +596,28 @@ class PushNotificationService {
       Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(
-          builder: (_) => VendorNavigationTabScreen(initialIndex: 0),
+          builder: (_) => NavigationTabScreen(initialIndex: 0),
         ),
             (route) => false,
       );
 
-      Future.delayed(const Duration(milliseconds: 300), () {
+      // We wait for the root navigation to finish before pushing on top of it.
+      // This ensures we have a valid context and the previous route is removed.
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        final currentContext = navigatorKey.currentContext ?? context;
+
         Navigator.push(
-          navigatorKey.currentContext!,
+          currentContext,
           MaterialPageRoute(builder: (_) => MessageScreen()),
         );
 
-        Future.delayed(const Duration(milliseconds: 200), () {
+        if (conversationId.isNotEmpty) {
           Navigator.pushNamed(
-            navigatorKey.currentContext!,
+            currentContext,
             AppRoutes.messageDetailsScreen,
             arguments: {"conversion_id": conversationId},
           );
-        });
+        }
       });
 
       return;
@@ -627,6 +634,8 @@ class PushNotificationService {
       _ => 0,
     };
 
+    // For all other user notifications, ensure we land on the User Navigation Tab
+    // Default to the home screen (index 0) if requested, or the specific tab based on type
     Navigator.pushAndRemoveUntil(
       context,
       MaterialPageRoute(
