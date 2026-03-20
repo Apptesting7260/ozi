@@ -7,8 +7,7 @@ import '../circular_profile_image.dart';
 import '../provider/message_provider.dart';
 
 class MessageScreen extends StatefulWidget {
-
-  MessageScreen({super.key,this.sharedContent});
+  MessageScreen({super.key, this.sharedContent});
 
   // static const adsWidget = AddsCommanScreen();
   final String? sharedContent;
@@ -30,8 +29,6 @@ class _MessageScreenState extends State<MessageScreen> {
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<MessageProvider>().getAllConversions(true);
-
-
     });
   }
 
@@ -76,67 +73,127 @@ class _MessageScreenState extends State<MessageScreen> {
                       child: ListView.builder(
                         controller: value.scrollController,
                         physics: AlwaysScrollableScrollPhysics(),
-                        itemCount:value.allConversionData.data?.data?.length??0,
-                        padding: const EdgeInsets.symmetric(vertical: 8),
-                        itemBuilder: (context, index) {
-                          ConversionListModelData? message = value.allConversionData.data?.data?[index];
-                          final isGroup = message?.chatType!='personal';
-                          final displayName = isGroup
-                              ? message?.groupName??''
-                              : message?.receiver?.userName??'';
+                        child: SizedBox(
+                          height: Get.height() * 0.7,
+                          child: Center(child: Text('No Data Found')),
+                        ),
+                      ),
+                    )
+                  : RefreshIndicator(
+                      onRefresh: () async {
+                        value.getAllConversions(true);
+                      },
+                      child: Column(
+                        children: [
+                          hBox(14),
+                          Divider(color: AppColors.primary, height: 1),
+                          // MessageScreen.adsWidget,
+                          Expanded(
+                            child: ListView.builder(
+                              controller: value.scrollController,
+                              physics: AlwaysScrollableScrollPhysics(),
+                              itemCount:
+                                  value.allConversionData.data?.data?.length ??
+                                  0,
+                              padding: const EdgeInsets.symmetric(vertical: 8),
+                              itemBuilder: (context, index) {
+                                ConversionListModelData? message =
+                                    value.allConversionData.data?.data?[index];
+                                final isGroup = message?.chatType != 'personal';
+                                final displayName = isGroup
+                                    ? message?.groupName ?? ''
+                                    : message?.receiver?.userName ?? '';
 
-                          return InkWell(
-                            onTap: () async {
+                                return InkWell(
+                                  onTap: () async {
+                                    if (kDebugMode) {
+                                      print(
+                                        'shared content is ${widget.sharedContent}',
+                                      );
+                                    }
+                                    value.readAllCounts(message?.sId ?? '');
+                                    await Navigator.pushNamed(
+                                      navigatorKey.currentContext!,
+                                      AppRoutes.messageDetailsScreen,
+                                      arguments: {
+                                        "conversion_id": message?.sId ?? '',
+                                        "receiver_id":
+                                            message?.receiver?.id ?? '',
+                                        "isGroup": isGroup,
+                                        "dataLink": sharedContent,
+                                      },
+                                    );
 
-                              if (kDebugMode) {
-                                print('shared content is ${widget.sharedContent}');
-                              }
-                              value.readAllCounts(message?.sId??'');
-                              await Navigator.pushNamed(
-                                navigatorKey.currentContext!,
-                                AppRoutes.messageDetailsScreen,
-                                arguments: {
-                                  "conversion_id": message?.sId ?? '',
-                                  "receiver_id": message?.receiver?.id ?? '',
-                                  "isGroup": isGroup,
-                                  "dataLink": sharedContent
-                                },
-                              );
-
-
-                              context.read<MessageProvider>().getAllConversions(true);
-                              sharedContent = null;
-                            },
-                            child: Padding(
-                              padding: REdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                              child: Row(
-                                children: [
-
-                                  Stack(
-                                    children: [
-                                      CircularProfileImage(
-                                        imageUrl: isGroup
-                                            ? message?.groupImage != null && message!.groupImage!.isNotEmpty
-                                            ? '${AppUrls.imageBaseUrl}${message.groupImage}'
-                                            : null
-                                            : message?.receiver?.profile != null &&
-                                            message!.receiver!.profile!.isNotEmpty
-                                            ? '${AppUrls.imageBaseUrl}${message.receiver!.profile}'
-                                            : null,
-                                        name: isGroup
-                                            ? message?.groupName
-                                            : message?.receiver?.userName,
-                                        borderColor: Colors.transparent,
-                                        size: 60,
-                                      ),
-                                      if((message?.participants?.length??0)>2)
-                                        Positioned(
-                                            bottom: 1,
-                                            right: 1,
-                                            child: Container(
-                                              decoration: BoxDecoration(
-                                                  color: AppColors.black,
-                                                  shape: BoxShape.circle
+                                    context
+                                        .read<MessageProvider>()
+                                        .getAllConversions(true);
+                                    sharedContent = null;
+                                  },
+                                  child: Padding(
+                                    padding: REdgeInsets.symmetric(
+                                      horizontal: 16,
+                                      vertical: 10,
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        Stack(
+                                          children: [
+                                            CircularProfileImage(
+                                              imageUrl: isGroup
+                                                  ? message?.groupImage !=
+                                                                null &&
+                                                            message!
+                                                                .groupImage!
+                                                                .isNotEmpty
+                                                        ? '${AppUrls.imageBaseUrl}${message.groupImage}'
+                                                        : null
+                                                  : message
+                                                                ?.receiver
+                                                                ?.profile !=
+                                                            null &&
+                                                        message!
+                                                            .receiver!
+                                                            .profile!
+                                                            .isNotEmpty
+                                                  ? '${AppUrls.imageBaseUrl}${message.receiver!.profile}'
+                                                  : null,
+                                              name: isGroup
+                                                  ? message?.groupName
+                                                  : message?.receiver?.userName,
+                                              borderColor: Colors.transparent,
+                                              size: 60,
+                                            ),
+                                            if ((message
+                                                        ?.participants
+                                                        ?.length ??
+                                                    0) >
+                                                2)
+                                              Positioned(
+                                                bottom: 1,
+                                                right: 1,
+                                                child: Container(
+                                                  decoration: BoxDecoration(
+                                                    color: AppColors.black,
+                                                    shape: BoxShape.circle,
+                                                  ),
+                                                  child: Padding(
+                                                    padding:
+                                                        const EdgeInsets.all(
+                                                          5.0,
+                                                        ),
+                                                    child: Text(
+                                                      message
+                                                              ?.participants
+                                                              ?.length
+                                                              .toString() ??
+                                                          '',
+                                                      style:
+                                                          AppFontStyle.text_13_400(
+                                                            AppColors.white,
+                                                          ),
+                                                    ),
+                                                  ),
+                                                ),
                                               ),
                                               child: Padding(
                                                 padding: const EdgeInsets.all(5.0),
