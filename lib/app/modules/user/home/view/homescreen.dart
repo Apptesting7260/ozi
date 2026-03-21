@@ -33,6 +33,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     WidgetsBinding.instance.addObserver(this);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
+        context.read<MessageProvider>().getAllConversions(true);
         context.read<AuthGuestProvider>().loadStatus();
         context.read<ProfileProvider>().fetchUserProfile();
         context.read<Settingprovider>().settingsApi();
@@ -228,21 +229,27 @@ class HomeScreenView extends StatelessWidget {
 
         Row(
           children: [
-
             Consumer<MessageProvider>(
               builder: (context, value, child) {
                 final count = value.unreadChatCount;
 
                 return GestureDetector(
-                  onTap: () async{
+                  onTap: () async {
                     final bool allowed = await AuthGuard.requireLogin(context);
 
                     if (!allowed) return;
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => MessageScreen()));
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => MessageScreen()),
+                    );
                   },
                   child: Stack(
                     children: [
-                      Image.asset("assets/images/msgimg.png", height: 40, width: 40),
+                      Image.asset(
+                        "assets/images/msgimg.png",
+                        height: 40,
+                        width: 40,
+                      ),
 
                       if (count > 0)
                         Positioned(
@@ -250,10 +257,22 @@ class HomeScreenView extends StatelessWidget {
                           top: 0,
                           child: Container(
                             padding: EdgeInsets.all(5),
-                            decoration: BoxDecoration(color: Colors.red, shape: BoxShape.circle),
-                            constraints: BoxConstraints(minWidth: 18, minHeight: 18),
+                            decoration: BoxDecoration(
+                              color: Colors.red,
+                              shape: BoxShape.circle,
+                            ),
+                            constraints: BoxConstraints(
+                              minWidth: 18,
+                              minHeight: 18,
+                            ),
                             child: Center(
-                              child: Text(count.toString(), style: TextStyle(color: Colors.white, fontSize: 10)),
+                              child: Text(
+                                count.toString(),
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 10,
+                                ),
+                              ),
                             ),
                           ),
                         ),
