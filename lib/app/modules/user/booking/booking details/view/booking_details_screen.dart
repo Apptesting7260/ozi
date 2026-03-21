@@ -387,133 +387,135 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
         return StatefulBuilder(
           builder: (context, setModalState) {
             return Container(
-              padding: EdgeInsets.fromLTRB(
-                20,
-                20,
-                20,
-                MediaQuery.of(context).viewInsets.bottom + 20,
-              ),
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
               ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Container(
-                    width: 40,
-                    height: 4,
-                    decoration: BoxDecoration(
-                      color: AppColors.lightGrey2,
-                      borderRadius: BorderRadius.circular(2),
-                    ),
-                  ),
-                  hBox(20),
-                  Text(
-                    "Rate this Provider",
-                    style: AppFontStyle.text_20_600(AppColors.black),
-                  ),
-                  hBox(24),
-                  CircleAvatar(
-                    radius: 40.r,
-                    backgroundImage: NetworkImage(
-                      provider.getFullImageUrl(vendor.proImg),
-                    ),
-                    backgroundColor: AppColors.lightGrey,
-                    child: vendor.proImg != null
-                        ? null
-                        : Icon(
-                            Icons.person,
-                            size: 40.r,
-                            color: AppColors.black,
-                          ),
-                  ),
-                  hBox(12),
-                  Text(
-                    "${vendor.firstName ?? ''} ${vendor.lastName ?? ''}",
-                    style: AppFontStyle.text_16_600(AppColors.black),
-                  ),
-                  hBox(24),
-                  Text(
-                    "What is you rate?",
-                    style: AppFontStyle.text_16_600(AppColors.black),
-                  ),
-                  hBox(16),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: List.generate(5, (index) {
-                      return GestureDetector(
-                        onTap: () {
-                          setModalState(() {
-                            selectedRating = index + 1;
-                          });
-                        },
-                        child: Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 4.w),
-                          child: Icon(
-                            index < selectedRating
-                                ? Icons.star
-                                : Icons.star_border,
-                            size: 36.w,
-                            color: index < selectedRating
-                                ? AppColors.orange
-                                : AppColors.lightGrey3,
-                          ),
-                        ),
-                      );
-                    }),
-                  ),
-                  hBox(24),
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      "How was your experience?",
-                      style: AppFontStyle.text_16_600(AppColors.black),
-                    ),
-                  ),
-                  hBox(16),
-                  Container(
-                    padding: EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: AppColors.lightGrey,
-                      borderRadius: BorderRadius.circular(15.r),
-                    ),
-                    child: TextField(
-                      controller: reviewController,
-                      maxLines: 4,
-                      decoration: InputDecoration(
-                        hintText: "Write your review...",
-                        hintStyle: AppFontStyle.text_14_400(
-                          AppColors.lightGrey3,
-                        ),
-                        border: InputBorder.none,
+              child: SingleChildScrollView(
+                padding: EdgeInsets.fromLTRB(
+                  20,
+                  20,
+                  20,
+                  MediaQuery.of(context).viewInsets.bottom + 20,
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      width: 40,
+                      height: 4,
+                      decoration: BoxDecoration(
+                        color: AppColors.lightGrey2,
+                        borderRadius: BorderRadius.circular(2),
                       ),
                     ),
-                  ),
-                  hBox(32),
-                  ListenableBuilder(
-                    listenable: provider,
-                    builder: (context, child) {
-                      return CustomButton(
-                        isLoading: provider.isReviewLoading,
-                        text: "Submit",
-                        onPressed: selectedRating > 0
-                            ? () async {
-                                final success = await provider.submitReview(
-                                  vendor.id.toString(),
-                                  selectedRating.toString(),
-                                  reviewController.text.toString(),
-                                );
-                                if (success) {
-                                  Navigator.pop(context);
+                    hBox(20),
+                    Text(
+                      "Rate this Provider",
+                      style: AppFontStyle.text_20_600(AppColors.black),
+                    ),
+                    hBox(24),
+                    CircleAvatar(
+                      radius: 40.r,
+                      backgroundImage: NetworkImage(
+                        provider.getFullImageUrl(vendor.proImg),
+                      ),
+                      backgroundColor: AppColors.lightGrey,
+                      child: vendor.proImg != null
+                          ? null
+                          : Icon(
+                              Icons.person,
+                              size: 40.r,
+                              color: AppColors.black,
+                            ),
+                    ),
+                    hBox(12),
+                    Text(
+                      "${vendor.firstName ?? ''} ${vendor.lastName ?? ''}",
+                      style: AppFontStyle.text_16_600(AppColors.black),
+                    ),
+                    hBox(24),
+                    Text(
+                      "What is you rate?",
+                      style: AppFontStyle.text_16_600(AppColors.black),
+                    ),
+                    hBox(16),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: List.generate(5, (index) {
+                        return GestureDetector(
+                          onTap: () {
+                            setModalState(() {
+                              selectedRating = index + 1;
+                            });
+                          },
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 4.w),
+                            child: Icon(
+                              index < selectedRating
+                                  ? Icons.star
+                                  : Icons.star_border,
+                              size: 36.w,
+                              color: index < selectedRating
+                                  ? AppColors.orange
+                                  : AppColors.lightGrey3,
+                            ),
+                          ),
+                        );
+                      }),
+                    ),
+                    hBox(24),
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        "How was your experience?",
+                        style: AppFontStyle.text_16_600(AppColors.black),
+                      ),
+                    ),
+                    hBox(16),
+                    Container(
+                      padding: EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: AppColors.lightGrey,
+                        borderRadius: BorderRadius.circular(15.r),
+                      ),
+                      child: TextField(
+                        controller: reviewController,
+                        maxLines: 4,
+                        decoration: InputDecoration(
+                          hintText: "Write your review...",
+                          hintStyle: AppFontStyle.text_14_400(
+                            AppColors.lightGrey3,
+                          ),
+                          border: InputBorder.none,
+                        ),
+                      ),
+                    ),
+                    hBox(32),
+                    ListenableBuilder(
+                      listenable: provider,
+                      builder: (context, child) {
+                        return CustomButton(
+                          isLoading: provider.isReviewLoading,
+                          text: "Submit",
+                          onPressed: selectedRating > 0
+                              ? () async {
+                                  final success = await provider.submitReview(
+                                    vendor.id.toString(),
+                                    selectedRating.toString(),
+                                    reviewController.text.toString(),
+                                  );
+                                  if (success) {
+                                    Navigator.pop(context);
+                                  }
                                 }
-                              }
-                            : null,
-                      );
-                    },
-                  ),
-                  hBox(10),
-                ],
+                              : null,
+                        );
+                      },
+                    ),
+                    hBox(10),
+                  ],
+                ),
               ),
             );
           },
