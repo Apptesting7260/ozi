@@ -10,8 +10,6 @@ class NavigationProvider extends ChangeNotifier {
   int _currentIndex = 0;
   int get currentIndex => _currentIndex;
 
-
-
   // // --------------------------------------------------------
   // Future<void> setIndex(int index, BuildContext context) async {
   //   if (index >= 1) {
@@ -62,6 +60,4 @@ class NavigationProvider extends ChangeNotifier {
         return ImageConstants.home;
     }
   }
-
-
 }

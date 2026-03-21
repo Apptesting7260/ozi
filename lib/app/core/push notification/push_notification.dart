@@ -15,6 +15,8 @@ import '../../modules/user/navigation tab/view/navigation_tab_screen.dart';
 import '../../modules/vendor/navigation tab/view/vendor_navigation_tab_screen.dart';
 import '../../routes/app_routes.dart';
 import '../../view/message/screens/message.dart';
+import '../../view/message/provider/message_provider.dart';
+import 'package:provider/provider.dart';
 import '../utils/get_utils.dart';
 import '../../../firebase_options.dart';
 
@@ -238,28 +240,6 @@ class PushNotificationService {
         _pendingNotificationData = initialMessage.data;
         debugPrint("📩 App opened via notification (terminated state)");
         debugPrint("📩 Data: ${initialMessage.data}");
-
-        final String screen = initialMessage.data['screen'] ?? '';
-        final String bookingId = initialMessage.data['booking_id'] ?? '';
-        final String conversationId =
-            initialMessage.data['conversationId'] ?? '';
-        final String type = initialMessage.data['type'] ?? '';
-
-        if (type == "message" && conversationId.isNotEmpty) {
-          await navigateFromNotification(
-            screen: '',
-            bookingId: '',
-            conversationId: conversationId,
-            type: type,
-          );
-        } else if (bookingId.isNotEmpty) {
-          await navigateFromNotification(
-            screen: screen,
-            bookingId: bookingId,
-            conversationId: conversationId,
-            type: type,
-          );
-        }
       }
     } catch (e) {
       debugPrint("❌ Error checking initial message: $e");
@@ -617,7 +597,9 @@ class PushNotificationService {
             currentContext,
             AppRoutes.messageDetailsScreen,
             arguments: {"conversion_id": conversationId},
-          );
+          ).then((_) {
+            currentContext.read<MessageProvider>().getAllConversions(true);
+          });
         }
       });
 
