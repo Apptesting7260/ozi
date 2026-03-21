@@ -26,8 +26,8 @@ class _MessageScreenState extends State<MessageScreen> {
 
     sharedContent = widget.sharedContent;
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<MessageProvider>().getAllConversions(true);
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await context.read<MessageProvider>().getAllConversions(true);
     });
   }
 

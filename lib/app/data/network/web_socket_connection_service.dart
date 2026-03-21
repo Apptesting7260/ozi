@@ -9,22 +9,30 @@ class SocketController extends ChangeNotifier {
   String? subscribeSocketId;
   String? subscribeUserId;
 
-  bool _isInitializing = false;
-  bool _isGoingOnline = false;
+  bool get isConnected => socket != null && socket!.connected;
+
+  Future<void>? _readyFuture;
 
   /// ==========================================================
   /// AUTO INITIALIZATION
   /// ==========================================================
   Future<void> ensureSocketReady({bool forceReconnect = false}) async {
-    // Prevent multiple parallel initializations unless forced
-    if (_isInitializing && !forceReconnect) return;
-    _isInitializing = true;
+    // If already in progress and not forcing, return the same future
+    if (_readyFuture != null && !forceReconnect) return _readyFuture!;
 
+    _readyFuture = _ensureSocketReadyInternal(forceReconnect: forceReconnect);
+    try {
+      return await _readyFuture!;
+    } finally {
+      _readyFuture = null;
+    }
+  }
+
+  Future<void> _ensureSocketReadyInternal({bool forceReconnect = false}) async {
     try {
       if (forceReconnect && socket != null) {
         if (kDebugMode) print('🔄 Forcing socket reconnect...');
         socket!.disconnect();
-        // Give it a short moment to handle disconnect cleanly
         await Future.delayed(const Duration(milliseconds: 300));
         subscribeSocketId = null;
         subscribeUserId = null;
@@ -39,20 +47,17 @@ class SocketController extends ChangeNotifier {
       if (!(socket!.connected)) {
         if (kDebugMode) print('🔌 Socket not connected, connecting...');
         socket!.connect();
-        await _waitForConnect().timeout(const Duration(seconds: 10), onTimeout: () {
-          throw Exception("Socket connection timeout");
-        });
+        await _waitForConnect().timeout(
+          const Duration(seconds: 10),
+          onTimeout: () => throw Exception("Socket connection timeout"),
+        );
       }
 
       // 3️⃣ Ensure user is online
       await ensureOnline(force: forceReconnect);
     } catch (e) {
-      if (kDebugMode) {
-        print('❌ Error in ensureSocketReady: $e');
-      }
+      if (kDebugMode) print('❌ Error in ensureSocketReady: $e');
       rethrow;
-    } finally {
-      _isInitializing = false;
     }
   }
 
@@ -95,7 +100,7 @@ class SocketController extends ChangeNotifier {
   /// ==========================================================
   Future<void> _waitForConnect() {
     final completer = Completer<void>();
-    
+
     // Clear old listeners for these specific events to avoid piling them up
     socket!.off('connect');
     socket!.off('connect_error');
@@ -121,83 +126,89 @@ class SocketController extends ChangeNotifier {
     return completer.future;
   }
 
+  Future<void>? _onlineFuture;
+
   /// ==========================================================
   /// GO ONLINE AUTOMATION
   /// ==========================================================
   Future<void> ensureOnline({bool force = false}) async {
-    if (_isGoingOnline && !force) return;
-    _isGoingOnline = true;
+    // Use existing future if one is in flight and we aren't forcing
+    if (_onlineFuture != null && !force) return _onlineFuture!;
 
+    _onlineFuture = _ensureOnlineInternal(force: force);
+    try {
+      return await _onlineFuture!;
+    } finally {
+      _onlineFuture = null;
+    }
+  }
+
+  Future<void> _ensureOnlineInternal({bool force = false}) async {
     try {
       final userId = await UserPreference.returnUserId();
       if (userId == null) {
-        if (kDebugMode) {
-          print('No user ID → cannot go online');
-        }
+        if (kDebugMode) print('No user ID → cannot go online');
         return;
       }
 
       // Already online? (unless forced)
-      if (!force && socket!.id == subscribeSocketId && userId == subscribeUserId) {
-        if (kDebugMode) {
-          print("Already online. Skipping goOnline()");
-        }
+      if (!force &&
+          socket!.id == subscribeSocketId &&
+          userId == subscribeUserId) {
+        if (kDebugMode) print("Already online. Skipping goOnline()");
         return;
       }
 
-      if (kDebugMode) {
-        print("🌐 Going online...");
-      }
-      
+      if (kDebugMode) print("🌐 Going online...");
+
       final completer = Completer<void>();
 
-      // Clear any existing listener first to avoid duplicate callbacks
+      // Register listener first
       socket!.off(AppUrls.goOnlineEvent);
-
-      socket!.emit(AppUrls.goOnlineEvent, {"userId": userId});
-
       socket!.on(AppUrls.goOnlineEvent, (response) {
         if (completer.isCompleted) return;
 
-        Map<String, dynamic> data = response is String
-            ? jsonDecode(response)
-            : response;
+        Map<String, dynamic> data =
+            response is String ? jsonDecode(response) : response;
 
         if (data['status'] == true) {
           subscribeSocketId = socket!.id;
           subscribeUserId = userId;
-
-          if (kDebugMode) {
-            print("✅ Online success: $data");
-          }
+          if (kDebugMode) print("✅ Online success: $data");
           completer.complete();
         } else {
-          if (kDebugMode) {
-            print("❌ Online failed: $data");
-          }
+          if (kDebugMode) print("❌ Online failed: $data");
           completer.completeError("Failed to go online");
         }
       });
 
-      // Wait for response with timeout
-      await completer.future.timeout(const Duration(seconds: 10), onTimeout: () {
-        socket!.off(AppUrls.goOnlineEvent);
-        throw Exception("goOnline status timeout");
-      });
+      // Send event
+      socket!.emit(AppUrls.goOnlineEvent, {"userId": userId});
+
+      // Wait for response
+      await completer.future.timeout(
+        const Duration(seconds: 10),
+        onTimeout: () {
+          socket!.off(AppUrls.goOnlineEvent);
+          throw Exception("goOnline status timeout");
+        },
+      );
     } catch (e) {
-      if (kDebugMode) {
-        print('❌ Error in ensureOnline: $e');
-      }
+      if (kDebugMode) print('❌ Error in ensureOnline: $e');
       rethrow;
     } finally {
-      _isGoingOnline = false;
+      socket!.off(AppUrls.goOnlineEvent);
     }
   }
 
   /// ==========================================================
   /// SEND MESSAGE (Fully Automated)
   /// ==========================================================
-  Future<void> sendMessage(String event, Map<String, dynamic>? data, {bool forceReconnect = false}) async {
+  Future<void> sendMessage(
+    String event,
+    Map<String, dynamic>? data, {
+    bool forceReconnect = false,
+  }) async {
     if (kDebugMode) {
       print("📤 Preparing to send message...");
     }
