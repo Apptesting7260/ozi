@@ -16,8 +16,7 @@ class CircularProfileImage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bool hasImage =
-        imageUrl != null && imageUrl!.trim().isNotEmpty;
+    final bool hasImage = imageUrl != null && imageUrl!.trim().isNotEmpty;
 
     return Container(
       width: size,
@@ -30,24 +29,24 @@ class CircularProfileImage extends StatelessWidget {
         borderRadius: BorderRadius.circular(size),
         child: hasImage
             ? CustomImage(
-          shimmerChild: Container(color: Colors.grey),
-          path: imageUrl!,
-          width: size,
-          height: size,
-          fit: BoxFit.cover,
-        )
+                shimmerChild: Container(color: Colors.grey),
+                path: imageUrl!,
+                width: size,
+                height: size,
+                fit: BoxFit.cover,
+              )
             : Container(
-          color: AppColors.primary.withOpacity(0.15),
-          alignment: Alignment.center,
-          child: Text(
-            _getInitials(name),
-            style: TextStyle(
-              fontSize: size * 0.35,
-              fontWeight: FontWeight.w600,
-              color: AppColors.primary,
-            ),
-          ),
-        ),
+                color: AppColors.primary.withOpacity(0.15),
+                alignment: Alignment.center,
+                child: Text(
+                  _getInitials(name),
+                  style: TextStyle(
+                    fontSize: size * 0.35,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.primary,
+                  ),
+                ),
+              ),
       ),
     );
   }

@@ -131,7 +131,7 @@ class PushNotificationService {
       if (message.messageId != null) {
         if (_handledMessageIds.contains(message.messageId)) {
           debugPrint(
-              "♻️ Duplicate foreground message ignored: ${message.messageId}",
+            "♻️ Duplicate foreground message ignored: ${message.messageId}",
           );
           return;
         }
@@ -227,7 +227,9 @@ class PushNotificationService {
   static Future<void> checkInitialMessage() async {
     try {
       // Ensure Firebase is initialized (idempotent — safe to call again)
-      await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+      await Firebase.initializeApp(
+        options: DefaultFirebaseOptions.currentPlatform,
+      );
 
       RemoteMessage? initialMessage = await FirebaseMessaging.instance
           .getInitialMessage();
@@ -239,7 +241,8 @@ class PushNotificationService {
 
         final String screen = initialMessage.data['screen'] ?? '';
         final String bookingId = initialMessage.data['booking_id'] ?? '';
-        final String conversationId = initialMessage.data['conversationId'] ?? '';
+        final String conversationId =
+            initialMessage.data['conversationId'] ?? '';
         final String type = initialMessage.data['type'] ?? '';
 
         if (type == "message" && conversationId.isNotEmpty) {
@@ -477,12 +480,12 @@ class PushNotificationService {
 
     final String screen = data['screen'] ?? '';
     final String bookingId = data['booking_id'] ?? '';
-    final String conversationId =data['conversationId'] ?? '';
+    final String conversationId = data['conversationId'] ?? '';
     final String type = data['type'] ?? '';
 
-    debugPrint("📩 Consuming pending notification: screen=$screen, bookingId=$bookingId, type=$type,conversationId  = $conversationId");
-
-
+    debugPrint(
+      "📩 Consuming pending notification: screen=$screen, bookingId=$bookingId, type=$type,conversationId  = $conversationId",
+    );
 
     if (type == "message" && conversationId.isNotEmpty) {
       await navigateFromNotification(
@@ -538,11 +541,11 @@ class PushNotificationService {
   }
 
   static void _handleVendorNavigation(
-      BuildContext context,
-      String type,
-      dynamic bookingId,
-      dynamic conversationId,
-      ) {
+    BuildContext context,
+    String type,
+    dynamic bookingId,
+    dynamic conversationId,
+  ) {
     print("🔔 Navigation Triggered");
     print("Type: $type");
     print("BookingId: $bookingId");
@@ -552,12 +555,13 @@ class PushNotificationService {
       Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(
-          builder: (_) => VendorNavigationTabScreen(initialIndex: 0,conversationId: conversationId,),
+          builder: (_) => VendorNavigationTabScreen(
+            initialIndex: 0,
+            conversationId: conversationId,
+          ),
         ),
-            (route) => false,
+        (route) => false,
       );
-
-
 
       return;
     }
@@ -579,7 +583,7 @@ class PushNotificationService {
       MaterialPageRoute(
         builder: (_) => VendorNavigationTabScreen(initialIndex: tabIndex),
       ),
-          (route) => false,
+      (route) => false,
     );
   }
 
@@ -587,18 +591,15 @@ class PushNotificationService {
     BuildContext context,
     String type,
     dynamic bookingId,
-      dynamic conversationId,
+    dynamic conversationId,
   ) {
-
     print("ConversationId: $conversationId");
 
     if (type == "message") {
       Navigator.pushAndRemoveUntil(
         context,
-        MaterialPageRoute(
-          builder: (_) => NavigationTabScreen(initialIndex: 0),
-        ),
-            (route) => false,
+        MaterialPageRoute(builder: (_) => NavigationTabScreen(initialIndex: 0)),
+        (route) => false,
       );
 
       // We wait for the root navigation to finish before pushing on top of it.
@@ -622,7 +623,6 @@ class PushNotificationService {
 
       return;
     }
-
 
     int tabIndex = switch (type) {
       "booking_confirm" => 2,

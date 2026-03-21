@@ -1,4 +1,3 @@
-
 import '../appExports/app_export.dart';
 
 OverlayEntry? _currentToastEntry;
@@ -9,10 +8,7 @@ class _ToastOverlayEntry extends StatefulWidget {
   final String message;
   final VoidCallback onDismiss;
 
-  const _ToastOverlayEntry({
-    required this.message,
-    required this.onDismiss,
-  });
+  const _ToastOverlayEntry({required this.message, required this.onDismiss});
 
   @override
   State<_ToastOverlayEntry> createState() => _ToastOverlayEntryState();
@@ -33,10 +29,7 @@ class _ToastOverlayEntryState extends State<_ToastOverlayEntry>
     _offsetAnimation = Tween<Offset>(
       begin: const Offset(0, -1),
       end: Offset.zero,
-    ).animate(CurvedAnimation(
-      parent: _controller,
-      curve: Curves.easeOut,
-    ));
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
     _controller.forward();
 
     Future.delayed(const Duration(seconds: 2), () {
@@ -84,7 +77,12 @@ class _ToastOverlayEntryState extends State<_ToastOverlayEntry>
             ),
             child: Row(
               children: [
-                CustomImage(path: ImageConstants.appLogo,width: 32,height: 32,fit: BoxFit.contain,),
+                CustomImage(
+                  path: ImageConstants.appLogo,
+                  width: 32,
+                  height: 32,
+                  fit: BoxFit.contain,
+                ),
                 SizedBox(width: 12),
                 Expanded(
                   child: Text(
@@ -106,51 +104,93 @@ class _ToastOverlayEntryState extends State<_ToastOverlayEntry>
   }
 }
 
-void showCustomToast(
-    BuildContext context,
-    String message,
-    ) {
+void showCustomToast(BuildContext context, String message) {
   if (_isToastVisible) return;
 
-  final overlay = Overlay.of(context);
+  // FIX: maybeOf avoids throwing the red error screen/exception
+  final overlay = Overlay.maybeOf(context);
+
+  if (overlay == null) {
+    debugPrint(
+      "⚠️ Toast Error: No Overlay found. This usually happens if the context is not yet mounted.",
+    );
+    return;
+  }
+
   late OverlayEntry toastEntry;
   late OverlayEntry barrierEntry;
+
   barrierEntry = OverlayEntry(
-    builder: (context) {
-      return Positioned.fill(
-        child: GestureDetector(
-          onTap: () {},
-          child: Container(
-            color: Colors.black.withValues(alpha: 0.5),
-          ),
-        ),
-      );
-    },
+    builder: (context) => Positioned.fill(
+      child: GestureDetector(
+        onTap: () {},
+        child: Container(color: Colors.black.withOpacity(0.3)),
+      ),
+    ),
   );
 
   toastEntry = OverlayEntry(
-    builder: (context) {
-      return _ToastOverlayEntry(
-        message: message,
-        onDismiss: () {
+    builder: (context) => _ToastOverlayEntry(
+      message: message,
+      onDismiss: () {
+        if (_isToastVisible) {
           toastEntry.remove();
           barrierEntry.remove();
           _isToastVisible = false;
           _currentToastEntry = null;
           _currentBarrierEntry = null;
-        },
-      );
-    },
+        }
+      },
+    ),
   );
 
   _isToastVisible = true;
   _currentToastEntry = toastEntry;
   _currentBarrierEntry = barrierEntry;
 
-  // Pehle barrier insert karo, phir toast
   overlay.insert(barrierEntry);
   overlay.insert(toastEntry);
 }
+// void showCustomToast(BuildContext context, String message) {
+//   if (_isToastVisible) return;
+
+//   final overlay = Overlay.of(context);
+//   late OverlayEntry toastEntry;
+//   late OverlayEntry barrierEntry;
+//   barrierEntry = OverlayEntry(
+//     builder: (context) {
+//       return Positioned.fill(
+//         child: GestureDetector(
+//           onTap: () {},
+//           child: Container(color: Colors.black.withValues(alpha: 0.5)),
+//         ),
+//       );
+//     },
+//   );
+
+//   toastEntry = OverlayEntry(
+//     builder: (context) {
+//       return _ToastOverlayEntry(
+//         message: message,
+//         onDismiss: () {
+//           toastEntry.remove();
+//           barrierEntry.remove();
+//           _isToastVisible = false;
+//           _currentToastEntry = null;
+//           _currentBarrierEntry = null;
+//         },
+//       );
+//     },
+//   );
+
+//   _isToastVisible = true;
+//   _currentToastEntry = toastEntry;
+//   _currentBarrierEntry = barrierEntry;
+
+//   // Pehle barrier insert karo, phir toast
+//   overlay.insert(barrierEntry);
+//   overlay.insert(toastEntry);
+// }
 
 void dismissToast() {
   _currentToastEntry?.remove();
@@ -170,14 +210,14 @@ void errorToast(BuildContext context, String msg) {
 
 class CustomConfirmationDialog {
   static Future<bool?> show(
-      BuildContext context, {
-        required String title,
-        required String subtitle,
-        required VoidCallback onYesPressed,
-        String noText = 'No',
-        String yesText = 'Yes',
-        bool isDismissible = true,
-      }) async {
+    BuildContext context, {
+    required String title,
+    required String subtitle,
+    required VoidCallback onYesPressed,
+    String noText = 'No',
+    String yesText = 'Yes',
+    bool isDismissible = true,
+  }) async {
     return await showModalBottomSheet<bool>(
       context: context,
       isDismissible: isDismissible,
@@ -195,13 +235,13 @@ class CustomConfirmationDialog {
   }
 
   static Widget _buildDialog(
-      BuildContext context, {
-        required String title,
-        required String subtitle,
-        required VoidCallback onYesPressed,
-        required String noText,
-        required String yesText,
-      }) {
+    BuildContext context, {
+    required String title,
+    required String subtitle,
+    required VoidCallback onYesPressed,
+    required String noText,
+    required String yesText,
+  }) {
     return Container(
       padding: REdgeInsets.symmetric(horizontal: 20, vertical: 16),
       decoration: BoxDecoration(

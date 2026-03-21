@@ -33,8 +33,23 @@ class _MessageDetailsScreenState extends State<MessageDetailsScreen> {
     if (kDebugMode) {
       print('conversion id is ${widget.conversionId}');
     }
-    messageDetailsProvider.socket =   navigatorKey.currentContext!.read<SocketController>();
-    messageDetailsProvider.socket.ensureOnline();
+    messageDetailsProvider.socket = navigatorKey.currentContext!
+        .read<SocketController>();
+    _initializeChat();
+  }
+
+  /// Ensures socket is connected and online before loading chat data.
+  /// This is critical when navigating from a notification (cold start).
+  Future<void> _initializeChat() async {
+    try {
+      // ensureSocketReady handles: connect socket + go online
+      await messageDetailsProvider.socket.ensureSocketReady();
+    } catch (e) {
+      if (kDebugMode) {
+        print('⚠️ Socket ready failed, proceeding anyway: $e');
+      }
+    }
+    // Now safe to emit socket events
     messageDetailsProvider.changePageStatus(
       widget.conversionId,
       messageForSend: widget.messageForSend,
@@ -370,7 +385,9 @@ class _MessageDetailsScreenState extends State<MessageDetailsScreen> {
       case 'text':
         content = Column(
           mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment:isSent ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+          crossAxisAlignment: isSent
+              ? CrossAxisAlignment.end
+              : CrossAxisAlignment.start,
           children: [
             Flexible(
               child: Text(
@@ -823,7 +840,7 @@ class _MessageDetailsScreenState extends State<MessageDetailsScreen> {
                     ],
                   ),
                 ),
-              )
+              ),
             ),
           ],
         );

@@ -338,10 +338,8 @@ class MessageDetailsProvider extends ChangeNotifier {
 
   Future<void> changePageStatus(String? conversionId,{String? messageForSend,String? dataLink}) async {
     await getUserId();
-    socket.sendMessage(AppUrls.changePageStatusEvent, {
-      "conversationId": conversionId ?? '',
-    });
 
+    // ✅ REGISTER LISTENER BEFORE EMITTING (Fixes race condition)
     socket.listenToEvent(AppUrls.changePageStatusEvent, (p0) async {
       socket.off(AppUrls.changePageStatusEvent);
       if (p0 is String) {
@@ -359,6 +357,11 @@ class MessageDetailsProvider extends ChangeNotifier {
           print("data Map is $data");
         }
       }
+    });
+
+    // NOW EMIT
+    socket.sendMessage(AppUrls.changePageStatusEvent, {
+      "conversationId": conversionId ?? '',
     });
   }
 
@@ -380,12 +383,8 @@ class MessageDetailsProvider extends ChangeNotifier {
     }
     page++;
     await getUserId();
-    socket.sendMessage(AppUrls.messageListEvent, {
-      "conversationId": conversionId1 ?? _conversionId ?? '',
-      "page": page,
-      "limit": 10, //page = 1, limit = 10
-    });
 
+    // ✅ REGISTER LISTENER BEFORE EMITTING (Fixes race condition)
     socket.listenToEvent(AppUrls.messageListEvent, (p0) async {
       socket.off(AppUrls.messageListEvent);
       if (p0 is String) {
@@ -430,6 +429,13 @@ class MessageDetailsProvider extends ChangeNotifier {
           print("data Map is $data");
         }
       }
+    });
+
+    // NOW EMIT
+    socket.sendMessage(AppUrls.messageListEvent, {
+      "conversationId": conversionId1 ?? _conversionId ?? '',
+      "page": page,
+      "limit": 10, //page = 1, limit = 10
     });
   }
 
@@ -485,15 +491,7 @@ class MessageDetailsProvider extends ChangeNotifier {
       });
     }
 
-    // updateSendLoading(true);
-    socket.sendMessage(AppUrls.sendPersonalMessageEvent, {
-      "senderId": userId,
-      "conversationId": conversationId,
-      "message": currentMessageIs0?.text ?? '',
-      "dataLink":dataLink,
-      "file": files ?? [],
-    });
-
+    // ✅ REGISTER LISTENER BEFORE EMITTING (Fixes race condition)
     socket.listenToEvent(AppUrls.sendPersonalMessageEvent, (p0) async {
       socket.off(AppUrls.sendPersonalMessageEvent);
       // updateSendLoading(false);
@@ -522,6 +520,15 @@ class MessageDetailsProvider extends ChangeNotifier {
           print("data Map is $data");
         }
       }
+    });
+
+    // updateSendLoading(true);
+    socket.sendMessage(AppUrls.sendPersonalMessageEvent, {
+      "senderId": userId,
+      "conversationId": conversationId,
+      "message": currentMessageIs0?.text ?? '',
+      "dataLink":dataLink,
+      "file": files ?? [],
     });
   }
 
