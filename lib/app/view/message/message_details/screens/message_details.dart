@@ -391,7 +391,7 @@ class _MessageDetailsScreenState extends State<MessageDetailsScreen> {
           children: [
             Flexible(
               child: Text(
-                maxLines: 8,
+                // maxLines: 8,
                 msg.text ?? '',
                 style: isSent
                     ? AppFontStyle.text_16_400(AppColors.chatSenderTextColor)

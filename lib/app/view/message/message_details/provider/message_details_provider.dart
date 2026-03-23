@@ -1,5 +1,3 @@
-
-
 import 'package:ozi/app/core/appExports/app_export.dart';
 
 import '../../../../core/constants/app_urls.dart';
@@ -15,7 +13,8 @@ import '../../provider/message_provider.dart';
 
 class MessageDetailsProvider extends ChangeNotifier {
   final TextEditingController controller = TextEditingController();
-  SocketController socket = navigatorKey.currentContext!.read<SocketController>();
+  SocketController socket = navigatorKey.currentContext!
+      .read<SocketController>();
 
   final ScrollController scrollController = ScrollController();
   bool isLoading = false;
@@ -25,7 +24,7 @@ class MessageDetailsProvider extends ChangeNotifier {
 
   bool _isNewMessageReceived = false;
   bool get isNewMessageReceived => _isNewMessageReceived;
-  updateIsNewMessageReceived(bool value){
+  updateIsNewMessageReceived(bool value) {
     _isNewMessageReceived = value;
     notifyListeners();
   }
@@ -36,7 +35,7 @@ class MessageDetailsProvider extends ChangeNotifier {
     _scrollListener = () {
       // Pagination: when reaching top (since reversed = true)
       if (scrollController.position.pixels >=
-          scrollController.position.maxScrollExtent - 200 &&
+              scrollController.position.maxScrollExtent - 200 &&
           !isLoading &&
           isPagination) {
         messageList(null);
@@ -57,7 +56,6 @@ class MessageDetailsProvider extends ChangeNotifier {
     // Add listener to controller
     scrollController.addListener(_scrollListener!);
   }
-
 
   // void startScrollListener() {
   //   if (_scrollListener != null) return;
@@ -109,7 +107,11 @@ class MessageDetailsProvider extends ChangeNotifier {
   //   notifyListeners();
   // }
 
-  Future<void> rectionOnMessage(String conversionId, String reaction,String msgId) async {
+  Future<void> rectionOnMessage(
+    String conversionId,
+    String reaction,
+    String msgId,
+  ) async {
     socket.sendMessage(AppUrls.messageReactionEvent, {
       "messageId": msgId,
       "conversationId": conversionId,
@@ -153,11 +155,15 @@ class MessageDetailsProvider extends ChangeNotifier {
               0,
               await parseMessageListInBackground(data['data']),
             );
-            updateLastMessageOfConversation(receiveData.text??'',receiveData.conversationId??'');
-            if(scrollController.hasClients){
-              if((scrollController.position.pixels>=0)&&(scrollController.position.pixels<50)){
+            updateLastMessageOfConversation(
+              receiveData.text ?? '',
+              receiveData.conversationId ?? '',
+            );
+            if (scrollController.hasClients) {
+              if ((scrollController.position.pixels >= 0) &&
+                  (scrollController.position.pixels < 50)) {
                 // updateIsNewMessageReceived(true);
-              }else{
+              } else {
                 updateIsNewMessageReceived(true);
               }
             }
@@ -239,7 +245,7 @@ class MessageDetailsProvider extends ChangeNotifier {
             _messageListData.data?.data.add(updatedData);
           }
           notifyListeners();
-                }
+        }
         if (kDebugMode) {
           print("data Map is $data");
         }
@@ -271,13 +277,15 @@ class MessageDetailsProvider extends ChangeNotifier {
     });
   }
 
-
   void updateLastMessageOfConversation(String? lastMessage, String convId) {
     if (kDebugMode) {
-      print('Trying to update last message: $lastMessage for conversation: $convId');
+      print(
+        'Trying to update last message: $lastMessage for conversation: $convId',
+      );
     }
 
-    final messageProvider = navigatorKey.currentContext?.read<MessageProvider>();
+    final messageProvider = navigatorKey.currentContext
+        ?.read<MessageProvider>();
     if (messageProvider == null) {
       if (kDebugMode) {
         print('MessageProvider not available in current context.');
@@ -314,7 +322,7 @@ class MessageDetailsProvider extends ChangeNotifier {
   //   });
   // }
 
-  scrollToBottom(){
+  scrollToBottom() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (scrollController.hasClients) {
         scrollController.animateTo(
@@ -336,7 +344,11 @@ class MessageDetailsProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> changePageStatus(String? conversionId,{String? messageForSend,String? dataLink}) async {
+  Future<void> changePageStatus(
+    String? conversionId, {
+    String? messageForSend,
+    String? dataLink,
+  }) async {
     await getUserId();
 
     // ✅ REGISTER LISTENER BEFORE EMITTING (Fixes race condition)
@@ -352,7 +364,11 @@ class MessageDetailsProvider extends ChangeNotifier {
         final data = p0 as Map<String, dynamic>;
         // updateUserData(PageStatusModel.fromJson(data));
         updateUserData(await parsePageStatusModelInBackground(data));
-        messageList(conversionId,dataLink: dataLink,messageForSend: messageForSend);
+        messageList(
+          conversionId,
+          dataLink: dataLink,
+          messageForSend: messageForSend,
+        );
         if (kDebugMode) {
           print("data Map is $data");
         }
@@ -376,7 +392,11 @@ class MessageDetailsProvider extends ChangeNotifier {
 
   String? _conversionId;
 
-  Future<void> messageList(String? conversionId1,{String? messageForSend,String? dataLink}) async {
+  Future<void> messageList(
+    String? conversionId1, {
+    String? messageForSend,
+    String? dataLink,
+  }) async {
     isLoading = true;
     if (conversionId1 != null) {
       _conversionId = conversionId1;
@@ -404,13 +424,19 @@ class MessageDetailsProvider extends ChangeNotifier {
             ApiResponse.completed(await parseMessageDataInBackground(data)),
           );
           if (kDebugMode) {
-            print('message for send and data links are $messageForSend $dataLink');
+            print(
+              'message for send and data links are $messageForSend $dataLink',
+            );
           }
-          if(messageForSend!=null||dataLink!=null){
+          if (messageForSend != null || dataLink != null) {
             if (kDebugMode) {
               print('sending personal message for links');
             }
-            sendPersonalMessage(conversionId1!,message:messageForSend,dataLink:dataLink);
+            sendPersonalMessage(
+              conversionId1!,
+              message: messageForSend,
+              dataLink: dataLink,
+            );
           }
         } else {
           MessageListModel parsedData = await parseMessageDataInBackground(
@@ -465,17 +491,17 @@ class MessageDetailsProvider extends ChangeNotifier {
 
     if (files == null || files.isEmpty) {
       currentMessageIs0 = MessageListModelData(
-        text: message??controller.text,
+        text: message ?? controller.text,
         senderId: userId,
         status: 'waiting',
         sId: "$conversationId${controller.text}",
         createdAt: DateTime.now().toIso8601String(),
         fileUrl: files ?? [],
         senderType: 'you',
-        dataLink:dataLink,
+        dataLink: dataLink,
         mediaUploadLoading: true,
       );
-      if(dataLink==null){
+      if (dataLink == null) {
         messageListData.data?.data.insert(0, currentMessageIs0);
       }
       notifyListeners();
@@ -526,8 +552,8 @@ class MessageDetailsProvider extends ChangeNotifier {
     socket.sendMessage(AppUrls.sendPersonalMessageEvent, {
       "senderId": userId,
       "conversationId": conversationId,
-      "message": currentMessageIs0?.text ?? '',
-      "dataLink":dataLink,
+      "message": currentMessageIs0?.text?.trim() ?? '',
+      "dataLink": dataLink,
       "file": files ?? [],
     });
   }
@@ -560,4 +586,3 @@ class MessageDetailsProvider extends ChangeNotifier {
     super.dispose();
   }
 }
-

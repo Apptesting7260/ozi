@@ -21,6 +21,7 @@ class _VendorNavigationTabScreenState extends State<VendorNavigationTabScreen> {
   @override
   void initState() {
     super.initState();
+    FocusManager.instance.primaryFocus?.unfocus();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final navProvider = context.read<VendorNavigationProvider>();
       navProvider.setIndex(widget.initialIndex ?? 0, context);

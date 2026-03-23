@@ -334,6 +334,7 @@ class LoginProvider extends ChangeNotifier {
     String phone,
     String regionCode,
   ) async {
+    FocusManager.instance.primaryFocus?.unfocus();
     final body = {"country_code": "+$regionCode", "mobile": phone};
 
     try {
@@ -477,6 +478,7 @@ class LoginProvider extends ChangeNotifier {
   bool guestLoading = false;
 
   Future<void> guestLogin() async {
+    FocusManager.instance.primaryFocus?.unfocus();
     try {
       guestLoading = true;
       notifyListeners();
@@ -504,6 +506,7 @@ class LoginProvider extends ChangeNotifier {
   }
 
   Future<void> signInWithGoogle(BuildContext context) async {
+    FocusManager.instance.primaryFocus?.unfocus();
     try {
       CustomOverlayLoader.show(context);
 
@@ -957,6 +960,7 @@ class LoginProvider extends ChangeNotifier {
     String lastName,
     String email,
   ) async {
+    FocusManager.instance.primaryFocus?.unfocus();
     updateLoading(true);
 
     try {

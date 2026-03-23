@@ -111,6 +111,7 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   void _handleContinue() async {
+    FocusScope.of(context).unfocus();
     if (kDebugMode) {
       print("Button pressed");
     }
@@ -334,6 +335,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     color: AppColors.lightGrey2,
                     isOutlined: true,
                     onPressed: () async {
+                      FocusScope.of(context).unfocus();
                       await loginProvider.guestLogin(); // Call Guest API first
 
                       Navigator.pushReplacement(

@@ -209,6 +209,7 @@ class _MessageScreenState extends State<MessageScreen> {
                                                       ? AppColors.primary
                                                       : AppColors.primary,
                                                 ),
+                                                maxLines: 1,
                                                 overflow: TextOverflow.ellipsis,
                                               ),
                                             ],
