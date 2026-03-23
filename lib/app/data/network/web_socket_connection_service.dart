@@ -229,8 +229,8 @@ class SocketController extends ChangeNotifier {
     socket?.on(event, callback);
   }
 
-  void off(String event) {
-    socket?.off(event);
+  void off(String event, [dynamic handler]) {
+    socket?.off(event, handler);
   }
 
   @override

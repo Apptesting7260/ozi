@@ -30,10 +30,11 @@ class MessageProvider extends ChangeNotifier {
 
   int get unreadChatCount {
     final list = allConversionData.data?.data ?? [];
-    return list.where((chat) {
+    return list.fold<int>(0, (sum, chat) {
       final count = int.tryParse(chat.unreadMsgCount ?? '0') ?? 0;
-      return count > 0;
-    }).length;
+
+      return sum + count;
+    });
   }
 
   // ──────────────────────────────────────────────────────────────
@@ -72,7 +73,7 @@ class MessageProvider extends ChangeNotifier {
       }
     });
 
-    // Disconnect
+    // Disconnectm
     rawSocket.onDisconnect((_) {
       debugPrint('❌ [MessageProvider] Socket disconnected');
     });
@@ -127,7 +128,8 @@ class MessageProvider extends ChangeNotifier {
     } catch (e) {
       debugPrint('❌ [MessageProvider] _connectAndFetch error: $e');
       updateAllConversionData(
-          ApiResponse.error('Connection failed. Pull down to retry.'));
+        ApiResponse.error('Connection failed. Pull down to retry.'),
+      );
     }
   }
 
@@ -201,6 +203,7 @@ class MessageProvider extends ChangeNotifier {
       });
 
       socket?.listenToEvent(AppUrls.conversationListEvent, (p0) async {
+        print('conversation list event: $p0');
         if (completer.isCompleted) return;
         timeoutTimer.cancel();
         socket?.off(AppUrls.conversationListEvent);
@@ -255,9 +258,9 @@ class MessageProvider extends ChangeNotifier {
   void _listenToConversationUpdates() {
     _isListeningToUpdates = true;
     socket?.listenToEvent(AppUrls.updateConverstationEvent, (p0) async {
+      print('updatedData: ${p0.to}');
       if (p0 is Map<String, dynamic> && p0['status'] == true) {
-        final updatedData =
-            await parseConversationListInBackground(p0['data']);
+        final updatedData = await parseConversationListInBackground(p0['data']);
         final list = allConversionData.data?.data ?? [];
         final index = list.indexWhere((e) => e.sId == updatedData.sId);
         if (index != -1) {

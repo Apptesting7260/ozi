@@ -19,4 +19,3 @@ class Message {
     this.reaction,
   });
 }
-

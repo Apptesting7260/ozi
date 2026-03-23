@@ -132,51 +132,54 @@ class MessageDetailsProvider extends ChangeNotifier {
     userId = await UserPreference.returnUserId() ?? '';
   }
 
-  Future<void> receivePersonalMessage() async {
-    socket.listenToEvent(AppUrls.receivePersonalMessageEvent, (p0) async {
-      if (p0 is String) {
-        final data = jsonDecode(p0);
-        // use data['key']
-        if (kDebugMode) {
-          print("data string is $data");
-        }
-      } else if (p0 is Map) {
-        final data = p0 as Map<String, dynamic>;
-        if (data['status'] == true) {
-          data['data']['senderType'] = "sender";
-          // MessageListModelData receiveData = MessageListModelData.fromJson(data['data']);
-          MessageListModelData receiveData = await parseMessageListInBackground(
-            data['data'],
+  void _onReceivePersonalMessage(dynamic p0) async {
+    if (p0 is String) {
+      final data = jsonDecode(p0);
+      if (kDebugMode) {
+        print("data string is $data");
+      }
+    } else if (p0 is Map) {
+      final data = p0 as Map<String, dynamic>;
+      if (data['status'] == true) {
+        data['data']['senderType'] = "sender";
+        MessageListModelData receiveData = await parseMessageListInBackground(
+          data['data'],
+        );
+        if (messageListData.data?.data.any((e) => e.sId == receiveData.sId) ==
+            false) {
+          messageListData.data?.data.insert(
+            0,
+            await parseMessageListInBackground(data['data']),
           );
-          if (messageListData.data?.data.any((e) => e.sId == receiveData.sId) ==
-              false) {
-            // messageListData.data?.data.insert(0,MessageListModelData.fromJson(data['data']));
-            messageListData.data?.data.insert(
-              0,
-              await parseMessageListInBackground(data['data']),
-            );
-            updateLastMessageOfConversation(
-              receiveData.text ?? '',
-              receiveData.conversationId ?? '',
-            );
-            if (scrollController.hasClients) {
-              if ((scrollController.position.pixels >= 0) &&
-                  (scrollController.position.pixels < 50)) {
-                // updateIsNewMessageReceived(true);
-              } else {
-                updateIsNewMessageReceived(true);
-              }
+          updateLastMessageOfConversation(
+            receiveData.text ?? '',
+            receiveData.conversationId ?? '',
+          );
+          if (scrollController.hasClients) {
+            if ((scrollController.position.pixels >= 0) &&
+                (scrollController.position.pixels < 50)) {
+              // updateIsNewMessageReceived(true);
+            } else {
+              updateIsNewMessageReceived(true);
             }
-            notifyListeners();
           }
-        }
-        if (kDebugMode) {
-          print("data Map is $data");
+          notifyListeners();
         }
       }
-    });
+      if (kDebugMode) {
+        print("data Map is $data");
+      }
+    }
+  }
+
+  Future<void> receivePersonalMessage() async {
+    socket.listenToEvent(
+      AppUrls.receivePersonalMessageEvent,
+      _onReceivePersonalMessage,
+    );
 
     socket.listenToEvent(AppUrls.changeMsgStatusEvent, (p0) {
+      print('change message status event: $p0');
       if (p0 is String) {
         final data = jsonDecode(p0);
         // use data['key']
@@ -570,7 +573,10 @@ class MessageDetailsProvider extends ChangeNotifier {
     focusNode.dispose();
 
     try {
-      socket.off(AppUrls.receivePersonalMessageEvent);
+      socket.off(
+        AppUrls.receivePersonalMessageEvent,
+        _onReceivePersonalMessage,
+      );
       socket.off(AppUrls.changeMsgStatusEvent);
       socket.off(AppUrls.updateMessageEvent);
       socket.off(AppUrls.deleteMsgEvent);
