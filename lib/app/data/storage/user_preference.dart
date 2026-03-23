@@ -142,6 +142,26 @@ class UserPreference {
     return pref.getBool("isMobileVerified");
   }
 
+  static saveIsEmailVerified(bool isVerified) async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    pref.setBool("isEmailVerified", isVerified);
+  }
+
+  static Future<bool?> returnIsEmailVerified() async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    return pref.getBool("isEmailVerified");
+  }
+
+  static saveVerifiedEmail(String verifiedEmail) async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    pref.setString("verifiedEmail", verifiedEmail);
+  }
+
+  static Future<String?> returnVerifiedEmail() async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    return pref.getString("verifiedEmail");
+  }
+
   static saveIsRoleSelected(bool isSelected) async {
     SharedPreferences pref = await SharedPreferences.getInstance();
     pref.setBool("isRoleSelected", isSelected);
@@ -172,6 +192,8 @@ class UserPreference {
     pref.remove('firstName');
     pref.remove('lastName');
     pref.remove('email');
+    pref.remove('verifiedEmail');
+    pref.remove('isEmailVerified');
     pref.remove('mobile');
     pref.remove('isMobileVerified');
     pref.remove('isRoleSelected');
