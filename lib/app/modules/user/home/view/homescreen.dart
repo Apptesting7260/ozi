@@ -1,3 +1,4 @@
+import 'package:ozi/app/data/models/chat_models/conversion_list_model.dart';
 import 'package:ozi/app/modules/user/cart/change%20address/view/ChangeAddressScreen.dart';
 import 'package:ozi/app/modules/user/cart/change%20address/provider/ChangeAddressProvider.dart';
 import 'package:ozi/app/modules/user/profile/save%20address/provider/saved_address_provider.dart';
@@ -30,6 +31,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   @override
   void initState() {
     super.initState();
+    FocusManager.instance.primaryFocus?.unfocus();
     WidgetsBinding.instance.addObserver(this);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {

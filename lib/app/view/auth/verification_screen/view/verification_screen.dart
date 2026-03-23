@@ -117,6 +117,7 @@ class VerificationContent extends StatelessWidget {
                     isLoading: provider.isLoading,
                     onPressed: () {
                       if (provider.isLoading) return;
+                      FocusScope.of(context).unfocus();
                       print("phone on verification : $phone");
                       print("countryCode on verification : $countryCode");
                       provider.verifyOtpMethod(phone, ("+$countryCode"));

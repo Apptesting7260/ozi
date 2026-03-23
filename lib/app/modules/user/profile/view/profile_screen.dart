@@ -229,7 +229,10 @@ class ProfileScreenView extends StatelessWidget {
                                 onTap: () => Navigator.pushNamed(
                                   context,
                                   AppRoutes.helpSupportScreen,
-                                  arguments: profileProvider.userProfile?.data?.userRole,
+                                  arguments: profileProvider
+                                      .userProfile
+                                      ?.data
+                                      ?.userRole,
                                 ),
                               ),
                             if (profileProvider.userProfile?.data?.userRole ==

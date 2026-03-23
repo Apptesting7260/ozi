@@ -287,6 +287,25 @@ class CreateAccountProvider with ChangeNotifier {
   // Form key for validation
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
+  CreateAccountProvider() {
+    loadSavedData();
+  }
+
+  Future<void> loadSavedData() async {
+    final bool? savedIsEmailVerified = await UserPreference.returnIsEmailVerified();
+    final String? savedVerifiedEmail = await UserPreference.returnVerifiedEmail();
+
+    if (savedIsEmailVerified == true && savedVerifiedEmail != null && savedVerifiedEmail.isNotEmpty) {
+      if (emailController.text.isEmpty || emailController.text == savedVerifiedEmail) {
+        emailController.text = savedVerifiedEmail;
+        _isEmailValid = true;
+        _isEmailVerified = true;
+        _verifiedEmail = savedVerifiedEmail;
+        notifyListeners();
+      }
+    }
+  }
+
   TextEditingController firstNameController = TextEditingController();
   TextEditingController lastNameController = TextEditingController();
   TextEditingController emailController = TextEditingController();
@@ -595,6 +614,11 @@ class CreateAccountProvider with ChangeNotifier {
               true) {
         _isEmailVerified = true;
         _verifiedEmail = data['email']?.toString().trim();
+        if (_verifiedEmail != null) {
+          await UserPreference.saveVerifiedEmail(_verifiedEmail!);
+          await UserPreference.saveIsEmailVerified(true);
+          await UserPreference.saveEmail(_verifiedEmail!);
+        }
       }
       notifyListeners();
       // Navigator.pop(navigatorKey.currentContext!);
@@ -683,6 +707,8 @@ class CreateAccountProvider with ChangeNotifier {
     await pref.remove('firstName');
     await pref.remove('lastName');
     await pref.remove('email');
+    await pref.remove('verifiedEmail');
+    await pref.remove('isEmailVerified');
     await pref.remove('mobile');
     await pref.remove('isMobileVerified');
     if (role == 'user') {
