@@ -134,7 +134,7 @@ class _RequestCardState extends State<RequestCard> {
                 wBox(12),
                 Icon(Icons.access_time, size: 14, color: AppColors.grey),
                 wBox(6),
-                Text('${widget.request.serviceTime?.toString()}}', style: AppFontStyle.text_12_400(AppColors.grey)),
+                Text('${widget.request.serviceTime?.toString()}', style: AppFontStyle.text_12_400(AppColors.grey)),
               ],
             ),
 

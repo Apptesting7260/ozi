@@ -25,6 +25,23 @@ class VendorBookingDetailsScreen extends StatelessWidget {
       child: Builder(
         builder: (context) {
           final provider = context.watch<VendorBookingDetailsProvider>();
+
+          final bookingDateString =
+              provider.homeModel.data?.data?.serviceDate ?? '';
+
+          DateTime? bookingDate;
+          if (bookingDateString.isNotEmpty) {
+            bookingDate = DateTime.parse(bookingDateString);
+          }
+
+          final now = DateTime.now();
+          final today = DateTime(now.year, now.month, now.day);
+
+          final bookingDay = bookingDate != null
+              ? DateTime(bookingDate.year, bookingDate.month, bookingDate.day)
+              : null;
+
+          final isTodayBooking = bookingDay != null && bookingDay == today;
           return Scaffold(
             backgroundColor: AppColors.white,
             body: SafeArea(
@@ -191,19 +208,47 @@ class VendorBookingDetailsScreen extends StatelessWidget {
 
                             hBox(10),
 
-                            if (provider.homeModel.data?.data?.status ==
-                                'confirmed')
+                            if (provider.homeModel.data?.data?.status == 'confirmed' && !isTodayBooking)
+                              Container(
+                                width: double.infinity,
+                                margin: const EdgeInsets.only(bottom: 10),
+                                padding: const EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  color: Colors.orange.withOpacity(0.1),
+                                  borderRadius: BorderRadius.circular(10),
+                                  border: Border.all(color: Colors.orange.shade300),
+                                ),
+                                child: Row(
+                                  children: [
+                                    Icon(Icons.info_outline, color: Colors.orange),
+                                    const SizedBox(width: 10),
+                                    Expanded(
+                                      child: Text(
+                                        "You can start this job on the booking date only",
+                                        style: TextStyle(
+                                          color: Colors.orange.shade800,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            hBox(5),
+
+                            if (provider.homeModel.data?.data?.status == 'confirmed') ...[
                               CustomButton(
                                 isLoading: provider.otpVerifyLoading,
                                 text: 'Start Job',
-                                onPressed: () {
-                                  _showOtpBottomSheet(
-                                    context,
-                                    provider,
-                                    bookingId,
-                                  );
-                                },
+                                onPressed: isTodayBooking
+                                    ? () {
+                                  _showOtpBottomSheet(context, provider, bookingId);
+                                }
+                                    : null,
+                                color: isTodayBooking ? AppColors.primary : AppColors.grey,
                               ),
+
+                            ],
 
                             if (provider.homeModel.data?.data?.status ==
                                 'ongoing')
@@ -281,91 +326,101 @@ class VendorBookingDetailsScreen extends StatelessWidget {
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (context) {
-        return Padding(
-          padding: EdgeInsets.only(
-            bottom: MediaQuery.of(context).viewInsets.bottom,
-            left: 20,
-            right: 20,
-            top: 20,
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                height: 4,
-                width: 50,
-                margin: const EdgeInsets.only(bottom: 16),
-                decoration: BoxDecoration(
-                  color: Colors.grey.shade300,
-                  borderRadius: BorderRadius.circular(10),
-                ),
+        return  ChangeNotifierProvider.value(
+            value: provider,
+            child:  Consumer<VendorBookingDetailsProvider>(
+          builder: (context, provider, _) {
+            return Padding(
+              padding: EdgeInsets.only(
+                bottom: MediaQuery
+                    .of(context)
+                    .viewInsets
+                    .bottom,
+                left: 20,
+                right: 20,
+                top: 20,
               ),
-              Text(
-                "Verify OTP",
-                style: AppFontStyle.text_18_600(AppColors.black),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    height: 4,
+                    width: 50,
+                    margin: const EdgeInsets.only(bottom: 16),
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade300,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                  Text(
+                    "Verify OTP",
+                    style: AppFontStyle.text_18_600(AppColors.black),
+                  ),
+                  const SizedBox(height: 10),
+                  const Text(
+                    "Ask the customer for the 4-digit OTP to start the job.",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(color: Colors.grey),
+                  ),
+                  const SizedBox(height: 20),
+
+                  /// OTP FIELD
+                  PinCodeTextField(
+                    appContext: context,
+                    controller: provider.pinController,
+                    autoDisposeControllers: false,
+                    length: 4,
+                    keyboardType: TextInputType.number,
+                    animationType: AnimationType.fade,
+                    enableActiveFill: true,
+                    pinTheme: PinTheme(
+                      shape: PinCodeFieldShape.circle,
+                      borderRadius: const BorderRadius.all(Radius.circular(12)),
+                      fieldHeight: 55,
+                      fieldWidth: 55,
+                      activeFillColor: AppColors.fieldBgColor,
+                      inactiveFillColor: AppColors.fieldBgColor,
+                      selectedFillColor: AppColors.fieldBgColor,
+                      activeColor: AppColors.primary,
+                      inactiveColor: Colors.transparent,
+                      selectedColor: AppColors.primary,
+                      borderWidth: 0,
+                    ),
+                    onChanged: (_) {
+                      if (provider.errorMessage != null) {
+                        provider.updateErrorMessage(null);
+                      }
+                    },
+                  ),
+
+                  if (provider.errorMessage != null) ...[
+                    const SizedBox(height: 8),
+                    Text(
+                      provider.errorMessage!,
+                      style: AppFontStyle.text_14_400(Colors.red),
+                    ),
+                  ],
+
+                  const SizedBox(height: 24),
+
+                  CustomButton(
+                    isLoading: provider.otpVerifyLoading,
+                    text: "Verify & Start Job",
+                    onPressed: () async {
+                      final success = await provider.verifyOtp(bookingId);
+
+                      if (success) {
+                        Navigator.pop(context); // ✅ only close on success
+                      }
+                    },
+                  ),
+
+                  const SizedBox(height: 20),
+                ],
               ),
-              const SizedBox(height: 10),
-              const Text(
-                "Ask the customer for the 4-digit OTP to start the job.",
-                textAlign: TextAlign.center,
-                style: TextStyle(color: Colors.grey),
-              ),
-              const SizedBox(height: 20),
-
-              /// OTP FIELD
-              PinCodeTextField(
-                appContext: context,
-                controller: provider.pinController,
-                autoDisposeControllers: false,
-                length: 4,
-                keyboardType: TextInputType.number,
-                animationType: AnimationType.fade,
-                enableActiveFill: true,
-                pinTheme: PinTheme(
-                  shape: PinCodeFieldShape.circle,
-                  borderRadius: const BorderRadius.all(Radius.circular(12)),
-                  fieldHeight: 55,
-                  fieldWidth: 55,
-                  activeFillColor: AppColors.fieldBgColor,
-                  inactiveFillColor: AppColors.fieldBgColor,
-                  selectedFillColor: AppColors.fieldBgColor,
-                  activeColor: AppColors.primary,
-                  inactiveColor: Colors.transparent,
-                  selectedColor: AppColors.primary,
-                  borderWidth: 0,
-                ),
-                onChanged: (_) {
-                  if (provider.errorMessage != null) {
-                    provider.updateErrorMessage(null);
-                  }
-                },
-              ),
-
-              if (provider.errorMessage != null) ...[
-                const SizedBox(height: 8),
-                Text(
-                  provider.errorMessage!,
-                  style: AppFontStyle.text_14_400(Colors.red),
-                ),
-              ],
-
-              const SizedBox(height: 24),
-
-              CustomButton(
-                isLoading: provider.otpVerifyLoading,
-                text: "Verify & Start Job",
-                onPressed: () async {
-                  await provider.verifyOtp(bookingId);
-
-                  if (provider.errorMessage == null) {
-                    Navigator.pop(context); // close bottom sheet
-                  }
-                },
-              ),
-
-              const SizedBox(height: 20),
-            ],
-          ),
+            );
+          }
+        )
         );
       },
     );
@@ -723,6 +778,7 @@ class VendorBookingDetailsScreen extends StatelessWidget {
     required String discount,
     required String total,
   }) {
+    final discountValue = double.tryParse(discount ?? "0") ?? 0;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -739,8 +795,10 @@ class VendorBookingDetailsScreen extends StatelessWidget {
               hBox(12),
               _summaryRow("Service Fee", "\$$serviceFee"),
               hBox(12),
-              _summaryRow("Discount", "\$$discount"),
-              hBox(16),
+              discountValue == 0
+                  ? SizedBox.shrink()
+                  : _summaryRow("Discount", "\$$discountValue"),
+              discountValue == 0 ? SizedBox.shrink() : hBox(16),
               Divider(
                 color: AppColors.black.withValues(alpha: 0.10),
                 thickness: 2,

@@ -12,6 +12,7 @@ import 'package:ozi/app/data/network/web_socket_connection_service.dart';
 import 'package:permission_handler/permission_handler.dart';
 import '../../data/storage/user_preference.dart';
 import '../../modules/user/navigation tab/view/navigation_tab_screen.dart';
+import '../../modules/vendor/home/notification/provider/vendor_ notification_provider.dart';
 import '../../modules/vendor/navigation tab/view/vendor_navigation_tab_screen.dart';
 import '../../routes/app_routes.dart';
 import '../../view/message/screens/message.dart';
@@ -130,6 +131,25 @@ class PushNotificationService {
 
     // ── 5. Foreground messages ───────────────────────────────────────────────
     FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
+
+      final ctx = navigatorKey.currentContext;
+
+      if (ctx != null) {
+        try {
+          final provider = Provider.of<VendorNotificationProvider>(ctx, listen: false);
+
+          final type = message.data['type'] ?? '';
+
+          if (_shouldRefreshVendorNotifications(type)) {
+            print("🔥 API TRIGGER FROM FOREGROUND NOTIFICATION");
+
+            provider.getNotifications(isRefresh: true);
+          }
+        } catch (e) {
+          debugPrint("❌ Provider error: $e");
+        }
+      }
+
       if (message.messageId != null) {
         if (_handledMessageIds.contains(message.messageId)) {
           debugPrint(
@@ -485,6 +505,21 @@ class PushNotificationService {
     return false;
   }
 
+  static bool _shouldRefreshVendorNotifications(String type) {
+    return [
+      "booking_request",
+      "booking_confirm",
+      "booking_paid_advanced",
+      "booking_payment_failed",
+      "booking_ongoing",
+      "booking_completed",
+      'booking_cancelled',
+      'booking_rejected',
+      'credit',
+      'debit'
+    ].contains(type); }
+
+
   // ── NAVIGATION ──────────────────────────────────────────────────────────────
   static Future<void> navigateFromNotification({
     required String screen,
@@ -498,12 +533,12 @@ class PushNotificationService {
       return;
     }
 
-    SocketController? _socket;
+    SocketController? _;
 
-    // ✅ WAIT for socket connection
+    // WAIT for socket connection
     // await _socket.socket.
 
-    // ✅ IMPORTANT: tell backend user is online
+    // IMPORTANT: tell backend user is online
     // SocketController.instance.goOnline();
 
     debugPrint("✅ Socket connected & online event sent");

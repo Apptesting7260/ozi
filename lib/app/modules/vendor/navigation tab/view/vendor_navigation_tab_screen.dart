@@ -59,9 +59,13 @@ class _VendorNavigationTabScreenState extends State<VendorNavigationTabScreen> {
         );
       },
       child: Scaffold(
+
         body: Consumer<VendorNavigationProvider>(
           builder: (context, navProvider, _) {
-            return pages[navProvider.currentIndex];
+            return IndexedStack(
+              index: navProvider.currentIndex,
+              children: pages,
+            );
           },
         ),
         bottomNavigationBar: Consumer<VendorNavigationProvider>(
@@ -80,6 +84,7 @@ class _VendorNavigationTabScreenState extends State<VendorNavigationTabScreen> {
                     ],
                   ),
                   child: BottomNavigationBar(
+
                     unselectedLabelStyle: AppFontStyle.text_12_400(
                       AppColors.grey,
                     ),
