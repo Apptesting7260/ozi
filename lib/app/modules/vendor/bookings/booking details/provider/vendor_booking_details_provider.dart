@@ -1,8 +1,3 @@
-
-
-
-
-
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../../core/appExports/app_export.dart';
@@ -68,29 +63,38 @@ class VendorBookingDetailsProvider extends ChangeNotifier {
   }
 
 
-  Future<void> verifyOtp(String bookingId)async {
-    if(_otpVerifyLoading) return;
-    if(pinController.text.length<4){
+  Future<bool> verifyOtp(String bookingId) async {
+    if (_otpVerifyLoading) return false;
+
+    if (pinController.text.length < 4) {
       errorMessage = 'Please Enter Pin';
       notifyListeners();
-      return;
-    }else{
-      errorMessage = null;
-      notifyListeners();
+      return false;
     }
-    if (kDebugMode) {
-      print('getting categories');
-    }
+
     try {
       updateOtpVerifyLoading(true);
-      final _ = await _apiService.postApi({
-        "otp":pinController.text,
-        "booking_id":bookingId
-      },AppUrls.vendorOtpVerify);
-      getAllBookings(bookingId);
-      updateOtpVerifyLoading(false);
+      errorMessage = null;
+
+      final response = await _apiService.postApi({
+        "otp": pinController.text,
+        "booking_id": bookingId
+      }, AppUrls.vendorOtpVerify);
+
+      if (response['status'] == true) {
+        await getAllBookings(bookingId);
+        return true;
+      } else {
+        errorMessage = response['message'] ?? "Invalid OTP";
+        notifyListeners();
+        return false;
+      }
+
     } catch (e) {
-      Get.showToast(e.toString(), type: ToastType.error);
+      errorMessage = "Invalid OTP or server error";
+      notifyListeners();
+      return false;
+    } finally {
       updateOtpVerifyLoading(false);
     }
   }
@@ -193,72 +197,4 @@ class VendorBookingDetailsProvider extends ChangeNotifier {
     }
 
   }
-  //
-  // // Complete job
-  // Future<void> completeJob(BuildContext context) async {
-  //   isProcessing = true;
-  //   notifyListeners();
-  //
-  //   // Simulate API call
-  //   await Future.delayed(const Duration(seconds: 1));
-  //
-  //   isProcessing = false;
-  //   notifyListeners();
-  //
-  //   if (context.mounted) {
-  //     // Show success dialog
-  //     showDialog(
-  //       context: context,
-  //       builder: (ctx) => AlertDialog(
-  //         title: const Text("Success"),
-  //         content: const Text("Job marked as completed!"),
-  //         actions: [
-  //           TextButton(
-  //             onPressed: () {
-  //               Navigator.pop(ctx); // Close dialog
-  //               Navigator.pop(context); // Go back to list
-  //             },
-  //             child: const Text("OK"),
-  //           ),
-  //         ],
-  //       ),
-  //     );
-  //   }
-  // }
-  //
-  // // Start job (for upcoming bookings)
-  // Future<void> startJob(BuildContext context) async {
-  //   isProcessing = true;
-  //   notifyListeners();
-  //
-  //   await Future.delayed(const Duration(seconds: 1));
-  //
-  //   isProcessing = false;
-  //   notifyListeners();
-  //
-  //   if (context.mounted) {
-  //     ScaffoldMessenger.of(context).showSnackBar(
-  //       const SnackBar(content: Text("Job started!")),
-  //     );
-  //   }
-  // }
-  //
-  // // Verify OTP (optional feature from screens)
-  // Future<void> verifyOTP(BuildContext context, String otp) async {
-  //   isProcessing = true;
-  //   notifyListeners();
-  //
-  //   // Simulate OTP verification
-  //   await Future.delayed(const Duration(seconds: 1));
-  //
-  //   isProcessing = false;
-  //   notifyListeners();
-  //
-  //   if (context.mounted) {
-  //     // Navigate or show success
-  //     ScaffoldMessenger.of(context).showSnackBar(
-  //       const SnackBar(content: Text("OTP Verified!")),
-  //     );
-  //   }
-  // }
 }

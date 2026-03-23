@@ -41,6 +41,7 @@ class ServiceCategory extends StatelessWidget {
                             children: [
                               hBox(18),
                               Text(
+                                maxLines: 3,
                                 "Choose the services you want to offer. You can select multiple categories.",
                                 style: AppFontStyle.text_14_400(AppColors.grey),
                               ),

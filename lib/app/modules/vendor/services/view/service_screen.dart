@@ -228,7 +228,7 @@ class _MyServicesContent extends StatelessWidget {
           context,
           MaterialPageRoute(
             builder: (context) =>
-                ServiceCardDetailsScreen(serviceId: service.id.toString()),
+                ServiceCardDetailsScreen(serviceId: service.id.toString(),service: service,),
           ),
         );
         if (result == null || result != null) {

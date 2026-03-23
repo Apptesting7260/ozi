@@ -50,12 +50,13 @@ class ServiceDetailsProvider extends ChangeNotifier {
   }
 
   void setDurationUnit(String? value) {
+    if (durationUnit == value) return;
+
     durationUnit = value;
 
-    if (value == "hours") {
-      durationValue = "1";
-    } else {
-      durationValue = "10";
+    // preserve value if exists in new list
+    if (!durationList.contains(durationValue)) {
+      durationValue = durationList.first;
     }
 
     notifyListeners();

@@ -1,19 +1,22 @@
 import 'package:ozi/app/core/appExports/app_export.dart';
 import 'package:ozi/app/modules/vendor/services/edit%20service/view/vendor_editservice_screen.dart';
 import '../../../../../core/constants/app_urls.dart';
+import '../../../../../data/models/all_services_model_vendor.dart';
+import '../../../../auth/vendor/signup/view/service_details.dart';
 import '../../provider/service_provider.dart';
 import '../provider/service_details_provider.dart';
 
 class ServiceCardDetailsScreen extends StatelessWidget {
   final String serviceId;
-   const ServiceCardDetailsScreen({super.key , required this.serviceId});
+  final VendorGetAllServicesModelData? service;
+   const ServiceCardDetailsScreen({super.key , required this.serviceId,this.service});
 
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
       create: (_) => ServiceDetailsProvider()
         ..loadCardService(serviceId),
-      child:  _ServiceDetailsContent(serviceId: serviceId,),
+      child:  _ServiceDetailsContent(serviceId: serviceId,service: service,),
     );
   }
 }
@@ -22,8 +25,9 @@ class ServiceCardDetailsScreen extends StatelessWidget {
 
 class _ServiceDetailsContent extends StatelessWidget {
   final String serviceId;
-  const _ServiceDetailsContent(
-      {required this.serviceId});
+  final VendorGetAllServicesModelData? service;
+   _ServiceDetailsContent(
+      {required this.serviceId,this.service});
 
   @override
   Widget build(BuildContext context) {
@@ -299,13 +303,24 @@ class _ServiceDetailsContent extends StatelessWidget {
                 isOutlined: true,
                 color: AppColors.primary,
                 borderRadius: BorderRadius.circular(30),
-                onPressed: () {
-                  Navigator.push(
+                onPressed: () async{
+                  // Navigator.push(
+                  //   context,
+                  //   MaterialPageRoute(
+                  //     builder: (_) => VendorEditserviceScreen(),
+                  //   ),
+                  // );
+                  final result = await Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (_) => VendorEditserviceScreen(),
+                      builder: (context) =>
+                          ServiceDetailsScreen(service, "Edit Service"),
                     ),
                   );
+
+                  if (result == true) {
+                    vendorProvider.getAllBookings();
+                  }
                 },
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,

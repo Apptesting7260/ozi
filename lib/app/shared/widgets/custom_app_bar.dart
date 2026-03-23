@@ -28,7 +28,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     final double topPadding = MediaQuery.of(context).padding.top;
 
     return Padding(
-      padding: EdgeInsets.only(left: 16, right: 16, top: topPadding + 4),
+      padding: EdgeInsets.only(left: 5, right: 16, top: topPadding + 4),
       child: Column(
         children: [
           SizedBox(

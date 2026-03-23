@@ -16,16 +16,14 @@ import '../request_card/view/request_card_view.dart';
 
 class VendorHomeScreen extends StatefulWidget {
   dynamic openConversationId;
-   VendorHomeScreen({super.key,this.openConversationId});
+
+  VendorHomeScreen({super.key, this.openConversationId});
 
   @override
   State<VendorHomeScreen> createState() => _VendorHomeScreenState();
 }
 
 class _VendorHomeScreenState extends State<VendorHomeScreen> {
-
-
-
   @override
   void initState() {
     super.initState();
@@ -48,13 +46,7 @@ class _VendorHomeScreenState extends State<VendorHomeScreen> {
         debugPrint("🧹 Conversation ID cleared");
 
         Future.microtask(() {
-          Navigator.pushNamed(
-            context,
-            AppRoutes.messageDetailsScreen,
-            arguments: {
-              "conversion_id": id,
-            },
-          ).then((_) {
+          Navigator.pushNamed(context, AppRoutes.messageDetailsScreen, arguments: {"conversion_id": id}).then((_) {
             debugPrint("🔄 Returned from Message Detail → Refreshing data");
 
             if (!mounted) return;
@@ -76,11 +68,10 @@ class _VendorHomeScreenState extends State<VendorHomeScreen> {
 
       homeProvider.checkForUpdateLocationAndIsServiceAvailable();
 
-
-
       debugPrint("✅ VendorHome initial APIs loaded");
     });
   }
+
   @override
   Widget build(BuildContext context) {
     return Consumer<VendorHomeProvider>(
@@ -91,6 +82,8 @@ class _VendorHomeScreenState extends State<VendorHomeScreen> {
             child: RefreshIndicator(
               onRefresh: () async {
                 await value.getHomeData();
+                await context.read<ProfileProvider>().fetchUserProfile();
+               await context.read<VendorNotificationProvider>().getNotifications(isRefresh: true);
               },
               child: SingleChildScrollView(
                 physics: const AlwaysScrollableScrollPhysics(),
@@ -106,19 +99,19 @@ class _VendorHomeScreenState extends State<VendorHomeScreen> {
 
                     hBox(20),
 
-                    /// ONE loader for grid + requests
+                    // ONE loader for grid + requests
                     if (value.homeModel.status == ApiStatus.loading)
                       const Padding(
                         padding: EdgeInsets.symmetric(vertical: 80),
                         child: Center(child: CircularProgressIndicator()),
                       )
                     else ...[
-                      /// ---------------- STATS ----------------
+                      // ---------------- STATS ----------------
                       _statsGrid(),
 
                       hBox(24),
 
-                      /// ---------------- NEW REQUESTS ----------------
+                      // ---------------- NEW REQUESTS ----------------
                       _sectionHeader(context: context, title: "New Requests", newRequestLength: value.homeModel.data?.requests?.length),
 
                       hBox(12),
@@ -138,12 +131,13 @@ class _VendorHomeScreenState extends State<VendorHomeScreen> {
   }
 
   Widget _requestsList(VendorHomeProvider value) {
-
     if (value.homeModel.data?.requests == null || value.homeModel.data!.requests!.isEmpty) {
       return SizedBox(
-          height: 150,
-          child: Center(child: NoDataFoundWidget(message:"No new requests available",lottieHeight: 105.h,textStyle: AppFontStyle.text_16_500(AppColors.grey),),
-          ));
+        height: 150,
+        child: Center(
+          child: NoDataFoundWidget(message: "No new requests available", lottieHeight: 105.h, textStyle: AppFontStyle.text_16_500(AppColors.grey)),
+        ),
+      );
     }
 
     return ListView.builder(
