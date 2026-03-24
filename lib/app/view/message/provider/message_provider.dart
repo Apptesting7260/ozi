@@ -109,7 +109,7 @@ class MessageProvider extends ChangeNotifier {
       // Ensure the user is registered as "online" on the server
       await socket?.ensureOnline(force: true);
       // Fetch conversations from scratch (no forceReconnect!)
-      await getAllConversions(true, forceReconnect: false);
+      await getAllConversions(true, forceReconnect: false, isRefresh: true);
     } catch (e) {
       debugPrint('❌ [MessageProvider] _onSocketConnected error: $e');
     }
@@ -178,7 +178,7 @@ class MessageProvider extends ChangeNotifier {
   /// [forceReconnect] — only true on user-initiated pull-to-refresh.
   ///   Default follows resetPage for backward compat, but internal
   ///   callers (like _onSocketConnected) pass false explicitly.
-  Future<void> getAllConversions(bool resetPage, {bool? forceReconnect}) async {
+  Future<void> getAllConversions(bool resetPage, {bool? forceReconnect, bool isRefresh = false}) async {
     if (isLoading) return;
     final shouldForceReconnect = forceReconnect ?? resetPage;
 
@@ -186,7 +186,9 @@ class MessageProvider extends ChangeNotifier {
       if (userId == null || userId == '') await _initUser();
 
       if (resetPage) {
-        updateAllConversionData(ApiResponse.loading());
+        if (!isRefresh) {
+          updateAllConversionData(ApiResponse.loading());
+        }
         page = 1;
         isPagination = true;
       }

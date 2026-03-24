@@ -1,5 +1,6 @@
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:ozi/app/core/device%20info/get_device_Info.dart';
 import 'package:ozi/app/modules/user/profile/save%20address/provider/saved_address_provider.dart';
 import '../../../../core/appExports/app_export.dart';
 import '../../../../data/repository/repository.dart';
@@ -14,7 +15,44 @@ import '../../profile/setting/provider/settingprovider.dart';
 
 class HomeScreenProvider extends ChangeNotifier {
   HomeScreenProvider() {
-    // Location and data will be handled by loadOnce() called from the View
+    getLocationDetails();
+  }
+
+  String city = "";
+  String country = "";
+
+  Future<void> getLocationDetails() async {
+    try {
+      // Step 1: Get coordinates
+      Position position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high,
+      );
+
+      // Step 2: Convert to address
+      List<Placemark> placemarks = await placemarkFromCoordinates(
+        position.latitude,
+        position.longitude,
+      );
+
+      if (placemarks.isNotEmpty) {
+        Placemark place = placemarks[0];
+        print(
+          "value offf thew city & country : ${place.locality}, ${place.country}",
+        );
+        String fetchedCity = place.locality ?? "";
+        if (fetchedCity.isEmpty) {
+          fetchedCity = place.subAdministrativeArea ?? "";
+        }
+        if (fetchedCity.isEmpty) {
+          fetchedCity = place.administrativeArea ?? "";
+        }
+        city = fetchedCity;
+        country = place.country ?? "";
+        notifyListeners();
+      }
+    } catch (e) {
+      debugPrint("Error in getLocationDetails: $e");
+    }
   }
 
   // Session-based consent map: userId -> hasConsented
@@ -314,6 +352,44 @@ class HomeScreenProvider extends ChangeNotifier {
     UserPreference.saveLocationConsent(false);
 
     notifyListeners();
+  }
+
+  Future<void> locationSendToBackend(BuildContext context) async {
+    _isLoading = true;
+    notifyListeners();
+
+    final deviceInfo = await getDeviceInfo();
+    try {
+      if (city.isEmpty || country.isEmpty) {
+        await getLocationDetails();
+      }
+
+      // lat = position.latitude.toStringAsFixed(6);
+      // lng = position.longitude.toStringAsFixed(6);
+      Map<String, String> body = {
+        "latitude": lat ?? "",
+        "longitude": lng ?? "",
+        "city": city,
+        // "state": state,
+        "country": country,
+        "device_name": deviceInfo["device_name"]?.toString() ?? "",
+      };
+      final response = await _repository.locationSendToBackend(body);
+      if (response != null && response['status'] == true) {
+        print("locationSendToBackend suucess ");
+        _isLoading = false;
+        notifyListeners();
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error in locationSendToBackend: $e');
+      }
+    } finally {
+      if (_isLoading) {
+        _isLoading = false;
+        notifyListeners();
+      }
+    }
   }
 
   Future<bool> getCurrentLocation({BuildContext? context}) async {
