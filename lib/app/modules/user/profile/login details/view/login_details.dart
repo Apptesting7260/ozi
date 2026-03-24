@@ -48,7 +48,7 @@ class _LoginDetailsScreenState extends State<LoginDetailsScreen> {
                       );
                     }
                     return ListView.separated(
-                      padding: const EdgeInsets.symmetric(vertical: 10),
+                      padding: const EdgeInsets.symmetric(vertical: 2),
                       itemCount: provider.devices.length,
                       separatorBuilder: (context, index) => const Divider(
                         thickness: 1,
@@ -85,12 +85,12 @@ class _LoginDetailsScreenState extends State<LoginDetailsScreen> {
                                     strokeWidth: 2,
                                   ),
                                 )
-                              : const Text(
-                                  "Log out",
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    color: Colors.black87,
-                                  ),
+                              :  Text(
+                                  "Logout",
+                            style: AppFontStyle.text_14_500(
+                              AppColors.black,
+                              fontFamily: AppFontFamily.regular,
+                            ),
                                 ),
                         );
                       },
@@ -117,13 +117,14 @@ class _LoginDetailsScreenState extends State<LoginDetailsScreen> {
     required Widget child,
   }) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 0, vertical: 6),
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+      margin: const EdgeInsets.symmetric(horizontal: 0, vertical: 2),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
             height: 46,
@@ -154,49 +155,50 @@ class _LoginDetailsScreenState extends State<LoginDetailsScreen> {
                     fontFamily: AppFontFamily.regular,
                   ),
                 ),
-                wBox(6),
+                hBox(2),
                 Text(
-                  " $city, $state, $country" ?? "",
+                  "$city, $state • $country",
                   style: AppFontStyle.text_13_400(
                     AppColors.grey,
                     fontFamily: AppFontFamily.regular,
                   ),
                 ),
-                wBox(10),
-                Text(
-                  isCurrent
-                      ? ""
-                      : lastUsedAt == "Active now"
-                      ? lastUsedAt
-                      : "Last used on $lastUsedAt",
-                  style: AppFontStyle.text_13_400(
-                    AppColors.primary,
-                    fontFamily: AppFontFamily.regular,
-                  ),
-                ),
+                //  wBox(4),
+                // if (!isCurrent)
+                //   Text(
+                //     lastUsedAt == "Active now"
+                //         ? lastUsedAt
+                //         : "Last used on $lastUsedAt",
+                //     style: AppFontStyle.text_13_400(
+                //       AppColors.primary,
+                //       fontFamily: AppFontFamily.regular,
+                //     ),
+                //   ),
               ],
             ),
           ),
 
           isCurrent
-              ? Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 10,
-                    vertical: 4,
-                  ),
-                  decoration: BoxDecoration(
-                    color: const Color(0xffe0f4ec),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: const Text(
-                    "Current",
-                    style: TextStyle(
-                      color: Color(0xff2E7D32),
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                )
+              ? Padding(
+            padding: const EdgeInsets.only(top: 10),
+            child: Container(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 12,
+                vertical: 6,
+              ),
+              decoration: BoxDecoration(
+                color: const Color(0xffe0f4ec),
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Text(
+                "Current",
+                style: AppFontStyle.text_13_500(
+                  AppColors.primary,
+                  fontFamily: AppFontFamily.regular,
+                ),
+              ),
+            ),
+          )
               : OutlinedButton(
                   style: OutlinedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(
@@ -209,13 +211,6 @@ class _LoginDetailsScreenState extends State<LoginDetailsScreen> {
                     ),
                   ),
                   onPressed: onTap,
-                  // child: provider.isLogoutLoading ? const CircularProgressIndicator() : const Text(
-                  //   "Log out",
-                  //   style: TextStyle(
-                  //     fontSize: 12,
-                  //     color: Colors.black87,
-                  //   ),
-                  // ),
                   child: child,
                 ),
         ],
