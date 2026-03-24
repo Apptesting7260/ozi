@@ -313,6 +313,9 @@ class HomeScreenView extends StatelessWidget {
                     bool allowed = await AuthGuard.requireLogin(context);
 
                     if (!allowed) return;
+                    context
+                        .read<VendorNotificationProvider>()
+                        .readNotifications();
 
                     Navigator.push(
                       context,

@@ -159,7 +159,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ),
         child: Row(
           children: [
-            CustomImage(path: icon, height: 22, width: 22),
+            CustomImage(path: icon, height: 24, width: 24),
             SizedBox(width: 14),
 
             Expanded(
@@ -216,8 +216,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
             CustomImage(
               path: ImageConstants.bin,
               color: AppColors.red,
-              height: 22,
-              width: 22,
+              height: 24,
+              width: 24,
             ),
             SizedBox(width: 14),
 
