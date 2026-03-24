@@ -63,10 +63,11 @@ class _VendorNavigationTabScreenState extends State<VendorNavigationTabScreen> {
 
         body: Consumer<VendorNavigationProvider>(
           builder: (context, navProvider, _) {
-            return IndexedStack(
-              index: navProvider.currentIndex,
-              children: pages,
-            );
+            // return IndexedStack(
+            //   index: navProvider.currentIndex,
+            //   children: pages,
+            // );
+            return pages[navProvider.currentIndex];
           },
         ),
         bottomNavigationBar: Consumer<VendorNavigationProvider>(
