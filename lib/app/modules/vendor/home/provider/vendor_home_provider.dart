@@ -1,4 +1,8 @@
+import 'package:geocoding/geocoding.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:ozi/app/core/device%20info/get_device_Info.dart';
+import 'package:ozi/app/data/repository/repository.dart';
 import 'package:ozi/app/modules/auth/vendor/signup/view/service_details.dart';
 import '../../../../core/appExports/app_export.dart';
 import '../../../../core/constants/app_urls.dart';
@@ -8,6 +12,9 @@ import '../../../../data/response/api_response.dart';
 import '../../../../data/storage/user_preference.dart';
 
 class VendorHomeProvider extends ChangeNotifier {
+  VendorHomeProvider() {
+    getLocationDetails();
+  }
   final NetworkApiServices _apiService = NetworkApiServices();
 
   ApiResponse<VendorHomeModel> _homeModel = ApiResponse.loading();
@@ -17,6 +24,46 @@ class VendorHomeProvider extends ChangeNotifier {
   setHomeModel(ApiResponse<VendorHomeModel> value) {
     _homeModel = value;
     notifyListeners();
+  }
+
+  String cityLocation = "";
+  String countryLocation = "";
+
+  Future<void> getLocationDetails() async {
+    try {
+      // Step 1: Get coordinates
+      Position position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high,
+      );
+
+      // Step 2: Convert to address
+      List<Placemark> placemarks = await placemarkFromCoordinates(
+        position.latitude,
+        position.longitude,
+      );
+
+      if (placemarks.isNotEmpty) {
+        Placemark place = placemarks[0];
+        print(
+          "value offf thew city & country : ${place.locality}, ${place.country}",
+        );
+        String fetchedCity = place.locality ?? "";
+        if (fetchedCity.isEmpty) {
+          fetchedCity = place.subAdministrativeArea ?? "";
+        }
+        if (fetchedCity.isEmpty) {
+          fetchedCity = place.administrativeArea ?? "";
+        }
+        
+        cityLocation = fetchedCity;
+        countryLocation = place.country ?? "";
+        notifyListeners();
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print("Error in getLocationDetails: $e");
+      }
+    }
   }
 
   Future<void> getHomeData({bool showScreenLoader = true}) async {
@@ -31,7 +78,9 @@ class VendorHomeProvider extends ChangeNotifier {
     try {
       final response = await _apiService.getApi(AppUrls.vendorHome);
 
-      await UserPreference.saveIsDocumentVerified(response['vendor_status']['verified_by_admin'] ?? false);
+      await UserPreference.saveIsDocumentVerified(
+        response['vendor_status']['verified_by_admin'] ?? false,
+      );
 
       if (kDebugMode) {
         print(response);
@@ -50,7 +99,7 @@ class VendorHomeProvider extends ChangeNotifier {
   }
 
   bool _toggleLoading = false;
-
+  bool _isLoading = false;
   Future<void> toggleOnline() async {
     if (_toggleLoading) return;
     _toggleLoading = true;
@@ -75,13 +124,52 @@ class VendorHomeProvider extends ChangeNotifier {
   void checkForUpdateLocationAndIsServiceAvailable() {
     if (_homeModel.data?.vendorStatus?.hasLocation == false) {
       showLocationPopup(navigatorKey.currentContext!);
-    }
-    else if (_homeModel.data?.vendorStatus?.hasService == false) {
+    } else if (_homeModel.data?.vendorStatus?.hasService == false) {
       _showPopup(navigatorKey.currentContext!);
     }
   }
 
   bool isEnabled = false;
+
+  final Repository _repository = Repository();
+
+  Future<void> locationSendToBackend(BuildContext context) async {
+    _isLoading = true;
+    notifyListeners();
+
+    final deviceInfo = await getDeviceInfo();
+    try {
+      if (cityLocation.isEmpty || countryLocation.isEmpty) {
+        await getLocationDetails();
+      }
+
+      // lat = position.latitude.toStringAsFixed(6);
+      // lng = position.longitude.toStringAsFixed(6);
+      Map<String, String> body = {
+        // "latitude": lat ?? "",
+        // "longitude": lng ?? "",
+        "city": cityLocation,
+        // "state": state,
+        "country": countryLocation,
+        "device_name": deviceInfo["device_name"]?.toString() ?? "",
+      };
+      final response = await _repository.locationSendToBackend(body);
+      if (response != null && response['status'] == true) {
+        print("locationSendToBackend suucess ");
+        _isLoading = false;
+        notifyListeners();
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error in locationSendToBackend: $e');
+      }
+    } finally {
+      if (_isLoading) {
+        _isLoading = false;
+        notifyListeners();
+      }
+    }
+  }
 
   // ================= DASHBOARD STATS =================
   double todayEarning = 248.50;
@@ -141,7 +229,6 @@ class VendorHomeProvider extends ChangeNotifier {
     }
   }
 
-
   // Future<void> updateLocation(Position? location)async {
   //   if(location==null) return;
   //   try {
@@ -155,7 +242,6 @@ class VendorHomeProvider extends ChangeNotifier {
   //     Get.showToast(e.toString(), type: ToastType.error);
   //   }
   // }
-
 
   String address = '';
   String city = '';
@@ -182,13 +268,11 @@ class VendorHomeProvider extends ChangeNotifier {
         "city": city,
         "state": state,
         "country": country,
-
       }, AppUrls.vendorUpdateLocation);
     } catch (e) {
       Get.showToast(e.toString(), type: ToastType.error);
     }
   }
-
 
   bool _popupLoading = false;
 
@@ -404,10 +488,12 @@ class VendorHomeProvider extends ChangeNotifier {
                         child: GestureDetector(
                           onTap: () async {
                             try {
-                              final result = await Navigator.pushNamed(
-                                context,
-                                '/locationPickerScreen',
-                              ) as Map<String, dynamic>?;
+                              final result =
+                                  await Navigator.pushNamed(
+                                        context,
+                                        '/locationPickerScreen',
+                                      )
+                                      as Map<String, dynamic>?;
 
                               if (result != null) {
                                 final LatLng latLng = result["latLng"];
@@ -457,8 +543,6 @@ class VendorHomeProvider extends ChangeNotifier {
       },
     );
   }
-
-
 }
 
 enum BookingStatus { newRequest, confirmed }

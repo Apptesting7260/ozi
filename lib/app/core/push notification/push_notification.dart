@@ -145,6 +145,12 @@ class PushNotificationService {
 
             provider.getNotifications(isRefresh: true);
           }
+
+          if (type == 'message') {
+            print("🔥 API TRIGGER FOR MESSAGE REFRESH");
+            final msgProvider = Provider.of<MessageProvider>(ctx, listen: false);
+            msgProvider.getAllConversions(true, isRefresh: true);
+          }
         } catch (e) {
           debugPrint("❌ Provider error: $e");
         }

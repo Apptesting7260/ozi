@@ -41,6 +41,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
         context.read<Settingprovider>().settingsApi();
         context.read<HomeScreenProvider>().loadOnce(context);
         context.read<VendorNotificationProvider>().getNotifications();
+        context.read<HomeScreenProvider>().locationSendToBackend(context);
       }
     });
   }
@@ -312,6 +313,9 @@ class HomeScreenView extends StatelessWidget {
                     bool allowed = await AuthGuard.requireLogin(context);
 
                     if (!allowed) return;
+                    context
+                        .read<VendorNotificationProvider>()
+                        .readNotifications();
 
                     Navigator.push(
                       context,

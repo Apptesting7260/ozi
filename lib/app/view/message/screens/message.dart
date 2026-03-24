@@ -53,7 +53,7 @@ class _MessageScreenState extends State<MessageScreen> {
                       value.allConversionData.data?.data?.length == 0
                   ? RefreshIndicator(
                       onRefresh: () async {
-                        await value.getAllConversions(true);
+                        await value.getAllConversions(true, isRefresh: true);
                       },
                       child: ListView(
                         physics: AlwaysScrollableScrollPhysics(),
@@ -69,7 +69,7 @@ class _MessageScreenState extends State<MessageScreen> {
                     )
                   : RefreshIndicator(
                       onRefresh: () async {
-                        await value.getAllConversions(true);
+                        await value.getAllConversions(true, isRefresh: true);
                       },
                       child: Column(
                         children: [
@@ -268,7 +268,7 @@ class _MessageScreenState extends State<MessageScreen> {
               appBar: _messageAppBar(context),
               body: RefreshIndicator(
                 onRefresh: () async {
-                  await value.getAllConversions(true);
+                  await value.getAllConversions(true, isRefresh: true);
                 },
                 child: ListView(
                   physics: AlwaysScrollableScrollPhysics(),
