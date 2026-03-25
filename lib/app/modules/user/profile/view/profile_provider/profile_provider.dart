@@ -2,7 +2,6 @@ import 'package:ozi/app/core/appExports/app_export.dart';
 import 'package:ozi/app/modules/user/home/provider/HomeScreenProvider.dart';
 import '../../../../../data/repository/repository.dart';
 import '../../../../../data/storage/user_preference.dart';
-import '../../../../../shared/widgets/auth_guard.dart';
 import '../model/logout_model.dart';
 import '../../../../../routes/app_routes.dart';
 import '../model/user_profile_model.dart';
@@ -26,6 +25,8 @@ class ProfileProvider extends ChangeNotifier {
 
   String get firstName => userData?.firstName ?? '';
   String get lastName => userData?.lastName ?? '';
+  String get averageReview => _userProfile?.averageRating ?? "";
+  int get ratingCount => _userProfile?.reviewsCount ?? 0;
   String get fullName => '$firstName $lastName'.trim();
   String get email => userData?.email ?? '';
   String get mobile => userData?.mobile ?? '';

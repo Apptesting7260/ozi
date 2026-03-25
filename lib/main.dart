@@ -7,6 +7,7 @@ import 'package:ozi/app/modules/user/cart/change%20address/provider/ChangeAddres
 import 'package:ozi/app/modules/user/profile/add%20new%20address/provider/add_address_provider.dart';
 import 'package:ozi/app/modules/user/profile/edit%20address/provider/edit_user_address_provider.dart';
 import 'package:ozi/app/modules/user/profile/setting/provider/settingprovider.dart';
+import 'package:ozi/app/modules/user/profile/vendor%20reviews/provider/vendor_review_provider.dart';
 import 'package:ozi/app/modules/vendor/navigation%20tab/provider/navigation_provider.dart';
 import 'package:ozi/app/shared/widgets/auth_guard.dart';
 import 'package:ozi/app/view/auth/login/provider/login_provider.dart';
@@ -124,6 +125,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => ChangeAddressProvider()),
         ChangeNotifierProvider(create: (_) => LocationPickerProvider()),
         ChangeNotifierProvider(create: (_) => VendorNotificationProvider()),
+        ChangeNotifierProvider(create: (_) => VendorReviewProvider()),
         ChangeNotifierProvider(
           create: (_) => ReadyToGoLivescreenProvider()..getDocumentStatus(),
         ),

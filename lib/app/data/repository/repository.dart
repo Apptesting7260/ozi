@@ -12,6 +12,7 @@ import 'package:ozi/app/modules/user/home/service%20details/model/ServiceDetails
 import 'package:ozi/app/modules/user/home/service%20details/model/vendordetaiulmodel.dart';
 import 'package:ozi/app/modules/user/profile/address%20map/model/saved_latlong_model.dart';
 import 'package:ozi/app/modules/user/profile/setting/model/settingsmodel.dart';
+import 'package:ozi/app/modules/user/profile/vendor%20reviews/model/vendor_review_model.dart';
 import 'package:ozi/app/modules/user/profile/view/model/logout_model.dart';
 import 'package:ozi/app/modules/vendor/home/model/readNotification_model.dart';
 import 'package:ozi/app/modules/vendor/home/notification/model/get_notification_model.dart';
@@ -1186,6 +1187,20 @@ class Repository {
       return SavedLatlongModel.fromJson(response);
     } catch (e) {
       dev.log("Error in fetchLatLong: $e");
+      throw Exception(e);
+    }
+  }
+
+  Future<VendorReviewModel> fetchReviewScreen()
+  async
+  {
+    try{
+      final response = await _apiService.getApi(AppUrls.vendorReviewScreen);
+
+      return VendorReviewModel.fromJson(response);
+    }
+    catch(e) {
+      dev.log("Error in fetchReviewScreen: $e");
       throw Exception(e);
     }
   }

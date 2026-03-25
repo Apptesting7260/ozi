@@ -1,15 +1,21 @@
+import 'dart:ffi';
+
 class UserProfileModel {
   bool? status;
   String? message;
   ProfileData? data;
+  String? averageRating;
+  int? reviewsCount;
+
 
   UserProfileModel({this.status, this.message, this.data});
 
   UserProfileModel.fromJson(Map<String, dynamic> json) {
     status = json['status'];
     message = json['message'];
-    data =
-    json['data'] != null ? ProfileData.fromJson(json['data']) : null;
+    data = json['data'] != null ? ProfileData.fromJson(json['data']) : null;
+    averageRating = json['average_rating'];
+    reviewsCount = json['rating_count'];
   }
 
   Map<String, dynamic> toJson() {
@@ -17,6 +23,8 @@ class UserProfileModel {
       'status': status,
       'message': message,
       'data': data?.toJson(),
+      'average_rating': averageRating,
+      'rating_count': reviewsCount,
     };
   }
 }

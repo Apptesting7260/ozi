@@ -17,6 +17,7 @@ import '../modules/user/profile/edit profile/view/EditProfileScreen.dart';
 import '../modules/user/profile/payment method/view/PaymentMethodsScreen.dart';
 import '../modules/user/profile/save address/view/SavedAddressScreen.dart';
 import '../modules/user/profile/setting/view/SettingsScreen.dart';
+import '../modules/user/profile/vendor reviews/screen/vendor_reviews_screen.dart';
 import '../modules/user/profile/view/profile_screen.dart';
 import '../modules/vendor/bookings/view/vendor_mybookings_screen.dart';
 import '../modules/vendor/profile/add new address/view/AddAddressScreen.dart';
@@ -55,6 +56,7 @@ class AppRoutes {
   static const String commonScreen = '/commonScreen';
   static const String helpSupportScreen = '/HelpSupportScreen';
   static const String loginDetails = '/LoginDetailScreen';
+  static const String vendorReviewScreen = '/vendorReviewScreen';
 
   //*********************************** vendor All Screens  ****************************************//
 
@@ -191,6 +193,10 @@ class AppRoutes {
 
       case loginDetails:
         return MaterialPageRoute(builder: (_) => LoginDetailsScreen());
+
+      case vendorReviewScreen:
+        return MaterialPageRoute(builder: (_) => VendorReviewsScreen());
+
 
       //vendor screen
 
