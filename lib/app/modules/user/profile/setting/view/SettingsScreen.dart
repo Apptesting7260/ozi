@@ -1,5 +1,4 @@
 import 'package:ozi/app/modules/user/profile/setting/provider/settingprovider.dart';
-
 import '../../../../../core/appExports/app_export.dart';
 import '../../../../../routes/app_routes.dart';
 import '../../../../../shared/widgets/custom_app_bar.dart';
@@ -37,7 +36,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
     return Scaffold(
       body: Column(
         children: [
-          CustomAppBar(title: "Settings"),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: const CustomAppBar(title: "Settings"),
+          ),
 
           Expanded(
             child: ListView(

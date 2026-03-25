@@ -35,7 +35,10 @@ class _LoginDetailsScreenState extends State<LoginDetailsScreen> {
           ).fetchLoginDetails(),
           child: Column(
             children: [
-              const CustomAppBar(title: "Login Details"),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: const CustomAppBar(title: "Login Details"),
+              ),
               Expanded(
                 child: Consumer<LoginDetailsProvider>(
                   builder: (context, provider, child) {
@@ -85,12 +88,12 @@ class _LoginDetailsScreenState extends State<LoginDetailsScreen> {
                                     strokeWidth: 2,
                                   ),
                                 )
-                              :  Text(
+                              : Text(
                                   "Logout",
-                            style: AppFontStyle.text_14_500(
-                              AppColors.black,
-                              fontFamily: AppFontFamily.regular,
-                            ),
+                                  style: AppFontStyle.text_14_500(
+                                    AppColors.black,
+                                    fontFamily: AppFontFamily.regular,
+                                  ),
                                 ),
                         );
                       },
@@ -124,7 +127,7 @@ class _LoginDetailsScreenState extends State<LoginDetailsScreen> {
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
             height: 46,
@@ -180,25 +183,25 @@ class _LoginDetailsScreenState extends State<LoginDetailsScreen> {
 
           isCurrent
               ? Padding(
-            padding: const EdgeInsets.only(top: 10),
-            child: Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 12,
-                vertical: 6,
-              ),
-              decoration: BoxDecoration(
-                color: const Color(0xffe0f4ec),
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Text(
-                "Current",
-                style: AppFontStyle.text_13_500(
-                  AppColors.primary,
-                  fontFamily: AppFontFamily.regular,
-                ),
-              ),
-            ),
-          )
+                  padding: const EdgeInsets.only(top: 10),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 6,
+                    ),
+                    decoration: BoxDecoration(
+                      color: const Color(0xffe0f4ec),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Text(
+                      "Current",
+                      style: AppFontStyle.text_13_500(
+                        AppColors.primary,
+                        fontFamily: AppFontFamily.regular,
+                      ),
+                    ),
+                  ),
+                )
               : OutlinedButton(
                   style: OutlinedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(
