@@ -2,13 +2,14 @@ import '../../core/appExports/app_export.dart';
 
 class AppFontStyle {
   static TextStyle _textStyle(
-    Color color,
-    double size,
-    FontWeight fontWeight, {
-    fontFamily,
-    height,
-    overflow,
-  }) {
+      Color color,
+      double size,
+      FontWeight fontWeight, {
+        String? fontFamily,
+        double? height,
+        TextOverflow? overflow,
+        TextDecoration? decoration,
+      }) {
     return TextStyle(
       color: color,
       fontSize: size,
@@ -16,6 +17,7 @@ class AppFontStyle {
       height: height ?? 1.4.h,
       overflow: overflow ?? TextOverflow.ellipsis,
       fontFamily: fontFamily ?? AppFontFamily.regular,
+      decoration: decoration,
     );
   }
 
@@ -345,13 +347,19 @@ class AppFontStyle {
     );
   }
 
-  static text_16_400(Color color, {fontFamily, height}) {
+  static text_16_400(
+      Color color, {
+        String? fontFamily,
+        double? height,
+        TextDecoration? decoration,
+      }) {
     return _textStyle(
       color,
       16.0,
       FontWeight.w400,
       height: height,
       fontFamily: fontFamily,
+      decoration: decoration,
     );
   }
 
