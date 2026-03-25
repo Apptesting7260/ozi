@@ -88,10 +88,12 @@ Future<void> _initServicesInBackground() async {
 
     // Push notifications setup
     await PushNotificationService.firebaseNotification();
-
-    // Stripe setup
     Stripe.publishableKey =
-        'pk_test_51TEIe2FM9DdUZjLy6H4W3vT89rhMqXNGdfKSL3KQMpdumCCTgraowHn3Ay0Dobni9rFqbRw1uE0tWKVLDhcqZF2g00QXNRm1ap';
+        "pk_test_51T1KB9DSmK2YlVb0zz4kEhEobZjMs9aQKpL9pQJQT79Ja4HsVM9QFW9XPirqeIDOAMsBC3vtFtPlXPDmFaH1tmGy00IQqXiz82";
+
+    // Stripe setup Client's account
+    // Stripe.publishableKey =
+    //     'pk_test_51TEIe2FM9DdUZjLy6H4W3vT89rhMqXNGdfKSL3KQMpdumCCTgraowHn3Ay0Dobni9rFqbRw1uE0tWKVLDhcqZF2g00QXNRm1ap';
     await Stripe.instance.applySettings();
 
     debugPrint('Background services initialized successfully');
