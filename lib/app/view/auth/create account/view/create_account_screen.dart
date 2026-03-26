@@ -21,7 +21,11 @@ class CreateAccountScreen extends StatelessWidget {
     this.isMobileVerified = false,
   });
 
-  bool get isGoogleSignUp => email != null && email!.isNotEmpty;
+  bool get isGoogleSignUp =>
+      email != null &&
+      email!.isNotEmpty &&
+      firstName != null &&
+      firstName!.isNotEmpty;
 
   int _maxLen(CreateAccountProvider value) {
     return value.getExpectedPhoneLength(value.selectedCountry.phoneCode);
@@ -223,14 +227,14 @@ class CreateAccountScreen extends StatelessWidget {
                                           color: AppColors.green,
                                           size: 20,
                                         )
-                                      : Text(
+                                      : value.isEmailValid
+                                      ? Text(
                                           "Verify",
                                           style: AppFontStyle.text_14_400(
-                                            value.isEmailValid
-                                                ? AppColors.primary
-                                                : AppColors.grey,
+                                            AppColors.primary,
                                           ),
-                                        ),
+                                        )
+                                      : const SizedBox.shrink(),
                                 ),
                               ),
                         borderRadius: 60,
@@ -242,6 +246,9 @@ class CreateAccountScreen extends StatelessWidget {
                             r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
                           ).hasMatch(val.trim())) {
                             return "Please enter a valid email (e.g., abc@gmail.com)";
+                          }
+                          if (!value.isEmailVerified) {
+                            return "Please verify your email address";
                           }
                           return null;
                         },
@@ -394,6 +401,9 @@ class CreateAccountScreen extends StatelessWidget {
                               if (val.trim().length != _maxLen(value)) {
                                 return "Enter exactly ${_maxLen(value)} digits";
                               }
+                              if (!value.isMobileVerified) {
+                                return "Please verify your mobile number";
+                              }
                               return null;
                             },
                           ),
@@ -411,12 +421,7 @@ class CreateAccountScreen extends StatelessWidget {
 
                       CustomButton(
                         isLoading: value.loading,
-                        onPressed:
-                            (value.loading ||
-                                !value.isEmailVerified ||
-                                !value.isMobileVerified ||
-                                value.firstNameController.text.trim().isEmpty ||
-                                value.lastNameController.text.trim().isEmpty)
+                        onPressed: value.loading
                             ? null
                             : () {
                                 if (value.formKey.currentState?.validate() ??
@@ -425,14 +430,6 @@ class CreateAccountScreen extends StatelessWidget {
                                 }
                               },
                         color: AppColors.primary,
-                        // color:
-                        //     (value.isEmailVerified &&
-                        //         value.firstNameController.text
-                        //             .trim()
-                        //             .isNotEmpty &&
-                        //         value.lastNameController.text.trim().isNotEmpty)
-                        //     ? AppColors.primary
-                        //     : AppColors.primary.withOpacity(0.5),
                         text: "Create Account",
                       ),
                     ],

@@ -227,7 +227,6 @@ class EditProfileScreen extends StatelessWidget {
         ),
 
         hBox(16),
-
         // CustomTextFormField(
         //   label: "Email Address",
         //   hintText: "yourname@gmail.com",
@@ -254,9 +253,6 @@ class EditProfileScreen extends StatelessWidget {
               width: 20,
             ),
           ),
-          onChanged: (val) {
-            provider.validateEmail(val);
-          },
           suffix: Padding(
             padding: const EdgeInsets.all(12),
             child: GestureDetector(

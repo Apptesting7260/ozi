@@ -128,16 +128,29 @@ class ProfileScreenView extends StatelessWidget {
                                     ),
                                   ),
                                   hBox(4),
-                                  ratingReviews(
-                                    rating: double.tryParse(profileProvider.averageReview.toString()) ?? 0.0,
-                                    reviews: profileProvider.ratingCount,
-                                    onTap: () {
-                                      if (kDebugMode) {
-                                        print("Reviews tapped");
-                                        Navigator.pushNamed(context, AppRoutes.vendorReviewScreen);
-                                      }
-                                    },
-                                  )
+                                  if (profileProvider
+                                          .userProfile
+                                          ?.data
+                                          ?.userRole ==
+                                      'vendor')
+                                    ratingReviews(
+                                      rating:
+                                          double.tryParse(
+                                            profileProvider.averageReview
+                                                .toString(),
+                                          ) ??
+                                          0.0,
+                                      reviews: profileProvider.ratingCount,
+                                      onTap: () {
+                                        if (kDebugMode) {
+                                          print("Reviews tapped");
+                                          Navigator.pushNamed(
+                                            context,
+                                            AppRoutes.vendorReviewScreen,
+                                          );
+                                        }
+                                      },
+                                    ),
                                 ],
                               ),
                             ),
@@ -391,17 +404,11 @@ class ProfileScreenView extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        const Icon(
-          Icons.star,
-          color: Colors.orange,
-          size: 16,
-        ),
+        const Icon(Icons.star, color: Colors.orange, size: 16),
         const SizedBox(width: 4),
         Text(
           rating.toString(),
-          style: AppFontStyle.text_16_500(
-            AppColors.grey,
-          ),
+          style: AppFontStyle.text_16_500(AppColors.grey),
         ),
         const SizedBox(width: 6),
         GestureDetector(
@@ -410,7 +417,7 @@ class ProfileScreenView extends StatelessWidget {
             "$reviews Reviews",
             style: AppFontStyle.text_16_400(
               AppColors.primary,
-              decoration: TextDecoration.underline
+              decoration: TextDecoration.underline,
             ),
           ),
         ),

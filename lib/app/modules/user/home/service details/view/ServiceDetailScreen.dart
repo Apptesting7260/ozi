@@ -58,7 +58,7 @@ class ServiceDetailView extends StatelessWidget {
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.all(10.0),
-                child: _buildBody(provider),
+                child: _buildBody(context, provider),
               ),
             ),
             if (!provider.isLoading && provider.cartItemCount > 0) ...[
@@ -71,7 +71,7 @@ class ServiceDetailView extends StatelessWidget {
     );
   }
 
-  Widget _buildBody(ServiceDetailProvider provider) {
+  Widget _buildBody(BuildContext parentContext, ServiceDetailProvider provider) {
     if (provider.isLoading) {
       return Center(child: CircularProgressIndicator(color: AppColors.primary));
     }
@@ -123,7 +123,7 @@ class ServiceDetailView extends StatelessWidget {
           final serviceData = provider.serviceProviders[index];
           return Padding(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-            child: _buildServiceCard(context, serviceData, provider),
+            child: _buildServiceCard(parentContext, serviceData, provider),
           );
         },
         separatorBuilder: (context, index) => Padding(
@@ -377,13 +377,15 @@ class ServiceDetailView extends StatelessWidget {
             children: [
               Icon(Icons.error_outline, color: Colors.red),
               wBox(10),
-              Text(
-                "Exception",
-                maxLines: 3,
-                overflow: TextOverflow.ellipsis,
-                style: AppFontStyle.text_18_600(
-                  AppColors.black,
-                  fontFamily: AppFontFamily.semiBold,
+              Expanded(
+                child: Text(
+                  "Exception",
+                  maxLines: 3,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppFontStyle.text_18_600(
+                    AppColors.black,
+                    fontFamily: AppFontFamily.semiBold,
+                  ),
                 ),
               ),
             ],
@@ -447,6 +449,7 @@ class ServiceDetailView extends StatelessWidget {
         try {
           await provider.addToCart(serviceId);
         } catch (e) {
+          if (!context.mounted) return;
           _showErrorDialog(context, e.toString());
         }
       },
