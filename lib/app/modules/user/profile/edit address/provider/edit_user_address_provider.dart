@@ -28,8 +28,10 @@ class EditUserAddressProvider extends ChangeNotifier {
     }
 
     // Strip redundant country code if present in the mobile number
-    String currentMobile =
-        receiverMobileController.text.trim().replaceAll(RegExp(r'\D'), '');
+    String currentMobile = receiverMobileController.text.trim().replaceAll(
+      RegExp(r'\D'),
+      '',
+    );
     String phoneCode = country.phoneCode;
     int expectedLength = getExpectedPhoneLength(phoneCode);
 
@@ -201,6 +203,7 @@ class EditUserAddressProvider extends ChangeNotifier {
       receiverMobileController.text = rawMobile;
     }
 
+    _isDefaultAddress = address?.isDefault ?? false;
     selectedType = _getTypeIndex(address?.addressType);
 
     _initialized = true;
@@ -601,7 +604,7 @@ class EditUserAddressProvider extends ChangeNotifier {
         "latitude": _lat,
         "longitude": _lng,
         "country": countryController.text.trim(),
-        "is_default": _isDefaultAddress ? 1 : 0,
+        "is_default": _isDefaultAddress ? true : false,
         "extra_name": receiverNameController.text.trim(),
         "mobile": receiverMobileController.text.trim(),
         "country_code": _receiverCountry?.phoneCode,
@@ -613,17 +616,15 @@ class EditUserAddressProvider extends ChangeNotifier {
       notifyListeners();
 
       if (response.status == true) {
-        _showSnackBar(
-          context,
-          response.message ?? "Address updated successfully",
-          Colors.green,
+        Get.showToast(
+          " ${response.message ?? "Address updated Sucessfully"}",
+          type: ToastType.success,
         );
         return true;
       } else {
-        _showSnackBar(
-          context,
-          response.message ?? "Failed to update address",
-          Colors.red,
+        Get.showToast(
+          " ${response.message ?? "Failed to update address"}",
+          type: ToastType.error,
         );
         return false;
       }

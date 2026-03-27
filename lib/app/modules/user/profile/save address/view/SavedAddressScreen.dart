@@ -74,26 +74,29 @@ class _SavedAddressScreenState extends State<SavedAddressScreen> {
                         // ───────────────────────────────────────────────
                         // Always show CURRENT LOCATION as first item
                         // ───────────────────────────────────────────────
-                        if (!widget.isservice || widget.isHome) ...[
-                          _addressTile(
-                            provider: provider,
-                            index: -2,
-                            selected: provider.selectedIndex == -2,
-                            title: "Current Location",
-                            tag: "Live",
-                            icon: "assets/images/proicons--location 2.png",
-                            // ← adjust path
-                            address:
-                                provider.currentAddress ??
-                                "Using GPS • Fetching your location...",
-                            onTap: () {
-                              provider.selectAddress(-2);
-                            },
-                            onEdit: () {}, // no edit for current location
-                            onDelete: () {}, // no delete for current location
-                            isCurrent: true,
-                          ),
-                        ],
+                        // if (!widget.isservice || widget.isHome) ...[
+                        _addressTile(
+                          provider: provider,
+                          index: -2,
+                          selected: provider.selectedIndex == -2,
+                          title: "Current Location",
+                          // tag: "Live",
+                          icon: "assets/images/proicons--location 2.png",
+                          // ← adjust path
+                          address:
+                              provider.currentAddress ??
+                              "Using GPS • Fetching your location...",
+                          onTap: () {
+                            provider.selectAddress(-2);
+                            if (widget.isservice) {
+                              Navigator.pop(context, -2);
+                            }
+                          },
+                          onEdit: () {}, // no edit for current location
+                          onDelete: () {}, // no delete for current location
+                          isCurrent: true,
+                        ),
+                        // ],
                         SizedBox(height: 12),
 
                         // ───────────────────────────────────────────────

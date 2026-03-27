@@ -32,6 +32,14 @@ class SavedAddressProvider extends ChangeNotifier {
     orElse: () => _addresses.isNotEmpty ? _addresses[0] : Data(),
   );
 
+  Data? get selectedAddress {
+    if (_selectedIndex == -2) return null;
+    if (_selectedIndex >= 0 && _selectedIndex < _addresses.length) {
+      return _addresses[_selectedIndex];
+    }
+    return null;
+  }
+
   // Set address for editing
   void setEditingAddress(Data address) {
     _editingAddress = address;
@@ -122,12 +130,15 @@ class SavedAddressProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  // Fetch user addresses
   Future<void> fetchUserAddresses() async {
     _isLoading = true;
     _errorMessage = '';
     notifyListeners();
-    await fetchCurrentLocation();
+    
+    // Start fetching current location in background without awaiting it here
+    // so it doesn't block the saved addresses API call.
+    fetchCurrentLocation();
+
     try {
       dynamic response = await _repository.getUserAddressApi();
 
@@ -136,12 +147,20 @@ class SavedAddressProvider extends ChangeNotifier {
       if (addressModel.status == true) {
         _addresses = addressModel.data ?? [];
 
-        // Set default selected index to the default address
-        if (_addresses.isNotEmpty && !_hasUserSelectedAddress) {
+        // Set default selection based on addresses
+        if (!_hasUserSelectedAddress) {
           int defaultIndex = _addresses.indexWhere(
             (addr) => addr.isDefault == true,
           );
-          _selectedIndex = defaultIndex != -1 ? defaultIndex : 0;
+
+          if (defaultIndex != -1) {
+            _selectedIndex = defaultIndex;
+          } else if (_addresses.length == 1) {
+            _selectedIndex = 0;
+          } else {
+            // No addresses or multiple addresses with no default
+            _selectedIndex = -2; // Fallback to Current Location
+          }
         }
       } else {
         _errorMessage = 'Failed to fetch addresses';
