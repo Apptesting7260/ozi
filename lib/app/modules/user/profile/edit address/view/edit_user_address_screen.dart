@@ -341,9 +341,8 @@ class _EditUserAddressScreenState extends State<EditUserAddressScreen> {
                               hBox(25),
 
                               CustomButton(
-                                text: provider.isLoading
-                                    ? "Saving..."
-                                    : "Save Address",
+                                isLoading: provider.isLoading,
+                                text: "Save Address",
                                 onPressed: provider.isLoading
                                     ? null
                                     : () async {

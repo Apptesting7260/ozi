@@ -265,9 +265,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
                 SizedBox(height: 12),
                 Text(
-                  "Are you sure you want to delete\nyour account?",
+                  "Are you sure you want to delete\nyour account? If you delete your account, you can restore it within 30 days. Otherwise, your account will be permanently deleted.",
                   style: AppFontStyle.text_14_400(AppColors.grey),
                   textAlign: TextAlign.center,
+                  maxLines: 6,
+                  overflow: TextOverflow.ellipsis,
                 ),
                 SizedBox(height: 22),
                 CustomButton(
