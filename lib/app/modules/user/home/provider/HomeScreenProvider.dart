@@ -189,12 +189,38 @@ class HomeScreenProvider extends ChangeNotifier {
         return;
       }
 
-      debugPrint("loadOnce: Consent found. Fetching location...");
+      debugPrint("loadOnce: Consent found. Checking for saved address...");
 
-      bool success = await getCurrentLocation(context: context);
-      if (success) {
-        _isLoaded = true;
-        _lastFetchTime = DateTime.now();
+      final String currentUserId =
+          await UserPreference.returnUserId() ?? "guest";
+      bool usedSavedAddress = false;
+
+      if (currentUserId != "guest") {
+        final addressProvider = context.read<SavedAddressProvider>();
+        await addressProvider.fetchUserAddresses();
+
+        if (addressProvider.selectedIndex >= 0 &&
+            addressProvider.selectedIndex < addressProvider.addresses.length) {
+          debugPrint("loadOnce: Using default/saved address.");
+          await updateFromSelection(
+            addressProvider.selectedIndex,
+            addressProvider,
+          );
+          usedSavedAddress = true;
+          _isLoaded = true;
+          _lastFetchTime = DateTime.now();
+        }
+      }
+
+      if (!usedSavedAddress) {
+        debugPrint(
+          "loadOnce: No saved address found or user is guest. Fetching location...",
+        );
+        bool success = await getCurrentLocation(context: context);
+        if (success) {
+          _isLoaded = true;
+          _lastFetchTime = DateTime.now();
+        }
       }
       notifyListeners();
     } finally {

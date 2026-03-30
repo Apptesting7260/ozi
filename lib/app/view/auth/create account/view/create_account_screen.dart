@@ -490,6 +490,7 @@ class _OtpDialogContent extends StatefulWidget {
 }
 
 class _OtpDialogContentState extends State<_OtpDialogContent> {
+  TextEditingController otpController = TextEditingController();
   String otpCode = "";
   String? errorMessage;
   String? successMessage;
@@ -523,6 +524,7 @@ class _OtpDialogContentState extends State<_OtpDialogContent> {
 
   @override
   void dispose() {
+    otpController.dispose();
     timer?.cancel();
     super.dispose();
   }
@@ -561,6 +563,7 @@ class _OtpDialogContentState extends State<_OtpDialogContent> {
                 ),
                 hBox(30),
                 PinCodeTextField(
+                  controller: otpController,
                   appContext: context,
                   length: 6,
                   onChanged: (value) {
@@ -599,7 +602,7 @@ class _OtpDialogContentState extends State<_OtpDialogContent> {
                     ),
                   ),
                 ],
-                hBox(30),
+                hBox(10),
                 if (secondsRemaining > 0)
                   Center(
                     child: Text(
@@ -637,6 +640,7 @@ class _OtpDialogContentState extends State<_OtpDialogContent> {
                                   startTimer(clearSuccess: false);
                                   setState(() {
                                     otpCode = "";
+                                    otpController.clear();
                                     successMessage = "OTP resent successfully";
                                   });
                                 } else {
@@ -672,7 +676,7 @@ class _OtpDialogContentState extends State<_OtpDialogContent> {
                     ),
                   ),
                 ],
-                hBox(30),
+                hBox(20),
                 Row(
                   children: [
                     Expanded(
@@ -881,6 +885,7 @@ class _MobileOtpDialogContentState extends State<_MobileOtpDialogContent> {
                         onTap: () async {
                           setState(() {
                             errorMessage = null;
+                            otpCode = "";
                             otpController.clear();
                             isResending = true;
                           });

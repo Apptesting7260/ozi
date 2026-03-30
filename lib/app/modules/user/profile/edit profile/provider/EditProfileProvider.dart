@@ -65,6 +65,7 @@ class EditProfileProvider extends ChangeNotifier {
       // Store the original email as the verified email
       _originalVerifiedEmail = (userData.email ?? '').toString().trim();
       _isEmailVerified = _originalVerifiedEmail.isNotEmpty;
+      _isEmailValid = _isEmailVerified;
 
       if (userData.proImg != null && userData.proImg.toString().isNotEmpty) {
         networkImage = userData.proImg;
@@ -184,7 +185,7 @@ class EditProfileProvider extends ChangeNotifier {
     ).hasMatch(val.trim());
     // If user typed back the original verified email, show verified icon
     // Otherwise, reset verification
-    _isEmailVerified = val.trim() == _originalVerifiedEmail;
+    _isEmailVerified = val.trim().isNotEmpty && val.trim() == _originalVerifiedEmail;
     notifyListeners();
   }
 
