@@ -349,17 +349,19 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
                   CustomButton(
                     isLoading: provider.isScheduleAgain,
                     text: "Submit",
-                    color: provider.selectedRescheduleTime != null
-                        ? AppColors.primary
-                        : AppColors.lightGrey2,
-                    onPressed: provider.selectedRescheduleTime != null
-                        ? () {
-                            final bookingId = currentBookingId;
-                            if (bookingId != null) {
-                              provider.rescheduleBooking(bookingId, context);
-                            }
-                          }
-                        : null,
+                    color: AppColors.primary,
+                    // color: provider.selectedRescheduleTime != null
+                    //     ? AppColors.primary
+                    //     : AppColors.lightGrey2,
+                    onPressed: () {
+                      // provider.selectedRescheduleTime != null
+                      //     ? () {
+                      final bookingId = currentBookingId;
+                      if (bookingId != null) {
+                        provider.rescheduleBooking(bookingId, context);
+                      }
+                    },
+                    // : null,
                   ),
                 ],
               ),

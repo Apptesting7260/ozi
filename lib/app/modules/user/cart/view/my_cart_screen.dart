@@ -227,18 +227,18 @@ class CartScreenContent extends StatelessWidget {
       builder: (context, cart, child) {
         return InkWell(
           onTap: () async {
-            final result = await Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => singleServiceScreen(
-                  serviceId: int.parse(item.serviceId.toString()),
-                  isCart: true,
-                ),
-              ),
-            );
-            if (result == true) {
-              cart.fetchCartItems();
-            }
+            // final result = await Navigator.push(
+            //   context,
+            //   // MaterialPageRoute(
+            //   //   builder: (context) => singleServiceScreen(
+            //   //     serviceId: int.parse(item.serviceId.toString()),
+            //   //     isCart: true,
+            //   //   ),
+            //   // ),
+            // );
+            // if (result == true) {
+            //   cart.fetchCartItems();
+            // }
           },
           child: Container(
             margin: const EdgeInsets.only(bottom: 16),
@@ -254,169 +254,200 @@ class CartScreenContent extends StatelessWidget {
                 ),
               ],
             ),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                CustomImage(
-                  path: ImagePathHelper.getFullImageUrl(
-                    item.serviceImage,
-                    AppUrls.imageBaseUrl,
+            child: GestureDetector(
+              onTap: () async {
+                final result = await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => singleServiceScreen(
+                      serviceId: int.parse(item.serviceId.toString()),
+                      isCart: true,
+                    ),
                   ),
-                  width: 80,
-                  height: 80,
-                  borderRadius: BorderRadius.circular(12),
-                ),
+                );
+                if (result == true) {
+                  cart.fetchCartItems();
+                }
+              },
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  CustomImage(
+                    path: ImagePathHelper.getFullImageUrl(
+                      item.serviceImage,
+                      AppUrls.imageBaseUrl,
+                    ),
+                    width: 80,
+                    height: 80,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
 
-                wBox(16),
+                  wBox(16),
 
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Expanded(
-                            child: Text(
-                              item.serviceName ?? '',
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                              style: AppFontStyle.text_14_500(
-                                AppColors.darkText,
-                                fontFamily: AppFontFamily.medium,
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(
+                              child: Text(
+                                item.serviceName ?? '',
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                                style: AppFontStyle.text_14_500(
+                                  AppColors.darkText,
+                                  fontFamily: AppFontFamily.medium,
+                                ),
                               ),
                             ),
-                          ),
-                          wBox(8),
+                            wBox(8),
 
-                          Consumer<CartProvider>(
-                            builder: (context, cart, child) {
-                              return InkWell(
-                                onTap: () => cart.removeItem(item.cartId!),
-                                child: CustomImage(
-                                  path: ImageConstants.bin,
-                                  width: 13,
-                                  height: 15,
-                                ),
-                              );
-                            },
-                          ),
-                        ],
-                      ),
-
-                      hBox(8),
-
-                      item.isservicedeleted == true ||
-                              item.activeStatus == 'inactive'
-                          ? SizedBox.shrink()
-                          : Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  '\$${(item.servicePrice! / 1).toStringAsFixed(2)}',
-                                  style: AppFontStyle.text_16_600(
-                                    AppColors.primary,
-                                    fontFamily: AppFontFamily.bold,
+                            Consumer<CartProvider>(
+                              builder: (context, cart, child) {
+                                return InkWell(
+                                  onTap: () => cart.removeItem(item.cartId!),
+                                  child: CustomImage(
+                                    path: ImageConstants.bin,
+                                    width: 13,
+                                    height: 15,
                                   ),
-                                ),
+                                );
+                              },
+                            ),
+                          ],
+                        ),
 
-                                Consumer<CartProvider>(
-                                  builder: (context, cart, child) {
-                                    return Container(
-                                      decoration: BoxDecoration(
-                                        border: Border.all(
-                                          color: AppColors.primary,
+                        hBox(8),
+
+                        item.isservicedeleted == true ||
+                                item.activeStatus == 'inactive'
+                            ? SizedBox.shrink()
+                            : Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    '\$${(item.servicePrice! / 1).toStringAsFixed(2)}',
+                                    style: AppFontStyle.text_16_600(
+                                      AppColors.primary,
+                                      fontFamily: AppFontFamily.bold,
+                                    ),
+                                  ),
+
+                                  Consumer<CartProvider>(
+                                    builder: (context, cart, child) {
+                                      return Container(
+                                        decoration: BoxDecoration(
+                                          border: Border.all(
+                                            color: AppColors.primary,
+                                          ),
+                                          borderRadius: BorderRadius.circular(
+                                            24,
+                                          ),
                                         ),
-                                        borderRadius: BorderRadius.circular(24),
-                                      ),
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 4,
-                                        vertical: 4,
-                                      ),
-                                      child: SizedBox(
-                                        width:
-                                            MediaQuery.of(context).size.width *
-                                            0.18,
-                                        child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            InkWell(
-                                              onTap: () {
-                                                if (item.quantity! <= 1) {
-                                                  cart.removeItem(item.cartId!);
-                                                } else {
-                                                  cart.updateQuantity(
-                                                    item.cartId!,
-                                                    -1,
-                                                  );
-                                                }
-                                              },
-                                              child: Icon(
-                                                Icons.remove,
-                                                size: 16,
-                                                color: AppColors.primary,
-                                              ),
-                                            ),
-                                            Container(
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                    horizontal: 12,
-                                                  ),
-                                              child: Text(
-                                                '${item.quantity}',
-                                                style: AppFontStyle.text_14_500(
-                                                  AppColors.primary,
-                                                  fontFamily:
-                                                      AppFontFamily.medium,
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 4,
+                                          vertical: 4,
+                                        ),
+                                        child: SizedBox(
+                                          width:
+                                              MediaQuery.of(
+                                                context,
+                                              ).size.width *
+                                              0.18,
+                                          child: Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              InkWell(
+                                                onTap: () {
+                                                  if (item.quantity! <= 1) {
+                                                    cart.removeItem(
+                                                      item.cartId!,
+                                                    );
+                                                  } else {
+                                                    cart.updateQuantity(
+                                                      item.cartId!,
+                                                      -1,
+                                                    );
+                                                  }
+                                                },
+                                                child: Icon(
+                                                  Icons.remove,
+                                                  size: 16,
+                                                  color: AppColors.primary,
                                                 ),
                                               ),
-                                            ),
-                                            InkWell(
-                                              onTap: () => cart.updateQuantity(
-                                                item.cartId!,
-                                                1,
+                                              Container(
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                      horizontal: 12,
+                                                    ),
+                                                child: Text(
+                                                  '${item.quantity}',
+                                                  style:
+                                                      AppFontStyle.text_14_500(
+                                                        AppColors.primary,
+                                                        fontFamily:
+                                                            AppFontFamily
+                                                                .medium,
+                                                      ),
+                                                ),
                                               ),
-                                              child: Icon(
-                                                Icons.add,
-                                                size: 16,
-                                                color: AppColors.primary,
+                                              InkWell(
+                                                onTap: () =>
+                                                    cart.updateQuantity(
+                                                      item.cartId!,
+                                                      1,
+                                                    ),
+                                                child: Icon(
+                                                  Icons.add,
+                                                  size: 16,
+                                                  color: AppColors.primary,
+                                                ),
                                               ),
-                                            ),
-                                          ],
+                                            ],
+                                          ),
                                         ),
-                                      ),
-                                    );
-                                  },
-                                ),
-                              ],
-                            ),
+                                      );
+                                    },
+                                  ),
+                                ],
+                              ),
 
-                      hBox(12),
-                      item.isservicedeleted == true ||
-                              item.activeStatus == 'inactive'
-                          ? Container(
-                              padding: EdgeInsets.all(7),
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(12),
-                                color: const Color.fromARGB(255, 247, 206, 206),
-                              ),
-                              child: Text(
-                                "This service is not available",
-                                style: TextStyle(
-                                  fontFamily: 'Mona Sans',
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.w400,
-                                  color: Colors.red,
+                        hBox(12),
+                        item.isservicedeleted == true ||
+                                item.activeStatus == 'inactive'
+                            ? Container(
+                                padding: EdgeInsets.all(7),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(12),
+                                  color: const Color.fromARGB(
+                                    255,
+                                    247,
+                                    206,
+                                    206,
+                                  ),
                                 ),
-                              ),
-                            )
-                          : SizedBox.shrink(),
-                      // Spacer(),
-                    ],
+                                child: Text(
+                                  "This service is not available",
+                                  style: TextStyle(
+                                    fontFamily: 'Mona Sans',
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w400,
+                                    color: Colors.red,
+                                  ),
+                                ),
+                              )
+                            : SizedBox.shrink(),
+                        // Spacer(),
+                      ],
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         );

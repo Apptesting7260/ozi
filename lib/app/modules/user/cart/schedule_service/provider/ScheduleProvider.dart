@@ -137,11 +137,13 @@ class ScheduleProvider extends ChangeNotifier {
 
         bool shouldShow = true;
 
-        // Main condition: hide past + current hour for today
-        if (isToday && slotMinutes <= nowMinutes) {
+        const bufferInMinutes = 15;
+
+        // Main condition: hide past slots and those within 15 mins
+        if (isToday && slotMinutes <= (nowMinutes + bufferInMinutes)) {
           shouldShow = false;
           print(
-            '   Hidden: ${_formatTime(current)} ($slotMinutes min)  ≤  $nowMinutes',
+            '   Hidden: ${_formatTime(current)} ($slotMinutes min)  ≤  ${nowMinutes + bufferInMinutes}',
           );
         }
 

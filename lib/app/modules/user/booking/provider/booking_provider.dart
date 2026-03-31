@@ -278,6 +278,13 @@ class BookingProvider extends ChangeNotifier {
     if (slots == null || slots.isEmpty) return [];
 
     List<String> times = [];
+    final now = DateTime.now();
+    final nowTimeInMinutes = now.hour * 60 + now.minute;
+    final isToday =
+        _selectedRescheduleDate.year == now.year &&
+        _selectedRescheduleDate.month == now.month &&
+        _selectedRescheduleDate.day == now.day;
+
     for (var slot in slots) {
       if (slot.from != null && slot.to != null) {
         DateTime startTime = _parseTime(slot.from!);
@@ -286,7 +293,21 @@ class BookingProvider extends ChangeNotifier {
         // Generate hourly slots
         DateTime current = startTime;
         while (!current.isAfter(endTime)) {
-          times.add(_formatTime(current));
+          bool isFutureSlot = true;
+
+          if (isToday) {
+            final slotTimeInMinutes = current.hour * 60 + current.minute;
+            const bufferInMinutes = 15;
+
+            // Hide slots that are in the past or within 15 minutes of current time
+            if (slotTimeInMinutes <= nowTimeInMinutes + bufferInMinutes) {
+              isFutureSlot = false;
+            }
+          }
+
+          if (isFutureSlot) {
+            times.add(_formatTime(current));
+          }
           current = current.add(const Duration(hours: 1));
         }
       }
@@ -295,8 +316,14 @@ class BookingProvider extends ChangeNotifier {
   }
 
   DateTime _parseTime(String time) {
-    final parts = time.split(':');
-    return DateTime(0, 0, 0, int.parse(parts[0]), int.parse(parts[1]));
+    try {
+      final parts = time.split(':');
+      final hour = int.parse(parts[0]);
+      final minute = int.parse(parts[1]);
+      return DateTime(2000, 1, 1, hour, minute);
+    } catch (e) {
+      return DateTime(2000, 1, 1, 0, 0);
+    }
   }
 
   String _formatTime(DateTime time) {
