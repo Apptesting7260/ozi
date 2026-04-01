@@ -67,6 +67,7 @@ class ImageConstants {
   static String share = '$svgPath/share.svg';
   static String backArrow = '$svgPath/back_arrow.svg';
   static String sendIcon = '$svgPath/send_icon.svg';
+  static String downloadIcon = '$svgPath/download_icon.svg';
 
   // ******************************************* Help Screen *****************************************************************//
 

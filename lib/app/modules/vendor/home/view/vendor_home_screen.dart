@@ -106,23 +106,24 @@ class _VendorHomeScreenState extends State<VendorHomeScreen> {
 
                     hBox(20),
 
-                    _onlineStatus(),
 
-                    hBox(20),
 
-                    // ONE loader for grid + requests
                     if (value.homeModel.status == ApiStatus.loading)
                       const Padding(
                         padding: EdgeInsets.symmetric(vertical: 80),
                         child: Center(child: CircularProgressIndicator()),
                       )
                     else ...[
-                      // ---------------- STATS ----------------
+
+                      _onlineStatus(),
+
+                      hBox(20),
+
                       _statsGrid(),
 
                       hBox(24),
 
-                      // ---------------- NEW REQUESTS ----------------
+
                       _sectionHeader(
                         context: context,
                         title: "New Requests",
@@ -154,8 +155,8 @@ class _VendorHomeScreenState extends State<VendorHomeScreen> {
         child: Center(
           child: NoDataFoundWidget(
             message: "No new requests available",
-            lottieHeight: 105.h,
-            textStyle: AppFontStyle.text_16_500(AppColors.grey),
+            lottieHeight: 100.h,
+            textStyle: AppFontStyle.text_15_500(AppColors.grey),
           ),
         ),
       );

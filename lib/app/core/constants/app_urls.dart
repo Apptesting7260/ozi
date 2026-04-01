@@ -6,6 +6,7 @@ class AppUrls {
   //        "https://bn6b6jd8-8001.inc1.devtunnels.ms/";
   static const String guestUser = "$baseUrl/guest-login";
 
+  static const String googlePlaceKey ="AAIzaSyC0gWdd-oEdqXA6u384T8lQdjUJXtnZNQI";
   static const String login = "$baseUrl/send-otp";
   static const String socialLogin = "$baseUrl/social-login";
   static const String verification = "$baseUrl/verify-otp";

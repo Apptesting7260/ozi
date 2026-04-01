@@ -279,15 +279,15 @@ class _ServiceDetailsContentState extends State<_ServiceDetailsContent> {
                             return "Maximum 300 characters allowed";
                           }
 
-                          final wordCount = text
-                              .split(RegExp(r'\s+'))
-                              .where((word) => word.isNotEmpty)
-                              .length;
-
-                          if (wordCount > 40) {
-                            return "Maximum 4"
-                                "0 words allowed";
-                          }
+                          // final wordCount = text
+                          //     .split(RegExp(r'\s+'))
+                          //     .where((word) => word.isNotEmpty)
+                          //     .length;
+                          //
+                          // if (wordCount > 40) {
+                          //   return "Maximum 4"
+                          //       "0 words allowed";
+                          // }
 
                           return null;
                         },

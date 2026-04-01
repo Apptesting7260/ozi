@@ -14,6 +14,22 @@ class LocationPickerProvider extends ChangeNotifier {
 
   GoogleMapController? _mapController;
 
+
+  String searchText = '';
+
+  void onSearchChanged(String text) {
+
+    searchText = text;
+    notifyListeners();
+  }
+
+  void clearSearch() {
+    searchText = '';
+    address = '';
+    notifyListeners();
+  }
+
+
   LatLng selectedLatLng = const LatLng(28.6139, 77.2090);
   String address = '';
   String city = '';
@@ -68,6 +84,7 @@ class LocationPickerProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+
   // Get address from lat long
   Future<void> getAddress(LatLng latLng) async {
     isLoadingAddress = true;
@@ -81,9 +98,17 @@ class LocationPickerProvider extends ChangeNotifier {
 
       final place = placemarks.first;
 
-      //  Existing (keep as it is)
-      address =
-      '${place.street ?? ''}, ${place.subLocality ?? ''}, ${place.locality ?? ''}';
+      address = [
+        place.name,
+        place.street,
+        place.subLocality,
+        place.locality,
+        place.administrativeArea,
+        place.postalCode,
+        place.country,
+      ]
+          .where((e) => e != null && e.isNotEmpty)
+          .join(', ');
 
       //  ADD THESE 3 LINES ONLY
       city = place.locality ?? '';
@@ -111,6 +136,19 @@ class LocationPickerProvider extends ChangeNotifier {
   // When map idle
   void onCameraIdle() {
     getAddress(selectedLatLng);
+  }
+
+  Future<void> moveToSearchedLocation(LatLng latLng) async {
+    selectedLatLng = latLng;
+    notifyListeners();
+
+    if (_mapController != null) {
+      _mapController!.animateCamera(
+        CameraUpdate.newLatLngZoom(latLng, 16),
+      );
+    }
+
+    await getAddress(latLng);
   }
 
   // Move to current location

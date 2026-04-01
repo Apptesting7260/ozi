@@ -1,3 +1,4 @@
+import 'package:file_picker/file_picker.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../../../../core/appExports/app_export.dart';
 import '../../../../../core/constants/app_urls.dart';
@@ -40,17 +41,7 @@ class _IdentityVerificationContent extends StatelessWidget {
   String? docImg;
   String? certificateImg;
 
-  Future<void> _pickFile(
-    BuildContext context,
-    void Function(File) onSelected,
-  ) async {
-    final picker = ImagePicker();
-    final XFile? file = await picker.pickImage(source: ImageSource.gallery);
 
-    if (file != null) {
-      onSelected(File(file.path));
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -144,10 +135,11 @@ class _IdentityVerificationContent extends StatelessWidget {
                       uploaded: provider.isGovernmentUploaded,
                       iconPath: ImageConstants.governmentId,
                       onUpload: () =>
-                          _pickFile(context, provider.setGovernmentId),
+                         provider.showPickerOptions(context, provider.setGovernmentId),
                       remotePath: provider.govtIdImage,
                       imageUrl: '${AppUrls.imageBaseUrl}${docImg ?? ''}',
                       selectedFile: provider.governmentId,
+                      provider: provider
                     ),
 
                     hBox(16),
@@ -160,11 +152,12 @@ class _IdentityVerificationContent extends StatelessWidget {
                       uploaded: provider.isCertificationUploaded,
                       iconPath: ImageConstants.certificate,
                       onUpload: () =>
-                          _pickFile(context, provider.setCertification),
+                          provider.showPickerOptions(context, provider.setCertification),
                       remotePath: provider.fetchedCertificate,
                       imageUrl:
                           '${AppUrls.imageBaseUrl}${certificateImg ?? ''}',
                       selectedFile: provider.certification,
+                        provider: provider
                     ),
 
                     hBox(20),
@@ -189,6 +182,7 @@ class _IdentityVerificationContent extends StatelessWidget {
     required VoidCallback onUpload,
     required String imageUrl,
     File? selectedFile,
+    required IdentityVerificationProvider provider,
   }) {
     return Container(
       padding: const EdgeInsets.all(12),
@@ -268,24 +262,89 @@ class _IdentityVerificationContent extends StatelessWidget {
 
 
           if (selectedFile != null)
-          //  SHOW LOCAL IMAGE FIRST
-            Container(
+            selectedFile.path.endsWith(".pdf") ||
+                selectedFile.path.endsWith(".doc") ||
+                selectedFile.path.endsWith(".docx")
+
+            // 📄 DOCUMENT VIEW
+                ? Container(
               margin: const EdgeInsets.only(bottom: 10),
-              height: 150,
-              width: double.infinity,
+              padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
                   color: AppColors.grey.withValues(alpha: .15),
                 ),
               ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(12),
-                child: Image.file(
-                  selectedFile,
-                  fit: BoxFit.cover,
-                ),
+              child: Row(
+                children: [
+                  Icon(Icons.insert_drive_file, color: AppColors.primary),
+                  wBox(10),
+                  Expanded(
+                    child: Text(
+                      selectedFile.path.split('/').last,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: () {
+                      if (title == "Government ID") {
+                        provider.setGovernmentId(null);
+                      } else {
+                        provider.setCertification(null);
+                      }
+                    },
+                    child: Icon(Icons.close, color: AppColors.red),
+                  ),
+                ],
               ),
+            )
+
+            // 🖼 IMAGE VIEW
+                : Stack(
+              children: [
+                Container(
+                  margin: const EdgeInsets.only(bottom: 10),
+                  height: 150,
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: AppColors.grey.withValues(alpha: .15),
+                    ),
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: Image.file(
+                      selectedFile,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                ),
+
+                Positioned(
+                  top: 6,
+                  right: 6,
+                  child: GestureDetector(
+                    onTap: () {
+                      if (title == "Government ID") {
+                        provider.setGovernmentId(null);
+                      } else {
+                        provider.setCertification(null);
+                      }
+                    },
+                    child: Container(
+                      padding: EdgeInsets.all(4),
+                      decoration: BoxDecoration(
+                        color: Colors.black54,
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(Icons.close, size: 16, color: Colors.white),
+                    ),
+                  ),
+                ),
+              ],
             )
 
           else if (isFromProfile &&
