@@ -64,6 +64,26 @@ class NetworkApiServices extends BaseApiServices {
     }
   }
 
+  Future<Uint8List> getPdfBytes(String url) async {
+    try {
+      final response = await _dio.get(
+        url,
+        options: Options(
+          responseType: ResponseType.bytes,
+          headers: {
+            "Accept": "application/pdf",
+            // if auth needed:
+            // "Authorization": "Bearer ${yourToken}"
+          },
+        ),
+      );
+
+      return Uint8List.fromList(response.data);
+    } catch (e) {
+      throw Exception("Failed to load PDF");
+    }
+  }
+
   Future<dynamic> getApiWithPerms(Map<String, dynamic> data, String url) async {
     try {
       final response = await _dio.get(url, queryParameters: data);

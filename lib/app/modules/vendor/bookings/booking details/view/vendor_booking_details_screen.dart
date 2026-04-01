@@ -42,6 +42,7 @@ class VendorBookingDetailsScreen extends StatelessWidget {
               : null;
 
           final isTodayBooking = bookingDay != null && bookingDay == today;
+          final data = provider.homeModel?.data?.data;
           return Scaffold(
             backgroundColor: AppColors.white,
             body: SafeArea(
@@ -77,14 +78,16 @@ class VendorBookingDetailsScreen extends StatelessWidget {
                             ),
                             hBox(20),
                             _bookingDetailsSection(
-                              address:
-                                  provider
-                                      .homeModel
-                                      .data
-                                      ?.data
-                                      ?.address
-                                      ?.fullAddress ??
-                                  '',
+
+                              address: [
+                                data?.streetAddress,
+                                data?.apartment,
+                                data?.city,
+                                data?.zipCode,
+                                data?.country,
+                              ]
+                                  .where((e) => e != null && e.trim().isNotEmpty)
+                                  .join(', '),
                               date: Get.getFormattedDate2(
                                 provider.homeModel.data?.data?.serviceDate ??
                                     '',
@@ -156,7 +159,7 @@ class VendorBookingDetailsScreen extends StatelessWidget {
                               subTotal:
                                   provider.homeModel.data?.data?.subtotal ?? '',
                               discount:
-                                  provider.homeModel.data?.data?.discountFee ??
+                                  provider.homeModel.data?.data?.discountAmount ??
                                   '',
                               total: provider.homeModel.data?.data?.total ?? '',
                             ),
@@ -624,7 +627,7 @@ class VendorBookingDetailsScreen extends StatelessWidget {
                   ],
                 ),
               ),
-              if (status != 'rejected' && status != 'cancelled' && status != 'completed' ) ...[
+              if (status != 'rejected' && status != 'cancelled' && status != 'completed' && status != 'pending' ) ...[
                 GestureDetector(
                   onTap: () {
                     bookingProvider.sendMessage(id.toString());
@@ -726,7 +729,9 @@ class VendorBookingDetailsScreen extends StatelessWidget {
             children: [
               Text(label, style: AppFontStyle.text_12_400(AppColors.grey)),
               hBox(2),
-              Text(value, style: AppFontStyle.text_14_500(AppColors.black)),
+              Text(
+                  maxLines: 2,
+                  value, style: AppFontStyle.text_14_500(AppColors.black)),
             ],
           ),
         ),
