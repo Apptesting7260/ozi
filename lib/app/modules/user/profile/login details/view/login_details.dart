@@ -159,13 +159,15 @@ class _LoginDetailsScreenState extends State<LoginDetailsScreen> {
                   ),
                 ),
                 hBox(2),
-                Text(
-                  "$city, $state • $country",
-                  style: AppFontStyle.text_13_400(
-                    AppColors.grey,
-                    fontFamily: AppFontFamily.regular,
-                  ),
-                ),
+                city.isNotEmpty || country.isNotEmpty
+                    ? Text(
+                        "$city • $country",
+                        style: AppFontStyle.text_13_400(
+                          AppColors.grey,
+                          fontFamily: AppFontFamily.regular,
+                        ),
+                      )
+                    : SizedBox.shrink(),
                 //  wBox(4),
                 // if (!isCurrent)
                 //   Text(

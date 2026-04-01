@@ -1,3 +1,4 @@
+import 'package:http/http.dart' as http;
 import 'package:ozi/app/core/appExports/app_export.dart';
 import 'package:ozi/app/core/device%20info/get_device_Info.dart';
 import 'package:ozi/app/data/repository/repository.dart';
@@ -39,92 +40,8 @@ class Settingprovider with ChangeNotifier {
   CurrentLocationInfo? _currentLocation;
   CurrentLocationInfo? get currentLocation => _currentLocation;
 
-  Future<void> syncHomeLocation(
-    BuildContext context,
-    String lat,
-    String lng,
-  ) async {
-    try {
-      String city = "";
-      String state = "";
-      String country = "";
-
-      String finalLat = lat;
-      String finalLng = lng;
-
-      // Check if the provided lat/lng are invalid or empty
-      bool locationMissing = finalLat.isEmpty ||
-          finalLat == "null" ||
-          finalLng.isEmpty ||
-          finalLng == "null";
-
-      if (locationMissing) {
-        // 1. Try to use stored current location if available
-        if (_currentLocation != null) {
-          finalLat = _currentLocation!.latitude.toString();
-          finalLng = _currentLocation!.longitude.toString();
-          city = _currentLocation!.locality;
-          state = _currentLocation!.adminArea;
-          country = _currentLocation!.country;
-          locationMissing = false;
-        } else {
-          // 2. Try to fetch current location from GPS if permission is granted
-          bool hasPermission = await LocationPermissionHelper.handleLocationPermission(context);
-          if (hasPermission) {
-            Position position = await Geolocator.getCurrentPosition(
-              desiredAccuracy: LocationAccuracy.high,
-              timeLimit: const Duration(seconds: 10),
-            );
-            finalLat = position.latitude.toString();
-            finalLng = position.longitude.toString();
-            locationMissing = false;
-          }
-        }
-      }
-
-      // If we now have valid coordinates, try to get address details if they are still missing
-      if (!locationMissing && (city.isEmpty || state.isEmpty)) {
-        try {
-          List<Placemark> placemarks = await placemarkFromCoordinates(
-            double.parse(finalLat),
-            double.parse(finalLng),
-          ).timeout(const Duration(seconds: 5));
-
-          if (placemarks.isNotEmpty) {
-            city = placemarks.first.locality ?? "";
-            state = placemarks.first.administrativeArea ?? "";
-            country = placemarks.first.country ?? "";
-
-            // Update local state so we have it for next time
-            _currentLocation = CurrentLocationInfo(
-              latitude: double.parse(finalLat),
-              longitude: double.parse(finalLng),
-              locality: city,
-              adminArea: state,
-              country: country,
-              featureName: placemarks.first.name ?? "",
-            );
-            notifyListeners();
-          }
-        } catch (e) {
-          debugPrint("syncHomeLocation geocoding error: $e");
-        }
-      }
-
-      // Only send to backend if we have a valid location now
-      if (finalLat.isNotEmpty && finalLat != "null" && finalLng.isNotEmpty && finalLng != "null") {
-        if (context.mounted) {
-          await locationSendToBackend(context, finalLat, finalLng, city, state, country);
-        }
-      } else {
-        debugPrint("syncHomeLocation: Still no location after attempts. Not sending to backend.");
-      }
-    } catch (e) {
-      if (kDebugMode) {
-        print("syncHomeLocation error: $e");
-      }
-    }
-  }
+  String cityLocation = "";
+  String countryLocation = "";
 
   void fetchCurrentLocation({
     required double latitude,
@@ -151,6 +68,60 @@ class Settingprovider with ChangeNotifier {
     }
   }
 
+  Future<void> getLocationFromIP() async {
+    try {
+      final response = await http.get(Uri.parse('http://ip-api.com/json'));
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+
+        // CRITICAL: You must assign the values to your class variables
+        cityLocation = data['city']?.toString() ?? "";
+        countryLocation = data['country']?.toString() ?? "";
+
+        print("Fetched Location: $cityLocation, $countryLocation");
+        notifyListeners(); // Tell the UI/Provider that data changed
+      }
+    } catch (e) {
+      if (kDebugMode) print("Error fetching IP location: $e");
+    }
+  }
+
+  // 2. UPDATED: The backend sender
+  Future<void> locationSendToBackend(BuildContext context) async {
+    _isLoading = true;
+    notifyListeners();
+
+    try {
+      // Ensure we have location before sending
+      if (cityLocation.isEmpty || countryLocation.isEmpty) {
+        await getLocationFromIP();
+      }
+
+      final deviceInfo = await getDeviceInfo();
+
+      Map<String, String> body = {
+        "city": cityLocation,
+        "country": countryLocation,
+        "device_name": deviceInfo["device_name"]?.toString() ?? "",
+        "device_id":
+            deviceInfo["device_id"]?.toString() ??
+            "", // Use the unique ID we fixed earlier!
+      };
+
+      final response = await _repository.locationSendToBackend(body);
+
+      if (response != null && response['status'] == true) {
+        print("locationSendToBackend success");
+      }
+    } catch (e) {
+      if (kDebugMode) print('Error in locationSendToBackend: $e');
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
   Future<void> settingsApi() async {
     final role = await UserPreference.returnRole();
     if (role == "guest") return;
@@ -172,7 +143,7 @@ class Settingprovider with ChangeNotifier {
     }
   }
 
-  Future<void> locationSendToBackend(
+  Future<void> locationSendToBackendFromHome(
     BuildContext context,
     String lat,
     String lng,

@@ -148,13 +148,20 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
                           _bookingDetailsSection(data),
                           hBox(20),
                           _paymentMethod(data),
+
                           hBox(20),
                           _paymentSummary(data, provider),
-                          hBox(30),
+                          // hBox(30),
                           // // if (widget.tabIndex == 2) ...[
                           // _getBottomButton(context),
                           // hBox(30),
                           // ],
+                          data.isRefunded == true
+                              ? _refundSection(data)
+                              : SizedBox.shrink(),
+                          data.isRefunded == true
+                              ? hBox(30)
+                              : SizedBox.shrink(),
                         ],
                       ),
                     ),
@@ -1103,6 +1110,88 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
     );
   }
 
+  Widget _refundSection(model.Data data) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: AppColors.primary,
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.2),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.inventory_2_outlined,
+                  color: Colors.white,
+                  size: 18,
+                ),
+              ),
+              wBox(14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "Refund Credited",
+                      style: AppFontStyle.text_14_700(AppColors.white),
+                    ),
+                    hBox(4),
+                    Text(
+                      data.refundTime != null
+                          ? "On ${DateFormat('EEE, dd MMM yyyy, h:mm a').format(DateTime.parse(data.refundTime!))}"
+                          : "",
+                      style: AppFontStyle.text_12_400(
+                        AppColors.white.withValues(alpha: 0.9),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+        hBox(24),
+        Text(
+          "Refund details",
+          style: AppFontStyle.text_16_600(AppColors.black),
+        ),
+        hBox(14),
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: AppColors.white,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: AppColors.containerBorder.withValues(alpha: 0.5),
+            ),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                "Total Refund Amount",
+                style: AppFontStyle.text_14_600(AppColors.black),
+              ),
+              Text(
+                data.refundAmount ?? '0',
+                style: AppFontStyle.text_14_700(AppColors.black),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
   Widget _paymentSummary(model.Data data, BookingProvider provider) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1119,10 +1208,12 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
               _summaryRow("Subtotal", "\$${data.subtotal ?? '0'}"),
               hBox(12),
               _summaryRow("Service Fee", "\$${data.serviceFee ?? '0'}"),
-              data.discountAmount != null ? hBox(16) : SizedBox.shrink(),
               if (data.discountAmount != null &&
-                  double.parse(data.discountAmount!) > 0)
+                  double.tryParse(data.discountAmount!) != null &&
+                  double.parse(data.discountAmount!) > 0) ...[
+                hBox(16),
                 _summaryRow("Discount", "-\$${data.discountAmount}"),
+              ],
               hBox(16),
 
               Divider(
@@ -1131,18 +1222,20 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
               ),
               hBox(12),
               _summaryRow("Total", "\$${data.total ?? '0'}", isTotal: true),
-              hBox(30),
 
               if (data.status?.toLowerCase() == "confirmed" ||
-                  data.status?.toLowerCase() == "pending")
+                  data.status?.toLowerCase() == "pending") ...[
+                hBox(30),
                 _getBottomButton(context, provider),
-              hBox(15),
-              if (data.status?.toLowerCase() == "pending")
+              ],
+              if (data.status?.toLowerCase() == "pending") ...[
+                hBox(15),
                 _getBottomRescheduleButton(context, provider),
-              hBox(15),
-              if (data.status?.toLowerCase() == "completed")
+              ],
+              if (data.status?.toLowerCase() == "completed") ...[
+                hBox(30),
                 _getRatingsButton(context, provider),
-              // _getBottomCancelButton(context, provider),
+              ],
             ],
           ),
         ),

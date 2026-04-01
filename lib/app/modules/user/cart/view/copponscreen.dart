@@ -185,15 +185,26 @@ class _CopponScreenState extends State<CopponScreen> {
                 }
 
                 if (foundCoupon != null) {
-                  bool success = await provider.applyCoupon(
-                    foundCoupon.id.toString(),
-                    code: foundCoupon.code,
-                  );
-                  if (success) {
-                    final cartProvider = context.read<CartProvider>();
-                    cartProvider.setAppliedCoupon(foundCoupon.code);
-                    cartProvider.fetchCartItems();
-                    Navigator.pop(context, foundCoupon);
+                  final cartProvider = context.read<CartProvider>();
+                  final double minAmount =
+                      double.tryParse(foundCoupon.minCartAmount ?? '0') ?? 0;
+                  final bool isEnabled = cartProvider.subtotal >= minAmount;
+
+                  if (isEnabled) {
+                    bool success = await provider.applyCoupon(
+                      foundCoupon.id.toString(),
+                      code: foundCoupon.code,
+                    );
+                    if (success) {
+                      cartProvider.setAppliedCoupon(foundCoupon.code);
+                      cartProvider.fetchCartItems();
+                      Navigator.pop(context, foundCoupon);
+                    }
+                  } else {
+                    Get.showToast(
+                      foundCoupon.minCartAmountMsg ?? "Min amount not reached",
+                      type: ToastType.error,
+                    );
                   }
                 } else {
                   Get.showToast("Invalid coupon code", type: ToastType.error);
@@ -225,106 +236,140 @@ class _CopponScreenState extends State<CopponScreen> {
   }
 
   Widget _buildCouponCard(model.Data coupon, CupponProvider provider) {
+    final cartProvider = context.read<CartProvider>();
     final bool isSelected = provider.selectedCoupon?.id == coupon.id;
+    final double minAmount = double.tryParse(coupon.minCartAmount ?? '0') ?? 0;
+    final bool isEnabled = cartProvider.subtotal >= minAmount;
+
     final expiryDate = coupon.expiryDate != null
         ? DateFormat('MMM dd, yyyy').format(DateTime.parse(coupon.expiryDate!))
         : "N/A";
 
-    return Container(
-      margin: EdgeInsets.only(bottom: 16.h),
-      padding: EdgeInsets.all(16.w),
-      decoration: BoxDecoration(
-        color: AppColors.white,
-        borderRadius: BorderRadius.circular(16.r),
-        border: Border.all(color: AppColors.lightGrey.withOpacity(0.5)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
+    return Opacity(
+      opacity: isEnabled ? 1.0 : 0.6,
+      child: Container(
+        margin: EdgeInsets.only(bottom: 16.h),
+        padding: EdgeInsets.all(16.w),
+        decoration: BoxDecoration(
+          color: AppColors.white,
+          borderRadius: BorderRadius.circular(16.r),
+          border: Border.all(
+            color: isEnabled
+                ? AppColors.lightGrey.withOpacity(0.5)
+                : AppColors.lightGrey.withOpacity(0.3),
           ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                "Save \$${coupon.value ?? '0'}",
-                style: AppFontStyle.text_16_700(AppColors.black),
-              ),
-              GestureDetector(
-                onTap: () {
-                  provider.selectCoupon(coupon);
-                },
-                child: isSelected
-                    ? Icon(
-                        Icons.check_circle,
-                        size: 24.w,
-                        color: AppColors.primary,
-                      )
-                    : Container(
-                        width: 22.w,
-                        height: 22.w,
-                        decoration: BoxDecoration(
-                          color: AppColors.white,
-                          border: Border.all(color: AppColors.grey),
-                          borderRadius: BorderRadius.circular(4.r),
-                        ),
-                      ),
-              ),
-            ],
-          ),
-          hBox(4),
-          Text(
-            "${coupon.type == 'percentage' ? '${coupon.value ?? '0'}%' : '\$${coupon.value ?? '0'}'} off on service book",
-            style: AppFontStyle.text_14_400(AppColors.grey),
-          ),
-          Text(
-            coupon.minCartAmountMsg.toString(),
-            style: AppFontStyle.text_14_400(AppColors.primary),
-          ),
-          hBox(16),
-          Container(
-            padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
-            decoration: BoxDecoration(
-              border: Border.all(
-                color: AppColors.primary,
-                width: 1,
-                style: BorderStyle
-                    .solid, // Custom dashed border would be better but standard for now
-              ),
-              borderRadius: BorderRadius.circular(12.r),
-              color: AppColors.primary.withOpacity(0.0),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(isEnabled ? 0.05 : 0.02),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
             ),
-            child: Row(
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  coupon.code ?? "",
-                  style: AppFontStyle.text_16_600(AppColors.primary),
+                  isEnabled ? "Save \$${coupon.value ?? '0'}" : "Coupon locked",
+                  style: AppFontStyle.text_16_700(
+                    isEnabled ? AppColors.black : AppColors.grey,
+                  ),
                 ),
                 GestureDetector(
-                  onTap: () {
-                    Clipboard.setData(ClipboardData(text: coupon.code ?? ""));
-                    Get.showToast(
-                      "Code copied to clipboard",
-                      type: ToastType.success,
-                    );
-                  },
-                  child: Icon(Icons.copy, color: AppColors.primary, size: 20.w),
+                  onTap: isEnabled
+                      ? () {
+                          provider.selectCoupon(coupon);
+                        }
+                      : () {
+                          Get.showToast(
+                            coupon.minCartAmountMsg ??
+                                "Min amount not reached",
+                            type: ToastType.error,
+                          );
+                        },
+                  child: isSelected
+                      ? Icon(
+                          Icons.check_circle,
+                          size: 24.w,
+                          color: AppColors.primary,
+                        )
+                      : Container(
+                          width: 22.w,
+                          height: 22.w,
+                          decoration: BoxDecoration(
+                            color: AppColors.white,
+                            border: Border.all(
+                              color: isEnabled ? AppColors.grey : AppColors.lightGrey,
+                            ),
+                            borderRadius: BorderRadius.circular(4.r),
+                          ),
+                        ),
                 ),
               ],
             ),
-          ),
-          hBox(12),
-          Text(
-            "Valid until $expiryDate",
-            style: AppFontStyle.text_12_400(AppColors.grey),
-          ),
-        ],
+            hBox(4),
+            Text(
+              "${coupon.type == 'percentage' ? '${coupon.value ?? '0'}%' : '\$${coupon.value ?? '0'}'} off on service book",
+              style: AppFontStyle.text_14_400(AppColors.grey),
+            ),
+            Text(
+              coupon.minCartAmountMsg.toString(),
+              style: AppFontStyle.text_14_400(
+                isEnabled ? AppColors.primary : AppColors.grey,
+              ),
+            ),
+            hBox(16),
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+              decoration: BoxDecoration(
+                border: Border.all(
+                  color: isEnabled ? AppColors.primary : AppColors.grey,
+                  width: 1,
+                  style: BorderStyle.solid,
+                ),
+                borderRadius: BorderRadius.circular(12.r),
+                color: AppColors.primary.withOpacity(0.0),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    coupon.code ?? "",
+                    style: AppFontStyle.text_16_600(
+                      isEnabled ? AppColors.primary : AppColors.grey,
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: isEnabled
+                        ? () {
+                            Clipboard.setData(
+                              ClipboardData(text: coupon.code ?? ""),
+                            );
+                            Get.showToast(
+                              "Code copied to clipboard",
+                              type: ToastType.success,
+                            );
+                          }
+                        : null,
+                    child: Icon(
+                      Icons.copy,
+                      color: isEnabled ? AppColors.primary : AppColors.grey,
+                      size: 20.w,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            hBox(12),
+            Text(
+              "Valid until $expiryDate",
+              style: AppFontStyle.text_12_400(AppColors.grey),
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -535,7 +535,7 @@ class HomeScreenProvider extends ChangeNotifier {
                 featureName: place.name ?? "",
               );
 
-              settingProvider.locationSendToBackend(
+              settingProvider.locationSendToBackendFromHome(
                 context,
                 lat!,
                 lng!,

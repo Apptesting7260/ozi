@@ -67,14 +67,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   icon: ImageConstants.lock,
                   title: "Where you're logged in",
                   showArrow: true,
-                  onTap: () {
-                    // final homeProvider = context.read<HomeScreenProvider>();
-                    // provider.syncHomeLocation(
-                    //   context,
-                    //   homeProvider.lat ?? "",
-                    //   homeProvider.lng ?? "",
-                    // );
-                    Navigator.pushNamed(context, AppRoutes.loginDetails);
+                  onTap: () async {
+                    final homeProvider = context.read<HomeScreenProvider>();
+
+                    if (homeProvider.country.isEmpty &&
+                        homeProvider.city.isEmpty) {
+                      await provider.locationSendToBackend(context);
+                    }
+
+                    if (context.mounted) {
+                      Navigator.pushNamed(context, AppRoutes.loginDetails);
+                    }
                   },
                 ),
 
