@@ -1,4 +1,6 @@
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:google_places_flutter/google_places_flutter.dart';
+import 'package:ozi/app/core/constants/app_urls.dart';
 import '../../../../../core/appExports/app_export.dart';
 import '../provider/location_picker_provider.dart';
 
@@ -11,9 +13,15 @@ class MapPickerPage extends StatefulWidget {
 }
 
 class _MapPickerPageState extends State<MapPickerPage> {
+
+  late TextEditingController _searchController;
+
   @override
   void initState() {
     super.initState();
+
+    _searchController = TextEditingController();
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final provider = Provider.of<LocationPickerProvider>(
         context,
@@ -21,6 +29,12 @@ class _MapPickerPageState extends State<MapPickerPage> {
       );
       provider.moveToCurrentLocation(context);
     });
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
   }
 
   @override
@@ -59,7 +73,14 @@ class _MapPickerPageState extends State<MapPickerPage> {
               ),
 
               // Info banner
-              Positioned(top: 16, left: 16, right: 16, child: _infoBanner()),
+              //  Positioned(top: 16, left: 16, right: 16, child: _infoBanner()),
+
+              Positioned(
+                top: 10,
+                left: 10,
+                right: 10,
+                child: _searchBar(provider),
+              ),
 
               // Bottom panel
               Positioned(
@@ -69,10 +90,11 @@ class _MapPickerPageState extends State<MapPickerPage> {
                 child: _bottomPanel(context, provider),
               ),
 
-              // Floating buttons
               Positioned(
                 right: 16,
-                bottom: 150,
+                bottom:
+                MediaQuery.of(context).viewInsets.bottom + 170,
+
                 child: Column(
                   children: [
                     _mapActionButton(
@@ -91,48 +113,6 @@ class _MapPickerPageState extends State<MapPickerPage> {
                       icon: Icons.remove,
                       tooltip: 'Zoom Out',
                       onTap: provider.zoomOut,
-                    ),
-                    const SizedBox(height: 12),
-                    _mapActionButton(
-                      icon: Icons.help_outline,
-                      tooltip: 'Help',
-                      onTap: () {
-                        showDialog(
-                          context: context,
-                          builder: (_) => AlertDialog(
-                            title: Text(
-                              'How to select location',
-                              style: AppFontStyle.text_18_600(
-                                AppColors.black,
-                                fontFamily: AppFontFamily.bold,
-                              ),
-                            ),
-                            content: Text(
-                              'Drag the map or use the buttons to position the pin on your location. '
-                              'You can also use the current location button.',
-                              maxLines: null,
-                              overflow: TextOverflow.visible,
-                              softWrap: true,
-                              style: AppFontStyle.text_14_400(
-                                AppColors.black,
-                                fontFamily: AppFontFamily.semiBold,
-                              ),
-                            ),
-                            actions: [
-                              TextButton(
-                                onPressed: () => Navigator.pop(context),
-                                child: Text(
-                                  'Got it',
-                                  style: AppFontStyle.text_14_400(
-                                    AppColors.primary,
-                                    fontFamily: AppFontFamily.semiBold,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        );
-                      },
                     ),
                   ],
                 ),
@@ -191,6 +171,86 @@ class _MapPickerPageState extends State<MapPickerPage> {
     );
   }
 
+  Widget _searchBar(LocationPickerProvider provider) {
+    return Material(
+      elevation: 4,
+      borderRadius: BorderRadius.circular(12),
+      child: GooglePlaceAutoCompleteTextField(
+        textEditingController: _searchController,
+        googleAPIKey: AppUrls.googlePlaceKey,
+        debounceTime: 600,
+        countries: const ["in"],
+        isLatLngRequired: true,
+        isCrossBtnShown: false,
+
+        //  Use onChanged here instead of addListener in initState
+        // This avoids full Consumer rebuild on every keystroke
+        inputDecoration: InputDecoration(
+          hintText: "Search location...",
+          prefixIcon: const Icon(Icons.search),
+
+          //  ValueListenableBuilder reads controller directly — no Provider rebuild
+          suffixIcon: ValueListenableBuilder<TextEditingValue>(
+            valueListenable: _searchController,
+            builder: (context, value, _) {
+              return value.text.isNotEmpty
+                  ? IconButton(
+                icon: const Icon(Icons.close),
+                onPressed: () {
+                  _searchController.clear();
+                  provider.clearSearch();
+                  //  FocusManager is more reliable than FocusScope for full dismiss
+                  FocusManager.instance.primaryFocus?.unfocus();
+                },
+              )
+                  : const SizedBox.shrink();
+            },
+          ),
+
+          filled: true,
+          fillColor: Colors.white,
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide.none,
+          ),
+        ),
+
+        getPlaceDetailWithLatLng: (prediction) {
+          final lat = double.tryParse(prediction.lat ?? '');
+          final lng = double.tryParse(prediction.lng ?? '');
+
+          if (lat != null && lng != null) {
+            provider.moveToSearchedLocation(LatLng(lat, lng));
+          }
+
+          _searchController.value = TextEditingValue(
+            text: prediction.description ?? '',
+            selection: TextSelection.collapsed(
+              offset: (prediction.description ?? '').length,
+            ),
+          );
+
+          Future.delayed(const Duration(milliseconds: 100), () {
+            FocusManager.instance.primaryFocus?.unfocus();
+          });
+        },
+
+        itemClick: (prediction) {
+          _searchController.value = TextEditingValue(
+            text: prediction.description ?? '',
+            selection: TextSelection.collapsed(
+              offset: (prediction.description ?? '').length,
+            ),
+          );
+
+          Future.delayed(const Duration(milliseconds: 100), () {
+            FocusManager.instance.primaryFocus?.unfocus();
+          });
+        },
+      ),
+    );
+  }
+
   Widget _bottomPanel(BuildContext context, LocationPickerProvider provider) {
     return Container(
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 20),
@@ -215,40 +275,40 @@ class _MapPickerPageState extends State<MapPickerPage> {
           const SizedBox(height: 6),
           provider.isLoadingAddress
               ? Row(
-                  children: const [
-                    SizedBox(
-                      height: 14,
-                      width: 14,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    ),
-                    SizedBox(width: 8),
-                  ],
-                )
+            children: const [
+              SizedBox(
+                height: 14,
+                width: 14,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              ),
+              SizedBox(width: 8),
+            ],
+          )
               : Text(
-                  provider.address.isEmpty
-                      ? 'Move map to select address'
-                      : provider.address,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: AppFontStyle.text_15_500(
-                    AppColors.black,
-                    fontFamily: AppFontFamily.semiBold,
-                  ),
-                ),
+            provider.address.isEmpty
+                ? 'Move map to select address'
+                : provider.address,
+            maxLines: 4,
+            overflow: TextOverflow.visible,
+            style: AppFontStyle.text_15_500(
+              AppColors.black,
+              fontFamily: AppFontFamily.semiBold,
+            ),
+          ),
           const SizedBox(height: 16),
           GestureDetector(
             onTap: widget.isFromProfile == true
                 ? () async {
-                    final _ = await provider.updateLocationFromLatLng(
-                      provider.selectedLatLng,
-                    );
-                    if (kDebugMode) {
-                      print(
-                        "Post Api Hit ==================================> ${provider.selectedLatLng}",
-                      );
-                    }
-                    Navigator.pop(context);
-                  }
+              final _ = await provider.updateLocationFromLatLng(
+                provider.selectedLatLng,
+              );
+              if (kDebugMode) {
+                print(
+                  "Post Api Hit ==================================> ${provider.selectedLatLng}",
+                );
+              }
+              Navigator.pop(context);
+            }
                 : () {
               Navigator.pop(context, {
                 "latLng": provider.selectedLatLng,
@@ -257,7 +317,7 @@ class _MapPickerPageState extends State<MapPickerPage> {
                 "state": provider.state,
                 "country": provider.country,
               });
-                  },
+            },
             child: Container(
               color: AppColors.primary,
               width: double.infinity,

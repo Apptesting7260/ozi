@@ -3,6 +3,7 @@ import 'package:ozi/app/modules/user/profile/login%20details/view/login_details.
 import 'package:ozi/app/modules/vendor/home/view/vendor_home_screen.dart';
 import 'package:ozi/app/modules/vendor/navigation%20tab/view/vendor_navigation_tab_screen.dart';
 import 'package:ozi/app/modules/vendor/services/view/service_screen.dart';
+import 'package:ozi/app/modules/vendor/wallet/transaction_detail/view/transaction_detail_screen.dart';
 import '../core/appExports/app_export.dart';
 import '../modules/user/help/view/help_screen.dart';
 import '../modules/user/home/service details/view/ServiceDetailScreen.dart';
@@ -99,6 +100,7 @@ class AppRoutes {
   static const String vendorTransactionHistory = '/vendorTransactionHistory';
   static const String vendorWithdrawScreen = '/vendorWithdrawScreen';
   static const String messageDetailsScreen = '/messageDetailsScreen';
+  static const String transactionDetailsScreen = "/transactionDetailsScreen";
 
   static Route<dynamic>? generateRoute(RouteSettings setting) {
     switch (setting.name) {
@@ -214,6 +216,11 @@ class AppRoutes {
         return MaterialPageRoute(builder: (_) => VendorMybookingsScreen());
       case vendorWalletScreen:
         return MaterialPageRoute(builder: (_) => VendorMyWalletScreen());
+      case transactionDetailsScreen:
+        return MaterialPageRoute(
+          settings: setting,
+          builder: (_) => TransactionDetailsScreen(),
+        );
       case vendorWithdrawScreen:
         return MaterialPageRoute(
           builder: (_) => WithdrawScreen(availableBalance: ''),

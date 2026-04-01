@@ -1,3 +1,6 @@
+import 'package:file_picker/file_picker.dart';
+import 'package:image_picker/image_picker.dart';
+
 import '../../../../../core/appExports/app_export.dart';
 import '../../../../../core/constants/app_urls.dart';
 import '../../../../../data/models/vendor_document_model.dart';
@@ -23,12 +26,12 @@ class IdentityVerificationProvider extends ChangeNotifier {
 
   bool get canContinue => isGovernmentUploaded;
 
-  void setGovernmentId(File file) {
+  void setGovernmentId(File? file) {
     governmentId = file;
     notifyListeners();
   }
 
-  void setCertification(File file) {
+  void setCertification(File? file) {
     certification = file;
     notifyListeners();
   }
@@ -40,29 +43,55 @@ class IdentityVerificationProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> saveDocuments(bool isFromProfile , BuildContext context)async {
+  Future<void> saveDocuments(bool isFromProfile, BuildContext context) async {
     updateSubmitLoading(true);
+
     try {
-      Map<String,String> files = {
-        "government_id_image":governmentId?.path??'',
-        "certificate":certification?.path??''
+      Map<String, String> files = {
+        "government_id_image": governmentId?.path ?? '',
+        "certificate": certification?.path ?? ''
       };
+
       if (kDebugMode) {
         print(files);
       }
-      final response = await _apiService.postApiMultiPart(AppUrls.docsVendor,{},files);
+
+      final response = await _apiService.postApiMultiPart(
+        AppUrls.docsVendor,
+        {},
+        files,
+      );
+
       if (kDebugMode) {
         print(response);
       }
-      if(isFromProfile==false){
+
+
+      final bool isSuccess =
+          response['success'] == true ||
+              response['status'] == true ||
+              response['status'] == 200;
+
+      if (!isSuccess) {
+        updateSubmitLoading(false);
+        showCustomToast(
+          context,
+          response['message'] ?? "Something went wrong",
+        );
+        return;
+      }
+
+
+      if (isFromProfile == false) {
         await UserPreference.saveStep('4');
+
         Navigator.push(
           navigatorKey.currentContext!,
           MaterialPageRoute(
             builder: (_) => ReadyToGoLiveScreen(),
           ),
         );
-      }else{
+      } else {
         final profileProvider =
         Provider.of<ProfileProvider>(context, listen: false);
 
@@ -105,6 +134,56 @@ class IdentityVerificationProvider extends ChangeNotifier {
     } catch (e) {
       showCustomToast(navigatorKey.currentContext!, e.toString());
     }
+  }
+
+  Future<void> showPickerOptions(
+      BuildContext context,
+      void Function(File) onSelected,
+      ) async {
+    showModalBottomSheet(
+      context: context,
+      builder: (_) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: Icon(Icons.photo),
+                title: Text("Choose from Gallery"),
+                onTap: () async {
+                  Navigator.pop(context);
+
+                  final picker = ImagePicker();
+                  final XFile? image =
+                  await picker.pickImage(source: ImageSource.gallery);
+
+                  if (image != null) {
+                    onSelected(File(image.path));
+                  }
+                },
+              ),
+
+              ListTile(
+                leading: Icon(Icons.insert_drive_file),
+                title: Text("Choose Document"),
+                onTap: () async {
+                  Navigator.pop(context);
+
+                  final result = await FilePicker.platform.pickFiles(
+                    type: FileType.custom,
+                    allowedExtensions: ['pdf', 'doc', 'docx'],
+                  );
+
+                  if (result != null && result.files.single.path != null) {
+                    onSelected(File(result.files.single.path!));
+                  }
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 
 }

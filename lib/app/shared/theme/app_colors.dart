@@ -51,6 +51,7 @@ class AppColors{
   static Color chatTimeTextColor =const Color.fromRGBO(98, 97, 98, 1);
 
   static Color chatTextFieldColor =const Color.fromRGBO(246, 246, 246, 1);
+  static Color transacationCard =const Color.fromRGBO(125, 125, 125, 1);
   static Color chatAppBarColor =const Color.fromRGBO(231, 247, 241, 1);
   static Color chatAppBarTextColor =const Color.fromRGBO(28, 29, 33, 1);
   static Color chatAppBarMenuIconColor =const Color.fromRGBO(112, 108, 108, 1);

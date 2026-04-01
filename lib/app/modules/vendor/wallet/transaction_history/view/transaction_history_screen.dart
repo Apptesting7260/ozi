@@ -151,8 +151,10 @@
 import 'package:ozi/app/modules/vendor/wallet/transaction_history/model/transaction_history_model.dart';
 
 import '../../../../../core/appExports/app_export.dart';
+import '../../../../../routes/app_routes.dart';
 import '../../../../../shared/widgets/custom_app_bar.dart';
 import '../../../../../shared/widgets/custom_text_form_field.dart';
+import '../../transaction_detail/provider/transaction_detail_provider.dart';
 import '../provider/transaction_history_provider.dart';
 
 class TransactionHistoryScreen extends StatelessWidget {
@@ -335,57 +337,62 @@ class _TransactionHistoryContentState extends State<_TransactionHistoryContent> 
   }
 
   Widget _transactionTile(TransactionHistoryData tx) {
-    return Row(
-      children: [
-        Container(
-          height: 55,
-          width: 40,
-          decoration: BoxDecoration(
-            color: tx.type == "credit"
-                ? AppColors.primary.withOpacity(0.12)
-                : Colors.red.withOpacity(0.12),
-            shape: BoxShape.circle,
-          ),
-          child: Center(
-            child: CustomImage(
-              path: tx.type == "credit"
-                  ? ImageConstants.downwardArrow
-                  : ImageConstants.upwardArrow,
-              height: 14,
-              width: 14,
-              color: tx.type == "credit" ? AppColors.primary : Colors.red,
+    return GestureDetector(
+      onTap: () {
+        Navigator.pushNamed( context, AppRoutes.transactionDetailsScreen , arguments: TransactionAdapter.fromHistory(tx));
+      },
+      child: Row(
+        children: [
+          Container(
+            height: 55,
+            width: 40,
+            decoration: BoxDecoration(
+              color: tx.type == "credit"
+                  ? AppColors.primary.withOpacity(0.12)
+                  : Colors.red.withOpacity(0.12),
+              shape: BoxShape.circle,
+            ),
+            child: Center(
+              child: CustomImage(
+                path: tx.type == "credit"
+                    ? ImageConstants.downwardArrow
+                    : ImageConstants.upwardArrow,
+                height: 14,
+                width: 14,
+                color: tx.type == "credit" ? AppColors.primary : Colors.red,
+              ),
             ),
           ),
-        ),
 
-        wBox(12),
+          wBox(12),
 
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(tx.description ?? "",
+                    style: AppFontStyle.text_16_500(AppColors.darkText)),
+                Text(tx.userName ?? "",
+                    style: AppFontStyle.text_14_400(AppColors.grey)),
+              ],
+            ),
+          ),
+
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              Text(tx.description ?? "",
-                  style: AppFontStyle.text_16_500(AppColors.darkText)),
-              Text(tx.userName ?? "",
+              Text(
+                "${tx.type == "credit" ? '+' : '-'}\$${tx.amount}",
+                style: AppFontStyle.text_16_600(
+                  tx.type == "credit" ? AppColors.primary : Colors.red,
+                ),
+              ),
+              Text(Get.formatTimeAgo(tx.createdAt ?? ""),
                   style: AppFontStyle.text_14_400(AppColors.grey)),
             ],
           ),
-        ),
-
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            Text(
-              "${tx.type == "credit" ? '+' : '-'}\$${tx.amount}",
-              style: AppFontStyle.text_16_600(
-                tx.type == "credit" ? AppColors.primary : Colors.red,
-              ),
-            ),
-            Text(Get.formatTimeAgo(tx.createdAt ?? ""),
-                style: AppFontStyle.text_14_400(AppColors.grey)),
-          ],
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

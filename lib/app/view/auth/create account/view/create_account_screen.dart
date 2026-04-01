@@ -107,9 +107,9 @@ class CreateAccountScreen extends StatelessWidget {
                           if (val == null || val.trim().isEmpty) {
                             return "First name is required";
                           }
-                          if (!RegExp(r'^[a-zA-Z]+$').hasMatch(val.trim())) {
-                            return "First name should contain only alphabets";
-                          }
+                          // if (!RegExp(r'^[a-zA-Z]+$').hasMatch(val.trim())) {
+                          //   return "First name should contain only alphabets";
+                          // }
                           return null;
                         },
                       ),

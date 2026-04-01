@@ -1,6 +1,9 @@
+import 'package:ozi/app/routes/app_routes.dart';
+
 import '../../../../core/appExports/app_export.dart';
 import '../model/wallet_detail_model.dart';
 import '../provider/wallet_provider.dart';
+import '../transaction_detail/provider/transaction_detail_provider.dart';
 import '../withdraw/view/withdraw_screen.dart';
 import '../transaction_history/view/transaction_history_screen.dart';
 
@@ -202,7 +205,7 @@ class _MyWalletContent extends StatelessWidget {
               )
             else
               ...provider.transactions
-                  .map((tx) => _transactionTile(tx))
+                  .map((tx) => _transactionTile(tx,context))
                   ,
           ],
         ),
@@ -230,87 +233,92 @@ class _MyWalletContent extends StatelessWidget {
           hBox(4),
           Text(subtitle,
               style:
-              AppFontStyle.text_12_400(AppColors.grey)),
+               AppFontStyle.text_12_400(AppColors.grey)),
         ],
       ),
     );
   }
 
   // ================= TRANSACTION TILE =================
-  Widget _transactionTile(RecentTransactions tx) {
+  Widget _transactionTile(RecentTransactions tx,context) {
     final bool isCredit = tx.type == "credit";
 
-    return Container(
-      padding: const EdgeInsets.all(14),
-      margin: const EdgeInsets.only(bottom: 12),
-      decoration: BoxDecoration(
-        color: AppColors.white,
-        borderRadius: BorderRadius.circular(14),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
-            blurRadius: 8,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Container(
-            height: 40,
-            width: 40,
-            decoration: BoxDecoration(
-              color: isCredit
-                  ? AppColors.primary.withValues(alpha: 0.20)
-                  : Colors.red.withValues(alpha: 0.20),
-              shape: BoxShape.circle,
+    return GestureDetector(
+      onTap: () {
+        Navigator.pushNamed(context, AppRoutes.transactionDetailsScreen,arguments: TransactionAdapter.fromRecent(tx));
+      },
+      child: Container(
+        padding: const EdgeInsets.all(14),
+        margin: const EdgeInsets.only(bottom: 12),
+        decoration: BoxDecoration(
+          color: AppColors.white,
+          borderRadius: BorderRadius.circular(14),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.04),
+              blurRadius: 8,
+              offset: const Offset(0, 4),
             ),
-            child: Center(
-              child: CustomImage(
-                path: isCredit
-                    ? ImageConstants.downwardArrow
-                    : ImageConstants.upwardArrow,
-                height: 10,
-                width: 10,
+          ],
+        ),
+        child: Row(
+          children: [
+            Container(
+              height: 40,
+              width: 40,
+              decoration: BoxDecoration(
                 color: isCredit
-                    ? AppColors.primary
-                    : Colors.red,
+                    ? AppColors.primary.withValues(alpha: 0.20)
+                    : Colors.red.withValues(alpha: 0.20),
+                shape: BoxShape.circle,
               ),
-            ),
-          ),
-          wBox(12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(tx.description ?? "",
-                    style: AppFontStyle.text_14_600(
-                        AppColors.darkText)),
-                hBox(2),
-                Text(tx.source ?? "",
-                    style: AppFontStyle.text_12_400(
-                        AppColors.grey)),
-              ],
-            ),
-          ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Text(
-                "${isCredit ? '+' : '-'}\$${tx.amount ?? "0"}",
-                style: AppFontStyle.text_14_600(
-                  isCredit
+              child: Center(
+                child: CustomImage(
+                  path: isCredit
+                      ? ImageConstants.downwardArrow
+                      : ImageConstants.upwardArrow,
+                  height: 10,
+                  width: 10,
+                  color: isCredit
                       ? AppColors.primary
                       : Colors.red,
                 ),
               ),
-              hBox(2),
-              Text(Get.formatTimeAgo(tx.createdAt ?? ""),
-                  style: AppFontStyle.text_11_400(
-                      AppColors.grey)),
-            ],
-          ),
-        ],
+            ),
+            wBox(12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(tx.description ?? "",
+                      style: AppFontStyle.text_14_600(
+                          AppColors.darkText)),
+                  hBox(2),
+                  Text(tx.source ?? "",
+                      style: AppFontStyle.text_12_400(
+                          AppColors.grey)),
+                ],
+              ),
+            ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Text(
+                  "${isCredit ? '+' : '-'}\$${tx.amount ?? "0"}",
+                  style: AppFontStyle.text_14_600(
+                    isCredit
+                        ? AppColors.primary
+                        : Colors.red,
+                  ),
+                ),
+                hBox(2),
+                Text(Get.formatTimeAgo(tx.createdAt ?? ""),
+                    style: AppFontStyle.text_11_400(
+                        AppColors.grey)),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
