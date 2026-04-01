@@ -39,6 +39,9 @@ class Data {
   String? vendorActionAt;
   String? createdAt;
   String? updatedAt;
+  bool? isRefunded;
+  String? refundAmount;
+  String? refundTime;
   List<Items>? items;
   Vendor? vendor;
   Address? address;
@@ -63,6 +66,9 @@ class Data {
     this.vendorActionAt,
     this.createdAt,
     this.updatedAt,
+    this.isRefunded,
+    this.refundAmount,
+    this.refundTime,
     this.items,
     this.vendor,
     this.address,
@@ -113,6 +119,11 @@ class Data {
         items!.add(Items.fromJson(v));
       });
     }
+    isRefunded = json['is_refunded'] is bool
+        ? json['is_refunded']
+        : json['is_refunded'].toString().toLowerCase() == 'true';
+    refundAmount = json['refund_amount']?.toString();
+    refundTime = json['refund_at']?.toString();
     vendor = json['vendor'] != null ? Vendor.fromJson(json['vendor']) : null;
     address = json['address'] != null
         ? Address.fromJson(json['address'])
