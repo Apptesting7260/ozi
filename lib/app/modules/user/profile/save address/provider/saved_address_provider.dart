@@ -58,6 +58,15 @@ class SavedAddressProvider extends ChangeNotifier {
 
   double? _currentLng;
   double? get currentLng => _currentLng;
+
+  String? _currentStreet;
+  String? get currentStreet => _currentStreet;
+  String? _currentCity;
+  String? get currentCity => _currentCity;
+  String? _currentZipCode;
+  String? get currentZipCode => _currentZipCode;
+  String? _currentCountry;
+  String? get currentCountry => _currentCountry;
   // New method to fetch current location
   Future<void> fetchCurrentLocation() async {
     _isLocationLoading = true;
@@ -109,6 +118,13 @@ class SavedAddressProvider extends ChangeNotifier {
 
       if (placemarks.isNotEmpty) {
         Placemark place = placemarks.first;
+        _currentStreet = [place.street, place.subLocality]
+            .where((e) => e?.isNotEmpty == true)
+            .join(", ");
+        _currentCity = place.locality;
+        _currentZipCode = place.postalCode;
+        _currentCountry = place.country;
+
         _currentAddress = [
           place.street,
           place.subLocality,

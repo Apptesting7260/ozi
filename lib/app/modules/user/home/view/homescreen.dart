@@ -488,11 +488,18 @@ class HomeScreenView extends StatelessWidget {
       }
       return Center(
         child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Text(
-            "No Services Available At Your Location",
-            style: AppFontStyle.text_16_500(AppColors.grey),
+          padding: const EdgeInsets.only(left: 20),
+          child: Image.asset(
+            "assets/images/Gemini_Generated_Image_okevaaokevaaokev.png",
+            height: 400,
+            width: 400,
+            fit: BoxFit.cover,
+            alignment: Alignment.center,
           ),
+          // child: Text(
+          //   "No Services Available At Your Location",
+          //   style: AppFontStyle.text_16_500(AppColors.grey),
+          // ),
         ),
       );
     }

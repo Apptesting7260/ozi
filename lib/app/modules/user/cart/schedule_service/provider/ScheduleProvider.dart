@@ -5,6 +5,7 @@ import 'package:ozi/app/modules/user/cart/booking%20confirmed/view/BookingConfir
 import 'package:ozi/app/modules/user/cart/schedule_service/Model/bookservicemodel.dart';
 import '../../chnge payment method/provider/PaymentMethodProvider.dart';
 import '../Model/bookingcompletemodel.dart';
+import '../../../profile/save address/model/user_address_model.dart' as address_model;
 
 class ScheduleProvider extends ChangeNotifier {
   final Repository _repository = Repository();
@@ -136,11 +137,13 @@ class ScheduleProvider extends ChangeNotifier {
 
         bool shouldShow = true;
 
-        // Main condition: hide past + current hour for today
-        if (isToday && slotMinutes <= nowMinutes) {
+        const bufferInMinutes = 15;
+
+        // Main condition: hide past slots and those within 15 mins
+        if (isToday && slotMinutes <= (nowMinutes + bufferInMinutes)) {
           shouldShow = false;
           print(
-            '   Hidden: ${_formatTime(current)} ($slotMinutes min)  ≤  $nowMinutes',
+            '   Hidden: ${_formatTime(current)} ($slotMinutes min)  ≤  ${nowMinutes + bufferInMinutes}',
           );
         }
 
@@ -317,7 +320,7 @@ class ScheduleProvider extends ChangeNotifier {
 
   Future<bool> bookServiceApi({
     required BuildContext context,
-    required String addressId,
+    required address_model.Data address,
     required String paymentMethod,
   }) async {
     try {
@@ -367,11 +370,22 @@ class ScheduleProvider extends ChangeNotifier {
         "service_date": _selectedDate.toIso8601String().split('T').first,
         "service_day": _getDayName(_selectedDate),
         "service_time": selectedSlot.from,
-        "address_id": addressId,
+        "street_address": address.streetAddress ?? "",
+        "apartment": address.apartment ?? "",
+        "city": address.city ?? "",
+        "zip_code": address.zipCode ?? "",
+        "country": address.country ?? "",
+        "latitude": address.latitude ?? "",
+        "longitude": address.longitude ?? "",
+        "address_type": address.addressType ?? "",
         "payment_method": paymentMethod,
       };
 
-      debugPrint("BOOK SERVICE REQUEST ADDRESS_ID => $addressId");
+      // If it's a saved address, we might still want to send the ID if the backend needs it
+      if (address.id != null) {
+        data["address_id"] = address.id.toString();
+      }
+
       debugPrint("BOOK SERVICE REQUEST DATA => $data");
 
       final response = await _repository.completescheduleServiceApi(data);

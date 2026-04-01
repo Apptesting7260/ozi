@@ -7,6 +7,7 @@ import '../../../../../shared/widgets/custom_date_picker.dart';
 import '../../chnge payment method/provider/PaymentMethodProvider.dart';
 import '../../chnge payment method/view/ChangePaymentMethodScreen.dart';
 import '../provider/ScheduleProvider.dart';
+import 'package:ozi/app/modules/user/profile/save address/model/user_address_model.dart' as address_model;
 
 class ScheduleServiceScreen extends StatefulWidget {
   const ScheduleServiceScreen({super.key});
@@ -320,37 +321,39 @@ class _ScheduleServiceScreenContentState
                                 ],
                               )
                             : selectedAddress != null
-                                ? Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        selectedAddress.addressType != null &&
-                                                selectedAddress.addressType!.isNotEmpty
-                                            ? '${selectedAddress.addressType![0].toUpperCase()}${selectedAddress.addressType!.substring(1)}'
-                                            : 'Address',
-                                        style: AppFontStyle.text_14_600(
-                                          AppColors.black,
-                                          fontFamily: AppFontFamily.semiBold,
-                                        ),
-                                      ),
-                                      const SizedBox(height: 4),
-                                      Text(
-                                        addressProvider.getFormattedAddress(
-                                          selectedAddress,
-                                        ),
-                                        style: AppFontStyle.text_14_400(
-                                          AppColors.grey,
-                                        ),
-                                      ),
-                                    ],
-                                  )
-                                : Text(
-                                    'Select an address',
+                            ? Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    selectedAddress.addressType != null &&
+                                            selectedAddress
+                                                .addressType!
+                                                .isNotEmpty
+                                        ? '${selectedAddress.addressType![0].toUpperCase()}${selectedAddress.addressType!.substring(1)}'
+                                        : 'Address',
                                     style: AppFontStyle.text_14_600(
                                       AppColors.black,
                                       fontFamily: AppFontFamily.semiBold,
                                     ),
                                   ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    addressProvider.getFormattedAddress(
+                                      selectedAddress,
+                                    ),
+                                    style: AppFontStyle.text_14_400(
+                                      AppColors.grey,
+                                    ),
+                                  ),
+                                ],
+                              )
+                            : Text(
+                                'Select an address',
+                                style: AppFontStyle.text_14_600(
+                                  AppColors.black,
+                                  fontFamily: AppFontFamily.semiBold,
+                                ),
+                              ),
                       ),
                     ],
                   ),
@@ -435,9 +438,7 @@ class _ScheduleServiceScreenContentState
                               const SizedBox(height: 4),
                               Text(
                                 provider.selectedPaymentMethod!.masked,
-                                style: AppFontStyle.text_14_400(
-                                  AppColors.grey,
-                                ),
+                                style: AppFontStyle.text_14_400(AppColors.grey),
                               ),
                             ],
                           ],
@@ -501,9 +502,20 @@ class _ScheduleServiceScreenContentState
                       : () {
                           provider.bookServiceApi(
                             context: context,
-                            addressId: selectedIndex == -2
-                                ? "-2"
-                                : selectedAddress!.id.toString(),
+                            address: selectedIndex == -2
+                                ? address_model.Data(
+                                    streetAddress:
+                                        addressProvider.currentStreet,
+                                    city: addressProvider.currentCity,
+                                    zipCode: addressProvider.currentZipCode,
+                                    country: addressProvider.currentCountry,
+                                    latitude:
+                                        addressProvider.currentLat?.toString(),
+                                    longitude:
+                                        addressProvider.currentLng?.toString(),
+                                    addressType: "current_location",
+                                  )
+                                : selectedAddress!,
                             paymentMethod:
                                 provider.selectedPaymentMethod?.title
                                     .trim()

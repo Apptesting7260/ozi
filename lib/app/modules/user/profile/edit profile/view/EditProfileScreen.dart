@@ -227,24 +227,12 @@ class EditProfileScreen extends StatelessWidget {
         ),
 
         hBox(16),
-        // CustomTextFormField(
-        //   label: "Email Address",
-        //   hintText: "yourname@gmail.com",
-        //   controller: provider.emailController,
-        //   prefix: Padding(
-        //     padding: const EdgeInsets.symmetric(horizontal: 10),
-        //     child: CustomImage(
-        //       path: ImageConstants.mail,
-        //       height: 14,
-        //       width: 14,
-        //     ),
-        //   ),
-        // ),
         CustomTextFormField(
           controller: provider.emailController,
           label: "Email Address",
           hintText: "Enter email address",
           textInputType: TextInputType.emailAddress,
+          onChanged: (val) => provider.validateEmail(val),
           prefix: Padding(
             padding: const EdgeInsets.all(12),
             child: CustomImage(
