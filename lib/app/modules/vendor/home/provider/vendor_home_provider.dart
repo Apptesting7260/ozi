@@ -1,6 +1,7 @@
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:http/http.dart' as http;
 import 'package:ozi/app/core/device%20info/get_device_Info.dart';
 import 'package:ozi/app/data/repository/repository.dart';
 import 'package:ozi/app/modules/auth/vendor/signup/view/service_details.dart';
@@ -13,7 +14,7 @@ import '../../../../data/storage/user_preference.dart';
 
 class VendorHomeProvider extends ChangeNotifier {
   VendorHomeProvider() {
-    getLocationDetails();
+    getLocationFromIP();
   }
   final NetworkApiServices _apiService = NetworkApiServices();
 
@@ -28,43 +29,6 @@ class VendorHomeProvider extends ChangeNotifier {
 
   String cityLocation = "";
   String countryLocation = "";
-
-  Future<void> getLocationDetails() async {
-    try {
-      // Step 1: Get coordinates
-      Position position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high,
-      );
-
-      // Step 2: Convert to address
-      List<Placemark> placemarks = await placemarkFromCoordinates(
-        position.latitude,
-        position.longitude,
-      );
-
-      if (placemarks.isNotEmpty) {
-        Placemark place = placemarks[0];
-        print(
-          "value offf thew city & country : ${place.locality}, ${place.country}",
-        );
-        String fetchedCity = place.locality ?? "";
-        if (fetchedCity.isEmpty) {
-          fetchedCity = place.subAdministrativeArea ?? "";
-        }
-        if (fetchedCity.isEmpty) {
-          fetchedCity = place.administrativeArea ?? "";
-        }
-        
-        cityLocation = fetchedCity;
-        countryLocation = place.country ?? "";
-        notifyListeners();
-      }
-    } catch (e) {
-      if (kDebugMode) {
-        print("Error in getLocationDetails: $e");
-      }
-    }
-  }
 
   Future<void> getHomeData({bool showScreenLoader = true}) async {
     if (kDebugMode) {
@@ -132,42 +96,57 @@ class VendorHomeProvider extends ChangeNotifier {
   bool isEnabled = false;
 
   final Repository _repository = Repository();
+  Future<void> getLocationFromIP() async {
+    try {
+      final response = await http.get(Uri.parse('http://ip-api.com/json'));
 
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+
+        // CRITICAL: You must assign the values to your class variables
+        cityLocation = data['city']?.toString() ?? "";
+        countryLocation = data['country']?.toString() ?? "";
+
+        print("Fetched Location: $cityLocation, $countryLocation");
+        notifyListeners(); // Tell the UI/Provider that data changed
+      }
+    } catch (e) {
+      if (kDebugMode) print("Error fetching IP location: $e");
+    }
+  }
+
+  // 2. UPDATED: The backend sender
   Future<void> locationSendToBackend(BuildContext context) async {
     _isLoading = true;
     notifyListeners();
 
-    final deviceInfo = await getDeviceInfo();
     try {
+      // Ensure we have location before sending
       if (cityLocation.isEmpty || countryLocation.isEmpty) {
-        await getLocationDetails();
+        await getLocationFromIP();
       }
 
-      // lat = position.latitude.toStringAsFixed(6);
-      // lng = position.longitude.toStringAsFixed(6);
+      final deviceInfo = await getDeviceInfo();
+
       Map<String, String> body = {
-        // "latitude": lat ?? "",
-        // "longitude": lng ?? "",
         "city": cityLocation,
-        // "state": state,
         "country": countryLocation,
         "device_name": deviceInfo["device_name"]?.toString() ?? "",
+        "device_id":
+            deviceInfo["device_id"]?.toString() ??
+            "", // Use the unique ID we fixed earlier!
       };
+
       final response = await _repository.locationSendToBackend(body);
+
       if (response != null && response['status'] == true) {
-        print("locationSendToBackend suucess ");
-        _isLoading = false;
-        notifyListeners();
+        print("locationSendToBackend success");
       }
     } catch (e) {
-      if (kDebugMode) {
-        print('Error in locationSendToBackend: $e');
-      }
+      if (kDebugMode) print('Error in locationSendToBackend: $e');
     } finally {
-      if (_isLoading) {
-        _isLoading = false;
-        notifyListeners();
-      }
+      _isLoading = false;
+      notifyListeners();
     }
   }
 
