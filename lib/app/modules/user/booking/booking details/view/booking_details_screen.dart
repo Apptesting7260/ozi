@@ -1182,7 +1182,7 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
                 style: AppFontStyle.text_14_600(AppColors.black),
               ),
               Text(
-                data.refundAmount ?? '0',
+                "\$ ${data.refundAmount ?? '0'}",
                 style: AppFontStyle.text_14_700(AppColors.black),
               ),
             ],
