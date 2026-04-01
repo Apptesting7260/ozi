@@ -13,7 +13,6 @@ class MapPickerPage extends StatefulWidget {
 }
 
 class _MapPickerPageState extends State<MapPickerPage> {
-
   late TextEditingController _searchController;
 
   @override
@@ -74,7 +73,6 @@ class _MapPickerPageState extends State<MapPickerPage> {
 
               // Info banner
               //  Positioned(top: 16, left: 16, right: 16, child: _infoBanner()),
-
               Positioned(
                 top: 10,
                 left: 10,
@@ -92,8 +90,7 @@ class _MapPickerPageState extends State<MapPickerPage> {
 
               Positioned(
                 right: 16,
-                bottom:
-                MediaQuery.of(context).viewInsets.bottom + 170,
+                bottom: MediaQuery.of(context).viewInsets.bottom + 170,
 
                 child: Column(
                   children: [
@@ -182,31 +179,29 @@ class _MapPickerPageState extends State<MapPickerPage> {
         countries: const ["in"],
         isLatLngRequired: true,
         isCrossBtnShown: false,
-
-        //  Use onChanged here instead of addListener in initState
-        // This avoids full Consumer rebuild on every keystroke
         inputDecoration: InputDecoration(
           hintText: "Search location...",
           prefixIcon: const Icon(Icons.search),
-
-          //  ValueListenableBuilder reads controller directly — no Provider rebuild
           suffixIcon: ValueListenableBuilder<TextEditingValue>(
             valueListenable: _searchController,
             builder: (context, value, _) {
               return value.text.isNotEmpty
                   ? IconButton(
-                icon: const Icon(Icons.close),
-                onPressed: () {
-                  _searchController.clear();
-                  provider.clearSearch();
-                  //  FocusManager is more reliable than FocusScope for full dismiss
-                  FocusManager.instance.primaryFocus?.unfocus();
-                },
-              )
+                      icon: const Icon(Icons.close),
+                      onPressed: () {
+                        // 1. Clear text immediately
+                        _searchController.clear();
+                        // 2. Clear provider state
+                        provider.clearSearch();
+                        // 3. Force a small delay before unfocusing to let the UI breathe
+                        Future.delayed(Duration.zero, () {
+                          FocusManager.instance.primaryFocus?.unfocus();
+                        });
+                      },
+                    )
                   : const SizedBox.shrink();
             },
           ),
-
           filled: true,
           fillColor: Colors.white,
           border: OutlineInputBorder(
@@ -214,42 +209,116 @@ class _MapPickerPageState extends State<MapPickerPage> {
             borderSide: BorderSide.none,
           ),
         ),
-
         getPlaceDetailWithLatLng: (prediction) {
           final lat = double.tryParse(prediction.lat ?? '');
           final lng = double.tryParse(prediction.lng ?? '');
 
           if (lat != null && lng != null) {
-            provider.moveToSearchedLocation(LatLng(lat, lng));
+            // Use microtask to prevent the Map from blocking the UI thread
+            Future.microtask(
+              () => provider.moveToSearchedLocation(LatLng(lat, lng)),
+            );
           }
 
-          _searchController.value = TextEditingValue(
-            text: prediction.description ?? '',
-            selection: TextSelection.collapsed(
-              offset: (prediction.description ?? '').length,
-            ),
-          );
+          // Use .text to avoid selection/cursor conflicts during rapid typing
+          _searchController.text = prediction.description ?? '';
 
-          Future.delayed(const Duration(milliseconds: 100), () {
+          // Ensure keyboard closes only after the text is settled
+          WidgetsBinding.instance.addPostFrameCallback((_) {
             FocusManager.instance.primaryFocus?.unfocus();
           });
         },
-
         itemClick: (prediction) {
-          _searchController.value = TextEditingValue(
-            text: prediction.description ?? '',
-            selection: TextSelection.collapsed(
-              offset: (prediction.description ?? '').length,
-            ),
-          );
+          _searchController.text = prediction.description ?? '';
 
-          Future.delayed(const Duration(milliseconds: 100), () {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
             FocusManager.instance.primaryFocus?.unfocus();
           });
         },
       ),
     );
   }
+  // Widget _searchBar(LocationPickerProvider provider) {
+  //   return Material(
+  //     elevation: 4,
+  //     borderRadius: BorderRadius.circular(12),
+  //     child: GooglePlaceAutoCompleteTextField(
+  //       textEditingController: _searchController,
+  //       googleAPIKey: AppUrls.googlePlaceKey,
+  //       debounceTime: 600,
+  //       countries: const ["in"],
+  //       isLatLngRequired: true,
+  //       isCrossBtnShown: false,
+
+  //       //  Use onChanged here instead of addListener in initState
+  //       // This avoids full Consumer rebuild on every keystroke
+  //       inputDecoration: InputDecoration(
+  //         hintText: "Search location...",
+  //         prefixIcon: const Icon(Icons.search),
+
+  //         //  ValueListenableBuilder reads controller directly — no Provider rebuild
+  //         suffixIcon: ValueListenableBuilder<TextEditingValue>(
+  //           valueListenable: _searchController,
+  //           builder: (context, value, _) {
+  //             return value.text.isNotEmpty
+  //                 ? IconButton(
+  //                     icon: const Icon(Icons.close),
+  //                     onPressed: () {
+  //                       _searchController.clear();
+  //                       provider.clearSearch();
+  //                       //  FocusManager is more reliable than FocusScope for full dismiss
+  //                       FocusManager.instance.primaryFocus?.unfocus();
+  //                     },
+  //                   )
+  //                 : const SizedBox.shrink();
+  //           },
+  //         ),
+
+  //         filled: true,
+  //         fillColor: Colors.white,
+  //         border: OutlineInputBorder(
+  //           borderRadius: BorderRadius.circular(12),
+  //           borderSide: BorderSide.none,
+  //         ),
+  //       ),
+
+  //       getPlaceDetailWithLatLng: (prediction) {
+  //         final lat = double.tryParse(prediction.lat ?? '');
+  //         final lng = double.tryParse(prediction.lng ?? '');
+
+  //         if (lat != null && lng != null) {
+  //           Future.microtask(() {
+  //             provider.moveToSearchedLocation(LatLng(lat, lng));
+  //           });
+  //         }
+
+  //         _searchController.value = TextEditingValue(
+  //           text: prediction.description ?? '',
+  //           selection: TextSelection.collapsed(
+  //             offset: (prediction.description ?? '').length,
+  //           ),
+  //         );
+
+  //         Future.delayed(const Duration(milliseconds: 100), () {
+  //           FocusManager.instance.primaryFocus?.unfocus();
+  //         });
+  //       },
+
+  //       itemClick: (prediction) {
+  //         _searchController.value = TextEditingValue(
+  //           text: prediction.description ?? '',
+  //           selection: TextSelection.collapsed(
+  //             offset: (prediction.description ?? '').length,
+  //           ),
+  //         );
+
+  //         Future.delayed(const Duration(milliseconds: 100), () {
+  //           FocusManager.instance.primaryFocus?.unfocus();
+  //         });
+  //       },
+  //     ),
+  //   );
+  // }
 
   Widget _bottomPanel(BuildContext context, LocationPickerProvider provider) {
     return Container(
@@ -275,49 +344,49 @@ class _MapPickerPageState extends State<MapPickerPage> {
           const SizedBox(height: 6),
           provider.isLoadingAddress
               ? Row(
-            children: const [
-              SizedBox(
-                height: 14,
-                width: 14,
-                child: CircularProgressIndicator(strokeWidth: 2),
-              ),
-              SizedBox(width: 8),
-            ],
-          )
+                  children: const [
+                    SizedBox(
+                      height: 14,
+                      width: 14,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    ),
+                    SizedBox(width: 8),
+                  ],
+                )
               : Text(
-            provider.address.isEmpty
-                ? 'Move map to select address'
-                : provider.address,
-            maxLines: 4,
-            overflow: TextOverflow.visible,
-            style: AppFontStyle.text_15_500(
-              AppColors.black,
-              fontFamily: AppFontFamily.semiBold,
-            ),
-          ),
+                  provider.address.isEmpty
+                      ? 'Move map to select address'
+                      : provider.address,
+                  maxLines: 4,
+                  overflow: TextOverflow.visible,
+                  style: AppFontStyle.text_15_500(
+                    AppColors.black,
+                    fontFamily: AppFontFamily.semiBold,
+                  ),
+                ),
           const SizedBox(height: 16),
           GestureDetector(
             onTap: widget.isFromProfile == true
                 ? () async {
-              final _ = await provider.updateLocationFromLatLng(
-                provider.selectedLatLng,
-              );
-              if (kDebugMode) {
-                print(
-                  "Post Api Hit ==================================> ${provider.selectedLatLng}",
-                );
-              }
-              Navigator.pop(context);
-            }
+                    final _ = await provider.updateLocationFromLatLng(
+                      provider.selectedLatLng,
+                    );
+                    if (kDebugMode) {
+                      print(
+                        "Post Api Hit ==================================> ${provider.selectedLatLng}",
+                      );
+                    }
+                    Navigator.pop(context);
+                  }
                 : () {
-              Navigator.pop(context, {
-                "latLng": provider.selectedLatLng,
-                "address": provider.address,
-                "city": provider.city,
-                "state": provider.state,
-                "country": provider.country,
-              });
-            },
+                    Navigator.pop(context, {
+                      "latLng": provider.selectedLatLng,
+                      "address": provider.address,
+                      "city": provider.city,
+                      "state": provider.state,
+                      "country": provider.country,
+                    });
+                  },
             child: Container(
               color: AppColors.primary,
               width: double.infinity,
