@@ -1,5 +1,7 @@
 import 'package:file_picker/file_picker.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:ozi/app/modules/auth/vendor/signup/view/pdf_file_viewer.dart';
+import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 import '../../../../../core/appExports/app_export.dart';
 import '../../../../../core/constants/app_urls.dart';
 import '../provider/identity_verification_provider.dart';
@@ -129,6 +131,7 @@ class _IdentityVerificationContent extends StatelessWidget {
 
                     // GOVERNMENT ID
                     _documentTile(
+                      context: context,
                       title: "Government ID",
                       subtitle: "Driver's license or passport",
                       required: true,
@@ -146,6 +149,7 @@ class _IdentityVerificationContent extends StatelessWidget {
 
                     // CERTIFICATIONS
                     _documentTile(
+                      context: context,
                       title: "Certifications",
                       subtitle: "Professional certificates (optional)",
                       required: false,
@@ -173,6 +177,7 @@ class _IdentityVerificationContent extends StatelessWidget {
 
   // ---------------- DOCUMENT TILE ----------------
   Widget _documentTile({
+    required BuildContext context,
     required String title,
     required String subtitle,
     required bool required,
@@ -183,6 +188,7 @@ class _IdentityVerificationContent extends StatelessWidget {
     required String imageUrl,
     File? selectedFile,
     required IdentityVerificationProvider provider,
+
   }) {
     return Container(
       padding: const EdgeInsets.all(12),
@@ -347,11 +353,77 @@ class _IdentityVerificationContent extends StatelessWidget {
               ],
             )
 
+          // else if (isFromProfile &&
+          //     imageUrl.isNotEmpty &&
+          //     imageUrl != AppUrls.imageBaseUrl)
+          // //  SHOW NETWORK IMAGE IF NO LOCAL FILE
+          //   Container(
+          //     margin: const EdgeInsets.only(bottom: 10),
+          //     height: 150,
+          //     width: double.infinity,
+          //     decoration: BoxDecoration(
+          //       borderRadius: BorderRadius.circular(12),
+          //       border: Border.all(
+          //         color: AppColors.grey.withValues(alpha: .15),
+          //       ),
+          //     ),
+          //     child: ClipRRect(
+          //       borderRadius: BorderRadius.circular(12),
+          //       child: Image.network(
+          //         imageUrl,
+          //         fit: BoxFit.cover,
+          //       ),
+          //     ),
+          //   )
+
           else if (isFromProfile &&
               imageUrl.isNotEmpty &&
               imageUrl != AppUrls.imageBaseUrl)
-          //  SHOW NETWORK IMAGE IF NO LOCAL FILE
-            Container(
+
+            imageUrl.toLowerCase().endsWith(".pdf")
+
+            //  PDF VIEW (NETWORK)
+                ? Container(
+              margin: const EdgeInsets.only(bottom: 10),
+              height: 150,
+              width: double.infinity,
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: AppColors.grey.withValues(alpha: .15),
+                ),
+              ),
+              child: Row(
+                children: [
+                  Icon(Icons.picture_as_pdf, color: AppColors.red),
+                  wBox(10),
+                  Expanded(
+                    child: Text(
+                      imageUrl.split('/').last,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+
+                  GestureDetector(
+                    onTap: () {
+                      provider.openPdf(imageUrl, context);
+                    },
+                    child: provider.isPdfLoading
+                        ? SizedBox(
+                      height: 20,
+                      width: 20,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                        : Icon(Icons.open_in_new, color: AppColors.primary),
+                  ),
+                ],
+              ),
+            )
+
+            // 🖼 IMAGE VIEW (NETWORK)
+                : Container(
               margin: const EdgeInsets.only(bottom: 10),
               height: 150,
               width: double.infinity,
@@ -361,11 +433,21 @@ class _IdentityVerificationContent extends StatelessWidget {
                   color: AppColors.grey.withValues(alpha: .15),
                 ),
               ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(12),
-                child: Image.network(
-                  imageUrl,
-                  fit: BoxFit.cover,
+              child: GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => FullImageViewScreen(imageUrl: imageUrl),
+                    ),
+                  );
+    },
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: Image.network(
+                    imageUrl,
+                    fit: BoxFit.cover,
+                  ),
                 ),
               ),
             )
