@@ -28,14 +28,29 @@ class BookingDetailModelData {
   String? vendorId;
   String? addressId;
   String? paymentMethod;
+  String? paymentStatus;
   String? serviceDate;
   String? serviceDay;
   String? serviceTime;
   String? subtotal;
   String? serviceFee;
-  String? discountFee;
+  String? discountAmount;
   String? total;
   String? status;
+  String? serviceStartOtp;
+  bool? isOtpVerified;
+  String? vendorActionAt;
+  String? addressType;
+  String? extraName;
+  String? countryCode;
+  String? mobile;
+  String? streetAddress;
+  String? apartment;
+  String? city;
+  String? zipCode;
+  String? country;
+  String? latitude;
+  String? longitude;
   String? createdAt;
   String? updatedAt;
   List<Items>? items;
@@ -49,14 +64,29 @@ class BookingDetailModelData {
         this.vendorId,
         this.addressId,
         this.paymentMethod,
+        this.paymentStatus,
         this.serviceDate,
         this.serviceDay,
         this.serviceTime,
         this.subtotal,
         this.serviceFee,
-        this.discountFee,
+        this.discountAmount,
         this.total,
         this.status,
+        this.serviceStartOtp,
+        this.isOtpVerified,
+        this.vendorActionAt,
+        this.addressType,
+        this.extraName,
+        this.countryCode,
+        this.mobile,
+        this.streetAddress,
+        this.apartment,
+        this.city,
+        this.zipCode,
+        this.country,
+        this.latitude,
+        this.longitude,
         this.createdAt,
         this.updatedAt,
         this.items,
@@ -70,15 +100,33 @@ class BookingDetailModelData {
     vendorId = json['vendor_id']?.toString();
     addressId = json['address_id']?.toString();
     paymentMethod = json['payment_method']?.toString();
+    paymentStatus = json['payment_status']?.toString();
     serviceDate = json['service_date']?.toString();
     serviceDay = json['service_day']?.toString();
     serviceTime = json['service_time']?.toString();
 
     subtotal = json['subtotal']?.toString();
     serviceFee = json['service_fee']?.toString();
-    discountFee = json['discount_amount']?.toString();
+    discountAmount = json['discount_amount']?.toString();
     total = json['total']?.toString();
     status = json['status']?.toString();
+
+    serviceStartOtp = json['service_start_otp']?.toString();
+    isOtpVerified = json['is_otp_verified'];
+    vendorActionAt = json['vendor_action_at']?.toString();
+    addressType = json['address_type']?.toString();
+    extraName = json['extra_name']?.toString();
+    countryCode = json['country_code']?.toString();
+    mobile = json['mobile']?.toString();
+    streetAddress = json['street_address']?.toString();
+    apartment = json['apartment']?.toString();
+    city = json['city']?.toString();
+    zipCode = json['zip_code']?.toString();
+    country = json['country']?.toString();
+    latitude = json['latitude']?.toString();
+    longitude = json['longitude']?.toString();
+
+
     createdAt = json['created_at']?.toString();
     updatedAt = json['updated_at']?.toString();
     if (json['items'] != null) {
@@ -108,7 +156,7 @@ class BookingDetailModelData {
     // }
     data['subtotal'] = subtotal;
     data['service_fee'] = serviceFee;
-    data['discount_amount'] = discountFee;
+    data['discount_amount'] = discountAmount;
     data['total'] = total;
     data['status'] = status;
     data['created_at'] = createdAt;

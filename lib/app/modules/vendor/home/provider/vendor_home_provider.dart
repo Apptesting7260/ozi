@@ -322,7 +322,6 @@ class VendorHomeProvider extends ChangeNotifier {
                                 ).then((value) {
                                   if (value == true) {
                                     Navigator.of(context).pop();
-                                    checkForUpdateLocationAndIsServiceAvailable();
                                     getHomeData();
                                   }
                                 });
@@ -477,7 +476,7 @@ class VendorHomeProvider extends ChangeNotifier {
                               if (result != null) {
                                 final LatLng latLng = result["latLng"];
 
-                                // ✅ SET DATA BEFORE API CALL
+                                //  SET DATA BEFORE API CALL
                                 address = result["address"] ?? '';
                                 city = result["city"] ?? '';
                                 state = result["state"] ?? '';
@@ -487,7 +486,10 @@ class VendorHomeProvider extends ChangeNotifier {
                                 Navigator.of(context).pop();
 
                                 await getHomeData(showScreenLoader: false);
-                                checkForUpdateLocationAndIsServiceAvailable();
+                                // checkForUpdateLocationAndIsServiceAvailable();
+                                if (_homeModel.data?.vendorStatus?.hasService == false) {
+                                  _showPopup(navigatorKey.currentContext!);
+                                }
                               }
                             } catch (e) {
                               Get.showToast(

@@ -275,7 +275,7 @@ class _BookingCard extends StatelessWidget {
                   children: [
                     _InfoRowInline(
                       icon: Icons.calendar_today,
-                      text: Get.getFormattedDate(booking.serviceDate??''),
+                      text: Get.getFormattedFullDate(booking.serviceDate??''),
                     ),
                      SizedBox(width: 14),
                     _InfoRowInline(
@@ -353,7 +353,6 @@ class _BookingCard extends StatelessWidget {
                   ),
               ],
             )
-
           ],
         ),
       ),

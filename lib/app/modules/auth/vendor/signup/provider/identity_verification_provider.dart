@@ -7,6 +7,7 @@ import '../../../../../data/models/vendor_document_model.dart';
 import '../../../../../data/network/network_api_services.dart';
 import '../../../../../data/storage/user_preference.dart';
 import '../../../../user/profile/view/profile_provider/profile_provider.dart';
+import '../view/pdf_file_viewer.dart';
 import '../view/ready_to_go_livescreen.dart';
 
 class IdentityVerificationProvider extends ChangeNotifier {
@@ -183,6 +184,53 @@ class IdentityVerificationProvider extends ChangeNotifier {
           ),
         );
       },
+    );
+  }
+
+
+  Map<String, Uint8List> _pdfCache = {}; // ✅ cache
+  bool _isPdfLoading = false;
+
+  bool get isPdfLoading => _isPdfLoading;
+
+
+  final _network = NetworkApiServices();
+
+
+  Future<void> openPdf(String url, BuildContext context) async {
+    try {
+
+      if (_pdfCache.containsKey(url)) {
+        _openPdfScreen(context, _pdfCache[url]!);
+        return;
+      }
+
+      _isPdfLoading = true;
+      notifyListeners();
+
+      final bytes = await _network.getPdfBytes(url);
+
+      _pdfCache[url] = bytes;
+
+      _isPdfLoading = false;
+      notifyListeners();
+
+      _openPdfScreen(context, bytes);
+    } catch (e) {
+      _isPdfLoading = false;
+      notifyListeners();
+      if (kDebugMode) {
+        print("❌ PDF ERROR: $e");
+      }
+    }
+  }
+
+  void _openPdfScreen(BuildContext context, Uint8List bytes) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => PdfViewScreen(bytes: bytes),
+      ),
     );
   }
 

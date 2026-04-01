@@ -66,6 +66,7 @@ dependencies:
   flutter_native_splash: ^2.4.7
   file_picker: ^10.3.10
   google_places_flutter: ^2.1.1
+  syncfusion_flutter_pdfviewer: ^33.1.46
 
 dependency_overrides:
   google_maps_flutter_android: 2.14.0
