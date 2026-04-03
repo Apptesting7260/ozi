@@ -136,7 +136,13 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
 
                           // if (widget.tabIndex == 1 &&
                           //     data.serviceStartOtp != null) ...[
-                          _otpSection(data.serviceStartOtp!),
+                          if (data.status?.toLowerCase() == "completed" ||
+                              data.status?.toLowerCase() == 'cancelled' ||
+                              data.serviceStartOtp == null) ...[
+                            SizedBox.shrink(),
+                          ] else ...[
+                            _otpSection(data.serviceStartOtp!),
+                          ],
 
                           //   hBox(20),
                           // ],
@@ -682,7 +688,7 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
             Text("Total", style: AppFontStyle.text_12_400(AppColors.grey)),
             hBox(4),
             Text(
-              data.total ?? '0',
+              "\$${data.total ?? '0'}",
               style: AppFontStyle.text_16_700(AppColors.primary),
             ),
           ],

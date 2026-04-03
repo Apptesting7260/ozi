@@ -292,18 +292,42 @@ class CreateAccountProvider with ChangeNotifier {
   }
 
   Future<void> loadSavedData() async {
-    final bool? savedIsEmailVerified = await UserPreference.returnIsEmailVerified();
-    final String? savedVerifiedEmail = await UserPreference.returnVerifiedEmail();
+    final bool? savedIsEmailVerified =
+        await UserPreference.returnIsEmailVerified();
+    final String? savedVerifiedEmail =
+        await UserPreference.returnVerifiedEmail();
 
-    if (savedIsEmailVerified == true && savedVerifiedEmail != null && savedVerifiedEmail.isNotEmpty) {
-      if (emailController.text.isEmpty || emailController.text == savedVerifiedEmail) {
+    final bool? savedIsMobileVerified =
+        await UserPreference.returnIsMobileVerified();
+    final String? savedMobile = await UserPreference.returnMobile();
+    final String? savedCountryCode =
+        await UserPreference.returnVerifiedCountryCode();
+
+    if (savedIsEmailVerified == true &&
+        savedVerifiedEmail != null &&
+        savedVerifiedEmail.isNotEmpty) {
+      if (emailController.text.isEmpty ||
+          emailController.text == savedVerifiedEmail) {
         emailController.text = savedVerifiedEmail;
         _isEmailValid = true;
         _isEmailVerified = true;
         _verifiedEmail = savedVerifiedEmail;
-        notifyListeners();
       }
     }
+
+    if (savedIsMobileVerified == true &&
+        savedMobile != null &&
+        savedMobile.isNotEmpty &&
+        savedCountryCode != null) {
+      if (mobileController.text.isEmpty ||
+          mobileController.text == savedMobile) {
+        mobileController.text = savedMobile;
+        _isMobileVerified = true;
+        _verifiedMobile = savedMobile;
+        _verifiedCountryCode = savedCountryCode;
+      }
+    }
+    notifyListeners();
   }
 
   TextEditingController firstNameController = TextEditingController();
@@ -454,19 +478,19 @@ class CreateAccountProvider with ChangeNotifier {
 
       updateISLoading(false);
 
-      // status == true  → mobile already registered → show error
+      // status == true  → mobile is available → clear error and return true
       if (response['status'] == true) {
-        return true;
+        setMobileError(null);
+        return true; // Safe to open popup
       } else {
+        // status == false  → mobile already registered → show the server's error message
+        // Get.showToast(response['message'], type: ToastType.error);
         setMobileError(
           response['message'] ??
               'This mobile number is already registered. Please use a different number.',
         );
+        return false; // Do NOT open popup
       }
-
-      // Mobile is free – clear any previous error
-      setMobileError(null);
-      return true;
     } catch (e) {
       updateISLoading(false);
       setMobileError('${e.toString()}');
@@ -561,6 +585,12 @@ class CreateAccountProvider with ChangeNotifier {
       _isMobileVerified = true;
       _verifiedMobile = mobileController.text.trim();
       _verifiedCountryCode = _selectedCountry.phoneCode;
+
+      // Persist mobile verification
+      await UserPreference.saveIsMobileVerified(true);
+      await UserPreference.saveMobile(_verifiedMobile!);
+      await UserPreference.saveVerifiedCountryCode(_verifiedCountryCode!);
+
       _otpLoading = false;
       notifyListeners();
       return null; // success
@@ -675,14 +705,6 @@ class CreateAccountProvider with ChangeNotifier {
         userId,
       );
     } catch (e) {
-      // ScaffoldMessenger.of(context).showSnackBar(
-      //   SnackBar(
-      //     content: Text(
-      //       "$e"  ,
-      //     ),
-      //     backgroundColor: Colors.red,
-      //   ),
-      // );
       Get.showToast(e.toString(), type: ToastType.warning);
       updateLoading(false);
     }
