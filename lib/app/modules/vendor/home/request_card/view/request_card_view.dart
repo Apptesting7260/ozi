@@ -130,7 +130,7 @@ class _RequestCardState extends State<RequestCard> {
               children: [
                 Icon(Icons.calendar_today, size: 14, color: AppColors.grey),
                 wBox(6),
-                Text(Get.getFormattedDate(widget.request.serviceDate??''), style: AppFontStyle.text_12_400(AppColors.grey)),
+                Text(Get.getFormattedDate2(widget.request.serviceDate??''), style: AppFontStyle.text_12_400(AppColors.grey)),
                 wBox(12),
                 Icon(Icons.access_time, size: 14, color: AppColors.grey),
                 wBox(6),

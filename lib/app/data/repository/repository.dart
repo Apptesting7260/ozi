@@ -1,4 +1,6 @@
 import 'dart:developer' as dev;
+import 'package:dio/dio.dart';
+import 'package:http/http.dart' as dio;
 import 'package:ozi/app/data/models/vendorservicedetailmodel.dart';
 import 'package:ozi/app/modules/auth/vendor/signup/model/document_verify_check_model.dart';
 import 'package:ozi/app/modules/user/Reviews%20Section/model/reviewmodel.dart';
@@ -1201,6 +1203,31 @@ class Repository {
     }
     catch(e) {
       dev.log("Error in fetchReviewScreen: $e");
+      throw Exception(e);
+    }
+  }
+
+  Future<Uint8List> downloadInvoice(String bookingId) async {
+    try {
+      // Step 1: Get URL
+      final response = await _apiService.postApi(
+        {
+          "booking_id": int.parse(bookingId),
+        },
+        AppUrls.pdfInvoiceUrl,
+      );
+
+      if (response["status"] != true) {
+        throw Exception("Failed to get invoice URL");
+      }
+
+      final String url = response["url"];
+
+      // Step 2: Download PDF
+      final bytes = await _apiService.getPdfBytes(url);
+
+      return bytes;
+    } catch (e) {
       throw Exception(e);
     }
   }

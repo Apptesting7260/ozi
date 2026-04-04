@@ -17,7 +17,7 @@ class TransactionDetailsScreen extends StatelessWidget {
       child: Consumer<TransactionDetailsProvider>(
         builder: (context, provider, _) {
           final tx = provider.transaction;
-          final bool isCredit = tx.type?.toLowerCase() == 'credit';
+          final bool isCredit = tx.type.toLowerCase() == 'credit';
 
           return Scaffold(
             backgroundColor: const Color(0xFFF2F2F7),
@@ -111,7 +111,7 @@ class TransactionDetailsScreen extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  tx.description ?? 'Transaction',
+                  tx.serviceName ?? 'Transaction',
                 style: AppFontStyle.text_16_500(
                     AppColors.chatAppBarTextColor),
                   maxLines: 1,
@@ -119,7 +119,7 @@ class TransactionDetailsScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  tx.source ?? '',
+                  tx.customerName ?? '',
                   style: AppFontStyle.text_14_400(
                       AppColors.chatAppBarMenuIconColor),
                 ),
@@ -152,10 +152,11 @@ class TransactionDetailsScreen extends StatelessWidget {
           child: Column(
             children: [
               _DetailRow(
-                label: tx.description ?? 'N/A',
+                label: tx.customerName ?? 'N/A',
                 labelStyle: AppFontStyle.text_16_500(
                     AppColors.chatAppBarTextColor),
-                value: tx.source ?? '',
+              //  value: tx.source ?? '',
+                value:isCredit ? 'Customer' : 'Withdraw',
                 valueStyle: AppFontStyle.text_14_400(
                     AppColors.chatAppBarMenuIconColor),
                 isNameRow: true,
@@ -203,7 +204,7 @@ class TransactionDetailsScreen extends StatelessWidget {
               ),
 
 
-              _buildDownloadButton(context, provider),
+              _buildDownloadButton(context, provider,tx),
             ],
           ),
         ),
@@ -239,7 +240,7 @@ class TransactionDetailsScreen extends StatelessWidget {
   }
 
   Widget _buildDownloadButton(
-      BuildContext context, TransactionDetailsProvider provider) {
+      BuildContext context, TransactionDetailsProvider provider, tx) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 20, 20, 24),
       child: SizedBox(
@@ -247,7 +248,10 @@ class TransactionDetailsScreen extends StatelessWidget {
         height: 50,
         child: ElevatedButton(
           onPressed:
-          provider.isDownloading ? null : provider.downloadInvoice,
+          ()
+          {
+            provider.isDownloading ? null : provider.downloadInvoice(context, tx.bookingId);
+          },
           style: ElevatedButton.styleFrom(
             backgroundColor: AppColors.chatSenderColor,
             disabledBackgroundColor:

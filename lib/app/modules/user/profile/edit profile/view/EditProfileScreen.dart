@@ -204,8 +204,8 @@ class EditProfileScreen extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 10),
             child: CustomImage(
               path: ImageConstants.userIcon,
-              height: 14,
-              width: 14,
+              height: 20,
+              width: 20,
             ),
           ),
         ),
@@ -220,8 +220,8 @@ class EditProfileScreen extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 10),
             child: CustomImage(
               path: ImageConstants.userIcon,
-              height: 14,
-              width: 14,
+              height: 20,
+              width: 20,
             ),
           ),
         ),

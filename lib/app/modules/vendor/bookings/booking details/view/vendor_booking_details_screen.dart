@@ -555,7 +555,7 @@ class VendorBookingDetailsScreen extends StatelessWidget {
                   style: AppFontStyle.text_14_600(AppColors.black),
                 ),
                 hBox(4),
-                Text(price, style: AppFontStyle.text_14_600(AppColors.primary)),
+                Text("\$$price", style: AppFontStyle.text_14_600(AppColors.primary)),
               ],
             ),
           ),

@@ -31,7 +31,7 @@ class CustomImage extends StatelessWidget {
   }
 
   Widget _getImageWidget() {
-    if (path.isEmpty) {
+    if (path.isEmpty || path == "null") {
       return _errorPlaceholder();
     }
 
@@ -127,15 +127,35 @@ class CustomImage extends StatelessWidget {
     return path.toLowerCase().endsWith(".svg");
   }
 
+
+  // Old
+  // Widget _errorPlaceholder() {
+  //   return Container(
+  //     width: width,
+  //     height: height,
+  //     color: AppColors.grey,
+  //     child: Icon(Icons.broken_image, color: AppColors.grey),
+  //   );
+  // }
+
+// new
   Widget _errorPlaceholder() {
     return Container(
       width: width,
       height: height,
-      color: AppColors.grey,
-      child: Icon(Icons.broken_image, color: AppColors.grey),
+      decoration: BoxDecoration(
+        color: AppColors.grey.withValues(alpha: 0.2),
+        borderRadius: borderRadius,
+      ),
+      child: Center(
+        child: Icon(
+          Icons.person,
+          size: (width ?? 60) * 0.5,
+          color: AppColors.grey,
+        ),
+      ),
     );
   }
-
   Widget _loading() {
     return Shimmer.fromColors(
       baseColor: AppColors.grey.withValues(alpha: 0.4),

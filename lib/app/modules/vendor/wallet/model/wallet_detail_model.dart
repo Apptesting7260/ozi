@@ -78,6 +78,8 @@ class RecentTransactions {
   String? referenceId;
   String? description;
   String? createdAt;
+  String? customerName;
+  String? serviceName;
 
   RecentTransactions(
       {this.id,
@@ -90,7 +92,9 @@ class RecentTransactions {
         this.paymentMethod,
         this.referenceId,
         this.description,
-        this.createdAt});
+        this.createdAt,
+        this.customerName,
+        this.serviceName});
 
   RecentTransactions.fromJson(Map<String, dynamic> json) {
     id = json['id'];
@@ -104,6 +108,8 @@ class RecentTransactions {
     referenceId = json['reference_id'];
     description = json['description'];
     createdAt = json['created_at'];
+    customerName = json['customer_name'];
+    serviceName = json['service_name'];
   }
 
   Map<String, dynamic> toJson() {
@@ -119,6 +125,8 @@ class RecentTransactions {
     data['reference_id'] = referenceId;
     data['description'] = description;
     data['created_at'] = createdAt;
+    data['customer_name'] = customerName;
+    data['service_name'] = serviceName;
     return data;
   }
 }

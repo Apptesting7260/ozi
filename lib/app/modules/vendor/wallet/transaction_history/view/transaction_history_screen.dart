@@ -370,9 +370,9 @@ class _TransactionHistoryContentState extends State<_TransactionHistoryContent> 
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(tx.description ?? "",
+                Text(tx.serviceName ?? "N/A",
                     style: AppFontStyle.text_16_500(AppColors.darkText)),
-                Text(tx.userName ?? "",
+                Text(tx.customerName ?? "N/A",
                     style: AppFontStyle.text_14_400(AppColors.grey)),
               ],
             ),

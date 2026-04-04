@@ -182,38 +182,46 @@ class Settingprovider with ChangeNotifier {
     }
   }
 
+  String? _deleteError;
+  String? get deleteError => _deleteError;
+
   Future<bool> deleteProfile(BuildContext context) async {
     _isLoading = true;
+    _deleteError = null; // reset previous error
     notifyListeners();
+
     try {
       final response = await _repository.deleteProfile();
-      if (response != null && response['status'] == true) {
-        print("Account Delete suucess ");
-        _isLoading = false;
-        notifyListeners();
 
+      if (response != null && response['status'] == true) {
         await UserPreference.clearSharedPreference();
+
         if (context.mounted) {
           Navigator.pushNamedAndRemoveUntil(
             context,
             AppRoutes.login,
-            (route) => false,
+                (route) => false,
           );
         }
+
         return true;
+      } else {
+        _deleteError =
+            response?['message']?.toString() ?? 'Something went wrong';
+        return false;
       }
-      return false;
     } catch (e) {
-      if (kDebugMode) {
-        print('Error in deleteProfile: $e');
-      }
+      _deleteError = 'Server error. Please try again.';
       return false;
     } finally {
-      if (_isLoading) {
-        _isLoading = false;
-        notifyListeners();
-      }
+      _isLoading = false;
+      notifyListeners();
     }
+  }
+
+  void clearDeleteError() {
+    _deleteError = null;
+    notifyListeners();
   }
 
   Future<void> updateNotificationApi(
