@@ -247,63 +247,82 @@ class _SettingsScreenState extends State<SettingsScreen> {
     showDialog(
       context: context,
       barrierDismissible: true,
-      builder: (context) {
-        return Dialog(
-          insetPadding: EdgeInsets.symmetric(horizontal: 28),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(18),
-          ),
-          backgroundColor: AppColors.white,
-          child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 22, vertical: 22),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  "Delete Account?",
-                  style: AppFontStyle.text_20_600(
-                    AppColors.black,
-                    fontFamily: AppFontFamily.semiBold,
+        builder: (context) {
+          return Consumer<Settingprovider>(
+            builder: (context, provider, _) {
+              final hasError = provider.deleteError != null;
+
+              return Dialog(
+                insetPadding: EdgeInsets.symmetric(horizontal: 28),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(18),
+                ),
+                backgroundColor: AppColors.white,
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 22, vertical: 22),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        hasError ? "Warning" : "Delete Account?",
+                        style: AppFontStyle.text_20_600(
+                          AppColors.black,
+                          fontFamily: AppFontFamily.semiBold,
+                        ),
+                      ),
+
+                      SizedBox(height: 8),
+
+                      if (hasError) ...[
+                        Text(
+                          provider.deleteError!,
+                          style: AppFontStyle.text_14_400(AppColors.grey),
+                          textAlign: TextAlign.center,
+                          maxLines: 4,
+                        ),
+                      ],
+
+                      if (!hasError)
+                        Text(
+
+                          "Are you sure you want to delete\nyour account? If you delete your account, you can restore it within 30 days.",
+                          maxLines: 4,
+                          style: AppFontStyle.text_14_400(AppColors.grey),
+                          textAlign: TextAlign.center,
+                        ),
+
+                      SizedBox(height: 15),
+
+                      if (!hasError)
+                        CustomButton(
+                          text: "Yes, Delete",
+                          borderRadius: BorderRadius.circular(30),
+                          isLoading: provider.isLoading,
+                          onPressed: () async {
+                            await provider.deleteProfile(context);
+                          },
+                        ),
+
+                      SizedBox(height: 12),
+
+                      CustomButton(
+                        text: hasError ? "Close" : "No, Don’t Delete",
+                        isOutlined: true,
+                        borderRadius: BorderRadius.circular(30),
+                        onPressed: () {
+                          Navigator.pop(context);
+                          Future.microtask(() {
+                            provider.clearDeleteError();
+                          });
+                        },
+                      ),
+                    ],
                   ),
                 ),
-                SizedBox(height: 12),
-                Text(
-                  "Are you sure you want to delete\nyour account? If you delete your account, you can restore it within 30 days. Otherwise, your account will be permanently deleted.",
-                  style: AppFontStyle.text_14_400(AppColors.grey),
-                  textAlign: TextAlign.center,
-                  maxLines: 6,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                SizedBox(height: 22),
-                CustomButton(
-                  text: "Yes, Delete",
-                  borderRadius: BorderRadius.circular(30),
-                  isLoading: provider.isLoading,
-                  onPressed: () {
-                    provider.deleteProfile(context);
-                  },
-                ),
-
-                SizedBox(height: 12),
-
-                CustomButton(
-                  text: "No, Don’t Delete",
-                  textStyle: AppFontStyle.text_14_500(
-                    AppColors.darkText,
-                    fontFamily: AppFontFamily.medium,
-                  ),
-                  color: AppColors.grey,
-                  isOutlined: true,
-                  borderRadius: BorderRadius.circular(30),
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                ),
-              ],
-            ),
-          ),
-        );
-      },
+              );
+            },
+          );
+        }
     );
-  }
+        }
 }

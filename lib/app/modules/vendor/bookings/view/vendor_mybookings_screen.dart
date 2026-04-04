@@ -3,9 +3,9 @@ import 'package:ozi/app/core/constants/app_urls.dart';
 import '../../../../data/models/all_bookings_model.dart';
 import '../../../../data/response/api_status.dart';
 import '../../../../shared/widgets/cutom_nodata_widget.dart';
-import '../../home/new requests/provider/new_requests_provider.dart';
 import '../booking details/view/vendor_booking_details_screen.dart';
 import '../provider/vendor_mybookings_provider.dart';
+
 
 class VendorMybookingsScreen extends StatelessWidget {
    const VendorMybookingsScreen({super.key});
@@ -275,7 +275,7 @@ class _BookingCard extends StatelessWidget {
                   children: [
                     _InfoRowInline(
                       icon: Icons.calendar_today,
-                      text: Get.getFormattedFullDate(booking.serviceDate??''),
+                      text: Get.getFormattedDate2(booking.serviceDate??''),
                     ),
                      SizedBox(width: 14),
                     _InfoRowInline(

@@ -84,7 +84,7 @@ class PdfViewScreen extends StatelessWidget {
 
 
 
-// Image are to see full image from Identity Verification screen
+// See full image from Identity Verification screen
 
 class FullImageViewScreen extends StatelessWidget {
   final String imageUrl;

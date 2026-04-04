@@ -45,6 +45,9 @@ class TransactionHistoryData {
   String? referenceId;
   String? description;
   String? createdAt;
+  String? customerName;
+  String? serviceName;
+
 
   TransactionHistoryData(
       {this.id,
@@ -59,7 +62,9 @@ class TransactionHistoryData {
         this.paymentMethod,
         this.referenceId,
         this.description,
-        this.createdAt});
+        this.createdAt,
+      this.customerName,
+      this.serviceName});
 
   TransactionHistoryData.fromJson(Map<String, dynamic> json) {
     id = json['id'].toString();
@@ -75,6 +80,8 @@ class TransactionHistoryData {
     referenceId = json['reference_id'];
     description = json['description'];
     createdAt = json['created_at'];
+    customerName = json['customer_name'];
+    serviceName = json['service_name'];
   }
 
   Map<String, dynamic> toJson() {
@@ -92,6 +99,8 @@ class TransactionHistoryData {
     data['reference_id'] = referenceId;
     data['description'] = description;
     data['created_at'] = createdAt;
+    data['customer_name'] = customerName;
+    data['service_name'] = serviceName;
     return data;
   }
 }

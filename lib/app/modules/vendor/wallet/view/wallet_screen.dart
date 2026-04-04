@@ -290,11 +290,11 @@ class _MyWalletContent extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(tx.description ?? "",
+                  Text(tx.serviceName ?? "dxvd",
                       style: AppFontStyle.text_14_600(
                           AppColors.darkText)),
                   hBox(2),
-                  Text(tx.source ?? "",
+                  Text(tx.customerName ?? "dsfds",
                       style: AppFontStyle.text_12_400(
                           AppColors.grey)),
                 ],

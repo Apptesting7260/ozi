@@ -100,6 +100,7 @@ class AppUrls {
   static const String getWalletDetail = "$baseUrl/my-wallet";
   static const String getServiceDetail = "$baseUrl/vendor-service-detail?";
   static const String vendorReviewScreen = "$baseUrl/get-vendor-reviews";
+  static const String pdfInvoiceUrl = "$baseUrl/download-invoice";
 
   //-------------------------------Socket Events---------------------
   static String goOnlineEvent = "go_online";
