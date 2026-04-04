@@ -1034,9 +1034,13 @@ class Repository {
 
   Future<GetNotificationModel> fetchNotifications({required int page}) async {
     try {
-      dev.log("fetchNotifications URL: ${AppUrls.getNotications}");
+      dev.log("fetchNotifications URL: ${AppUrls.getNotications}, Page: $page");
 
-      final response = await _apiService.getApi(AppUrls.getNotications);
+      final Map<String, dynamic> params = {"page": page};
+      final response = await _apiService.getApiWithPerms(
+        params,
+        AppUrls.getNotications,
+      );
 
       return GetNotificationModel.fromJson(response);
     } catch (e) {
