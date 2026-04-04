@@ -342,9 +342,10 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
                           child: Container(
                             alignment: Alignment.center,
                             decoration: BoxDecoration(
-                              color: isSelected
-                                  ? AppColors.primary
-                                  : AppColors.lightGrey,
+                              color:
+                                  isSelected
+                                      ? AppColors.primary
+                                      : AppColors.lightGrey,
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: Text(
@@ -436,13 +437,14 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
                         provider.getFullImageUrl(vendor.proImg),
                       ),
                       backgroundColor: AppColors.lightGrey,
-                      child: vendor.proImg != null
-                          ? null
-                          : Icon(
-                              Icons.person,
-                              size: 40.r,
-                              color: AppColors.black,
-                            ),
+                      child:
+                          vendor.proImg != null
+                              ? null
+                              : Icon(
+                                Icons.person,
+                                size: 40.r,
+                                color: AppColors.black,
+                              ),
                     ),
                     hBox(12),
                     Text(
@@ -471,9 +473,10 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
                                   ? Icons.star
                                   : Icons.star_border,
                               size: 36.w,
-                              color: index < selectedRating
-                                  ? AppColors.orange
-                                  : AppColors.lightGrey3,
+                              color:
+                                  index < selectedRating
+                                      ? AppColors.orange
+                                      : AppColors.lightGrey3,
                             ),
                           ),
                         );
@@ -513,18 +516,19 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
                         return CustomButton(
                           isLoading: provider.isReviewLoading,
                           text: "Submit",
-                          onPressed: selectedRating > 0
-                              ? () async {
-                                  final success = await provider.submitReview(
-                                    vendor.id.toString(),
-                                    selectedRating.toString(),
-                                    reviewController.text.toString(),
-                                  );
-                                  if (success) {
-                                    Navigator.pop(context);
+                          onPressed:
+                              selectedRating > 0
+                                  ? () async {
+                                    final success = await provider.submitReview(
+                                      vendor.id.toString(),
+                                      selectedRating.toString(),
+                                      reviewController.text.toString(),
+                                    );
+                                    if (success) {
+                                      Navigator.pop(context);
+                                    }
                                   }
-                                }
-                              : null,
+                                  : null,
                         );
                       },
                     ),
@@ -731,13 +735,19 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => singleServiceScreen(
-              serviceId:
-                  provider.bookingDetails?.data?.items?[index].service?.id ??
-                  provider.bookingDetails?.data?.items?[index].serviceId ??
-                  0,
-              isCart: false,
-            ),
+            builder:
+                (context) => singleServiceScreen(
+                  serviceId:
+                      provider
+                          .bookingDetails
+                          ?.data
+                          ?.items?[index]
+                          .service
+                          ?.id ??
+                      provider.bookingDetails?.data?.items?[index].serviceId ??
+                      0,
+                  isCart: false,
+                ),
           ),
         );
       },
@@ -840,9 +850,8 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
                     children: [
                       Wrap(
                         spacing: 12,
-                        children: otpDigits
-                            .map((digit) => _otpBox(digit))
-                            .toList(),
+                        children:
+                            otpDigits.map((digit) => _otpBox(digit)).toList(),
                       ),
                       Spacer(),
                       GestureDetector(
@@ -887,6 +896,7 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        hBox(12),
         Text(
           "Service Provider",
           style: AppFontStyle.text_16_600(AppColors.black),
@@ -903,7 +913,8 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
                   shape: BoxShape.circle,
                   color: const Color.fromARGB(153, 221, 220, 220),
                 ),
-                child: CircleAvatar(
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(25),
                   child: Image.network(
                     provider.getFullImageUrl(vendor.proImg),
                     fit: BoxFit.cover,
@@ -979,8 +990,9 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) =>
-                            const NavigationTabScreen(initialIndex: 3),
+                        builder:
+                            (context) =>
+                                const NavigationTabScreen(initialIndex: 3),
                       ),
                     );
                   },
@@ -1018,8 +1030,8 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
           "Date",
           data.serviceDate != null
               ? DateFormat(
-                  'dd-MM-yyyy',
-                ).format(DateTime.parse(data.serviceDate!))
+                'dd-MM-yyyy',
+              ).format(DateTime.parse(data.serviceDate!))
               : "N/A",
         ),
         hBox(12),
@@ -1028,9 +1040,9 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
           "Time",
           data.serviceTime != null
               ? (data.serviceTime!.to != null &&
-                        data.serviceTime!.to!.isNotEmpty)
-                    ? "${data.serviceTime!.from ?? 'N/A'} - ${data.serviceTime!.to}"
-                    : data.serviceTime!.from ?? 'N/A'
+                      data.serviceTime!.to!.isNotEmpty)
+                  ? "${data.serviceTime!.from ?? 'N/A'} - ${data.serviceTime!.to}"
+                  : data.serviceTime!.from ?? 'N/A'
               : "N/A",
         ),
         hBox(12),
@@ -1104,8 +1116,8 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
               Text(
                 data.paymentMethod != null
                     ? Get.capitalizeFirstLetter(
-                        data.paymentMethod!.replaceAll('_', ' '),
-                      )
+                      data.paymentMethod!.replaceAll('_', ' '),
+                    )
                     : "Not specified",
                 style: AppFontStyle.text_14_600(AppColors.black),
               ),
@@ -1255,15 +1267,17 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
       children: [
         Text(
           label,
-          style: isTotal
-              ? AppFontStyle.text_16_600(AppColors.black)
-              : AppFontStyle.text_14_400(AppColors.grey),
+          style:
+              isTotal
+                  ? AppFontStyle.text_16_600(AppColors.black)
+                  : AppFontStyle.text_14_400(AppColors.grey),
         ),
         Text(
           value,
-          style: isTotal
-              ? AppFontStyle.text_16_700(AppColors.primary)
-              : AppFontStyle.text_14_600(AppColors.black),
+          style:
+              isTotal
+                  ? AppFontStyle.text_16_700(AppColors.primary)
+                  : AppFontStyle.text_14_600(AppColors.black),
         ),
       ],
     );
@@ -1291,20 +1305,21 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
                   "Cancel Booking",
                   style: AppFontStyle.text_18_600(AppColors.black),
                 ),
-                content: provider.isCancelling
-                    ? SizedBox(
-                        height: 50,
-                        child: Center(
-                          child: CircularProgressIndicator(
-                            color: AppColors.primary,
+                content:
+                    provider.isCancelling
+                        ? SizedBox(
+                          height: 50,
+                          child: Center(
+                            child: CircularProgressIndicator(
+                              color: AppColors.primary,
+                            ),
                           ),
+                        )
+                        : Text(
+                          "Are you sure you want to cancel this booking?",
+                          maxLines: 2,
+                          style: AppFontStyle.text_14_400(AppColors.darkText),
                         ),
-                      )
-                    : Text(
-                        "Are you sure you want to cancel this booking?",
-                        maxLines: 2,
-                        style: AppFontStyle.text_14_400(AppColors.darkText),
-                      ),
                 actions: [
                   TextButton(
                     onPressed: () {

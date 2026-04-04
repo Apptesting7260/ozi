@@ -33,8 +33,8 @@ class _MessageDetailsScreenState extends State<MessageDetailsScreen> {
     if (kDebugMode) {
       print('conversion id is ${widget.conversionId}');
     }
-    messageDetailsProvider.socket = navigatorKey.currentContext!
-        .read<SocketController>();
+    messageDetailsProvider.socket =
+        navigatorKey.currentContext!.read<SocketController>();
     _initializeChat();
   }
 
@@ -103,14 +103,16 @@ class _MessageDetailsScreenState extends State<MessageDetailsScreen> {
                           bool isSender = index.isEven;
 
                           return Column(
-                            crossAxisAlignment: isSender
-                                ? CrossAxisAlignment.end
-                                : CrossAxisAlignment.start,
+                            crossAxisAlignment:
+                                isSender
+                                    ? CrossAxisAlignment.end
+                                    : CrossAxisAlignment.start,
                             children: [
                               Row(
-                                mainAxisAlignment: isSender
-                                    ? MainAxisAlignment.end
-                                    : MainAxisAlignment.start,
+                                mainAxisAlignment:
+                                    isSender
+                                        ? MainAxisAlignment.end
+                                        : MainAxisAlignment.start,
                                 children: [
                                   if (!isSender)
                                     Padding(
@@ -147,9 +149,10 @@ class _MessageDetailsScreenState extends State<MessageDetailsScreen> {
                                 ],
                               ),
                               Padding(
-                                padding: isSender
-                                    ? const EdgeInsets.only(right: 10)
-                                    : const EdgeInsets.only(left: 10),
+                                padding:
+                                    isSender
+                                        ? const EdgeInsets.only(right: 10)
+                                        : const EdgeInsets.only(left: 10),
                                 child: ShimmerBox(
                                   width: 60,
                                   height: 12,
@@ -190,19 +193,20 @@ class _MessageDetailsScreenState extends State<MessageDetailsScreen> {
             case ApiStatus.completed:
               bool isGroup = (value.userData?.allParticipants?.length ?? 0) > 2;
               return Scaffold(
-                floatingActionButton: value.isNewMessageReceived
-                    ? Padding(
-                        padding: const EdgeInsets.only(bottom: 80.0),
-                        child: FloatingActionButton(
-                          onPressed: value.scrollToBottom,
-                          backgroundColor: AppColors.primary,
-                          child: Icon(
-                            Icons.arrow_downward,
-                            color: AppColors.white,
+                floatingActionButton:
+                    value.isNewMessageReceived
+                        ? Padding(
+                          padding: const EdgeInsets.only(bottom: 80.0),
+                          child: FloatingActionButton(
+                            onPressed: value.scrollToBottom,
+                            backgroundColor: AppColors.primary,
+                            child: Icon(
+                              Icons.arrow_downward,
+                              color: AppColors.white,
+                            ),
                           ),
-                        ),
-                      )
-                    : null,
+                        )
+                        : null,
                 appBar: AppBar(
                   elevation: 0,
                   scrolledUnderElevation: 0,
@@ -213,7 +217,7 @@ class _MessageDetailsScreenState extends State<MessageDetailsScreen> {
                       Navigator.pop(context);
                     },
                     child: Padding(
-                      padding: EdgeInsetsGeometry.only(left: 10),
+                      padding: EdgeInsets.only(left: 10),
                       child: const Icon(
                         Icons.arrow_back_ios_new,
                         color: Colors.black87,
@@ -237,9 +241,12 @@ class _MessageDetailsScreenState extends State<MessageDetailsScreen> {
                         size: 45,
                         imageUrl:
                             value.userData?.conversationImage != null &&
-                                value.userData!.conversationImage!.isNotEmpty
-                            ? '${AppUrls.imageBaseUrl}${value.userData!.conversationImage}'
-                            : null,
+                                    value
+                                        .userData!
+                                        .conversationImage!
+                                        .isNotEmpty
+                                ? '${AppUrls.imageBaseUrl}${value.userData!.conversationImage}'
+                                : null,
                         name: value.userData?.conversationName ?? '',
                       ),
 
@@ -347,31 +354,33 @@ class _MessageDetailsScreenState extends State<MessageDetailsScreen> {
 
     bool isSent = msg.senderType == 'you';
     final align = isSent ? CrossAxisAlignment.end : CrossAxisAlignment.start;
-    final margin = isSent
-        ? const EdgeInsets.only(left: 40, bottom: 0)
-        : const EdgeInsets.only(right: 40, bottom: 0);
-    final _ = isSent
-        ? Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                Get.timeAgo(msg.createdAt ?? ''),
-                style: AppFontStyle.text_14_300(AppColors.grey),
-              ),
-              SizedBox(width: 4),
-              Icon(
-                Icons.done,
-                size: 14,
-                color: msg.status == 3 ? Colors.green : Colors.grey,
-              ),
-              // if (msg.status >= 2)
-              //   Icon(Icons.done, size: 14, color: msg.status == 3 ? Colors.green : Colors.grey),
-            ],
-          )
-        : Text(
-            Get.timeAgo(msg.createdAt ?? ''),
-            style: TextStyle(fontSize: 10, color: Colors.grey),
-          );
+    final margin =
+        isSent
+            ? const EdgeInsets.only(left: 40, bottom: 0)
+            : const EdgeInsets.only(right: 40, bottom: 0);
+    final _ =
+        isSent
+            ? Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  Get.timeAgo(msg.createdAt ?? ''),
+                  style: AppFontStyle.text_14_300(AppColors.grey),
+                ),
+                SizedBox(width: 4),
+                Icon(
+                  Icons.done,
+                  size: 14,
+                  color: msg.status == 3 ? Colors.green : Colors.grey,
+                ),
+                // if (msg.status >= 2)
+                //   Icon(Icons.done, size: 14, color: msg.status == 3 ? Colors.green : Colors.grey),
+              ],
+            )
+            : Text(
+              Get.timeAgo(msg.createdAt ?? ''),
+              style: TextStyle(fontSize: 10, color: Colors.grey),
+            );
 
     Widget content;
 
@@ -385,25 +394,30 @@ class _MessageDetailsScreenState extends State<MessageDetailsScreen> {
       case 'text':
         content = Column(
           mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: isSent
-              ? CrossAxisAlignment.end
-              : CrossAxisAlignment.start,
+          crossAxisAlignment:
+              isSent ? CrossAxisAlignment.end : CrossAxisAlignment.start,
           children: [
             Flexible(
               child: Text(
                 // maxLines: 8,
                 msg.text ?? '',
-                style: isSent
-                    ? AppFontStyle.text_16_400(AppColors.chatSenderTextColor)
-                    : AppFontStyle.text_16_400(AppColors.chatReciverTextColor),
+                style:
+                    isSent
+                        ? AppFontStyle.text_16_400(
+                          AppColors.chatSenderTextColor,
+                        )
+                        : AppFontStyle.text_16_400(
+                          AppColors.chatReciverTextColor,
+                        ),
               ),
             ),
             const SizedBox(height: 6),
             Text(
               Get.formatTimeToAmPm(msg.createdAt ?? ''),
-              style: isSent
-                  ? AppFontStyle.text_12_400(AppColors.chatSenderTextColor)
-                  : AppFontStyle.text_12_400(AppColors.chatTimeTextColor),
+              style:
+                  isSent
+                      ? AppFontStyle.text_12_400(AppColors.chatSenderTextColor)
+                      : AppFontStyle.text_12_400(AppColors.chatTimeTextColor),
             ),
           ],
         );
@@ -429,29 +443,35 @@ class _MessageDetailsScreenState extends State<MessageDetailsScreen> {
                 SizedBox(
                   width: Get.width() * 0.4,
                   height: 200,
-                  child: msg.mediaUploadLoading == true
-                      ? Container(
-                          width: Get.width() * 0.4,
-                          height: 200,
-                          color: Colors.grey[300], // blank space placeholder
-                          child: Center(
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          ),
-                        )
-                      : CachedNetworkImage(
-                          imageUrl: msg.fileUrl?[0] ?? '',
-                          fit: BoxFit.fitWidth,
-                          placeholder: (context, url) => Container(
+                  child:
+                      msg.mediaUploadLoading == true
+                          ? Container(
                             width: Get.width() * 0.4,
                             height: 200,
                             color: Colors.grey[300], // blank space placeholder
                             child: Center(
                               child: CircularProgressIndicator(strokeWidth: 2),
                             ),
+                          )
+                          : CachedNetworkImage(
+                            imageUrl: msg.fileUrl?[0] ?? '',
+                            fit: BoxFit.fitWidth,
+                            placeholder:
+                                (context, url) => Container(
+                                  width: Get.width() * 0.4,
+                                  height: 200,
+                                  color:
+                                      Colors
+                                          .grey[300], // blank space placeholder
+                                  child: Center(
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                    ),
+                                  ),
+                                ),
+                            errorWidget:
+                                (context, url, error) => Icon(Icons.error),
                           ),
-                          errorWidget: (context, url, error) =>
-                              Icon(Icons.error),
-                        ),
                 ),
                 if (msg.text != null) SizedBox(height: 5),
                 if (msg.text != null)
@@ -545,18 +565,16 @@ class _MessageDetailsScreenState extends State<MessageDetailsScreen> {
       child: Align(
         alignment: isSent ? Alignment.centerRight : Alignment.centerLeft,
         child: Column(
-          crossAxisAlignment: isSent
-              ? CrossAxisAlignment.end
-              : CrossAxisAlignment.start,
+          crossAxisAlignment:
+              isSent ? CrossAxisAlignment.end : CrossAxisAlignment.start,
           children: [
             // Message bubble
             Column(
               crossAxisAlignment: align,
               children: [
                 Row(
-                  mainAxisAlignment: isSent
-                      ? MainAxisAlignment.end
-                      : MainAxisAlignment.start,
+                  mainAxisAlignment:
+                      isSent ? MainAxisAlignment.end : MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // if (!isSent) ...[
@@ -576,11 +594,12 @@ class _MessageDetailsScreenState extends State<MessageDetailsScreen> {
                           vertical: 10,
                         ),
                         decoration: BoxDecoration(
-                          color: isSent
-                              ? AppColors
-                                    .chatSenderColor // green sender bubble
-                              : AppColors
-                                    .chatReciverColor, // light grey receiver bubble
+                          color:
+                              isSent
+                                  ? AppColors
+                                      .chatSenderColor // green sender bubble
+                                  : AppColors
+                                      .chatReciverColor, // light grey receiver bubble
                           borderRadius: BorderRadius.only(
                             topLeft: const Radius.circular(16),
                             topRight: const Radius.circular(16),
@@ -819,8 +838,10 @@ class _MessageDetailsScreenState extends State<MessageDetailsScreen> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       GestureDetector(
-                        onTap: () =>
-                            provider.sendPersonalMessage(widget.conversionId),
+                        onTap:
+                            () => provider.sendPersonalMessage(
+                              widget.conversionId,
+                            ),
                         child: Container(
                           width: 42,
                           height: 42,
