@@ -3,7 +3,7 @@ import 'package:pin_code_fields/pin_code_fields.dart';
 import '../../../../shared/widgets/custom_text_form_field.dart';
 import '../provider/create_account_provider.dart';
 
-class CreateAccountScreen extends StatelessWidget {
+class CreateAccountScreen extends StatefulWidget {
   final String userId;
   final String? firstName;
   final String? lastName;
@@ -21,11 +21,41 @@ class CreateAccountScreen extends StatelessWidget {
     this.isMobileVerified = false,
   });
 
+  @override
+  State<CreateAccountScreen> createState() => _CreateAccountScreenState();
+}
+
+class _CreateAccountScreenState extends State<CreateAccountScreen> {
+  late final CreateAccountProvider _provider;
+
+  @override
+  void initState() {
+    super.initState();
+    _provider = CreateAccountProvider();
+    // Pre-fill from Google login data
+    if (widget.firstName != null) {
+      _provider.firstNameController.text = widget.firstName!;
+    }
+    if (widget.lastName != null) {
+      _provider.lastNameController.text = widget.lastName!;
+    }
+    if (widget.email != null && widget.email!.isNotEmpty) {
+      _provider.emailController.text = widget.email!;
+      _provider.setEmailVerifiedFromGoogle();
+    }
+    if (widget.phoneNumber != null) {
+      _provider.setMobileData(
+        mobile: widget.phoneNumber!,
+        isVerified: widget.isMobileVerified,
+      );
+    }
+  }
+
   bool get isGoogleSignUp =>
-      email != null &&
-      email!.isNotEmpty &&
-      firstName != null &&
-      firstName!.isNotEmpty;
+      widget.email != null &&
+      widget.email!.isNotEmpty &&
+      widget.firstName != null &&
+      widget.firstName!.isNotEmpty;
 
   int _maxLen(CreateAccountProvider value) {
     return value.getExpectedPhoneLength(value.selectedCountry.phoneCode);
@@ -33,24 +63,8 @@ class CreateAccountScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (context) {
-        final provider = CreateAccountProvider();
-        // Pre-fill from Google login data
-        if (firstName != null) provider.firstNameController.text = firstName!;
-        if (lastName != null) provider.lastNameController.text = lastName!;
-        if (email != null && email!.isNotEmpty) {
-          provider.emailController.text = email!;
-          provider.setEmailVerifiedFromGoogle();
-        }
-        if (phoneNumber != null) {
-          provider.setMobileData(
-            mobile: phoneNumber!,
-            isVerified: isMobileVerified,
-          );
-        }
-        return provider;
-      },
+    return ChangeNotifierProvider.value(
+      value: _provider,
       child: Consumer<CreateAccountProvider>(
         builder: (context, value, child) {
           return Scaffold(
@@ -188,14 +202,14 @@ class CreateAccountScreen extends StatelessWidget {
                                                       .emailController
                                                       .text
                                                       .trim(),
-                                                  "user_id": userId,
+                                                  "user_id": widget.userId,
                                                 });
                                             if (response['status'] == true ||
                                                 response['status'] == 200) {
                                               _showOtpDialog(
                                                 context,
                                                 value,
-                                                userId,
+                                                widget.userId,
                                               );
                                             } else {
                                               Get.showToast(
@@ -239,12 +253,16 @@ class CreateAccountScreen extends StatelessWidget {
                               ),
                         borderRadius: 60,
                         validator: (val) {
-                          if (val == null || val.trim().isEmpty) {
+                          final text = (val == null || val.isEmpty) 
+                              ? value.emailController.text 
+                              : val;
+
+                          if (text.trim().isEmpty) {
                             return "Email is required";
                           }
                           if (!RegExp(
                             r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
-                          ).hasMatch(val.trim())) {
+                          ).hasMatch(text.trim())) {
                             return "Please enter a valid email (e.g., abc@gmail.com)";
                           }
                           if (!value.isEmailVerified) {
@@ -337,9 +355,9 @@ class CreateAccountScreen extends StatelessWidget {
                                                   _maxLen(value) &&
                                               !value.isloading)
                                           ? () async {
-                                              final exists = await value
+                                              final isAvailable = await value
                                                   .checkMobileExists();
-                                              if (exists) {
+                                              if (isAvailable) {
                                                 final phone = value
                                                     .mobileController
                                                     .text
@@ -361,7 +379,7 @@ class CreateAccountScreen extends StatelessWidget {
                                                   _showMobileOtpDialog(
                                                     context,
                                                     value,
-                                                    userId,
+                                                    widget.userId,
                                                     verificationId,
                                                     fullPhone,
                                                   );
@@ -401,6 +419,10 @@ class CreateAccountScreen extends StatelessWidget {
                               if (val.trim().length != _maxLen(value)) {
                                 return "Enter exactly ${_maxLen(value)} digits";
                               }
+                              // Add this check for the server-side existence error
+                              if (value.mobileError != null) {
+                                return value.mobileError;
+                              }
                               if (!value.isMobileVerified) {
                                 return "Please verify your mobile number";
                               }
@@ -426,7 +448,7 @@ class CreateAccountScreen extends StatelessWidget {
                             : () {
                                 if (value.formKey.currentState?.validate() ??
                                     false) {
-                                  value.createAccount(userId, context);
+                                  value.createAccount(widget.userId, context);
                                 }
                               },
                         color: AppColors.primary,

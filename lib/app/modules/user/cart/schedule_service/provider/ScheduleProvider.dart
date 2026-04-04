@@ -5,7 +5,8 @@ import 'package:ozi/app/modules/user/cart/booking%20confirmed/view/BookingConfir
 import 'package:ozi/app/modules/user/cart/schedule_service/Model/bookservicemodel.dart';
 import '../../chnge payment method/provider/PaymentMethodProvider.dart';
 import '../Model/bookingcompletemodel.dart';
-import '../../../profile/save address/model/user_address_model.dart' as address_model;
+import '../../../profile/save address/model/user_address_model.dart'
+    as address_model;
 
 class ScheduleProvider extends ChangeNotifier {
   final Repository _repository = Repository();
@@ -327,7 +328,7 @@ class ScheduleProvider extends ChangeNotifier {
       _isBookingLoading = true;
       notifyListeners();
 
-      /// 🔹 Selected time validation
+      ///  Selected time validation
       if (_selectedTime == null) {
         throw Exception("Time not selected");
       }
@@ -364,7 +365,7 @@ class ScheduleProvider extends ChangeNotifier {
         throw Exception("Selected slot not found");
       }
 
-      /// 🔹 API body (MATCHING POSTMAN)
+      ///  API body (MATCHING POSTMAN)
       final Map<String, dynamic> data = {
         "vendor_id": _bookService?.vendorId,
         "service_date": _selectedDate.toIso8601String().split('T').first,
@@ -388,13 +389,43 @@ class ScheduleProvider extends ChangeNotifier {
 
       debugPrint("BOOK SERVICE REQUEST DATA => $data");
 
-      final response = await _repository.completescheduleServiceApi(data);
+      ///  API CALL logic changed based on payment method
+      if (paymentMethod == 'cash') {
+        final response = await _repository.completescheduleServiceApi(data);
+        BookingconfirmerdModel bookingModel = BookingconfirmerdModel.fromJson(
+          response,
+        );
 
-      BookingconfirmerdModel bookingModel = BookingconfirmerdModel.fromJson(
-        response,
-      );
-      if (response['status'] == true) {
-        if (paymentMethod == 'pay_online') {
+        if (response['status'] == true) {
+          Get.showToast(
+            response['message'] ?? 'Booking Placed Sucessfully',
+            type: ToastType.success,
+          );
+          notifyListeners();
+
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder:
+                  (context) => BookingConfirmScreen(bookingModel: bookingModel),
+            ),
+          );
+          return true;
+        } else {
+          Get.showToast(
+            response['message'] ?? 'Booking Placed Failed',
+            type: ToastType.error,
+          );
+          return false;
+        }
+      } else if (paymentMethod == 'pay_online') {
+        // To get client secret, we first call the booking API
+        final response = await _repository.completescheduleServiceApi(data);
+        BookingconfirmerdModel bookingModel = BookingconfirmerdModel.fromJson(
+          response,
+        );
+
+        if (response['status'] == true) {
           try {
             await Stripe.instance.initPaymentSheet(
               paymentSheetParameters: SetupPaymentSheetParameters(
@@ -414,8 +445,9 @@ class ScheduleProvider extends ChangeNotifier {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) =>
-                    BookingConfirmScreen(bookingModel: bookingModel),
+                builder:
+                    (context) =>
+                        BookingConfirmScreen(bookingModel: bookingModel),
               ),
             );
             return true;
@@ -424,32 +456,18 @@ class ScheduleProvider extends ChangeNotifier {
               debugPrint("Payment Canceled");
             } else {
               debugPrint("Stripe error: $e");
-              Get.showToast(e.toString(), type: ToastType.error);
             }
+            // show payment failed popup on schedule service screen
+            _showPaymentFailedPopup(context);
             return false;
           }
-        } else if (paymentMethod == 'cash') {
+        } else {
           Get.showToast(
-            response['message'] ?? 'Booking Placed Sucessfully',
-            type: ToastType.success,
+            response['message'] ?? 'Booking Placed Failed',
+            type: ToastType.error,
           );
-          notifyListeners();
-
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) =>
-                  BookingConfirmScreen(bookingModel: bookingModel),
-            ),
-          );
-          return true;
+          return false;
         }
-      } else {
-        Get.showToast(
-          response['message'] ?? 'Booking Placed Failed',
-          type: ToastType.error,
-        );
-        return false;
       }
 
       return false;
@@ -461,5 +479,33 @@ class ScheduleProvider extends ChangeNotifier {
       _isBookingLoading = false;
       notifyListeners();
     }
+  }
+
+  void _showPaymentFailedPopup(BuildContext context) {
+    showDialog(
+      context: context,
+      builder:
+          (context) => AlertDialog(
+            title: Text(
+              "Payment Failed",
+              style: AppFontStyle.text_16_600(AppColors.black),
+            ),
+            content: Text(
+              "Something went wrong with the payment or you cancelled it. Please try again.",
+              style: AppFontStyle.text_14_400(AppColors.black),
+              maxLines: 4,
+              overflow: TextOverflow.ellipsis,
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text(
+                  "OK",
+                  style: AppFontStyle.text_14_400(AppColors.primary),
+                ),
+              ),
+            ],
+          ),
+    );
   }
 }

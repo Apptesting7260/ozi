@@ -162,6 +162,16 @@ class UserPreference {
     return pref.getString("verifiedEmail");
   }
 
+  static saveVerifiedCountryCode(String countryCode) async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    pref.setString("verifiedCountryCode", countryCode);
+  }
+
+  static Future<String?> returnVerifiedCountryCode() async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    return pref.getString("verifiedCountryCode");
+  }
+
   static saveIsRoleSelected(bool isSelected) async {
     SharedPreferences pref = await SharedPreferences.getInstance();
     pref.setBool("isRoleSelected", isSelected);
@@ -196,6 +206,7 @@ class UserPreference {
     pref.remove('isEmailVerified');
     pref.remove('mobile');
     pref.remove('isMobileVerified');
+    pref.remove('verifiedCountryCode');
     pref.remove('isRoleSelected');
     pref.remove('location_consent');
     pref.remove('isDocumentVerified');
