@@ -45,11 +45,19 @@ class SocketController extends ChangeNotifier {
 
       // 2️⃣ Ensure socket is connected
       if (!(socket!.connected)) {
-        if (kDebugMode) print('🔌 Socket not connected, connecting...');
+        if (kDebugMode)
+          print(
+            '🔌 Socket not connected, connecting to ${AppUrls.baseUrlSocket}...',
+          );
         socket!.connect();
         await _waitForConnect().timeout(
-          const Duration(seconds: 10),
-          onTimeout: () => throw Exception("Socket connection timeout"),
+          const Duration(
+            seconds: 30,
+          ), // Increased to 30s as dev tunnels can be slow
+          onTimeout: () {
+            if (kDebugMode) print('⏰ Socket connection timed out after 30s');
+            throw Exception("Socket connection timeout");
+          },
         );
       }
 
@@ -82,12 +90,12 @@ class SocketController extends ChangeNotifier {
       AppUrls.baseUrlSocket,
       io.OptionBuilder()
           .enableAutoConnect()
-          .setTransports(['websocket'])
+          .setTransports(['websocket', 'polling']) // Added polling fallback
           .enableReconnection()
           .setReconnectionAttempts(999999999) // infinite retry
           .setReconnectionDelay(2000) // retry delay
           .setReconnectionDelayMax(5000)
-          .setTimeout(15000) // connection timeout
+          .setTimeout(25000) // connection timeout
           .build(),
     );
 
@@ -168,8 +176,9 @@ class SocketController extends ChangeNotifier {
       socket!.on(AppUrls.goOnlineEvent, (response) {
         if (completer.isCompleted) return;
 
-        Map<String, dynamic> data =
-            response is String ? jsonDecode(response) : response;
+        Map<String, dynamic> data = response is String
+            ? jsonDecode(response)
+            : response;
 
         if (data['status'] == true) {
           subscribeSocketId = socket!.id;
@@ -187,9 +196,10 @@ class SocketController extends ChangeNotifier {
 
       // Wait for response
       await completer.future.timeout(
-        const Duration(seconds: 10),
+        const Duration(seconds: 20),
         onTimeout: () {
           socket!.off(AppUrls.goOnlineEvent);
+          if (kDebugMode) print('⏰ goOnline event timed out after 20s');
           throw Exception("goOnline status timeout");
         },
       );
