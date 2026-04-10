@@ -204,7 +204,7 @@ class TransactionDetailsScreen extends StatelessWidget {
               ),
 
 
-              _buildDownloadButton(context, provider,tx),
+           //   _buildDownloadButton(context, provider,tx),
             ],
           ),
         ),
@@ -239,53 +239,57 @@ class TransactionDetailsScreen extends StatelessWidget {
     }
   }
 
-  Widget _buildDownloadButton(
-      BuildContext context, TransactionDetailsProvider provider, tx) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 20, 20, 24),
-      child: SizedBox(
-        width: 310,
-        height: 50,
-        child: ElevatedButton(
-          onPressed:
-          ()
-          {
-            provider.isDownloading ? null : provider.downloadInvoice(context, tx.bookingId);
-          },
-          style: ElevatedButton.styleFrom(
-            backgroundColor: AppColors.chatSenderColor,
-            disabledBackgroundColor:
-            const Color(0xFF2ECC71).withOpacity(0.6),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(60),
-            ),
-            elevation: 0,
-          ),
-          child: provider.isDownloading
-              ? const SizedBox(
-            width: 22,
-            height: 22,
-            child: CircularProgressIndicator(
-              strokeWidth: 2.5,
-              color: Colors.white,
-            ),
-          )
-              : Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              SvgPicture.asset(ImageConstants.downloadIcon,width: 20,height: 20,),
-              const SizedBox(width: 10),
-              Text(
-                'Download Invoice',
-                style:  AppFontStyle.text_16_600(
-                    AppColors.white),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
+  // Widget _buildDownloadButton(
+  //     BuildContext context, TransactionDetailsProvider provider, tx) {
+  //   return Padding(
+  //     padding: const EdgeInsets.fromLTRB(20, 20, 20, 24),
+  //     child: SizedBox(
+  //       width: 310,
+  //       height: 50,
+  //       child: ElevatedButton(
+  //         onPressed:
+  //         ()
+  //         {
+  //           if (kDebugMode) {
+  //             print("Hata Diya");
+  //           }
+  //          // provider.isDownloading ? null : provider.downloadInvoice(context, tx.bookingId);
+  //
+  //         },
+  //         style: ElevatedButton.styleFrom(
+  //           backgroundColor: AppColors.chatSenderColor,
+  //           disabledBackgroundColor:
+  //           const Color(0xFF2ECC71).withOpacity(0.6),
+  //           shape: RoundedRectangleBorder(
+  //             borderRadius: BorderRadius.circular(60),
+  //           ),
+  //           elevation: 0,
+  //         ),
+  //         child: provider.isDownloading
+  //             ? const SizedBox(
+  //           width: 22,
+  //           height: 22,
+  //           child: CircularProgressIndicator(
+  //             strokeWidth: 2.5,
+  //             color: Colors.white,
+  //           ),
+  //         )
+  //             : Row(
+  //           mainAxisAlignment: MainAxisAlignment.center,
+  //           children: [
+  //             SvgPicture.asset(ImageConstants.downloadIcon,width: 20,height: 20,),
+  //             const SizedBox(width: 10),
+  //             Text(
+  //               'Download Invoice',
+  //               style:  AppFontStyle.text_16_600(
+  //                   AppColors.white),
+  //             ),
+  //           ],
+  //         ),
+  //       ),
+  //     ),
+  //   );
+  // }
 }
 
 

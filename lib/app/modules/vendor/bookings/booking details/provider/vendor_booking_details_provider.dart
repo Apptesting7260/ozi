@@ -174,27 +174,40 @@ class VendorBookingDetailsProvider extends ChangeNotifier {
   //
   // // Navigate to customer location
   Future<void> navigateToCustomer() async {
-    // try {
-    //   final encodedAddress = Uri.encodeComponent(_homeModel.data?.data?.address?.fullAddress??'');
-    //   final uri = Uri.parse(
-    //     "https://www.google.com/maps/search/?api=1&query=$encodedAddress",
-    //   );
-    //
-    //   if (await canLaunchUrl(uri)) {
-    //     await launchUrl(uri, mode: LaunchMode.externalApplication);
-    //   }
-    // } catch (e) {
-    //   debugPrint("Error navigating: $e");
-    // }
-    final encodedAddress = Uri.encodeComponent(_homeModel.data?.data?.address?.fullAddress??'');
-    final googleMapsUri = Uri.parse("googlemaps://?q=$encodedAddress");
-    if (await canLaunchUrl(googleMapsUri)) {
-      await launchUrl(googleMapsUri, mode: LaunchMode.externalApplication);
-    } else {
-      // Fallback to the browser if Google Maps is not available
-      final browserUri = Uri.parse("https://www.google.com/maps/search/?api=1&query=$encodedAddress");
-      await launchUrl(browserUri, mode: LaunchMode.externalApplication);
-    }
+    try {
 
+      final data = _homeModel.data?.data;
+
+      final address = [
+        data?.streetAddress,
+        data?.apartment,
+        data?.city,
+        data?.zipCode,
+        data?.country,
+      ]
+          .where((e) => e != null && e.trim().isNotEmpty)
+          .join(', ');
+
+      if (address.isEmpty) {
+        debugPrint("Address is empty");
+        return;
+      }
+
+      final encodedAddress = Uri.encodeComponent(address);
+
+      final googleMapsUri = Uri.parse("googlemaps://?q=$encodedAddress");
+
+      if (await canLaunchUrl(googleMapsUri)) {
+        await launchUrl(googleMapsUri, mode: LaunchMode.externalApplication);
+      } else {
+        // Fallback to browser
+        final browserUri = Uri.parse(
+          "https://www.google.com/maps/search/?api=1&query=$encodedAddress",
+        );
+        await launchUrl(browserUri, mode: LaunchMode.externalApplication);
+      }
+    } catch (e) {
+      debugPrint("Error navigating: $e");
+    }
   }
 }
