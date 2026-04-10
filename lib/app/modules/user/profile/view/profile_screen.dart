@@ -144,11 +144,11 @@ class ProfileScreenView extends StatelessWidget {
                                       onTap: () {
                                         if (kDebugMode) {
                                           print("Reviews tapped");
-                                          Navigator.pushNamed(
-                                            context,
-                                            AppRoutes.vendorReviewScreen,
-                                          );
                                         }
+                                        Navigator.pushNamed(
+                                          context,
+                                          AppRoutes.vendorReviewScreen,
+                                        );
                                       },
                                     ),
                                 ],

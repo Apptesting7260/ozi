@@ -1,11 +1,8 @@
 import 'package:ozi/app/modules/user/booking/booking details/view/booking_details_screen.dart';
 import 'package:ozi/app/modules/user/booking/provider/booking_provider.dart';
 import 'package:ozi/app/modules/vendor/bookings/booking details/view/vendor_booking_details_screen.dart';
-
 import '../../../../../core/appExports/app_export.dart';
 import '../../../../../shared/widgets/custom_app_bar.dart';
-import '../../../../user/booking/booking details/view/booking_details_screen.dart';
-import '../../../bookings/booking details/view/vendor_booking_details_screen.dart';
 import '../model/get_notification_model.dart';
 import '../provider/vendor_ notification_provider.dart';
 
